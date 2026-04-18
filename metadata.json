@@ -1,0 +1,11 @@
+{
+  "name": "St. Xavier's Sr. Sec. School, Jaipur",
+  "description": "An immersive, 3D interactive portal for St. Xavier's Senior Secondary School, Jaipur, featuring advanced glassmorphism and real-time school management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "3D Interactive Visualization",
+    "Real-time Admin Dashboard",
+    "Responsive Multi-page Routing",
+    "Institutional Data Management"
+  ]
+}
