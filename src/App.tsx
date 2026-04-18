@@ -25,7 +25,7 @@ import {
   BookOpen, Trophy, Users, 
   School as SchoolIcon, GraduationCap, Clock, Award, Bell,
   Sparkles, ShieldCheck, ArrowRight, Settings, Plus, Trash2, ExternalLink, Globe, Heart, Target, Lightbulb, Navigation, Map as MapIcon, Key,
-  Edit, Save, ChevronRight, LayoutDashboard, FileText, Image as ImageIcon, Users2, CreditCard, Link as LinkIcon, Calendar
+  Edit, Save, Check, ChevronRight, LayoutDashboard, FileText, Image as ImageIcon, Users2, CreditCard, Link as LinkIcon, Calendar
 } from 'lucide-react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -108,51 +108,6 @@ const DEFAULT_DATA: AppData = {
     { id: '3', title: 'State Cricket Champions', year: '2025', description: 'The U-19 team won the Rajasthan State Inter-School Tournament.' }
   ]
 };
-
-// --- 3D Components ---
-
-function SchoolBuilding({ mouseX, mouseY }: { mouseX: any, mouseY: any }) {
-  const meshRef = React.useRef<THREE.Group>(null);
-  
-  useFrame(() => {
-    if (!meshRef.current) return;
-    const targetRotateY = (mouseX.get() / 50) + Math.PI / 4;
-    const targetRotateX = (mouseY.get() / 50) - 0.2;
-    meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, targetRotateY, 0.05);
-    meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, targetRotateX, 0.05);
-  });
-
-  return (
-    <group ref={meshRef}>
-      <mesh position={[0, 0, 0]}>
-        <boxGeometry args={[4, 5, 3]} />
-        <meshStandardMaterial color="#002147" roughness={0.2} metalness={0.8} />
-      </mesh>
-      <mesh position={[-3.5, -0.5, 0]}>
-        <boxGeometry args={[3, 4, 2]} />
-        <meshStandardMaterial color="#002147" />
-      </mesh>
-      <mesh position={[3.5, -0.5, 0]}>
-        <boxGeometry args={[3, 4, 2]} />
-        <meshStandardMaterial color="#002147" />
-      </mesh>
-      <mesh position={[0, 3.5, 0]}>
-        <cylinderGeometry args={[1.5, 1.5, 2, 8]} />
-        <meshStandardMaterial color="#fbbf24" metalness={0.5} roughness={0.1} />
-      </mesh>
-      <mesh position={[0, -1.5, 1.6]}>
-        <boxGeometry args={[2, 2, 0.2]} />
-        <meshStandardMaterial color="#fbbf24" />
-      </mesh>
-      {[...Array(12)].map((_, i) => (
-        <mesh key={i} position={[((i % 4) - 1.5) * 0.8, (Math.floor(i / 4) - 1.5) * 1.2, 1.51]}>
-          <planeGeometry args={[0.4, 0.6]} />
-          <meshBasicMaterial color="#ffffff" opacity={0.8} transparent />
-        </mesh>
-      ))}
-    </group>
-  );
-}
 
 // --- Helper Components ---
 
@@ -258,18 +213,30 @@ const HomePage = ({ data }: { data: AppData }) => {
         )}
       </AnimatePresence>
 
-      <section className="relative h-screen flex items-center justify-center overflow-hidden perspective-1000" onMouseMove={handleHeroMouseMove}>
-        <div className="absolute inset-0 z-0 bg-slate-50">
-          <Canvas dpr={[1, 2]} style={{ position: 'absolute' }}>
-            <PerspectiveCamera makeDefault position={[0, 0, 12]} fov={40} />
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} intensity={2} />
-            <spotLight position={[-10, 10, 5]} angle={0.3} penumbra={1} intensity={1} castShadow />
-            <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}><SchoolBuilding mouseX={mouseX} mouseY={mouseY} /></Float>
-            <ContactShadows resolution={1024} scale={20} blur={2} opacity={0.25} far={10} color="#002147" />
-            <Environment preset="city" />
-          </Canvas>
-          <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-white to-transparent"></div>
+      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-slate-50" onMouseMove={handleHeroMouseMove}>
+        <div className="absolute inset-0 z-0 overflow-hidden">
+           {/* Abstract Background Shapes */}
+           <motion.div 
+             animate={{ 
+               scale: [1, 1.2, 1],
+               rotate: [0, 90, 0],
+               x: [0, 100, 0],
+               y: [0, 50, 0]
+             }}
+             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+             className="absolute -top-[20%] -left-[10%] w-[60%] h-[80%] bg-school-navy/5 rounded-full blur-[120px]"
+           />
+           <motion.div 
+             animate={{ 
+               scale: [1, 1.3, 1],
+               rotate: [0, -45, 0],
+               x: [0, -150, 0],
+               y: [0, -100, 0]
+             }}
+             transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+             className="absolute -bottom-[10%] -right-[5%] w-[50%] h-[70%] bg-school-gold/10 rounded-full blur-[100px]"
+           />
+           <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-white to-transparent"></div>
         </div>
         <motion.div style={{ x: textX, y: textY, rotateX: textRotateX, rotateY: textRotateY, transformStyle: "preserve-3d" }} className="relative z-10 text-center px-6 pointer-events-none">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }}>
@@ -454,22 +421,59 @@ const HomePage = ({ data }: { data: AppData }) => {
 const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) => void }) => {
   const [activeSection, setActiveSection] = useState<keyof AppData>('notices');
   const [isUploading, setIsUploading] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<string | string[] | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
   const navigate = useNavigate();
 
-  const handleRemove = async (id: string) => {
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleRemove = async (ids: string | string[]) => {
+    const isBulk = Array.isArray(ids);
     try {
       const res = await fetch('/api/delete', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ table: activeSection, id })
+        body: JSON.stringify({ 
+          table: activeSection, 
+          id: !isBulk ? ids : undefined,
+          ids: isBulk ? ids : undefined 
+        })
       });
       if (res.ok) {
-        setData({ ...data, [activeSection]: data[activeSection].filter((i: any) => i.id !== id) });
+        showToast(`Successfully deleted from ${activeSection}`);
+        const idList = isBulk ? ids : [ids];
+        setData({ 
+          ...data, 
+          [activeSection]: data[activeSection].filter((i: any) => !idList.includes(i.id)) 
+        });
         setItemToDelete(null);
+        setSelectedIds(new Set());
+      } else {
+        const err = await res.json();
+        showToast(`Delete failed: ${err.error}`, 'error');
       }
     } catch (err) {
       console.error('Delete failed:', err);
+      showToast('Network error during deletion', 'error');
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === data[activeSection].length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(data[activeSection].map((i: any) => i.id)));
     }
   };
 
@@ -514,34 +518,55 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
         body: JSON.stringify({ table: activeSection, item: newItem })
       });
       if (res.ok) {
+        console.log(`Successfully added to ${activeSection}`);
+        showToast(`Added new item to ${activeSection}`);
         setData({ ...data, [activeSection]: [newItem, ...data[activeSection]] });
+      } else {
+        const error = await res.json();
+        console.error('Save failed on server:', error);
+        showToast('Failed to add new item', 'error');
       }
     } catch (err) {
-      console.error('Save failed:', err);
+      console.error('Save failed to fetch:', err);
+      showToast('Network error while adding', 'error');
     }
   };
 
   const handleUpdate = async (id: string, field: string, value: string) => {
-    const updatedItem = data[activeSection].find((i: any) => i.id === id);
+    // Immediate local state update for snappy UI
+    const updatedSection = data[activeSection].map((i: any) => 
+      i.id === id ? { ...i, [field]: value } : i
+    );
+    setData({ ...data, [activeSection]: updatedSection });
+
+    // Debounced server save
+    const updatedItem = updatedSection.find((i: any) => i.id === id);
     if (!updatedItem) return;
-    
-    const newItem = { ...updatedItem, [field]: value };
-    
-    try {
-      const res = await fetch('/api/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ table: activeSection, item: newItem })
-      });
-      if (res.ok) {
-        setData({
-          ...data,
-          [activeSection]: data[activeSection].map((i: any) => i.id === id ? newItem : i)
+
+    // We use a simple timeout-based debounce for each item
+    const timerId = `save-${activeSection}-${id}`;
+    if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+
+    (window as any)[timerId] = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ table: activeSection, item: updatedItem })
         });
+        if (res.ok) {
+          console.log(`Synced ${activeSection} item ${id}`);
+          // Optional: Subtle success feedback if desired, or skip to avoid toast spam
+        } else {
+          const error = await res.json();
+          console.error('Update failed on server:', error);
+          showToast(`Save failed on server`, 'error');
+        }
+      } catch (err) {
+        console.error('Update failed to fetch:', err);
+        showToast('Connection error', 'error');
       }
-    } catch (err) {
-      console.error('Update failed:', err);
-    }
+    }, 500); // 500ms debounce
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, itemId: string, field: string = 'url') => {
@@ -563,6 +588,52 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       }
     } catch (err) {
       console.error('Upload failed:', err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleBatchUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append('images', files[i]);
+    }
+
+    try {
+      const res = await fetch('/api/gallery/upload-multiple', {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await res.json();
+      
+      if (result.urls && Array.isArray(result.urls)) {
+        const newItems = result.urls.map((url: string) => ({
+          id: (Date.now() + Math.random()).toString(),
+          url,
+          caption: 'Batch Uploaded Image'
+        }));
+
+        // Save each new item to the backend (sequential to avoid locks)
+        for (const item of newItems) {
+          await fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ table: 'gallery', item })
+          });
+        }
+
+        setData({
+          ...data,
+          gallery: [...newItems, ...data.gallery]
+        });
+        console.log(`Successfully batch uploaded ${newItems.length} images`);
+      }
+    } catch (err) {
+      console.error('Batch upload failed:', err);
     } finally {
       setIsUploading(false);
     }
@@ -602,19 +673,84 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
 
       {/* Main Content */}
       <main className="flex-1 ml-80 p-12">
+        {/* Toast Notification */}
+        <AnimatePresence>
+          {toast && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, x: '-50%' }}
+              exit={{ opacity: 0, y: -20, x: '-50%' }}
+              className={`fixed top-12 left-1/2 z-[200] px-8 py-4 rounded-2xl shadow-2xl text-[11px] font-black uppercase tracking-widest text-white flex items-center gap-3 ${toast.type === 'error' ? 'bg-red-500' : 'bg-school-navy'}`}
+            >
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center ${toast.type === 'error' ? 'bg-white/20' : 'bg-school-gold text-school-navy'}`}>
+                {toast.type === 'error' ? <X size={14} /> : <Check size={14} />}
+              </div>
+              {toast.message}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <header className="flex justify-between items-end mb-16">
           <div>
             <h1 className="text-5xl font-serif font-black text-school-navy mb-4 tracking-tight capitalize">Manage {activeSection}</h1>
             <p className="text-sm text-school-navy/40 font-light">Comprehensive CRUD control for {activeSection} on the main portal.</p>
           </div>
-          <button onClick={handleAdd} className="flex items-center gap-3 px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">
-            <Plus size={16} /> New {activeSection.slice(0, -1)}
-          </button>
+          <div className="flex gap-4">
+            {selectedIds.size > 0 && (
+              <motion.button 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                onClick={() => setItemToDelete(Array.from(selectedIds))}
+                className="flex items-center gap-3 px-8 py-4 bg-red-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-red-600 transition-all outline-none"
+              >
+                <Trash2 size={16} /> Delete Selected ({selectedIds.size})
+              </motion.button>
+            )}
+            {activeSection === 'gallery' && (
+              <label className="flex items-center gap-3 px-8 py-4 glass-dark text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none cursor-pointer">
+                <ImageIcon size={16} /> {isUploading ? 'Uploading...' : 'Bulk Upload'}
+                <input type="file" multiple className="hidden" accept="image/*" onChange={handleBatchUpload} disabled={isUploading} />
+              </label>
+            )}
+            <button onClick={handleAdd} className="flex items-center gap-3 px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">
+              <Plus size={16} /> New {
+                activeSection === 'fees' ? 'Fee Class' :
+                activeSection === 'staff' ? 'Faculty Member' :
+                activeSection === 'gallery' ? 'Gallery Item' :
+                activeSection === 'achievements' ? 'Achievement' :
+                activeSection === 'links' ? 'Quick Link' :
+                activeSection === 'events' ? 'Event' : 
+                'Notice'
+              }
+            </button>
+          </div>
         </header>
+
+        {data[activeSection].length > 0 && (
+          <div className="mb-6 flex items-center gap-4 px-4">
+            <button 
+              onClick={toggleSelectAll}
+              className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-school-navy/40 hover:text-school-navy transition-colors"
+            >
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${selectedIds.size === data[activeSection].length ? 'bg-school-gold border-school-gold text-school-navy' : 'border-slate-300'}`}>
+                {selectedIds.size === data[activeSection].length && <Check size={12} strokeWidth={4} />}
+              </div>
+              {selectedIds.size === data[activeSection].length ? 'Deselect All' : 'Select All'}
+            </button>
+            <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/20">|</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/40">{data[activeSection].length} items total</span>
+          </div>
+        )}
 
         <div className="grid gap-6">
           {data[activeSection].map((item: any) => (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={item.id} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex items-start gap-8 group">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={item.id} className={`bg-white p-8 rounded-3xl shadow-sm border transition-all flex items-start gap-8 group ${selectedIds.has(item.id) ? 'border-school-gold ring-1 ring-school-gold/20' : 'border-slate-200'}`}>
+              <button 
+                onClick={() => toggleSelect(item.id)}
+                className={`mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${selectedIds.has(item.id) ? 'bg-school-gold border-school-gold text-school-navy scale-110' : 'border-slate-200 group-hover:border-slate-300'}`}
+              >
+                {selectedIds.has(item.id) && <Check size={14} strokeWidth={4} />}
+              </button>
               <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-6">
                 {Object.keys(item).filter(k => k !== 'id').map(field => (
                   <div key={field} className="space-y-2">
@@ -690,7 +826,10 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                 </div>
                 <h3 className="text-3xl font-serif font-black text-school-navy mb-4 tracking-tight">Confirm Deletion</h3>
                 <p className="text-sm text-school-navy/50 font-light mb-10 leading-relaxed">
-                  Are you absolutely sure you want to remove this entry? This action is irreversible and will delete data from the SQL backend.
+                  {Array.isArray(itemToDelete) 
+                    ? `Are you absolutely sure you want to remove these ${itemToDelete.length} entries?`
+                    : 'Are you absolutely sure you want to remove this entry?'
+                  } This action is irreversible and will delete data from the SQL backend.
                 </p>
                 <div className="flex gap-4 w-full">
                   <button 
@@ -722,9 +861,11 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/data')
-      .then(res => res.json())
-      .then(fetchedData => {
+    const fetchDataAndSeed = async () => {
+      try {
+        const res = await fetch('/api/data');
+        const fetchedData = await res.json();
+        
         // Only use fetched data if tables aren't empty, otherwise keep DEFAULT_DATA
         const merged = { ...DEFAULT_DATA };
         let hasData = false;
@@ -738,23 +879,31 @@ export default function App() {
         if (hasData) {
           setData(merged);
         } else {
-          // If fresh DB, seed it with DEFAULT_DATA
-          Object.keys(DEFAULT_DATA).forEach(table => {
-            DEFAULT_DATA[table as keyof AppData].forEach(async (item) => {
+          // If fresh DB, seed it with DEFAULT_DATA sequentially
+          console.log('Fresh database detected. Starting sequential seeding...');
+          for (const table of Object.keys(DEFAULT_DATA)) {
+            const items = DEFAULT_DATA[table as keyof AppData];
+            for (const item of items) {
               await fetch('/api/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ table, item })
               });
-            });
-          });
+            }
+          }
+          // After seeding, fetch the final state
+          const finalRes = await fetch('/api/data');
+          const finalData = await finalRes.json();
+          setData(finalData);
         }
+      } catch (err) {
+        console.error('Data sync error:', err);
+      } finally {
         setLoading(false);
-      })
-      .catch(err => {
-        console.error('Fetch error:', err);
-        setLoading(false);
-      });
+      }
+    };
+
+    fetchDataAndSeed();
   }, []);
 
   if (loading) return <div className="h-screen w-screen flex items-center justify-center bg-school-navy text-white font-serif italic text-2xl">Initializing Jesuit Portal...</div>;

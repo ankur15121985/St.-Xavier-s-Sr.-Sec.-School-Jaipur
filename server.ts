@@ -108,12 +108,18 @@ app.get('/api/data', (req, res) => {
   const data: any = {};
   const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements'];
   let completed = 0;
+  let hasError = false;
 
   tables.forEach(table => {
     db.all(`SELECT * FROM ${table}`, (err, rows) => {
+      if (hasError) return;
+      
       if (err) {
+        hasError = true;
+        console.error(`Fetch error for ${table}:`, err);
         return res.status(500).json({ error: err.message });
       }
+      
       data[table] = rows;
       completed++;
       if (completed === tables.length) {
@@ -132,6 +138,16 @@ app.post('/api/gallery/upload', upload.single('image'), (req, res) => {
   res.json({ url: imageUrl });
 });
 
+app.post('/api/gallery/upload-multiple', upload.array('images', 10), (req, res) => {
+  const files = req.files as Express.Multer.File[];
+  if (!files || files.length === 0) {
+    return res.status(400).json({ error: 'No images uploaded' });
+  }
+
+  const urls = files.map(file => `/uploads/${file.filename}`);
+  res.json({ urls });
+});
+
 app.post('/api/save', (req, res) => {
   const { table, item } = req.body;
   const fields = Object.keys(item);
@@ -142,6 +158,7 @@ app.post('/api/save', (req, res) => {
   
   db.run(query, values, (err) => {
     if (err) {
+      console.error(`SQL Save Error (${table}):`, err);
       return res.status(500).json({ error: err.message });
     }
     res.json({ success: true });
@@ -149,13 +166,25 @@ app.post('/api/save', (req, res) => {
 });
 
 app.delete('/api/delete', (req, res) => {
-  const { table, id } = req.body;
-  db.run(`DELETE FROM ${table} WHERE id = ?`, [id], (err) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json({ success: true });
-  });
+  const { table, id, ids } = req.body;
+  if (ids && Array.isArray(ids)) {
+    const placeholders = ids.map(() => '?').join(',');
+    db.run(`DELETE FROM ${table} WHERE id IN (${placeholders})`, ids, (err) => {
+      if (err) {
+        console.error(`SQL Bulk Delete Error (${table}):`, err);
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ success: true });
+    });
+  } else {
+    db.run(`DELETE FROM ${table} WHERE id = ?`, [id], (err) => {
+      if (err) {
+        console.error(`SQL Delete Error (${table}):`, err);
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ success: true });
+    });
+  }
 });
 
 // Vite Integration
