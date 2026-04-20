@@ -53,6 +53,113 @@ const HomePage = ({ data }: { data: AppData }) => {
         </motion.div>
       </section>
 
+      {/* About Section - Inserted just after "carousel" (Hero) */}
+      <section className="py-24 bg-white px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto rounded-[64px] border-2 border-school-navy/10 p-12 md:p-24 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-school-navy/5 rounded-full blur-[100px] -mr-48 -mt-48 transition-all group-hover:scale-110"></div>
+          
+          <div className="grid lg:grid-cols-2 gap-20 relative z-10">
+            {/* Left Content Column */}
+            <div className="space-y-10">
+              <p className="text-xl md:text-2xl text-school-navy leading-relaxed font-light">
+                <span className="font-serif font-black text-school-gold italic">St. Xavier’s Senior Secondary School, Jaipur</span> is a Christian minority school under the management of the Jesuits, an international Christian Religious Order, known as the Society of Jesus.
+              </p>
+              <p className="text-lg text-school-navy/60 leading-relaxed font-light">
+                St. Xavier’s School for boys was founded in July, 1941 under the name of St. Mary’s Boy’s School in the Roman Catholic Church Compound at Ghat Gate, Jaipur by Rev. Fr. Ignatius, O.F.M. Cap. In July 1943 its management was entrusted to the Jesuit Fathers, renowned for their educational work. The school was transferred to the present site and renamed St. Xavier’s School in January, 1945, and still later as St. Xavier’s Sr. Sec. School.
+              </p>
+            </div>
+
+            {/* Right Header Column */}
+            <div className="flex flex-col justify-center">
+              <div className="space-y-4">
+                <h3 className="text-5xl font-serif font-black text-school-navy tracking-tight italic">About</h3>
+                <h2 className="text-8xl md:text-9xl font-serif font-black text-school-navy leading-[0.85] tracking-tighter">
+                  St. Xavier's <br />
+                  <span className="text-school-gold">School</span>
+                </h2>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Full-Width Content */}
+          <div className="mt-20 pt-20 border-t border-slate-100 relative z-10">
+            <p className="text-lg text-school-navy/70 leading-relaxed font-light max-w-5xl">
+              The Society of Jesus, founded by St. Ignatius of Loyola in 1540, has, since its origin, been active in the field of education throughout the world. In India, the Society of Jesus is at present responsible for more than one hundred high schools and 25 colleges in which over a lakh and a half, young people belonging to every creed, social class, community and linguistic group are educated through the medium of English and regional languages. These institutions are part of the Catholic Church’s effort to share in the country’s educational undertaking. This effort, while particularly responsible to the Christian community, has always been at the service of the whole nation. Thus in these institutions, recognised as Christian Minority Institutions, the religious beliefs of all students are treated with respect.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Message from the Principal Section */}
+      <section className="py-24 bg-slate-50 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="grid lg:grid-cols-12 gap-16 items-center">
+            {/* Principal Portrait */}
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="lg:col-span-5"
+            >
+              <div className="relative group">
+                <div className="absolute inset-0 bg-school-gold/20 rounded-[48px] rotate-3 scale-105 group-hover:rotate-6 transition-transform duration-500"></div>
+                <div className="relative aspect-[3/4] rounded-[48px] overflow-hidden shadow-2xl border-8 border-white">
+                  <img 
+                    src="https://picsum.photos/seed/arockiam_principal/800/1067" 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                    alt="Fr. M. Arockiam, SJ"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-school-navy/60 to-transparent"></div>
+                  <div className="absolute bottom-10 left-10 text-white">
+                    <p className="text-sm font-black uppercase tracking-[0.3em] mb-2 text-school-gold">Principal</p>
+                    <h4 className="text-3xl font-serif font-black">Fr. M. Arockiam, SJ</h4>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Message Content */}
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="lg:col-span-7 space-y-10"
+            >
+              <div>
+                <h2 className="text-5xl md:text-6xl font-serif font-black text-school-navy mb-4 tracking-tight leading-tight">
+                  Message from <br />
+                  <span className="text-school-gold italic">the Principal.</span>
+                </h2>
+                <div className="w-20 h-1.5 bg-school-gold rounded-full"></div>
+              </div>
+
+              <div className="space-y-8 text-school-navy/80 leading-relaxed font-light text-lg">
+                <p className="font-medium text-school-navy italic text-xl">"Dear Parents, Students and well wishers..."</p>
+                <p>
+                  With the advent of National Education Policy (NEP 2020) many innovative ideas are presented to us by the government in the school and college education. The structure of school education has been remodelled from 10+2 system to 5+3+3+4 system, i.e., Foundational (5 years = pre-school to grade 2), Preparatory (3years = grades 3-5), Middle (3 years = grades 6-8) and Secondary (4years = grades 9-12). The new system lays greater emphasis on experiential learning based on learning outcomes than mere rote learning of facts.
+                </p>
+                <p>
+                  What is envisaged through this attempt is to develop good human beings capable of rational thought and action, possessing compassion and empathy, courage and resilience, scientific temper and creative imagination, with sound ethical moorings and values. It aims at building an equitable, inclusive, and plural society.
+                </p>
+                <p>
+                  We at Xavier’s have been continuing the mission of shaping young minds since 1941. The changing educational scenario in the post Covid-19 era and the implementation of NEP-2020 guidelines calls for constant updating and reinventing ourselves to be relevant in the present context. At the same time, we cannot compromise on the values and pillars of Jesuit Educational pedagogy and practice i.e., Competence, Conscience, Compassion and Commitment. 
+                </p>
+                <p className="font-semibold text-school-navy">
+                  Duties precede rights. I invite all the stakeholders to be partners in the mission of education and to work towards shaping a better India with the values enshrined in our Constitution.
+                </p>
+              </div>
+
+              <div className="pt-10 border-t border-slate-200">
+                <p className="text-school-navy/40 uppercase font-black tracking-widest text-xs mb-1">Sincerely,</p>
+                <p className="text-xl font-serif font-black text-school-navy">Fr. M. Arockiam, SJ</p>
+                <p className="text-sm text-school-gold font-bold">Principal</p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Highlights Section */}
       <section className="py-32 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid md:grid-cols-3 gap-12">
