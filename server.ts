@@ -150,39 +150,54 @@ app.post('/api/gallery/upload-multiple', upload.array('images', 10), (req, res) 
 
 app.post('/api/save', (req, res) => {
   const { table, item } = req.body;
+  const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements'];
+  
+  if (!whitelist.includes(table)) {
+    return res.status(400).json({ error: 'Invalid table name' });
+  }
+
   const fields = Object.keys(item);
   const placeholders = fields.map(() => '?').join(',');
   const values = fields.map(f => item[f]);
 
   const query = `INSERT OR REPLACE INTO ${table} (${fields.join(',')}) VALUES (${placeholders})`;
   
-  db.run(query, values, (err) => {
+  console.log(`Handling /api/save for table: ${table}, id: ${item.id}`);
+  
+  db.run(query, values, function(err) {
     if (err) {
-      console.error(`SQL Save Error (${table}):`, err);
+      console.error(`!!!! SQL Save Error !!!! (Table: ${table}):`, err);
       return res.status(500).json({ error: err.message });
     }
+    console.log(`Successfully persisted ${table} item ${item.id}`);
     res.json({ success: true });
   });
 });
 
 app.delete('/api/delete', (req, res) => {
   const { table, id, ids } = req.body;
+  const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements'];
+  
+  if (!whitelist.includes(table)) {
+    return res.status(400).json({ error: 'Invalid table name' });
+  }
+
   if (ids && Array.isArray(ids)) {
     const placeholders = ids.map(() => '?').join(',');
-    db.run(`DELETE FROM ${table} WHERE id IN (${placeholders})`, ids, (err) => {
+    db.run(`DELETE FROM ${table} WHERE id IN (${placeholders})`, ids, function(err) {
       if (err) {
-        console.error(`SQL Bulk Delete Error (${table}):`, err);
+        console.error(`!!!! SQL Bulk Delete Error !!!! (Table: ${table}):`, err);
         return res.status(500).json({ error: err.message });
       }
-      res.json({ success: true });
+      res.json({ success: true, changes: this.changes });
     });
   } else {
-    db.run(`DELETE FROM ${table} WHERE id = ?`, [id], (err) => {
+    db.run(`DELETE FROM ${table} WHERE id = ?`, [id], function(err) {
       if (err) {
-        console.error(`SQL Delete Error (${table}):`, err);
+        console.error(`!!!! SQL Delete Error !!!! (Table: ${table}):`, err);
         return res.status(500).json({ error: err.message });
       }
-      res.json({ success: true });
+      res.json({ success: true, changes: this.changes });
     });
   }
 });
