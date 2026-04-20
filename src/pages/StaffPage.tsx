@@ -17,32 +17,42 @@ const StaffPage = ({ data }: { data: AppData }) => {
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           {/* Categories */}
-          {['Management', 'Faculty', 'Administration'].map((type) => (
-            <div key={type} className="mb-32 last:mb-0">
-              <div className="flex items-center gap-6 mb-16">
-                <h3 className="text-4xl font-serif font-black text-school-navy capitalize">{type}</h3>
-                <div className="flex-1 h-px bg-slate-100"></div>
-              </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
-                {data.staff.filter(s => s.type === type).map((s, i) => (
-                  <PerspectiveCard key={s.id} delay={i * 0.1}>
-                    <div className="glass-card p-8 rounded-[32px] flex flex-col items-center text-center h-full group">
-                      <div className="w-32 h-32 rounded-3xl mb-8 shadow-xl overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200 group-hover:scale-105 transition-transform duration-500">
-                        {s.image ? (
-                          <img src={s.image} className="w-full h-full object-cover" alt={s.name} referrerPolicy="no-referrer" />
-                        ) : (
-                          <Users2 size={48} className="text-slate-300" />
-                        )}
+          {['Management', 'Administration', 'Faculty'].map((type) => {
+            const members = data.staff.filter(s => s.type === type);
+            if (members.length === 0) return null;
+
+            return (
+              <div key={type} className="mb-32 last:mb-0">
+                <div className="flex items-center gap-6 mb-16">
+                  <h3 className="text-4xl font-serif font-black text-school-navy capitalize">{type}</h3>
+                  <div className="flex-1 h-px bg-slate-100"></div>
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+                  {members.map((s, i) => (
+                    <PerspectiveCard key={s.id} delay={i * 0.1}>
+                      <div className="glass-card p-10 rounded-[40px] flex flex-col h-full group border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500">
+                        <div className="w-full h-64 rounded-[32px] mb-8 shadow-xl overflow-hidden bg-slate-100 relative group-hover:-translate-y-2 transition-transform duration-500">
+                          {s.image ? (
+                            <img src={s.image} className="w-full h-full object-cover" alt={s.name} referrerPolicy="no-referrer" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-school-navy/5">
+                              <Users2 size={64} className="text-school-navy/10" />
+                            </div>
+                          )}
+                          <div className="absolute top-6 right-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-[9px] font-black uppercase tracking-[0.2em] text-school-navy shadow-sm">
+                            {type}
+                          </div>
+                        </div>
+                        <h4 className="text-2xl font-serif font-black text-school-navy mb-3 group-hover:text-school-gold transition-colors">{s.name}</h4>
+                        <p className="text-[10px] uppercase font-black tracking-[0.2em] text-school-gold mb-6 border-b border-school-gold/20 pb-4">{s.role}</p>
+                        <p className="text-sm text-school-navy/60 font-light leading-relaxed italic">{s.bio}</p>
                       </div>
-                      <h4 className="text-2xl font-serif font-black text-school-navy mb-2">{s.name}</h4>
-                      <p className="text-[10px] uppercase font-black tracking-widest text-school-gold mb-6">{s.role}</p>
-                      <p className="text-sm text-school-navy/50 font-light line-clamp-3 leading-relaxed">{s.bio}</p>
-                    </div>
-                  </PerspectiveCard>
-                ))}
+                    </PerspectiveCard>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
     </Layout>

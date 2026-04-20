@@ -151,6 +151,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     try {
       const items = data[activeSection];
       let successCount = 0;
+      let lastError = '';
       
       for (const item of items) {
         const res = await fetch('/api/save', {
@@ -158,14 +159,24 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ table: activeSection as string, item })
         });
-        if (res.ok) successCount++;
+        
+        if (res.ok) {
+          successCount++;
+        } else {
+          try {
+            const errData = await res.json();
+            lastError = errData.error || 'Unknown server error';
+          } catch (e) {
+            lastError = `Status ${res.status}`;
+          }
+        }
       }
 
       if (successCount === items.length) {
         showToast(`Successfully saved all ${items.length} items to ${activeSection as string}`);
         setSavePending(false);
       } else {
-        showToast(`Saved ${successCount}/${items.length} items. Some failed.`, 'error');
+        showToast(`Saved ${successCount}/${items.length}. Error: ${lastError}`, 'error');
       }
     } catch (err) {
       console.error('Save all failed:', err);
@@ -230,6 +241,19 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       });
       
       clearInterval(progressTimer);
+      
+      if (!res.ok) {
+        let errorMessage = 'Upload failed';
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          // Fallback if not JSON
+          errorMessage = `Error ${res.status}: ${res.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
       const result = await res.json();
       
       if (result.url) {
@@ -237,9 +261,9 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       } else {
         throw new Error('No URL returned');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Individual upload failed:', err);
-      setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'error', progress: 0 } : p));
+      setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'error', progress: 0, caption: err.message } : p));
     }
   };
 
@@ -509,7 +533,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
 
                       {item.status === 'error' && (
                         <div className="mt-4 flex items-center gap-2 text-[10px] text-red-400 font-medium bg-red-400/10 p-3 rounded-xl">
-                          <AlertCircle size={14} /> Failed to upload. Please try again.
+                          <AlertCircle size={14} /> {item.caption || 'Failed to upload. Please try again.'}
                         </div>
                       )}
                     </motion.div>

@@ -76,6 +76,36 @@ db.serialize(() => {
     year TEXT NOT NULL,
     description TEXT NOT NULL
   )`);
+
+  // Diagnostic: Check fees table columns
+  db.all("PRAGMA table_info(fees)", (err, rows: any[]) => {
+    if (err) console.error("Diagnostic error:", err);
+    else if (rows) {
+      console.log("[DIAG] FEES SCHEMA:", rows.map(r => r.name).join(', '));
+    }
+  });
+
+  // Mandatory Staff Reseed to match user request
+  const targetStaff = [
+    { id: '1', name: "FR. NELSON A. D'SILVA, SJ", role: 'MANAGER, TREASURER', bio: 'Appointed: 01-05-2021. Overseeing financial stewardship and institutional management.', image: 'https://picsum.photos/seed/nelson/400/400', type: 'Management' },
+    { id: '2', name: 'FR. M. AROCKIAM, SJ', role: 'PRINCIPAL', bio: 'Appointed: 01-07-2018. Leading the academic vision and spiritual growth of the institution.', image: 'https://picsum.photos/seed/arockiam/400/400', type: 'Management' },
+    { id: '3', name: 'FR. MADALAIMUTHU ANTHONIAPPAN, SJ ( Fr. BRITTO )', role: 'COORDINATOR ( MIDDLE SCHOOL )', bio: 'Appointed: 01-07-2024. Ensuring academic excellence and discipline in the middle school wing.', image: 'https://picsum.photos/seed/britto/400/400', type: 'Administration' },
+    { id: '4', name: 'SR. RUTH MARIAM, SCJM', role: 'COORDINATOR ( JUNIOR SCHOOL )', bio: 'Appointed: 01-04-2025. Dedicated to the holistic primary education and foundational growth.', image: 'https://picsum.photos/seed/ruth/400/400', type: 'Administration' },
+    { id: '5', name: 'MRS. KSHAMA SHARMA', role: 'COORDINATOR-ACADEMICS ( SENIOR SCHOOL )', bio: 'Appointed: 01-04-2002. Senior academic lead ensuring curriculum standards in senior secondary.', image: 'https://picsum.photos/seed/kshama/400/400', type: 'Administration' },
+    { id: '6', name: 'MR. ALEX THOMAS', role: 'COORDINATOR-ACTIVITIES ( SENIOR SCHOOL )', bio: 'Appointed: 01-08-1996. Overseeing extracurricular engagement and senior school activities.', image: 'https://picsum.photos/seed/alex/400/400', type: 'Administration' }
+  ];
+
+  db.get("SELECT name FROM staff WHERE id = '1'", (err, row: any) => {
+    if (!row || row.name !== targetStaff[0].name) {
+      console.log("Updating staff table to match official records...");
+      db.serialize(() => {
+        db.run("DELETE FROM staff");
+        const stmt = db.prepare("INSERT INTO staff (id, name, role, bio, image, type) VALUES (?, ?, ?, ?, ?, ?)");
+        targetStaff.forEach(s => stmt.run(s.id, s.name, s.role, s.bio, s.image, s.type));
+        stmt.finalize();
+      });
+    }
+  });
 });
 
 // Setup Multer for Image Uploads
@@ -96,7 +126,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+  limits: { fileSize: 20 * 1024 * 1024 } // 20MB limit for high-res photos
 });
 
 app.use(cors());
@@ -129,13 +159,24 @@ app.get('/api/data', (req, res) => {
   });
 });
 
-app.post('/api/gallery/upload', upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No image file uploaded' });
-  }
+app.post('/api/gallery/upload', (req, res) => {
+  upload.single('image')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'Image exceeds 20MB limit' });
+      }
+      return res.status(400).json({ error: err.message });
+    } else if (err) {
+      return res.status(500).json({ error: 'Internal server error during upload' });
+    }
 
-  const imageUrl = `/uploads/${req.file.filename}`;
-  res.json({ url: imageUrl });
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file uploaded' });
+    }
+
+    const imageUrl = `/uploads/${req.file.filename}`;
+    res.json({ url: imageUrl });
+  });
 });
 
 app.post('/api/gallery/upload-multiple', upload.array('images', 10), (req, res) => {
@@ -148,28 +189,46 @@ app.post('/api/gallery/upload-multiple', upload.array('images', 10), (req, res) 
   res.json({ urls });
 });
 
+const SCHEMA: { [key: string]: string[] } = {
+  gallery: ['id', 'url', 'caption'],
+  notices: ['id', 'title', 'date', 'category', 'link'],
+  staff: ['id', 'name', 'role', 'bio', 'image', 'type'],
+  fees: ['id', 'grade', 'admissionFee', 'tuition_fees', 'quarterly'],
+  links: ['id', 'title', 'url'],
+  events: ['id', 'title', 'date', 'time', 'location'],
+  achievements: ['id', 'title', 'year', 'description']
+};
+
 app.post('/api/save', (req, res) => {
   const { table, item } = req.body;
-  const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements'];
+  const whitelist = Object.keys(SCHEMA);
   
   if (!whitelist.includes(table)) {
     return res.status(400).json({ error: 'Invalid table name' });
   }
 
-  const fields = Object.keys(item);
+  // Filter item keys to match schema and prevent SQL errors
+  const allowedFields = SCHEMA[table];
+  const fields = Object.keys(item).filter(k => allowedFields.includes(k));
+  
+  if (fields.length === 0) {
+    return res.status(400).json({ error: 'No valid fields to save' });
+  }
+
   const placeholders = fields.map(() => '?').join(',');
   const values = fields.map(f => item[f]);
 
-  const query = `INSERT OR REPLACE INTO ${table} (${fields.join(',')}) VALUES (${placeholders})`;
+  // Use double quotes for column names to avoid issues with reserved words
+  const query = `INSERT OR REPLACE INTO "${table}" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`;
   
-  console.log(`Handling /api/save for table: ${table}, id: ${item.id}`);
+  console.log(`[SQL EXEC] Table: ${table}, Keys: ${fields.join(',')}`);
   
   db.run(query, values, function(err) {
     if (err) {
-      console.error(`!!!! SQL Save Error !!!! (Table: ${table}):`, err);
+      console.error(`[SQL ERROR] ${table.toUpperCase()} SAVE FAILED:`, err.message);
       return res.status(500).json({ error: err.message });
     }
-    console.log(`Successfully persisted ${table} item ${item.id}`);
+    console.log(`[SQL SUCCESS] ${table} item ${item.id} persisted.`);
     res.json({ success: true });
   });
 });

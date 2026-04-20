@@ -29,17 +29,12 @@ const DEFAULT_DATA: AppData = {
     { id: '4', title: 'Instruction for CBSE Practical Examinations', date: 'February 20, 2026', category: 'Examination' }
   ],
   staff: [
-    { id: '1', name: 'Rev. Fr. S. Arulasamy, S.J.', role: 'Principal', bio: 'Leading the institution with a vision for holistic Jesuit education and character formation.', image: 'https://picsum.photos/seed/p_arul/400/400', type: 'Management' },
-    { id: '2', name: 'Rev. Fr. John Ravi, S.J.', role: 'Manager', bio: 'Guiding the school\'s mission and spiritual growth within the Jaipur Jesuit Society.', image: 'https://picsum.photos/seed/p_john/400/400', type: 'Management' },
-    { id: '3', name: 'Ms. Sunita Sharma', role: 'Vice Principal', bio: 'Driving academic excellence and implementing progressive pedagogical standards across sections.', image: 'https://picsum.photos/seed/p_sunita/400/400', type: 'Faculty' },
-    { id: '4', name: 'Rev. Fr. Raymond Cherubin, S.J.', role: 'Administrator', bio: 'Managing campus operations, infrastructure, and student welfare services.', image: 'https://picsum.photos/seed/p_ray/400/400', type: 'Administration' },
-    { id: '5', name: 'Mr. Pradeep Mishra', role: 'HOD - Physics', bio: 'Senior educator specializing in advanced mechanics and thermodynamics for senior secondary years.', image: 'https://picsum.photos/seed/t_pradeep/400/400', type: 'Faculty' },
-    { id: '6', name: 'Ms. Anjali Gupta', role: 'HOD - Mathematics', bio: 'Dedicated to fostering logical reasoning and mathematical proficiency in competitive students.', image: 'https://picsum.photos/seed/t_anjali/400/400', type: 'Faculty' },
-    { id: '7', name: 'Mr. Rajesh Jain', role: 'HOD - Commerce', bio: 'Expert in accountancy and business studies, bridging academic theory with market reality.', image: 'https://picsum.photos/seed/t_rajesh/400/400', type: 'Faculty' },
-    { id: '8', name: 'Ms. Neha Kapoor', role: 'Department of English', bio: 'Enriching students with literary appreciation and effective communication skills.', image: 'https://picsum.photos/seed/t_neha/400/400', type: 'Faculty' },
-    { id: '9', name: 'Mr. Amit Saxena', role: 'IT Coordinator', bio: 'Leading the digital transformation and computer science programs at the institution.', image: 'https://picsum.photos/seed/t_amit/400/400', type: 'Administration' },
-    { id: '10', name: 'Dr. Pallavi Singh', role: 'Counselor', bio: 'Providing emotional and psychological support to ensure balanced student well-being.', image: 'https://picsum.photos/seed/t_pallavi/400/400', type: 'Administration' },
-    { id: '11', name: 'Mr. Vikram Singh', role: 'Physical Education Director', bio: 'Promoting sportsmanship and physical fitness through a variety of athletic programs.', image: 'https://picsum.photos/seed/t_vikram/400/400', type: 'Faculty' }
+    { id: '1', name: "FR. NELSON A. D'SILVA, SJ", role: 'MANAGER, TREASURER', bio: 'Appointed: 01-05-2021. Overseeing financial stewardship and institutional management.', image: 'https://picsum.photos/seed/nelson/400/400', type: 'Management' },
+    { id: '2', name: 'FR. M. AROCKIAM, SJ', role: 'PRINCIPAL', bio: 'Appointed: 01-07-2018. Leading the academic vision and spiritual growth of the institution.', image: 'https://picsum.photos/seed/arockiam/400/400', type: 'Management' },
+    { id: '3', name: 'FR. MADALAIMUTHU ANTHONIAPPAN, SJ ( Fr. BRITTO )', role: 'COORDINATOR ( MIDDLE SCHOOL )', bio: 'Appointed: 01-07-2024. Ensuring academic excellence and discipline in the middle school wing.', image: 'https://picsum.photos/seed/britto/400/400', type: 'Administration' },
+    { id: '4', name: 'SR. RUTH MARIAM, SCJM', role: 'COORDINATOR ( JUNIOR SCHOOL )', bio: 'Appointed: 01-04-2025. Dedicated to the holistic primary education and foundational growth.', image: 'https://picsum.photos/seed/ruth/400/400', type: 'Administration' },
+    { id: '5', name: 'MRS. KSHAMA SHARMA', role: 'COORDINATOR-ACADEMICS ( SENIOR SCHOOL )', bio: 'Appointed: 01-04-2002. Senior academic lead ensuring curriculum standards in senior secondary.', image: 'https://picsum.photos/seed/kshama/400/400', type: 'Administration' },
+    { id: '6', name: 'MR. ALEX THOMAS', role: 'COORDINATOR-ACTIVITIES ( SENIOR SCHOOL )', bio: 'Appointed: 01-08-1996. Overseeing extracurricular engagement and senior school activities.', image: 'https://picsum.photos/seed/alex/400/400', type: 'Administration' }
   ],
   gallery: [
     { id: '1', url: 'https://picsum.photos/seed/x_facade/1200/800', caption: 'St. Xavier\'s Main Architecture' },
