@@ -23,10 +23,9 @@ import AdminPortal from './pages/AdminPortal';
 
 const DEFAULT_DATA: AppData = {
   notices: [
-    { id: '1', title: 'Summer Vacations Announcement 2026', date: 'April 15, 2026', category: 'Circular' },
-    { id: '2', title: 'Pre-Primary Admission Intake 2026-27', date: 'March 25, 2026', category: 'Admissions' },
-    { id: '3', title: 'Inter-House Creative Writing Winners', date: 'April 05, 2026', category: 'Activities' },
-    { id: '4', title: 'Instruction for CBSE Practical Examinations', date: 'February 20, 2026', category: 'Examination' }
+    { id: '1', title: 'Summer Holiday Closure Notice', content: 'Dear parents, In view of the summer holidays (from 18-05-2024 to 30-06-2024) the school will be closed. Students will report to school on 01-07-2024 @ 07:30 a.m. Principal SXS, C-Scheme', date: 'May 18, 2024 10:52 AM', category: 'Circular' },
+    { id: '2', title: 'Class Timetable 6 to 12 (2026_27)', date: 'March 30, 2026 5:50 PM', category: 'Circular' },
+    { id: '3', title: 'Revised Provisional List of Std. XI (2026-27)', date: 'March 30, 2026 5:49 PM', category: 'Circular' },
   ],
   staff: [
     { id: '1', name: "FR. NELSON A. D'SILVA, SJ", role: 'MANAGER, TREASURER', bio: 'Appointed: 01-05-2021. Overseeing financial stewardship and institutional management.', image: 'https://picsum.photos/seed/nelson/400/400', type: 'Management' },
@@ -154,7 +153,13 @@ const DEFAULT_DATA: AppData = {
     { id: '3', url: 'https://picsum.photos/seed/x_lab/1200/800', caption: 'Physics Research Wing' },
     { id: '4', url: 'https://picsum.photos/seed/x_sports/1200/800', caption: 'Inter-House Cricket Semi-Finals' },
     { id: '5', url: 'https://picsum.photos/seed/x_art/1200/800', caption: 'Fine Arts Exhibition' },
-    { id: '6', url: 'https://picsum.photos/seed/x_lib/1200/800', caption: 'Students in the Central Library' }
+    { id: '6', url: 'https://picsum.photos/seed/x_lib/1200/800', caption: 'Students in the Central Library' },
+    { id: '7', url: 'https://picsum.photos/seed/x_prize/1200/800', caption: 'Annual Prize Distribution 2025' },
+    { id: '8', url: 'https://picsum.photos/seed/x_dance/1200/800', caption: 'Cultural Night Performance' },
+    { id: '9', url: 'https://picsum.photos/seed/x_march/1200/800', caption: 'Independence Day Parade' },
+    { id: '10', url: 'https://picsum.photos/seed/x_choir/1200/800', caption: 'Institutional Choir Performance' },
+    { id: '11', url: 'https://picsum.photos/seed/x_yoga/1200/800', caption: 'Morning Mindfulness & Yoga' },
+    { id: '12', url: 'https://picsum.photos/seed/x_debate/1200/800', caption: 'Inter-School Debating Championship' }
   ],
   fees: [
     { id: '1', grade: 'LKG - Prep', admissionFee: '₹40,000', tuition_fees: '₹4,500', quarterly: '₹13,500' },

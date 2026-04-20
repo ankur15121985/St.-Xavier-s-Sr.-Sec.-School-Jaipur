@@ -160,6 +160,107 @@ const HomePage = ({ data }: { data: AppData }) => {
         </div>
       </section>
 
+      {/* Campus Updates Section (Notice Board & Events) */}
+      <section className="py-32 relative overflow-hidden group">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://picsum.photos/seed/xavier_campus/1920/1080?blur=10" 
+            className="w-full h-full object-cover opacity-10"
+            alt="Campus Background"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16">
+            
+            {/* Redesigned Notice Board */}
+            <div className="flex flex-col h-full">
+              <div className="flex items-center justify-between mb-10 pb-6 border-b border-school-navy/10">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-school-navy rounded-2xl flex items-center justify-center text-white shadow-lg">
+                    <Bell size={24} />
+                  </div>
+                  <h3 className="text-3xl font-serif font-black text-school-navy tracking-tight">Notice Board</h3>
+                </div>
+                <Link to="/notices" className="text-[10px] font-black uppercase tracking-[0.2em] text-school-gold hover:text-school-navy transition-colors border-b-2 border-school-gold/30 hover:border-school-navy">View All Notices</Link>
+              </div>
+
+              <div className="flex-1 space-y-6">
+                {data.notices.slice(0, 3).map((notice, idx) => (
+                  <motion.div 
+                    key={notice.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="glass-surface p-8 rounded-[32px] border border-white shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group/card"
+                  >
+                    <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/30 mb-3 block">{notice.date}</span>
+                    <h4 className="text-lg font-serif font-bold text-school-navy mb-4 group-hover/card:text-school-gold transition-colors">{notice.title}</h4>
+                    {notice.content && (
+                      <p className="text-sm text-school-navy/60 leading-relaxed font-light line-clamp-3 italic">
+                        {notice.content}
+                      </p>
+                    )}
+                  </motion.div>
+                ))}
+                {data.notices.length === 0 && (
+                  <div className="h-full flex items-center justify-center text-school-navy/20 font-serif italic py-20 bg-slate-50/50 rounded-[32px] border-2 border-dashed border-slate-100">
+                    No active notices at this time.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Upcoming Events Portal */}
+            <div className="flex flex-col h-full">
+              <div className="flex items-center justify-between mb-10 pb-6 border-b border-school-navy/10">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-school-gold rounded-2xl flex items-center justify-center text-school-navy shadow-lg">
+                    <Calendar size={24} />
+                  </div>
+                  <h3 className="text-3xl font-serif font-black text-school-navy tracking-tight">Upcoming Events</h3>
+                </div>
+                <Link to="/events" className="text-[10px] font-black uppercase tracking-[0.2em] text-school-gold hover:text-school-navy transition-colors border-b-2 border-school-gold/30 hover:border-school-navy">View All Events</Link>
+              </div>
+
+              <div className="flex-1 space-y-6">
+                {data.events.slice(0, 3).map((event, idx) => (
+                  <motion.div 
+                    key={event.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: (idx + 3) * 0.1 }}
+                    className="flex gap-6 items-start glass-surface p-8 rounded-[32px] border border-white shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group/card"
+                  >
+                    <div className="shrink-0 w-20 h-20 bg-school-navy rounded-3xl flex flex-col items-center justify-center text-white shadow-xl">
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-60">May</span>
+                      <span className="text-3xl font-serif font-black">{event.date.split(' ')[1].replace(',', '')}</span>
+                    </div>
+                    <div className="flex-1 pt-1">
+                      <h4 className="text-xl font-serif font-bold text-school-navy mb-3 group-hover/card:text-school-gold transition-colors">{event.title}</h4>
+                      <div className="flex flex-wrap gap-4 text-[10px] font-black uppercase tracking-widest text-school-navy/40">
+                         <span className="flex items-center gap-1.5"><Bell size={10} className="text-school-gold" /> {event.time}</span>
+                         <span className="flex items-center gap-1.5"><MapIcon size={10} className="text-school-gold" /> {event.location}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+                {data.events.length === 0 && (
+                  <div className="h-full flex items-center justify-center text-school-navy/20 font-serif italic py-20 bg-slate-50/50 rounded-[32px] border-2 border-dashed border-slate-100">
+                    Check back soon for upcoming events.
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* Highlights Section */}
       <section className="py-32 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid md:grid-cols-3 gap-12">
@@ -176,6 +277,64 @@ const HomePage = ({ data }: { data: AppData }) => {
                </div>
              </PerspectiveCard>
            ))}
+        </div>
+      </section>
+
+      {/* Life @ Xavier's Gallery Section */}
+      <section className="py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="text-center mb-24">
+            <h2 className="text-6xl font-serif font-black text-school-navy mb-4">Life @ <span className="text-school-gold italic">Xavier's.</span></h2>
+            <p className="text-xl text-school-navy/40 font-light">A visual journal of our vibrant campus culture, traditions, and collective spirit.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[250px]">
+             {data.gallery.slice(0, 8).map((img, i) => {
+                const spanOptions = [
+                  "md:col-span-8 md:row-span-2", 
+                  "md:col-span-4 md:row-span-1", 
+                  "md:col-span-4 md:row-span-1", 
+                  "md:col-span-3 md:row-span-1", 
+                  "md:col-span-5 md:row-span-2", 
+                  "md:col-span-4 md:row-span-2", 
+                  "md:col-span-4 md:row-span-1", 
+                  "md:col-span-8 md:row-span-1"
+                ];
+                return (
+                  <motion.div
+                    key={img.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1, duration: 0.6 }}
+                    className={`relative group overflow-hidden rounded-[40px] shadow-sm hover:shadow-2xl transition-all duration-500 ${spanOptions[i % spanOptions.length]}`}
+                  >
+                    <img 
+                      src={img.url} 
+                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                      alt={img.caption}
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-school-navy/90 via-school-navy/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-10">
+                       <motion.div 
+                         initial={{ y: 20, opacity: 0 }}
+                         whileHover={{ y: 0, opacity: 1 }}
+                         className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500"
+                       >
+                         <p className="text-white text-xl font-serif italic mb-3">{img.caption}</p>
+                         <div className="w-12 h-1.5 bg-school-gold rounded-full"></div>
+                       </motion.div>
+                    </div>
+                  </motion.div>
+                );
+             })}
+          </div>
+
+          <div className="mt-20 text-center">
+            <Link to="/gallery" className="inline-flex items-center gap-4 px-12 py-5 glass-dark text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 transition-all">
+              Explore Full Archive <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
       </section>
 

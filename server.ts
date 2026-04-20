@@ -29,6 +29,7 @@ db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS notices (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
+    content TEXT,
     date TEXT NOT NULL,
     category TEXT NOT NULL,
     link TEXT
@@ -303,7 +304,7 @@ app.post('/api/gallery/upload-multiple', upload.array('images', 10), (req, res) 
 
 const SCHEMA: { [key: string]: string[] } = {
   gallery: ['id', 'url', 'caption'],
-  notices: ['id', 'title', 'date', 'category', 'link'],
+  notices: ['id', 'title', 'content', 'date', 'category', 'link'],
   staff: ['id', 'name', 'role', 'bio', 'image', 'type'],
   fees: ['id', 'grade', 'admissionFee', 'tuition_fees', 'quarterly'],
   links: ['id', 'title', 'url'],

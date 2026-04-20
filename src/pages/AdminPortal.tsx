@@ -111,6 +111,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     const tableStr = activeSection as string;
     if (tableStr === 'notices') {
       newItem.title = 'New Notice Title';
+      newItem.content = 'Enter notice details here...';
       newItem.date = new Date().toLocaleDateString();
       newItem.category = 'Circular';
     } else if (tableStr === 'events') {
@@ -565,7 +566,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                 {Object.keys(item).filter(k => k !== 'id').map(field => (
                   <div key={field} className="space-y-2">
                     <label className="text-[9px] font-black uppercase tracking-widest text-slate-300">{field as string}</label>
-                    {field === 'bio' || field === 'description' ? (
+                    {field === 'bio' || field === 'description' || field === 'content' ? (
                        <textarea value={item[field]} onChange={(e) => handleUpdate(item.id, field as string, e.target.value)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium h-24 focus:ring-1 focus:ring-school-gold transition-all resize-none" />
                     ) : (field === 'url' || field === 'image') && (activeSection === 'gallery' || activeSection === 'staff') ? (
                       <div className="space-y-4">
