@@ -23,13 +23,22 @@ const Layout = ({ children, links }: LayoutProps) => {
 
   const navLinks = [
     { label: 'Home', href: '/' },
-    { label: 'Staff', href: '/staff' },
+    { 
+      label: 'About Us', 
+      href: '#',
+      subLinks: [
+        { label: 'History', href: '/history' },
+        { label: 'Staff', href: '/staff' },
+        { label: 'Achievements', href: '/achievements' },
+      ]
+    },
     { label: 'Gallery', href: '/gallery' },
     { label: 'Notices', href: '/notices' },
     { label: 'Events', href: '/events' },
     { label: 'Fees', href: '/fees' },
-    { label: 'Achievements', href: '/achievements' }
   ];
+
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen bg-white selection:bg-school-gold selection:text-white overflow-x-hidden">
@@ -46,10 +55,33 @@ const Layout = ({ children, links }: LayoutProps) => {
           
           <div className="hidden xl:flex items-center gap-8">
             {navLinks.map(l => (
-              <Link key={l.label} to={l.href} className={`text-[11px] font-black uppercase tracking-widest hover:text-school-gold transition-colors relative group ${location.pathname === l.href ? 'text-school-gold' : 'text-school-navy'}`}>
-                {l.label}
-                <span className={`absolute -bottom-1 left-0 h-0.5 bg-school-gold transition-all group-hover:w-full ${location.pathname === l.href ? 'w-full' : 'w-0'}`}></span>
-              </Link>
+              <div key={l.label} className="relative group">
+                {l.subLinks ? (
+                  <>
+                    <button 
+                      onMouseEnter={() => setActiveDropdown(l.label)}
+                      className={`text-[11px] font-black uppercase tracking-widest hover:text-school-gold transition-colors flex items-center gap-1.5 ${location.pathname.startsWith(l.href) ? 'text-school-gold' : 'text-school-navy'}`}
+                    >
+                      {l.label} <ChevronRight size={10} className="rotate-90 group-hover:rotate-[270deg] transition-transform" />
+                    </button>
+                    {/* Desktop Dropdown */}
+                    <div className="absolute top-full left-0 pt-6 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300">
+                      <div className="bg-school-navy rounded-2xl shadow-2xl p-4 min-w-[200px] border border-white/10">
+                        {l.subLinks.map(sl => (
+                          <Link key={sl.label} to={sl.href} className="block px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-school-gold hover:bg-white/5 rounded-xl transition-all">
+                            {sl.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <Link to={l.href} className={`text-[11px] font-black uppercase tracking-widest hover:text-school-gold transition-colors relative group ${location.pathname === l.href ? 'text-school-gold' : 'text-school-navy'}`}>
+                    {l.label}
+                    <span className={`absolute -bottom-1 left-0 h-0.5 bg-school-gold transition-all group-hover:w-full ${location.pathname === l.href ? 'w-full' : 'w-0'}`}></span>
+                  </Link>
+                )}
+              </div>
             ))}
             <Link to="/admin" className="flex items-center gap-2 px-4 py-2 rounded-xl glass-surface text-school-navy border border-school-navy/5 hover:border-school-gold transition-all shadow-sm group">
               <Key size={16} className="group-hover:text-school-gold transition-colors" />
@@ -65,13 +97,31 @@ const Layout = ({ children, links }: LayoutProps) => {
 
       <AnimatePresence>
         {isNavOpen && (
-          <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25 }} className="fixed inset-0 z-[60] bg-school-navy p-12 lg:hidden">
+          <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25 }} className="fixed inset-0 z-[60] bg-school-navy p-12 lg:hidden overflow-y-auto">
             <button onClick={() => setIsNavOpen(false)} className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors"><X size={32} /></button>
-            <div className="mt-20 flex flex-col gap-10">
+            <div className="mt-20 flex flex-col gap-8">
               {navLinks.map(l => (
-                <Link key={l.label} onClick={() => setIsNavOpen(false)} to={l.href} className={`text-4xl font-serif font-black hover:text-school-gold transition-colors ${location.pathname === l.href ? 'text-school-gold' : 'text-white'}`}>{l.label}</Link>
+                <div key={l.label}>
+                  {l.subLinks ? (
+                    <div className="space-y-6">
+                      <p className="text-sm font-black uppercase tracking-[0.3em] text-school-gold/50 mb-4">{l.label}</p>
+                      {l.subLinks.map(sl => (
+                        <Link 
+                          key={sl.label} 
+                          onClick={() => setIsNavOpen(false)} 
+                          to={sl.href} 
+                          className={`block text-3xl font-serif font-black hover:text-school-gold transition-colors ${location.pathname === sl.href ? 'text-school-gold' : 'text-white'}`}
+                        >
+                          {sl.label}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <Link onClick={() => setIsNavOpen(false)} to={l.href} className={`text-4xl font-serif font-black hover:text-school-gold transition-colors ${location.pathname === l.href ? 'text-school-gold' : 'text-white'}`}>{l.label}</Link>
+                  )}
+                </div>
               ))}
-              <Link to="/admin" onClick={() => setIsNavOpen(false)} className="text-4xl font-serif font-black text-white hover:text-school-gold transition-colors">Admin Portal</Link>
+              <Link to="/admin" onClick={() => setIsNavOpen(false)} className="text-4xl font-serif font-black text-white hover:text-school-gold transition-colors pt-8 border-t border-white/10">Admin Portal</Link>
             </div>
           </motion.div>
         )}

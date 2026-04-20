@@ -19,6 +19,7 @@ import NoticesPage from './pages/NoticesPage';
 import EventsPage from './pages/EventsPage';
 import FeesPage from './pages/FeesPage';
 import AchievementsPage from './pages/AchievementsPage';
+import HistoryPage from './pages/HistoryPage';
 import AdminPortal from './pages/AdminPortal';
 
 const DEFAULT_DATA: AppData = {
@@ -245,6 +246,7 @@ export default function App() {
         <Route path="/events" element={<EventsPage data={data} />} />
         <Route path="/fees" element={<FeesPage data={data} />} />
         <Route path="/achievements" element={<AchievementsPage data={data} />} />
+        <Route path="/history" element={<HistoryPage data={data} />} />
         <Route path="/admin" element={<AdminPortal data={data} setData={setData} />} />
       </Routes>
     </Router>
