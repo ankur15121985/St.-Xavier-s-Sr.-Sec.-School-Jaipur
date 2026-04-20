@@ -25,7 +25,7 @@ const HomePage = ({ data }: { data: AppData }) => {
   };
 
   return (
-    <Layout>
+    <Layout links={data.links}>
       <section className="relative h-screen flex items-center justify-center overflow-hidden bg-slate-50" onMouseMove={handleHeroMouseMove}>
         <div className="absolute inset-0 z-0 overflow-hidden">
            <motion.div 
@@ -42,11 +42,11 @@ const HomePage = ({ data }: { data: AppData }) => {
         </div>
         <motion.div style={{ x: textX, y: textY, rotateX: textRotateX, rotateY: textRotateY, transformStyle: "preserve-3d" }} className="relative z-10 text-center px-6 pointer-events-none">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }}>
-            <div className="inline-block px-8 py-2.5 glass-surface rounded-full text-[11px] font-black uppercase tracking-[0.5em] text-school-navy mb-12 floating shadow-sm border border-school-navy/5 font-black">ESTABLISHED 1941 • JESUIT TRADITION</div>
+            <div className="inline-block px-8 py-2.5 glass-surface rounded-full text-[11px] font-black uppercase tracking-[0.5em] text-school-navy mb-12 floating shadow-sm font-black">ESTABLISHED 1941 • JESUIT TRADITION</div>
             <h2 className="text-8xl md:text-[11rem] font-serif font-black text-school-navy leading-[0.8] mb-12 tracking-tighter glow-text pointer-events-auto">Transforming <br /> <span className="text-school-gold italic">Vision.</span></h2>
             <p className="text-2xl md:text-3xl text-school-navy/50 font-light mb-16 max-w-3xl mx-auto leading-relaxed pointer-events-auto">Empowering men and women for others with a commitment to academic excellence and moral fortitude in Jaipur.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-10 pointer-events-auto">
-              <button className="px-16 py-6 glass-dark text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl">Digital Registration</button>
+              <button className="px-16 py-6 glass-dark text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all">Digital Registration</button>
               <button className="px-16 py-6 glass-surface text-school-navy rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl">Virtual Tour</button>
             </div>
           </motion.div>
@@ -86,7 +86,7 @@ const HomePage = ({ data }: { data: AppData }) => {
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid md:grid-cols-2 lg:grid-cols-4 gap-12">
           {data.staff.slice(0, 4).map((s, i) => (
             <PerspectiveCard key={s.id} delay={i * 0.1}>
-              <div className="glass-surface p-8 rounded-[32px] border border-slate-100 flex flex-col items-center text-center h-full">
+              <div className="glass-card p-8 rounded-[32px] flex flex-col items-center text-center h-full">
                 <div className="w-32 h-32 rounded-3xl mb-8 shadow-xl overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200">
                   {s.image ? (
                     <img src={s.image} className="w-full h-full object-cover" alt={s.name} referrerPolicy="no-referrer" />

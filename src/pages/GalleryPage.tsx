@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 
 const GalleryPage = ({ data }: { data: AppData }) => {
   return (
-    <Layout>
+    <Layout links={data.links}>
       <section className="pt-48 pb-40 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center mb-24">
            <h2 className="text-7xl font-serif font-black text-school-navy mb-8">Visual <span className="text-school-gold italic">Chronicles.</span></h2>

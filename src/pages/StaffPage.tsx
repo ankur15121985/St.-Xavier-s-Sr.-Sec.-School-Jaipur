@@ -5,8 +5,10 @@ import { Users2 } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 
 const StaffPage = ({ data }: { data: AppData }) => {
+  const types: ('Management' | 'Faculty' | 'Administration')[] = ['Management', 'Faculty', 'Administration'];
+  
   return (
-    <Layout>
+    <Layout links={data.links}>
       <section className="pt-48 pb-40 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center mb-24">
            <h2 className="text-7xl font-serif font-black text-school-navy mb-8">Institutional <span className="text-school-gold italic">Leadership.</span></h2>
@@ -24,7 +26,7 @@ const StaffPage = ({ data }: { data: AppData }) => {
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
                 {data.staff.filter(s => s.type === type).map((s, i) => (
                   <PerspectiveCard key={s.id} delay={i * 0.1}>
-                    <div className="glass-surface p-8 rounded-[32px] border border-slate-100 flex flex-col items-center text-center h-full group hover:bg-white transition-all shadow-sm hover:shadow-xl">
+                    <div className="glass-card p-8 rounded-[32px] flex flex-col items-center text-center h-full group">
                       <div className="w-32 h-32 rounded-3xl mb-8 shadow-xl overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200 group-hover:scale-105 transition-transform duration-500">
                         {s.image ? (
                           <img src={s.image} className="w-full h-full object-cover" alt={s.name} referrerPolicy="no-referrer" />

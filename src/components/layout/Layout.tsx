@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Phone, Mail, MapPin, Key, Settings, ArrowRight, ChevronRight, Users2, ImageIcon } from 'lucide-react';
+import { Menu, X, Phone, Mail, MapPin, Key, Settings, ArrowRight, ChevronRight, Users2, ImageIcon, ExternalLink } from 'lucide-react';
+import { QuickLink } from '../../types';
 
 interface LayoutProps {
   children: React.ReactNode;
+  links: QuickLink[];
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children, links }: LayoutProps) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
@@ -100,7 +102,25 @@ const Layout = ({ children }: LayoutProps) => {
             </ul>
           </div>
           <div>
-             <h4 className="text-school-gold font-black uppercase text-[10px] tracking-widest mb-10">Connect</h4>
+            <h4 className="text-school-gold font-black uppercase text-[10px] tracking-widest mb-10">Quick Links</h4>
+            <ul className="space-y-4 text-xs font-black uppercase tracking-widest">
+              {links.map((link) => (
+                <li key={link.id}>
+                  <a 
+                    href={link.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-2 text-school-navy/50 hover:text-school-gold transition-colors group"
+                  >
+                    {link.title}
+                    <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-school-gold font-black uppercase text-[10px] tracking-widest mb-10">Connect</h4>
              <p className="text-sm text-school-navy/50 font-light mb-6">Bhagwan Das Road, C-Scheme, Jaipur, Rajasthan 302001</p>
              <p className="text-sm text-school-navy font-black tracking-widest">+91 141 2367793</p>
           </div>

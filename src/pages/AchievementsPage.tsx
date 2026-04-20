@@ -6,7 +6,7 @@ import { Trophy, Award, Star } from 'lucide-react';
 
 const AchievementsPage = ({ data }: { data: AppData }) => {
   return (
-    <Layout>
+    <Layout links={data.links}>
       <section className="pt-48 pb-40 bg-white min-h-screen">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center mb-24">
            <h2 className="text-7xl font-serif font-black text-school-navy mb-8">Pillars of <span className="text-school-gold italic">Pride.</span></h2>
@@ -20,7 +20,7 @@ const AchievementsPage = ({ data }: { data: AppData }) => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="p-12 glass-surface rounded-[48px] border border-slate-50 flex flex-col items-center text-center group hover:bg-slate-50 transition-all shadow-sm hover:shadow-2xl"
+              className="p-12 glass-card rounded-[48px] flex flex-col items-center text-center group"
             >
               <div className="w-24 h-24 rounded-3xl bg-school-navy/5 text-school-gold mb-10 flex items-center justify-center group-hover:bg-school-navy group-hover:text-white transition-all group-hover:scale-110 shadow-inner">
                 {i % 2 === 0 ? <Trophy size={40} /> : <Award size={40} />}

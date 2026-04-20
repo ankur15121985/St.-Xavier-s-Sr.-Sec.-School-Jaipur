@@ -6,7 +6,7 @@ import { Bell, ArrowRight } from 'lucide-react';
 
 const NoticesPage = ({ data }: { data: AppData }) => {
   return (
-    <Layout>
+    <Layout links={data.links}>
       <section className="pt-48 pb-40 bg-white min-h-screen">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-24">
            <h2 className="text-7xl font-serif font-black text-school-navy mb-8">Official <span className="text-school-gold italic">Announcements.</span></h2>
@@ -20,7 +20,7 @@ const NoticesPage = ({ data }: { data: AppData }) => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="p-12 glass-surface rounded-[40px] hover:bg-slate-50 transition-all group flex flex-col md:flex-row justify-between items-start md:items-center gap-8 border border-slate-50 hover:border-school-gold/20 shadow-sm"
+              className="p-12 glass-surface rounded-[40px] hover:bg-white transition-all group flex flex-col md:flex-row justify-between items-start md:items-center gap-8 shadow-sm hover:shadow-2xl"
             >
               <div className="flex-1">
                 <div className="flex gap-4 mb-6">
