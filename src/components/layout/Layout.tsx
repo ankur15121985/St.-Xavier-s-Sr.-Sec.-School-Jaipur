@@ -49,12 +49,19 @@ const Layout = ({ children, links }: LayoutProps) => {
       subLinks: [
         { label: 'Jesuit Education Objectives', href: '/jesuit-education-objectives' },
         { label: 'Staff Directory', href: '/staff' },
-        { label: 'Achievements', href: '/achievements' },
       ]
     },
-    { label: 'Gallery', href: '/gallery' },
+    {
+      label: 'Activities',
+      href: '#',
+      subLinks: [
+        { label: 'Fr. Batson Sports Complex', href: '/sports-complex' },
+        { label: 'Media Gallery', href: '/gallery' },
+        { label: 'Event Calendar', href: '/events' },
+        { label: 'Student Achievements', href: '/achievements' },
+      ]
+    },
     { label: 'Notices', href: '/notices' },
-    { label: 'Events', href: '/events' },
   ];
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);

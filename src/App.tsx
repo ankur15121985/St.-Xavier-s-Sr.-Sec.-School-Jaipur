@@ -27,6 +27,7 @@ import AdmissionPolicyPage from './pages/AdmissionPolicyPage';
 import ScholarshipPage from './pages/ScholarshipPage';
 import StudybaseAppPage from './pages/StudybaseAppPage';
 import JesuitEducationPage from './pages/JesuitEducationPage';
+import SportsComplexPage from './pages/SportsComplexPage';
 import AdminPortal from './pages/AdminPortal';
 
 const DEFAULT_DATA: AppData = {
@@ -262,6 +263,7 @@ export default function App() {
         <Route path="/scholarships" element={<ScholarshipPage data={data} />} />
         <Route path="/studybase-app" element={<StudybaseAppPage data={data} />} />
         <Route path="/jesuit-education-objectives" element={<JesuitEducationPage data={data} />} />
+        <Route path="/sports-complex" element={<SportsComplexPage data={data} />} />
         <Route path="/admin" element={<AdminPortal data={data} setData={setData} />} />
       </Routes>
     </Router>
