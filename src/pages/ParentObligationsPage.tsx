@@ -95,7 +95,7 @@ const ParentObligationsPage = ({ data }: { data: AppData }) => {
   ];
 
   return (
-    <Layout links={data.links}>
+    <Layout data={data}>
       <Helmet>
         <title>Obligations of Parents | St. Xavier's Sr. Sec. School, Jaipur</title>
         <meta name="description" content="Guidelines and obligations for parents and guardians of St. Xavier's Jaipur. Fostering a partnership for student success." />

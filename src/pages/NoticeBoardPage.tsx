@@ -99,13 +99,13 @@ const NoticeBoardPage = ({ data }: { data: AppData }) => {
   ];
 
   return (
-    <Layout links={data.links}>
+    <Layout data={data}>
       <Helmet>
         <title>Notice Board | St. Xavier's Sr. Sec. School, Jaipur</title>
         <meta name="description" content="Official digital notice board for St. Xavier's Jaipur. Stay updated with the latest academic timetables, admission lists, and examination schedules." />
       </Helmet>
 
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="bg-slate-50 min-h-screen">
         {/* Header Section */}
         <section className="py-24 bg-school-navy relative overflow-hidden">
           <motion.div 

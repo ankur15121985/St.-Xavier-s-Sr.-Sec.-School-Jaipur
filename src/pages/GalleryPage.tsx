@@ -9,13 +9,13 @@ const GalleryPage = ({ data }: { data: AppData }) => {
   const [selectedImage, setSelectedImage] = useState<typeof data.gallery[0] | null>(null);
 
   return (
-    <Layout links={data.links}>
+    <Layout data={data}>
       <Helmet>
         <title>Gallery | St. Xavier's Sr. Sec. School, Jaipur</title>
         <meta name="description" content="Explore the visual legacy of St. Xavier's Jaipur through our curated photo gallery capturing moments of academic and cultural excellence." />
       </Helmet>
 
-      <section className="pt-48 pb-40 bg-slate-50 min-h-screen">
+      <section className="pb-40 bg-slate-50 min-h-screen">
         {/* Decorative background mark */}
         <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
           <Camera size={400} />

@@ -6,7 +6,7 @@ import { Music } from 'lucide-react';
 
 const SchoolAnthemPage = ({ data }: { data: AppData }) => {
   return (
-    <Layout links={data.links}>
+    <Layout data={data}>
       <div className="pt-32 bg-slate-50 min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[40vh] bg-school-navy flex items-center justify-center overflow-hidden">

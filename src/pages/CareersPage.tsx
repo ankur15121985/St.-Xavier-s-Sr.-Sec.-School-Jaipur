@@ -13,13 +13,13 @@ import {
 
 const CareersPage = ({ data }: { data: AppData }) => {
   return (
-    <Layout links={data.links}>
+    <Layout data={data}>
       <Helmet>
         <title>Careers | St. Xavier's Sr. Sec. School, Jaipur</title>
         <meta name="description" content="Career opportunities at St. Xavier's Jaipur. Join our dedicated team of educators and administrative staff." />
       </Helmet>
 
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="bg-slate-50 min-h-screen">
         {/* Banner Section */}
         <section className="relative h-[400px] overflow-hidden flex items-center justify-center">
           <div className="absolute inset-0">

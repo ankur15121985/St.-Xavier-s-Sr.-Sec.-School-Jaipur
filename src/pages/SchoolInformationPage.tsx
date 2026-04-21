@@ -115,7 +115,7 @@ const SchoolInformationPage = ({ data }: { data: AppData }) => {
   );
 
   return (
-    <Layout links={data.links}>
+    <Layout data={data}>
       <Helmet>
         <title>School Information | St. Xavier's Sr. Sec. School, Jaipur</title>
         <meta name="description" content="Access official mandatory public disclosures, CBSE affiliation details, and comprehensive school information for St. Xavier's Sr. Sec. School, Jaipur. A legacy of Jesuit education since 1941." />
@@ -125,7 +125,7 @@ const SchoolInformationPage = ({ data }: { data: AppData }) => {
         <meta property="og:description" content="Official mandatory public disclosure and statutory information for St. Xavier's Sr. Sec. School, Jaipur." />
         <meta property="og:type" content="website" />
       </Helmet>
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="bg-slate-50 min-h-screen">
         {/* Hero Section */}
         <section className="py-20 bg-school-navy relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">

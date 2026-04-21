@@ -15,7 +15,7 @@ import {
 
 const AlumniPage = ({ data }: { data: AppData }) => {
   return (
-    <Layout links={data.links}>
+    <Layout data={data}>
       <div className="pt-32 bg-slate-50 min-h-screen">
         {/* Banner with Background Image */}
         <section className="relative h-[400px] overflow-hidden flex items-center justify-center">

@@ -77,6 +77,16 @@ db.exec(`
 `);
 
 db.exec(`
+  CREATE TABLE IF NOT EXISTS menu (
+    id TEXT PRIMARY KEY,
+    label TEXT NOT NULL,
+    href TEXT NOT NULL,
+    parent_id TEXT,
+    order_index INTEGER NOT NULL
+  )
+`);
+
+db.exec(`
   CREATE TABLE IF NOT EXISTS achievements (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
@@ -84,6 +94,50 @@ db.exec(`
     description TEXT NOT NULL
   )
 `);
+
+// Seed Default Menu if empty
+const menuCountResult = db.prepare("SELECT COUNT(*) as count FROM menu").get() as any;
+if ((menuCountResult?.count || 0) === 0) {
+    console.log("Seeding default menu items...");
+    const navLinks = [
+        { id: '1', label: 'Home', href: '/', parent_id: null, order_index: 0 },
+        { id: '2', label: 'About Us', href: '#', parent_id: null, order_index: 1 },
+        { id: '2-1', label: 'Our Founder & Patron', href: '/founder-patron', parent_id: '2', order_index: 0 },
+        { id: '2-2', label: 'Governing Members', href: '/governing-members', parent_id: '2', order_index: 1 },
+        { id: '2-3', label: 'School Anthem', href: '/anthem', parent_id: '2', order_index: 2 },
+        { id: '2-4', label: 'History', href: '/history', parent_id: '2', order_index: 3 },
+        { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
+        { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
+        { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
+        { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: '3', order_index: 2 },
+        { id: '3-4', label: 'Studybase Mobile App', href: '/studybase-app', parent_id: '3', order_index: 3 },
+        { id: '4', label: 'Academics', href: '#', parent_id: null, order_index: 3 },
+        { id: '4-1', label: 'Jesuit Education Objectives', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
+        { id: '4-2', label: 'Staff Directory', href: '/staff', parent_id: '4', order_index: 1 },
+        { id: '5', label: 'Activities', href: '#', parent_id: null, order_index: 4 },
+        { id: '5-1', label: 'Co-Curricular Activities', href: '/co-curricular', parent_id: '5', order_index: 0 },
+        { id: '5-2', label: 'Fr. Batson Sports Complex', href: '/sports-complex', parent_id: '5', order_index: 1 },
+        { id: '5-3', label: 'Xavier’s Alumni', href: '/alumni', parent_id: '5', order_index: 2 },
+        { id: '5-4', label: 'Media Gallery', href: '/gallery', parent_id: '5', order_index: 3 },
+        { id: '5-5', label: 'Event Calendar', href: '/events', parent_id: '5', order_index: 4 },
+        { id: '5-6', label: 'Student Achievements', href: '/achievements', parent_id: '5', order_index: 5 },
+        { id: '6', label: 'CBSE Corner', href: '#', parent_id: null, order_index: 5 },
+        { id: '6-1', label: 'School Information', href: '/school-info', parent_id: '6', order_index: 0 },
+        { id: '7', label: 'For Parents', href: '#', parent_id: null, order_index: 6 },
+        { id: '7-1', label: 'Obligations of Parents', href: '/parent-obligations', parent_id: '7', order_index: 0 },
+        { id: '8', label: 'Career', href: '#', parent_id: null, order_index: 7 },
+        { id: '8-1', label: 'Careers', href: '/careers', parent_id: '8', order_index: 0 },
+        { id: '9', label: 'More', href: '#', parent_id: null, order_index: 8 },
+        { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
+        { id: '9-2', label: 'Gallery', href: '/gallery', parent_id: '9', order_index: 1 },
+    ];
+
+    const insert = db.prepare("INSERT INTO menu (id, label, href, parent_id, order_index) VALUES (?, ?, ?, ?, ?)");
+    const transaction = db.transaction((links) => {
+        for (const l of links) insert.run(l.id, l.label, l.href, l.parent_id, l.order_index);
+    });
+    transaction(navLinks);
+}
 
 // Diagnostic: Check fees table columns
 const columns = db.pragma('table_info(fees)');
@@ -256,7 +310,7 @@ app.use('/uploads', express.static(uploadDir));
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};
-    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements'];
+    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu'];
 
     tables.forEach(table => {
       data[table] = db.prepare(`SELECT * FROM ${table}`).all();
@@ -267,6 +321,26 @@ app.get('/api/data', (req, res) => {
     console.error(`Fetch error:`, err);
     res.status(500).json({ error: err.message });
   }
+});
+
+app.post('/api/upload', (req, res) => {
+  upload.single('file')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File exceeds 20MB limit' });
+      }
+      return res.status(400).json({ error: err.message });
+    } else if (err) {
+      return res.status(500).json({ error: 'Internal server error during upload' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const fileUrl = `/uploads/${req.file.filename}`;
+    res.json({ url: fileUrl });
+  });
 });
 
 app.post('/api/gallery/upload', (req, res) => {
@@ -306,7 +380,8 @@ const SCHEMA: { [key: string]: string[] } = {
   fees: ['id', 'grade', 'admissionFee', 'tuition_fees', 'quarterly'],
   links: ['id', 'title', 'url'],
   events: ['id', 'title', 'date', 'time', 'location'],
-  achievements: ['id', 'title', 'year', 'description']
+  achievements: ['id', 'title', 'year', 'description'],
+  menu: ['id', 'label', 'href', 'parent_id', 'order_index']
 };
 
 app.post('/api/save', (req, res) => {
@@ -346,7 +421,7 @@ app.post('/api/save', (req, res) => {
 app.delete('/api/delete', (req, res) => {
   try {
     const { table, id, ids } = req.body;
-    const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements'];
+    const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu'];
     
     if (!whitelist.includes(table)) {
       return res.status(400).json({ error: 'Invalid table name' });

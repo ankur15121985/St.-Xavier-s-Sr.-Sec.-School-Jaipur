@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-  Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, 
+  Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
   Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, AlertCircle
 } from 'lucide-react';
 import { AppData } from '../types';
@@ -145,6 +145,11 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
        newItem.title = 'Achievement Title';
        newItem.year = '2026';
        newItem.description = 'Success story detail...';
+    } else if (tableStr === 'menu') {
+       newItem.label = 'New Menu Item';
+       newItem.href = '#';
+       newItem.parent_id = null;
+       newItem.order_index = data.menu.filter(m => !m.parent_id).length;
     }
 
     setData({ ...data, [activeSection]: [newItem, ...data[activeSection]] });
@@ -345,7 +350,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     { id: 'gallery', label: 'Gallery', icon: <ImageIcon size={18} /> },
     { id: 'fees', label: 'Fees', icon: <CreditCard size={18} /> },
     { id: 'links', label: 'Links', icon: <LinkIcon size={18} /> },
-    { id: 'achievements', label: 'Success', icon: <Award size={18} /> }
+    { id: 'achievements', label: 'Success', icon: <Award size={18} /> },
+    { id: 'menu', label: 'Menu', icon: <Menu size={18} /> }
   ];
 
   const handleLogin = (e: React.FormEvent) => {
@@ -700,8 +706,38 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                         <option value="Faculty">Faculty</option>
                         <option value="Administration">Administration</option>
                       </select>
+                    ) : field === 'parent_id' && activeSection === 'menu' ? (
+                      <select 
+                        value={item[field] || ''} 
+                        onChange={(e) => handleUpdate(item.id, field as string, e.target.value || '')} 
+                        className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
+                      >
+                        <option value="">None (Top Level)</option>
+                        {data.menu.filter(m => !m.parent_id && m.id !== item.id).map(m => (
+                          <option key={m.id} value={m.id}>{m.label}</option>
+                        ))}
+                      </select>
                     ) : (
-                       <input value={item[field]} onChange={(e) => handleUpdate(item.id, field as string, e.target.value)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all" />
+                       <div className="space-y-2">
+                        <input value={item[field]} onChange={(e) => handleUpdate(item.id, field as string, e.target.value)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all" />
+                        {field === 'href' && (
+                          <label className="block text-center px-4 py-2 bg-school-gold/10 text-school-gold rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
+                             Upload Link File (PDF/IMG)
+                             <input type="file" className="hidden" onChange={async (e) => {
+                               const file = e.target.files?.[0];
+                               if (!file) return;
+                               const formData = new FormData();
+                               formData.append('file', file);
+                               setIsUploading(true);
+                               try {
+                                 const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                                 const result = await res.json();
+                                 if (result.url) handleUpdate(item.id, 'href', result.url);
+                               } finally { setIsUploading(false); }
+                             }} />
+                          </label>
+                        )}
+                       </div>
                     )}
                   </div>
                 ))}

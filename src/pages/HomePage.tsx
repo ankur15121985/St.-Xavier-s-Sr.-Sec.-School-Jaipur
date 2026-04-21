@@ -24,37 +24,85 @@ const HomePage = ({ data }: { data: AppData }) => {
     mouseY.set(y / 20);
   };
 
+  const fadeInUp = {
+    initial: { opacity: 0, y: 40 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 1, ease: [0.22, 1, 0.36, 1] }
+  };
+
+  const staggerContainer = {
+    animate: {
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
   return (
-    <Layout links={data.links}>
-      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-slate-50" onMouseMove={handleHeroMouseMove}>
+    <Layout data={data}>
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-slate-50 py-32" onMouseMove={handleHeroMouseMove}>
         <div className="absolute inset-0 z-0 overflow-hidden">
            <motion.div 
              animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0], x: [0, 100, 0], y: [0, 50, 0] }}
              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-             className="absolute -top-[20%] -left-[10%] w-[60%] h-[80%] bg-school-navy/5 rounded-full blur-[120px]"
+             className="absolute -top-[20%] -left-[10%] w-[60%] h-[80%] bg-blue-600/5 rounded-full blur-[120px]"
            />
            <motion.div 
              animate={{ scale: [1, 1.3, 1], rotate: [0, -45, 0], x: [0, -150, 0], y: [0, -100, 0] }}
              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-             className="absolute -bottom-[10%] -right-[5%] w-[50%] h-[70%] bg-school-gold/10 rounded-full blur-[100px]"
+             className="absolute -bottom-[10%] -right-[5%] w-[50%] h-[70%] bg-amber-400/10 rounded-full blur-[100px]"
            />
            <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-white to-transparent"></div>
         </div>
-        <motion.div style={{ x: textX, y: textY, rotateX: textRotateX, rotateY: textRotateY, transformStyle: "preserve-3d" }} className="relative z-10 text-center px-6 pointer-events-none">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }}>
-            <h2 className="text-8xl md:text-[11rem] font-serif font-black text-school-navy leading-[0.8] mb-12 tracking-tighter glow-text pointer-events-auto">Transforming <br /> <span className="text-school-gold italic">Vision.</span></h2>
-            <p className="text-2xl md:text-3xl text-school-navy/50 font-light mb-16 max-w-3xl mx-auto leading-relaxed pointer-events-auto">Empowering men and women for others with a commitment to academic excellence and moral fortitude in Jaipur.</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-10 pointer-events-auto">
-              <button className="px-16 py-6 glass-dark text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all">Digital Registration</button>
-              <button className="px-16 py-6 glass-surface text-school-navy rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl">Virtual Tour</button>
-            </div>
+
+        <motion.div 
+          style={{ x: textX, y: textY, rotateX: textRotateX, rotateY: textRotateY, transformStyle: "preserve-3d" }} 
+          className="relative z-10 text-center px-6 pointer-events-none"
+        >
+          <motion.div 
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+          >
+            <motion.h2 variants={fadeInUp} className="text-[12vw] md:text-[11rem] font-serif font-black text-school-navy leading-[0.75] mb-12 tracking-tighter glow-text pointer-events-auto">
+              Transforming <br /> 
+              <motion.span 
+                animate={{ color: ["#002147", "#fbbf24", "#002147"] }}
+                transition={{ duration: 8, repeat: Infinity }}
+                className="italic inline-block"
+              >
+                Vision.
+              </motion.span>
+            </motion.h2>
+            
+            <motion.p variants={fadeInUp} className="text-xl md:text-3xl text-school-navy/50 font-light mb-12 max-w-4xl mx-auto leading-relaxed pointer-events-auto">
+              Empowering men and women for others with a commitment to <span className="text-school-navy font-bold">academic excellence</span> and moral fortitude in Jaipur.
+            </motion.p>
+
+            <motion.div variants={fadeInUp} className="pointer-events-auto mb-16">
+              <div className="inline-block px-10 py-3 bg-white/60 backdrop-blur-3xl border border-white/50 rounded-full text-[10px] font-black uppercase tracking-[0.6em] text-school-navy floating shadow-2xl">
+                ESTABLISHED 1941 • JESUIT TRADITION
+              </div>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center gap-10 pointer-events-auto">
+              <button className="px-16 py-6 bg-school-navy text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-school-accent hover:shadow-[0_20px_50px_rgba(0,33,71,0.3)] transition-all transform active:scale-95 shadow-2xl">Digital Registration</button>
+              <button className="px-16 py-6 glass-surface text-school-navy rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl active:scale-95">Virtual Tour</button>
+            </motion.div>
           </motion.div>
         </motion.div>
       </section>
 
-      {/* About Section - Inserted just after "carousel" (Hero) */}
-      <section className="py-24 bg-white px-6 lg:px-12">
-        <div className="max-w-7xl mx-auto rounded-[64px] border-2 border-school-navy/10 p-12 md:p-24 relative overflow-hidden">
+      {/* About Section */}
+      <section className="py-32 bg-white px-6 lg:px-12 overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 1 }}
+          className="max-w-7xl mx-auto rounded-[64px] border-2 border-school-navy/10 p-12 md:p-24 relative overflow-hidden"
+        >
           <div className="absolute top-0 right-0 w-96 h-96 bg-school-navy/5 rounded-full blur-[100px] -mr-48 -mt-48 transition-all group-hover:scale-110"></div>
           
           <div className="grid lg:grid-cols-2 gap-20 relative z-10">
@@ -86,7 +134,7 @@ const HomePage = ({ data }: { data: AppData }) => {
               The Society of Jesus, founded by St. Ignatius of Loyola in 1540, has, since its origin, been active in the field of education throughout the world. In India, the Society of Jesus is at present responsible for more than one hundred high schools and 25 colleges in which over a lakh and a half, young people belonging to every creed, social class, community and linguistic group are educated through the medium of English and regional languages. These institutions are part of the Catholic Church’s effort to share in the country’s educational undertaking. This effort, while particularly responsible to the Christian community, has always been at the service of the whole nation. Thus in these institutions, recognised as Christian Minority Institutions, the religious beliefs of all students are treated with respect.
             </p>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Message from the Principal Section */}

@@ -8,7 +8,7 @@ const AdmissionPolicyPage = ({ data }: { data: AppData }) => {
   const prospectusLink = data.links.find(l => l.title.toLowerCase().includes('prospectus'))?.url || '#';
 
   return (
-    <Layout links={data.links}>
+    <Layout data={data}>
       <div className="pt-32 bg-slate-50 min-h-screen">
         {/* Banner Section */}
         <section className="py-20 bg-school-navy relative overflow-hidden">

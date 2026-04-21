@@ -56,7 +56,7 @@ const StaffPage = ({ data }: { data: AppData }) => {
   );
 
   return (
-    <Layout links={data.links}>
+    <Layout data={data}>
       <section className="pt-48 pb-40 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center mb-24">
            <h2 className="text-7xl font-serif font-black text-school-navy mb-8">Institutional <span className="text-school-gold italic">Leadership.</span></h2>
