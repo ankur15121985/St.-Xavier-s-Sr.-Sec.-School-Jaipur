@@ -18,6 +18,11 @@ interface PendingGalleryItem {
 }
 
 const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) => void }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  
   const [activeSection, setActiveSection] = useState<keyof AppData>('notices');
   const [isUploading, setIsUploading] = useState(false);
   const [pendingGalleryItems, setPendingGalleryItems] = useState<PendingGalleryItem[]>([]);
@@ -342,6 +347,110 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     { id: 'links', label: 'Links', icon: <LinkIcon size={18} /> },
     { id: 'achievements', label: 'Success', icon: <Award size={18} /> }
   ];
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginUsername === 'ankur15121985' && loginPassword === 'M@thur24') {
+      setIsAuthenticated(true);
+      setLoginError('');
+      showToast('Welcome back, Admin', 'success');
+    } else {
+      setLoginError('Invalid username or password. Please try again.');
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-school-navy flex items-center justify-center p-6 relative overflow-hidden">
+        {/* Animated Background Blobs */}
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
+          transition={{ duration: 20, repeat: Infinity }}
+          className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-school-gold/5 rounded-full blur-[120px]"
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.3, 1], rotate: [0, -45, 0] }}
+          transition={{ duration: 25, repeat: Infinity }}
+          className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-white/5 rounded-full blur-[100px]"
+        />
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative z-10 w-full max-w-lg"
+        >
+          <div className="text-center mb-12">
+            <Link to="/" className="inline-flex items-center gap-4 mb-8 group">
+              <div className="w-16 h-16 bg-school-gold rounded-2xl flex items-center justify-center text-school-navy font-black text-3xl shadow-2xl group-hover:scale-110 transition-transform">X</div>
+              <div className="text-left">
+                <h1 className="font-serif text-3xl font-black text-white leading-none tracking-tight">ST. XAVIER'S</h1>
+                <p className="text-[10px] uppercase tracking-[0.4em] font-black text-white/40">Admin Gateway</p>
+              </div>
+            </Link>
+          </div>
+
+          <form onSubmit={handleLogin} className="glass-dark border border-white/10 p-12 rounded-[40px] shadow-2xl space-y-8">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Username</label>
+                <div className="relative">
+                  <Key className="absolute left-5 top-1/2 -translate-y-1/2 text-school-gold" size={18} />
+                  <input 
+                    type="text" 
+                    value={loginUsername}
+                    onChange={(e) => setLoginUsername(e.target.value)}
+                    placeholder="Enter admin ID"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-school-gold/50 transition-all font-medium"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Secure Password</label>
+                <div className="relative">
+                  <AlertCircle className="absolute left-5 top-1/2 -translate-y-1/2 text-school-gold" size={18} />
+                  <input 
+                    type="password" 
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-school-gold/50 transition-all font-medium"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <AnimatePresence>
+              {loginError && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3 text-red-500 text-xs font-black uppercase tracking-widest"
+                >
+                  <AlertCircle size={16} />
+                  {loginError}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button 
+              type="submit"
+              className="w-full bg-school-gold text-school-navy py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl active:scale-[0.98]"
+            >
+              Enter Console
+            </button>
+            
+            <Link to="/" className="block text-center text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-white transition-colors">
+              Return to Public Portal
+            </Link>
+          </form>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F0F2F5] flex font-sans">

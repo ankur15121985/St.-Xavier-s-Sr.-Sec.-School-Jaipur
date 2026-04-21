@@ -10,6 +10,7 @@ import {
   Route
 } from 'react-router-dom';
 import { AppData } from './types';
+import { HelmetProvider } from 'react-helmet-async';
 
 // Page Imports
 import HomePage from './pages/HomePage';
@@ -28,6 +29,12 @@ import ScholarshipPage from './pages/ScholarshipPage';
 import StudybaseAppPage from './pages/StudybaseAppPage';
 import JesuitEducationPage from './pages/JesuitEducationPage';
 import SportsComplexPage from './pages/SportsComplexPage';
+import CoCurricularActivitiesPage from './pages/CoCurricularActivitiesPage';
+import AlumniPage from './pages/AlumniPage';
+import SchoolInformationPage from './pages/SchoolInformationPage';
+import ParentObligationsPage from './pages/ParentObligationsPage';
+import CareersPage from './pages/CareersPage';
+import NoticeBoardPage from './pages/NoticeBoardPage';
 import AdminPortal from './pages/AdminPortal';
 
 const DEFAULT_DATA: AppData = {
@@ -246,26 +253,35 @@ export default function App() {
   if (loading) return <div className="h-screen w-screen flex items-center justify-center bg-school-navy text-white font-serif italic text-2xl">Initializing Jesuit Portal...</div>;
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage data={data} />} />
-        <Route path="/staff" element={<StaffPage data={data} />} />
-        <Route path="/gallery" element={<GalleryPage data={data} />} />
-        <Route path="/notices" element={<NoticesPage data={data} />} />
-        <Route path="/events" element={<EventsPage data={data} />} />
-        <Route path="/fees" element={<FeesPage data={data} />} />
-        <Route path="/achievements" element={<AchievementsPage data={data} />} />
-        <Route path="/history" element={<HistoryPage data={data} />} />
-        <Route path="/founder-patron" element={<FounderPatronPage data={data} />} />
-        <Route path="/governing-members" element={<GoverningMembersPage data={data} />} />
-        <Route path="/anthem" element={<SchoolAnthemPage data={data} />} />
-        <Route path="/admission-policy" element={<AdmissionPolicyPage data={data} />} />
-        <Route path="/scholarships" element={<ScholarshipPage data={data} />} />
-        <Route path="/studybase-app" element={<StudybaseAppPage data={data} />} />
-        <Route path="/jesuit-education-objectives" element={<JesuitEducationPage data={data} />} />
-        <Route path="/sports-complex" element={<SportsComplexPage data={data} />} />
-        <Route path="/admin" element={<AdminPortal data={data} setData={setData} />} />
-      </Routes>
-    </Router>
+    <HelmetProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage data={data} />} />
+          <Route path="/staff" element={<StaffPage data={data} />} />
+          <Route path="/gallery" element={<GalleryPage data={data} />} />
+          <Route path="/notices" element={<NoticesPage data={data} />} />
+          <Route path="/events" element={<EventsPage data={data} />} />
+          <Route path="/fees" element={<FeesPage data={data} />} />
+          <Route path="/achievements" element={<AchievementsPage data={data} />} />
+          <Route path="/history" element={<HistoryPage data={data} />} />
+          <Route path="/founder-patron" element={<FounderPatronPage data={data} />} />
+          <Route path="/governing-members" element={<GoverningMembersPage data={data} />} />
+          <Route path="/anthem" element={<SchoolAnthemPage data={data} />} />
+          <Route path="/admission-policy" element={<AdmissionPolicyPage data={data} />} />
+          <Route path="/scholarships" element={<ScholarshipPage data={data} />} />
+          <Route path="/studybase-app" element={<StudybaseAppPage data={data} />} />
+          <Route path="/jesuit-education-objectives" element={<JesuitEducationPage data={data} />} />
+          <Route path="/sports-complex" element={<SportsComplexPage data={data} />} />
+          <Route path="/co-curricular" element={<CoCurricularActivitiesPage data={data} />} />
+          <Route path="/alumni" element={<AlumniPage data={data} />} />
+          <Route path="/school-info" element={<SchoolInformationPage data={data} />} />
+          <Route path="/parent-obligations" element={<ParentObligationsPage data={data} />} />
+          <Route path="/careers" element={<CareersPage data={data} />} />
+          <Route path="/notice-board" element={<NoticeBoardPage data={data} />} />
+          <Route path="/gallery" element={<GalleryPage data={data} />} />
+          <Route path="/admin" element={<AdminPortal data={data} setData={setData} />} />
+        </Routes>
+      </Router>
+    </HelmetProvider>
   );
 }

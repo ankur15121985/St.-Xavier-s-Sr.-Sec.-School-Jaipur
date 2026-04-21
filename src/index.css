@@ -38,8 +38,8 @@
 }
 
 .glass-nav {
-  @apply bg-white/75 backdrop-blur-3xl border-b border-white/30 saturate-200;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+  @apply bg-sky-50/90 backdrop-blur-3xl border-b border-sky-200/50 saturate-200;
+  box-shadow: 0 4px 30px rgba(0, 33, 71, 0.05);
 }
 
 .glass-dark {

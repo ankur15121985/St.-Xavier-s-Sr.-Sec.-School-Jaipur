@@ -42,7 +42,6 @@ const HomePage = ({ data }: { data: AppData }) => {
         </div>
         <motion.div style={{ x: textX, y: textY, rotateX: textRotateX, rotateY: textRotateY, transformStyle: "preserve-3d" }} className="relative z-10 text-center px-6 pointer-events-none">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }}>
-            <div className="inline-block px-8 py-2.5 glass-surface rounded-full text-[11px] font-black uppercase tracking-[0.5em] text-school-navy mb-12 floating shadow-sm font-black">ESTABLISHED 1941 • JESUIT TRADITION</div>
             <h2 className="text-8xl md:text-[11rem] font-serif font-black text-school-navy leading-[0.8] mb-12 tracking-tighter glow-text pointer-events-auto">Transforming <br /> <span className="text-school-gold italic">Vision.</span></h2>
             <p className="text-2xl md:text-3xl text-school-navy/50 font-light mb-16 max-w-3xl mx-auto leading-relaxed pointer-events-auto">Empowering men and women for others with a commitment to academic excellence and moral fortitude in Jaipur.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-10 pointer-events-auto">

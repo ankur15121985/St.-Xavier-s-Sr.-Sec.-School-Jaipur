@@ -55,13 +55,43 @@ const Layout = ({ children, links }: LayoutProps) => {
       label: 'Activities',
       href: '#',
       subLinks: [
+        { label: 'Co-Curricular Activities', href: '/co-curricular' },
         { label: 'Fr. Batson Sports Complex', href: '/sports-complex' },
+        { label: 'Xavier’s Alumni', href: '/alumni' },
         { label: 'Media Gallery', href: '/gallery' },
         { label: 'Event Calendar', href: '/events' },
         { label: 'Student Achievements', href: '/achievements' },
       ]
     },
-    { label: 'Notices', href: '/notices' },
+    {
+      label: 'CBSE Corner',
+      href: '#',
+      subLinks: [
+        { label: 'School Information', href: '/school-info' },
+      ]
+    },
+    {
+      label: 'For Parents',
+      href: '#',
+      subLinks: [
+        { label: 'Obligations of Parents', href: '/parent-obligations' },
+      ]
+    },
+    {
+      label: 'Career',
+      href: '#',
+      subLinks: [
+        { label: 'Careers', href: '/careers' },
+      ]
+    },
+    {
+      label: 'More',
+      href: '#',
+      subLinks: [
+        { label: 'Notice Board', href: '/notice-board' },
+        { label: 'Gallery', href: '/gallery' },
+      ]
+    },
   ];
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -69,15 +99,24 @@ const Layout = ({ children, links }: LayoutProps) => {
   return (
     <div className="min-h-screen bg-white selection:bg-school-gold selection:text-white overflow-x-hidden">
       {/* Dynamic Navbar */}
-      <nav className={`fixed w-full z-50 transition-all duration-500 ${isScrolled ? 'glass-nav py-4' : 'bg-transparent py-8'}`}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-4">
-            <motion.div whileHover={{ scale: 1.1 }} className="w-14 h-14 flex items-center justify-center text-white font-serif font-black text-3xl shadow-2xl rounded-2xl bg-school-navy border-2 border-school-gold/20">X</motion.div>
+      <nav className={`fixed w-full z-50 transition-all duration-700 ${isScrolled ? 'glass-nav py-3' : 'bg-sky-50/80 backdrop-blur-2xl border-b border-sky-100 py-6'}`}>
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 flex justify-between items-center relative">
+          
+          {/* Logo Section */}
+          <Link to="/" className="flex items-center gap-4 group">
+            <motion.div whileHover={{ scale: 1.1 }} className="w-14 h-14 flex items-center justify-center text-white font-serif font-black text-3xl shadow-2xl rounded-2xl bg-school-navy border-2 border-school-gold/20 group-hover:bg-school-accent transition-colors">X</motion.div>
             <div>
               <h1 className="font-serif text-2xl font-black text-school-navy leading-none tracking-tight">ST. XAVIER'S</h1>
               <p className="text-[10px] uppercase tracking-[0.4em] font-black text-school-navy/40">SR. SEC. SCHOOL • JAIPUR</p>
             </div>
           </Link>
+
+          {/* Centered Integrated Text (Desktop) */}
+          <div className="hidden 2xl:flex absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 pointer-events-none">
+            <div className="px-5 py-2 glass-surface rounded-full text-[9px] font-black uppercase tracking-[0.4em] text-school-navy/40 border border-school-navy/5 shadow-inner">
+              ESTABLISHED 1941 • JESUIT TRADITION
+            </div>
+          </div>
           
           <div className="hidden xl:flex items-center gap-8">
             {navLinks.map(l => (
