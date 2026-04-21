@@ -31,8 +31,6 @@ const Layout = ({ children, links }: LayoutProps) => {
         { label: 'Governing Members', href: '/governing-members' },
         { label: 'School Anthem', href: '/anthem' },
         { label: 'History', href: '/history' },
-        { label: 'Staff', href: '/staff' },
-        { label: 'Achievements', href: '/achievements' },
       ]
     },
     {
@@ -40,7 +38,18 @@ const Layout = ({ children, links }: LayoutProps) => {
       href: '#',
       subLinks: [
         { label: 'Admission Policy', href: '/admission-policy' },
+        { label: 'Scholarship & Concessions', href: '/scholarships' },
         { label: 'Fees Structure', href: '/fees' },
+        { label: 'Studybase Mobile App', href: '/studybase-app' },
+      ]
+    },
+    {
+      label: 'Academics',
+      href: '#',
+      subLinks: [
+        { label: 'Jesuit Education Objectives', href: '/jesuit-education-objectives' },
+        { label: 'Staff Directory', href: '/staff' },
+        { label: 'Achievements', href: '/achievements' },
       ]
     },
     { label: 'Gallery', href: '/gallery' },
