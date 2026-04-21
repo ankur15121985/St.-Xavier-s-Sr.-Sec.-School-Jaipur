@@ -27,15 +27,25 @@ const Layout = ({ children, links }: LayoutProps) => {
       label: 'About Us', 
       href: '#',
       subLinks: [
+        { label: 'Our Founder & Patron', href: '/founder-patron' },
+        { label: 'Governing Members', href: '/governing-members' },
+        { label: 'School Anthem', href: '/anthem' },
         { label: 'History', href: '/history' },
         { label: 'Staff', href: '/staff' },
         { label: 'Achievements', href: '/achievements' },
       ]
     },
+    {
+      label: 'Admission',
+      href: '#',
+      subLinks: [
+        { label: 'Admission Policy', href: '/admission-policy' },
+        { label: 'Fees Structure', href: '/fees' },
+      ]
+    },
     { label: 'Gallery', href: '/gallery' },
     { label: 'Notices', href: '/notices' },
     { label: 'Events', href: '/events' },
-    { label: 'Fees', href: '/fees' },
   ];
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);

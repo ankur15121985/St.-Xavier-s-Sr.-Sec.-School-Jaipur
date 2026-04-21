@@ -20,6 +20,10 @@ import EventsPage from './pages/EventsPage';
 import FeesPage from './pages/FeesPage';
 import AchievementsPage from './pages/AchievementsPage';
 import HistoryPage from './pages/HistoryPage';
+import FounderPatronPage from './pages/FounderPatronPage';
+import GoverningMembersPage from './pages/GoverningMembersPage';
+import SchoolAnthemPage from './pages/SchoolAnthemPage';
+import AdmissionPolicyPage from './pages/AdmissionPolicyPage';
 import AdminPortal from './pages/AdminPortal';
 
 const DEFAULT_DATA: AppData = {
@@ -170,10 +174,11 @@ const DEFAULT_DATA: AppData = {
     { id: '5', grade: 'XI - XII', admissionFee: '₹55,000', tuition_fees: '₹7,200', quarterly: '₹21,600' }
   ],
   links: [
-    { id: '1', title: 'Student & Parent Portal', url: '#' },
-    { id: '2', title: 'Academic Calendar 2025-26', url: '#' },
-    { id: '3', title: 'XAOSA Alumni Registration', url: '#' },
-    { id: '4', title: 'CBSE Affiliation Info', url: '#' }
+    { id: '1', title: 'Admission Prospectus 2026-27', url: '#' },
+    { id: '2', title: 'Student & Parent Portal', url: '#' },
+    { id: '3', title: 'Academic Calendar 2025-26', url: '#' },
+    { id: '4', title: 'XAOSA Alumni Registration', url: '#' },
+    { id: '5', title: 'CBSE Affiliation Info', url: '#' }
   ],
   events: [
     { id: '1', title: 'Investiture Ceremony 2026', date: 'May 15, 2026', time: '09:00 AM', location: 'St. Ignatius Hall' },
@@ -247,6 +252,10 @@ export default function App() {
         <Route path="/fees" element={<FeesPage data={data} />} />
         <Route path="/achievements" element={<AchievementsPage data={data} />} />
         <Route path="/history" element={<HistoryPage data={data} />} />
+        <Route path="/founder-patron" element={<FounderPatronPage data={data} />} />
+        <Route path="/governing-members" element={<GoverningMembersPage data={data} />} />
+        <Route path="/anthem" element={<SchoolAnthemPage data={data} />} />
+        <Route path="/admission-policy" element={<AdmissionPolicyPage data={data} />} />
         <Route path="/admin" element={<AdminPortal data={data} setData={setData} />} />
       </Routes>
     </Router>
