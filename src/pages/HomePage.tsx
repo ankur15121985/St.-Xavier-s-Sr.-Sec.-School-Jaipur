@@ -6,7 +6,16 @@ import Layout from '../components/layout/Layout';
 import { PerspectiveCard } from '../components/ui/PerspectiveCard';
 import { AppData } from '../types';
 
+import { Carousel } from '../components/ui/Carousel';
+
 const HomePage = ({ data }: { data: AppData }) => {
+  const carouselImages = [
+    "https://lh3.googleusercontent.com/d/1HMAoUtjYDiPppgByGA2Ut0zP4Kvh0P3A=w1600",
+    "https://lh3.googleusercontent.com/d/1ZfP3k6bFiwdZdEe3CI_U6KhBkAEaybUs=w1600",
+    "https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600",
+    "https://lh3.googleusercontent.com/d/187y5AfGgvXnofNL6h85uU1rpdfaWYDCH=w1600"
+  ];
+
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const springX = useSpring(mouseX, { stiffness: 100, damping: 30 });
@@ -92,6 +101,11 @@ const HomePage = ({ data }: { data: AppData }) => {
             </motion.div>
           </motion.div>
         </motion.div>
+      </section>
+
+      {/* Institutional Highlights Carousel - Full Width */}
+      <section className="-mt-20 relative z-20 w-full overflow-hidden">
+        <Carousel images={carouselImages} />
       </section>
 
       {/* About Section */}

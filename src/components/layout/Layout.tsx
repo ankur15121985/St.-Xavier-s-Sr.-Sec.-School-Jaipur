@@ -59,7 +59,17 @@ const Layout = ({ children, data }: LayoutProps) => {
           {/* Logo Section (Left) */}
           <div className="flex-1 flex justify-start z-20">
             <Link to="/" className="flex items-center gap-3 group whitespace-nowrap">
-              <motion.div whileHover={{ scale: 1.1 }} className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-white font-serif font-black text-xl md:text-2xl shadow-xl rounded-xl bg-school-navy border-2 border-school-gold/20 group-hover:bg-school-accent transition-colors shrink-0">X</motion.div>
+              <motion.div 
+                whileHover={{ scale: 1.05 }} 
+                className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center transition-transform shrink-0"
+              >
+                <img 
+                  src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
+                  alt="St. Xavier's Logo" 
+                  className="w-full h-full object-contain"
+                  referrerPolicy="no-referrer"
+                />
+              </motion.div>
               <div className="flex flex-col">
                 <h1 className={`font-serif text-lg md:text-xl font-black transition-colors leading-none tracking-tight ${isScrolled ? 'text-white' : 'text-school-navy'}`}>ST. XAVIER'S</h1>
                 <p className={`text-[8px] md:text-[9px] uppercase tracking-[0.2em] md:tracking-[0.4em] font-black transition-colors hidden sm:block mt-1 ${isScrolled ? 'text-white/40' : 'text-school-navy/40'}`}>SR. SEC. SCHOOL • JAIPUR</p>
@@ -154,77 +164,134 @@ const Layout = ({ children, data }: LayoutProps) => {
       </main>
 
       <footer className="relative bg-school-navy overflow-hidden">
-        {/* Aesthetic Background Image */}
+        {/* Aesthetic Background Image - No Effects Applied */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://picsum.photos/seed/school_grounds/1920/1080?blur=2" 
-            className="w-full h-full object-cover opacity-30 grayscale-[0.2]" 
+            src={location.pathname === '/' ? "https://xaviersjaipur.edu.in/wp-content/uploads/2023/03/school3-1.png" : "https://picsum.photos/seed/school_grounds/1920/1080?blur=2"} 
+            className={`w-full h-full object-cover opacity-100 ${location.pathname === '/' ? 'object-bottom' : 'object-center'}`} 
             alt="School Grounds"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-school-navy/90 via-school-navy/70 to-school-navy"></div>
+          
+          {/* Enhanced Color-Changing Liquid Overlay Layer */}
+          <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
+            {/* Liquid Blob 1 - Navy to Sky to Navy */}
+            <motion.div 
+              animate={{
+                x: [0, 150, -100, 0],
+                y: [0, -100, 80, 0],
+                scale: [1, 1.4, 0.8, 1],
+                backgroundColor: ["#00214733", "#38bdf822", "#00214733"], // Navy to Sky
+              }}
+              transition={{
+                duration: 20,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+              className="absolute -top-[20%] -left-[10%] w-[70%] h-[90%] blur-[100px] rounded-full"
+            />
+            {/* Liquid Blob 2 - Gold to Navy to Gold */}
+            <motion.div 
+              animate={{
+                x: [0, -180, 100, 0],
+                y: [0, 120, -100, 0],
+                scale: [1, 0.7, 1.2, 1],
+                backgroundColor: ["#FFD70022", "#00214733", "#FFD70022"], // Gold to Navy
+              }}
+              transition={{
+                duration: 25,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+              className="absolute -bottom-[30%] -right-[15%] w-[80%] h-[100%] blur-[120px] rounded-full"
+            />
+            {/* Liquid Blob 3 - Pulser */}
+            <motion.div 
+              animate={{
+                scale: [1, 1.5, 1],
+                opacity: [0.2, 0.4, 0.2],
+                backgroundColor: ["#38bdf811", "#FFD70011", "#38bdf811"], // Sky to Gold
+              }}
+              transition={{
+                duration: 18,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="absolute top-1/2 left-1/4 w-[60%] h-[60%] blur-[140px] rounded-full"
+            />
+          </div>
+
+          {/* Transparent Color Wash for Contrast - No Blur */}
+          <div className="absolute inset-0 bg-school-navy/30 z-[5]"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-school-navy/80 via-transparent to-transparent z-[8]"></div>
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-24 pb-12">
+        <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-12 pt-32 pb-24">
           <div className="grid lg:grid-cols-12 gap-16 items-start">
             
             {/* Branding and Contact (Left) */}
-            <div className="lg:col-span-4 space-y-10">
-              <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-school-gold font-serif font-black text-3xl border border-white/20 shadow-2xl">X</div>
-                  <div>
-                    <h3 className="text-2xl font-serif font-black text-white leading-none tracking-tight">ST. XAVIER'S</h3>
-                    <p className="text-[10px] uppercase tracking-[0.3em] font-black text-school-gold/60 mt-1">JAIPUR • SR. SEC. SCHOOL</p>
+            <div className="lg:col-span-4 space-y-12">
+              <div className="space-y-8">
+                <div className="flex items-center gap-6">
+                  <div className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shrink-0 drop-shadow-2xl brightness-110">
+                    <img 
+                      src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
+                      alt="St. Xavier's Logo" 
+                      className="w-full h-full object-contain"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div className="drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
+                    <h3 className="text-3xl md:text-4xl font-serif font-black text-white leading-none tracking-tight">ST. XAVIER'S</h3>
+                    <p className="text-[12px] md:text-[14px] uppercase tracking-[0.3em] font-black text-white mt-2">SR. SEC. SCHOOL • JAIPUR</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 pt-4">
+                <div className="flex items-center gap-5">
                   {[
-                    { icon: <Facebook size={18} />, label: 'Facebook' },
-                    { icon: <Instagram size={18} />, label: 'Instagram' },
-                    { icon: <Youtube size={18} />, label: 'YouTube' }
+                    { icon: <Facebook size={20} />, label: 'Facebook' },
+                    { icon: <Instagram size={20} />, label: 'Instagram' },
+                    { icon: <Youtube size={20} />, label: 'YouTube' }
                   ].map((social) => (
-                    <a key={social.label} href="#" className="w-11 h-11 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl flex items-center justify-center text-white hover:text-school-gold hover:bg-school-gold/10 transition-all duration-300">
+                    <a key={social.label} href="#" className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-2xl flex items-center justify-center hover:bg-school-gold hover:text-school-navy transition-all duration-300 shadow-xl">
                       {social.icon}
                     </a>
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <a href="tel:01412372336" className="flex items-center gap-3 text-white/80 hover:text-school-gold transition-colors group">
-                  <Phone size={18} className="text-school-gold" />
-                  <span className="text-sm font-black tracking-wider group-hover:translate-x-1 transition-transform">0141-2372336, 2367792</span>
+              <div className="space-y-6 pt-4">
+                <a href="tel:01412372336" className="flex items-center gap-4 text-white/90 font-black hover:text-school-gold transition-colors group">
+                  <Phone size={22} className="text-school-gold" />
+                  <span className="text-[15px] md:text-[16px] tracking-widest group-hover:translate-x-1 transition-transform">0141-2372336, 2367792</span>
                 </a>
-                <a href="mailto:xavier41jaipur@gmail.com" className="flex items-center gap-3 text-white/80 hover:text-school-gold transition-colors group">
-                  <Mail size={18} className="text-school-gold" />
-                  <span className="text-sm font-black tracking-wider group-hover:translate-x-1 transition-transform">xavier41jaipur@gmail.com</span>
+                <a href="mailto:xavier41jaipur@gmail.com" className="flex items-center gap-4 text-white/90 font-black hover:text-school-gold transition-colors group">
+                  <Mail size={22} className="text-school-gold" />
+                  <span className="text-[15px] md:text-[16px] tracking-widest group-hover:translate-x-1 transition-transform lowercase">xavier41jaipur@gmail.com</span>
                 </a>
               </div>
 
               {/* Total Views Counter */}
-              <div className="pt-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-school-gold mb-3">Total Portal Views</p>
-                <div className="flex gap-1.5 items-center">
+              <div className="pt-8 border-t border-white/10">
+                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white/60 mb-4">Portal Views</p>
+                <div className="flex gap-2 items-center">
                   {[4, 6, 9, 5, 5, 2].map((num, i) => (
-                    <div key={i} className="w-8 h-10 bg-school-navy/80 border border-white/10 rounded-lg flex items-center justify-center text-xl font-black text-white shadow-inner">
+                    <div key={i} className="w-10 h-12 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-xl flex items-center justify-center text-2xl font-black shadow-lg">
                       {num}
                     </div>
                   ))}
                 </div>
-                <p className="text-[9px] text-white/40 mt-3 font-medium italic">Since 10 April, 2024</p>
               </div>
             </div>
 
             {/* Quick Links (Middle) */}
-            <div className="lg:col-span-3">
-              <h4 className="text-school-gold font-black uppercase text-[12px] md:text-[13px] tracking-[0.3em] mb-10 pb-4 border-b border-white/5">Quick Links</h4>
-              <ul className="space-y-5 font-black uppercase text-[11px] md:text-[12px] tracking-widest">
+            <div className="lg:col-span-3 lg:pl-10">
+              <h4 className="text-school-gold font-black uppercase text-[15px] md:text-[16px] tracking-[0.4em] mb-10 pb-5 border-b-2 border-white/10">Quick Links</h4>
+              <ul className="space-y-6 font-black uppercase text-[13px] md:text-[14px] tracking-widest">
                 {data.links.map((item) => (
                   <li key={item.id}>
-                    <Link to={item.url} className="text-white/60 hover:text-school-gold transition-all flex items-center gap-3 group">
-                      <div className="w-2 h-2 rounded-full bg-school-gold scale-0 group-hover:scale-100 transition-transform"></div>
+                    <Link to={item.url} className="text-white/80 hover:text-school-gold transition-all flex items-center gap-4 group">
+                      <div className="w-2.5 h-2.5 rounded-full bg-school-gold scale-0 group-hover:scale-100 transition-transform"></div>
                       {item.title}
                     </Link>
                   </li>
@@ -234,12 +301,12 @@ const Layout = ({ children, data }: LayoutProps) => {
 
             {/* More From Us (Right) */}
             <div className="lg:col-span-3">
-              <h4 className="text-school-gold font-black uppercase text-[12px] md:text-[13px] tracking-[0.3em] mb-10 pb-4 border-b border-white/5">More From Us</h4>
-              <ul className="space-y-5 font-black uppercase text-[11px] md:text-[12px] tracking-widest">
+              <h4 className="text-school-gold font-black uppercase text-[15px] md:text-[16px] tracking-[0.4em] mb-10 pb-5 border-b-2 border-white/10">More From Us</h4>
+              <ul className="space-y-6 font-black uppercase text-[13px] md:text-[14px] tracking-widest">
                 {['Media Gallery', 'For Parents', 'Fee Structure', 'Xavier\'s Alumni', 'Contact Us', 'Transfer Certificate'].map((item) => (
                   <li key={item}>
-                    <Link to="/" className="text-white/60 hover:text-school-gold transition-all flex items-center gap-3 group">
-                      <div className="w-2 h-2 rounded-full bg-school-gold scale-0 group-hover:scale-100 transition-transform"></div>
+                    <Link to="/" className="text-white/80 hover:text-school-gold transition-all flex items-center gap-4 group">
+                      <div className="w-2.5 h-2.5 rounded-full bg-school-gold scale-0 group-hover:scale-100 transition-transform"></div>
                       {item}
                     </Link>
                   </li>
@@ -248,8 +315,8 @@ const Layout = ({ children, data }: LayoutProps) => {
             </div>
             
             <div className="lg:col-span-2">
-              <h4 className="text-school-gold font-black uppercase text-[12px] md:text-[13px] tracking-[0.3em] mb-10 pb-4 border-b border-white/5">Address</h4>
-              <p className="text-[11px] md:text-[12px] text-white/70 leading-relaxed font-black uppercase tracking-widest">
+              <h4 className="text-school-gold font-black uppercase text-[15px] md:text-[16px] tracking-[0.4em] mb-10 pb-5 border-b-2 border-white/10">Address</h4>
+              <p className="text-[13px] md:text-[14px] text-white/90 font-black uppercase tracking-widest leading-loose">
                 Bhagwan Das Road, <br />
                 C-Scheme, Jaipur, <br />
                 Rajasthan 302001
@@ -257,13 +324,13 @@ const Layout = ({ children, data }: LayoutProps) => {
             </div>
           </div>
 
-          {/* Bottom Footer */}
-          <div className="mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-[11px] md:text-[12px] font-black uppercase tracking-widest text-white/40">
+          {/* Bottom Footer Credits */}
+          <div className="mt-20 pt-10 border-t-2 border-white/10 flex flex-col md:flex-row justify-between items-center gap-8">
+            <p className="text-[13px] md:text-[14px] font-black uppercase tracking-widest text-white/60">
               © 2024 St. Xavier's Sr. Sec. School | All Rights Reserved.
             </p>
-            <p className="text-[11px] md:text-[12px] font-black uppercase tracking-widest text-white/20">
-              Developed & Hosted by <span className="text-white/50">ABHISHEK MATHUR</span>.
+            <p className="text-[13px] md:text-[14px] font-black uppercase tracking-widest text-white">
+              Developed & Hosted by <span className="border-b-2 border-school-gold/40">ABHISHEK MATHUR</span>
             </p>
           </div>
         </div>
