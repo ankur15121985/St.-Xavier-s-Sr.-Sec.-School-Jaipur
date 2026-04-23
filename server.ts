@@ -54,7 +54,8 @@ db.exec(`
     grade TEXT NOT NULL,
     admissionFee TEXT NOT NULL,
     tuition_fees TEXT NOT NULL,
-    quarterly TEXT NOT NULL
+    quarterly TEXT NOT NULL,
+    pdf_url TEXT
   )
 `);
 
@@ -92,6 +93,14 @@ db.exec(`
     title TEXT NOT NULL,
     year TEXT NOT NULL,
     description TEXT NOT NULL
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS carousel (
+    id TEXT PRIMARY KEY,
+    url TEXT NOT NULL,
+    caption TEXT NOT NULL
   )
 `);
 
@@ -137,6 +146,22 @@ if ((menuCountResult?.count || 0) === 0) {
         for (const l of links) insert.run(l.id, l.label, l.href, l.parent_id, l.order_index);
     });
     transaction(navLinks);
+}
+
+// Seed Carousel if empty
+const carouselCountResult = db.prepare("SELECT COUNT(*) as count FROM carousel").get() as any;
+if ((carouselCountResult?.count || 0) === 0) {
+    console.log("Seeding default carousel items...");
+    const defaultSlides = [
+        { id: 'c1', url: 'https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600', caption: 'Legacy of Excellence' },
+        { id: 'c2', url: 'https://lh3.googleusercontent.com/d/1ZfP3k6bFiwdZdEe3CI_U6KhBkAEaybUs=w1600', caption: 'Modern Campus Mastery' },
+        { id: 'c3', url: 'https://lh3.googleusercontent.com/d/187y5AfGgvXnofNL6h85uU1rpdfaWYDCH=w1600', caption: 'St. Xavier\'s Spirit' },
+    ];
+    const insert = db.prepare("INSERT INTO carousel (id, url, caption) VALUES (?, ?, ?)");
+    const transaction = db.transaction((slides) => {
+        for (const s of slides) insert.run(s.id, s.url, s.caption);
+    });
+    transaction(defaultSlides);
 }
 
 // Diagnostic: Check fees table columns
@@ -310,7 +335,7 @@ app.use('/uploads', express.static(uploadDir));
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};
-    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu'];
+    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel'];
 
     tables.forEach(table => {
       data[table] = db.prepare(`SELECT * FROM ${table}`).all();
@@ -375,6 +400,7 @@ app.post('/api/gallery/upload-multiple', upload.array('images', 10), (req, res) 
 
 const SCHEMA: { [key: string]: string[] } = {
   gallery: ['id', 'url', 'caption'],
+  carousel: ['id', 'url', 'caption'],
   notices: ['id', 'title', 'content', 'date', 'category', 'link'],
   staff: ['id', 'name', 'role', 'bio', 'image', 'type'],
   fees: ['id', 'grade', 'admissionFee', 'tuition_fees', 'quarterly'],
@@ -421,7 +447,7 @@ app.post('/api/save', (req, res) => {
 app.delete('/api/delete', (req, res) => {
   try {
     const { table, id, ids } = req.body;
-    const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu'];
+    const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel'];
     
     if (!whitelist.includes(table)) {
       return res.status(400).json({ error: 'Invalid table name' });

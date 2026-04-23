@@ -130,9 +130,11 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       newItem.bio = 'Staff biography goes here...';
       newItem.type = 'Faculty';
       newItem.image = 'https://picsum.photos/seed/new/400/400';
-    } else if (tableStr === 'gallery') {
-       newItem.url = 'https://picsum.photos/seed/new_gallery/1200/800';
-       newItem.caption = 'Gallery Image Caption';
+    } else if (tableStr === 'gallery' || tableStr === 'carousel') {
+       newItem.url = tableStr === 'gallery' 
+         ? 'https://picsum.photos/seed/new_gallery/1200/800' 
+         : 'https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600';
+       newItem.caption = tableStr === 'gallery' ? 'Gallery Image Caption' : 'Carousel Slide Title';
     } else if (tableStr === 'fees') {
        newItem.grade = 'New Grade';
        newItem.admissionFee = '₹0';
@@ -145,6 +147,13 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
        newItem.title = 'Achievement Title';
        newItem.year = '2026';
        newItem.description = 'Success story detail...';
+    } else if (tableStr === 'studentHonors') {
+       newItem.name = 'New Honor Student';
+       newItem.category = 'Category (e.g. JEE Mains)';
+       newItem.result = '99%';
+       newItem.subtext = 'Additional honors details...';
+       newItem.image = 'https://picsum.photos/seed/honor/300/300';
+       newItem.order_index = data.studentHonors.length;
     } else if (tableStr === 'menu') {
        newItem.label = 'New Menu Item';
        newItem.href = '#';
@@ -224,6 +233,34 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       }
     } catch (err) {
       console.error('Upload failed:', err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, itemId: string, field: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await res.json();
+      if (result.url) {
+        handleUpdate(itemId, field, result.url);
+        showToast('File uploaded successfully!');
+      } else if (result.error) {
+        showToast(result.error, 'error');
+      }
+    } catch (err) {
+      console.error('Upload failed:', err);
+      showToast('Upload failed. Check server connection.', 'error');
     } finally {
       setIsUploading(false);
     }
@@ -347,10 +384,12 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     { id: 'notices', label: 'Notices', icon: <Bell size={18} /> },
     { id: 'events', label: 'Events', icon: <Calendar size={18} /> },
     { id: 'staff', label: 'Faculty', icon: <Users2 size={18} /> },
+    { id: 'carousel', label: 'Carousel', icon: <ImagePlus size={18} className="text-school-accent" /> },
     { id: 'gallery', label: 'Gallery', icon: <ImageIcon size={18} /> },
     { id: 'fees', label: 'Fees', icon: <CreditCard size={18} /> },
     { id: 'links', label: 'Links', icon: <LinkIcon size={18} /> },
     { id: 'achievements', label: 'Success', icon: <Award size={18} /> },
+    { id: 'studentHonors', label: 'Honors', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'menu', label: 'Menu', icon: <Menu size={18} /> }
   ];
 
@@ -526,7 +565,14 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
             )}
             <button onClick={handleAdd} className="flex items-center gap-3 px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">
               <Plus size={16} /> New {
-                activeSection === 'fees' ? 'Fee Class' : activeSection === 'staff' ? 'Faculty Member' : activeSection === 'gallery' ? 'Gallery Item' : activeSection === 'achievements' ? 'Achievement' : activeSection === 'links' ? 'Quick Link' : activeSection === 'events' ? 'Event' : 'Notice'
+                activeSection === 'fees' ? 'Fee Class' : 
+                activeSection === 'staff' ? 'Faculty Member' : 
+                activeSection === 'gallery' ? 'Gallery Item' : 
+                activeSection === 'carousel' ? 'Carousel Slide' :
+                activeSection === 'achievements' ? 'Achievement' : 
+                activeSection === 'studentHonors' ? 'Honor Student' : 
+                activeSection === 'links' ? 'Quick Link' : 
+                activeSection === 'events' ? 'Event' : 'Notice'
               }
             </button>
           </div>
@@ -683,17 +729,19 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                     <label className="text-[9px] font-black uppercase tracking-widest text-slate-300">{field as string}</label>
                     {field === 'bio' || field === 'description' || field === 'content' ? (
                        <textarea value={item[field]} onChange={(e) => handleUpdate(item.id, field as string, e.target.value)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium h-24 focus:ring-1 focus:ring-school-gold transition-all resize-none" />
-                    ) : (field === 'url' || field === 'image') && (activeSection === 'gallery' || activeSection === 'staff') ? (
+                    ) : (field.toLowerCase().includes('url') || field.toLowerCase().includes('image') || field.toLowerCase().includes('link') || field.toLowerCase().includes('file') || field.toLowerCase().includes('pdf')) ? (
                       <div className="space-y-4">
                         <input value={item[field]} onChange={(e) => handleUpdate(item.id, field as string, e.target.value)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all" />
                         <div className="flex items-center gap-4">
                           <label className="flex-1 px-4 py-3 bg-school-navy/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-school-navy cursor-pointer hover:bg-school-navy/10 transition-all text-center">
-                            {isUploading ? 'Uploading...' : activeSection === 'staff' ? 'Upload Image' : 'Direct Upload'}
-                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, item.id, field as string)} disabled={isUploading} />
+                            {isUploading ? 'Uploading...' : 'Browse & Upload'}
+                            <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, field as string)} disabled={isUploading} />
                           </label>
-                          <div className="w-12 h-12 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
-                            {item[field] && <img src={item[field]} className="w-full h-full object-cover" />}
-                          </div>
+                          {(field.toLowerCase().includes('url') || field.toLowerCase().includes('image')) && item[field] && !item[field].endsWith('.pdf') && (
+                            <div className="w-12 h-12 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
+                              <img src={item[field]} className="w-full h-full object-cover" />
+                            </div>
+                          )}
                         </div>
                       </div>
                     ) : field === 'type' && activeSection === 'staff' ? (
@@ -720,21 +768,10 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                     ) : (
                        <div className="space-y-2">
                         <input value={item[field]} onChange={(e) => handleUpdate(item.id, field as string, e.target.value)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all" />
-                        {field === 'href' && (
+                        {(field === 'href' || (activeSection === 'fees' && field === 'grade')) && (
                           <label className="block text-center px-4 py-2 bg-school-gold/10 text-school-gold rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
-                             Upload Link File (PDF/IMG)
-                             <input type="file" className="hidden" onChange={async (e) => {
-                               const file = e.target.files?.[0];
-                               if (!file) return;
-                               const formData = new FormData();
-                               formData.append('file', file);
-                               setIsUploading(true);
-                               try {
-                                 const res = await fetch('/api/upload', { method: 'POST', body: formData });
-                                 const result = await res.json();
-                                 if (result.url) handleUpdate(item.id, 'href', result.url);
-                               } finally { setIsUploading(false); }
-                             }} />
+                             {activeSection === 'fees' ? 'Upload Fee PDF' : 'Upload Document'}
+                             <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, field === 'grade' ? 'grade_pdf' : field)} />
                           </label>
                         )}
                        </div>

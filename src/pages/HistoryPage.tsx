@@ -6,7 +6,7 @@ import { AppData } from '../types';
 const HistoryPage = ({ data }: { data: AppData }) => {
   return (
     <Layout data={data}>
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="bg-transparent min-h-screen">
         {/* Banner Section */}
         <section className="relative h-[60vh] overflow-hidden group">
           <img 
@@ -22,23 +22,23 @@ const HistoryPage = ({ data }: { data: AppData }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1 }}
             >
-              <div className="w-20 h-1 bg-school-gold mx-auto mb-8 rounded-full"></div>
-              <h1 className="text-6xl md:text-8xl font-serif font-black text-white tracking-tighter mb-4 italic">A Historical View <br /> <span className="text-school-gold tracking-widest text-3xl md:text-4xl uppercase font-black not-italic">of the School</span></h1>
+              <div className="w-24 h-2 bg-school-neon mx-auto mb-8 rounded-full"></div>
+              <h1 className="text-6xl md:text-8xl font-sans font-black text-white tracking-tighter mb-4 italic">The Legacy <br /> <span className="text-school-neon tracking-tighter text-4xl md:text-5xl uppercase font-black not-italic opacity-90">Archive.</span></h1>
             </motion.div>
           </div>
         </section>
 
-        {/* Content Section */}
-        <section className="py-24 bg-white relative z-10 -mt-20 rounded-t-[64px] shadow-2xl">
+        {/* Content Section - Glass Theme */}
+        <section className="py-40 bg-white/30 backdrop-blur-3xl relative z-10 -mt-20 rounded-t-[100px] shadow-2xl border-t border-white/40">
           <div className="max-w-4xl mx-auto px-6 lg:px-12">
-            <div className="space-y-12 text-lg text-school-navy/80 leading-relaxed font-light">
+            <div className="space-y-16 text-xl text-school-ink opacity-70 leading-relaxed font-medium">
               <motion.p 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-2xl md:text-3xl text-school-navy font-medium italic border-l-4 border-school-gold pl-8 py-4 leading-normal"
+                className="text-3xl md:text-4xl text-school-ink font-black leading-tight border-l-8 border-school-accent pl-10 py-6"
               >
-                St. Xavier's Jaipur is synonymous with world class education imparted in an exemplary and disciplined ambience. It has unrivaled contributions in shaping the intellectual facet of Jaipur, which we witness today.
+                St. Xavier's Jaipur is synonymous with world class education imparted in an exemplary and disciplined ambience. It has unrivaled contributions in shaping the intellectual facet of Jaipur.
               </motion.p>
 
               <motion.div 
@@ -51,7 +51,7 @@ const HistoryPage = ({ data }: { data: AppData }) => {
                   The legendary institution in its 68 years of glorious existence has nurtured many- be it the younger ones of royals or the striving commoners. The sylvan 21 acres housing the stately three storied structure has showered love on generations and the Alumni of this prestigious institution stand as the bastions of the shimmering heritage and the historical Gold and Blue legacy.
                 </p>
 
-                <div className="bg-slate-50 p-12 rounded-[40px] border border-slate-100 italic font-serif text-xl relative">
+                <div className="bg-white/20 p-12 rounded-[40px] border border-white/30 italic font-serif text-xl relative backdrop-blur-md">
                    <span className="absolute -top-6 -left-2 text-8xl text-school-gold opacity-20">"</span>
                    'ROME NE S'EST FAITE EN UN JOUR' the celebrated 11th century French Proverb is brought alive as we trace the journey of the institution, the untiring efforts of our revered luminaries and their never ending quest for excellence.
                    <p className="mt-6 text-sm font-sans font-black uppercase tracking-widest not-italic text-school-navy/40">— The Jesuit Foundation</p>

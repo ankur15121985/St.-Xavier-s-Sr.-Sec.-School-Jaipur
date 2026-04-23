@@ -7,8 +7,10 @@ import React, { useState, useEffect } from 'react';
 import { 
   BrowserRouter as Router, 
   Routes, 
-  Route
+  Route,
+  useLocation
 } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
 import { AppData } from './types';
 import { HelmetProvider } from 'react-helmet-async';
 
@@ -36,6 +38,26 @@ import ParentObligationsPage from './pages/ParentObligationsPage';
 import CareersPage from './pages/CareersPage';
 import NoticeBoardPage from './pages/NoticeBoardPage';
 import AdminPortal from './pages/AdminPortal';
+
+const PageTransition = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  return (
+    <motion.div
+      key={location.pathname}
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 1.02 }}
+      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const DEFAULT_DATA: AppData = {
   notices: [
@@ -201,6 +223,11 @@ const DEFAULT_DATA: AppData = {
     { id: '2', title: 'Best School in Jaipur 2025', year: '2025', description: 'Ranked #1 for Holistic Development by Education World.' },
     { id: '3', title: 'State Cricket Champions', year: '2025', description: 'The U-19 team won the Rajasthan State Inter-School Tournament.' }
   ],
+  studentHonors: [
+    { id: '1', name: 'Rijul Jain', category: 'JEE Mains:- 90.44%', result: '90.44%', subtext: 'SCIENCE CLUB (JOINT SECRETARY), RAJYA PURASKAR AWARDEE (SCOUTS AND GUIDES)', image: 'https://picsum.photos/seed/student1/300/300', order_index: 0 },
+    { id: '2', name: 'Ameyatman Roy', category: 'JEE Mains:- 90.27%', result: '90.27%', subtext: '90.27 PERCENTILE', image: 'https://picsum.photos/seed/student2/300/300', order_index: 1 },
+    { id: '3', name: 'Aryan Sharma', category: 'JEE Mains:- 99.12%', result: '99.12%', subtext: 'ACADEMIC EXCELLENCE AWARD WINNER', image: 'https://picsum.photos/seed/student3/300/300', order_index: 2 },
+  ],
   menu: [
     { id: '1', label: 'Home', href: '/', parent_id: null, order_index: 0 },
     { id: '2', label: 'About Us', href: '#', parent_id: null, order_index: 1 },
@@ -232,6 +259,11 @@ const DEFAULT_DATA: AppData = {
     { id: '9', label: 'More', href: '#', parent_id: null, order_index: 8 },
     { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
     { id: '9-2', label: 'Gallery', href: '/gallery', parent_id: '9', order_index: 1 },
+  ],
+  carousel: [
+    { id: 'c1', url: 'https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600', caption: 'Legacy of Excellence' },
+    { id: 'c2', url: 'https://lh3.googleusercontent.com/d/1ZfP3k6bFiwdZdEe3CI_U6KhBkAEaybUs=w1600', caption: 'Modern Campus Mastery' },
+    { id: 'c3', url: 'https://lh3.googleusercontent.com/d/187y5AfGgvXnofNL6h85uU1rpdfaWYDCH=w1600', caption: 'St. Xavier\'s Spirit' },
   ]
 };
 
@@ -275,44 +307,70 @@ export default function App() {
       } catch (err) {
         console.error('Data sync error:', err);
       } finally {
-        setLoading(false);
+        setTimeout(() => setLoading(false), 1200); // Cinematic entry
       }
     };
 
     fetchDataAndSeed();
   }, []);
 
-  if (loading) return <div className="h-screen w-screen flex items-center justify-center bg-school-navy text-white font-serif italic text-2xl">Initializing Jesuit Portal...</div>;
+  if (loading) return (
+    <div className="h-screen w-screen flex flex-col items-center justify-center bg-school-navy overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5 }}
+        className="relative flex flex-col items-center"
+      >
+        <div className="absolute inset-0 bg-school-gold/10 rounded-full blur-[100px] animate-pulse"></div>
+        <img 
+          src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
+          alt="Legacy Loading" 
+          className="w-40 h-40 relative z-10 brightness-110 drop-shadow-[0_0_30px_rgba(226,180,80,0.3)]"
+        />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 1 }}
+          className="mt-10 text-center"
+        >
+          <h3 className="text-school-paper font-display text-2xl font-black tracking-[0.3em] uppercase">St. Xavier's</h3>
+          <p className="text-school-gold font-serif italic text-sm mt-2 tracking-widest opacity-60">Established 1941 • Jaipur</p>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
 
   return (
     <HelmetProvider>
       <Router>
-        <Routes>
-          <Route path="/" element={<HomePage data={data} />} />
-          <Route path="/staff" element={<StaffPage data={data} />} />
-          <Route path="/gallery" element={<GalleryPage data={data} />} />
-          <Route path="/notices" element={<NoticesPage data={data} />} />
-          <Route path="/events" element={<EventsPage data={data} />} />
-          <Route path="/fees" element={<FeesPage data={data} />} />
-          <Route path="/achievements" element={<AchievementsPage data={data} />} />
-          <Route path="/history" element={<HistoryPage data={data} />} />
-          <Route path="/founder-patron" element={<FounderPatronPage data={data} />} />
-          <Route path="/governing-members" element={<GoverningMembersPage data={data} />} />
-          <Route path="/anthem" element={<SchoolAnthemPage data={data} />} />
-          <Route path="/admission-policy" element={<AdmissionPolicyPage data={data} />} />
-          <Route path="/scholarships" element={<ScholarshipPage data={data} />} />
-          <Route path="/studybase-app" element={<StudybaseAppPage data={data} />} />
-          <Route path="/jesuit-education-objectives" element={<JesuitEducationPage data={data} />} />
-          <Route path="/sports-complex" element={<SportsComplexPage data={data} />} />
-          <Route path="/co-curricular" element={<CoCurricularActivitiesPage data={data} />} />
-          <Route path="/alumni" element={<AlumniPage data={data} />} />
-          <Route path="/school-info" element={<SchoolInformationPage data={data} />} />
-          <Route path="/parent-obligations" element={<ParentObligationsPage data={data} />} />
-          <Route path="/careers" element={<CareersPage data={data} />} />
-          <Route path="/notice-board" element={<NoticeBoardPage data={data} />} />
-          <Route path="/gallery" element={<GalleryPage data={data} />} />
-          <Route path="/admin" element={<AdminPortal data={data} setData={setData} />} />
-        </Routes>
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route path="/" element={<PageTransition><HomePage data={data} /></PageTransition>} />
+            <Route path="/staff" element={<PageTransition><StaffPage data={data} /></PageTransition>} />
+            <Route path="/gallery" element={<PageTransition><GalleryPage data={data} /></PageTransition>} />
+            <Route path="/notices" element={<PageTransition><NoticesPage data={data} /></PageTransition>} />
+            <Route path="/events" element={<PageTransition><EventsPage data={data} /></PageTransition>} />
+            <Route path="/fees" element={<PageTransition><FeesPage data={data} /></PageTransition>} />
+            <Route path="/achievements" element={<PageTransition><AchievementsPage data={data} /></PageTransition>} />
+            <Route path="/history" element={<PageTransition><HistoryPage data={data} /></PageTransition>} />
+            <Route path="/founder-patron" element={<PageTransition><FounderPatronPage data={data} /></PageTransition>} />
+            <Route path="/governing-members" element={<PageTransition><GoverningMembersPage data={data} /></PageTransition>} />
+            <Route path="/anthem" element={<PageTransition><SchoolAnthemPage data={data} /></PageTransition>} />
+            <Route path="/admission-policy" element={<PageTransition><AdmissionPolicyPage data={data} /></PageTransition>} />
+            <Route path="/scholarships" element={<PageTransition><ScholarshipPage data={data} /></PageTransition>} />
+            <Route path="/studybase-app" element={<PageTransition><StudybaseAppPage data={data} /></PageTransition>} />
+            <Route path="/jesuit-education-objectives" element={<PageTransition><JesuitEducationPage data={data} /></PageTransition>} />
+            <Route path="/sports-complex" element={<PageTransition><SportsComplexPage data={data} /></PageTransition>} />
+            <Route path="/co-curricular" element={<PageTransition><CoCurricularActivitiesPage data={data} /></PageTransition>} />
+            <Route path="/alumni" element={<PageTransition><AlumniPage data={data} /></PageTransition>} />
+            <Route path="/school-info" element={<PageTransition><SchoolInformationPage data={data} /></PageTransition>} />
+            <Route path="/parent-obligations" element={<PageTransition><ParentObligationsPage data={data} /></PageTransition>} />
+            <Route path="/careers" element={<PageTransition><CareersPage data={data} /></PageTransition>} />
+            <Route path="/notice-board" element={<PageTransition><NoticeBoardPage data={data} /></PageTransition>} />
+            <Route path="/admin" element={<PageTransition><AdminPortal data={data} setData={setData} /></PageTransition>} />
+          </Routes>
+        </AnimatePresence>
       </Router>
     </HelmetProvider>
   );

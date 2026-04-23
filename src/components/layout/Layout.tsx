@@ -7,6 +7,7 @@ import { AppData, QuickLink } from '../../types';
 interface LayoutProps {
   children: React.ReactNode;
   data: AppData;
+  navbarTheme?: 'light' | 'dark';
 }
 
 interface NavLink {
@@ -15,7 +16,7 @@ interface NavLink {
   subLinks?: { label: string; href: string; }[];
 }
 
-const Layout = ({ children, data }: LayoutProps) => {
+const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
@@ -26,6 +27,13 @@ const Layout = ({ children, data }: LayoutProps) => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Determine navbar text color based on scroll and theme
+  const isLightNav = isScrolled || navbarTheme === 'light';
+  const navTextColor = isLightNav ? 'text-school-navy' : 'text-white';
+  const navSubTextColor = isLightNav ? 'text-school-navy/40' : 'text-white/40';
+  const navLinkColor = isLightNav ? 'text-school-navy/70' : 'text-white/70';
+  const logoInvert = isLightNav ? '' : 'invert';
 
   // Transform flat menu data into hierarchical structure
   const navLinks = React.useMemo<NavLink[]>(() => {
@@ -51,308 +59,269 @@ const Layout = ({ children, data }: LayoutProps) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-white selection:bg-school-gold selection:text-white overflow-x-hidden">
-      {/* Dynamic Navbar */}
-      <nav className={`fixed w-full z-50 transition-all duration-700 ${isScrolled ? 'glass-nav py-3' : 'bg-sky-50/80 backdrop-blur-2xl border-b border-sky-100 py-6'}`}>
-        <div className="w-full px-6 lg:px-12 flex items-center relative h-16 md:h-20">
-          
-          {/* Logo Section (Left) */}
-          <div className="flex-1 flex justify-start z-20">
-            <Link to="/" className="flex items-center gap-3 group whitespace-nowrap">
-              <motion.div 
-                whileHover={{ scale: 1.05 }} 
-                className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center transition-transform shrink-0"
-              >
+    <div className="min-h-screen bg-transparent selection:bg-school-accent selection:text-white overflow-x-hidden">
+      {/* Multi-Level Header Section */}
+      <header className="w-full relative z-[60]">
+        {/* Top Utility Bar (Semi-transparent accent) */}
+        <div className="bg-school-accent/80 backdrop-blur-md py-3">
+          <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <div className="flex gap-4">
+                <a href="#" className="text-white/60 hover:text-white transition-colors"><Facebook size={14} fill="currentColor" /></a>
+                <a href="#" className="text-white/60 hover:text-white transition-colors"><Instagram size={14} /></a>
+                <a href="#" className="text-white/60 hover:text-white transition-colors"><Youtube size={14} fill="currentColor" /></a>
+              </div>
+              <div className="hidden md:flex items-center gap-2 text-white text-[12px] font-bold">
+                <Phone size={14} className="text-school-neon" />
+                <span>0141-2372336, 2367792</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-6">
+              <a href="/studybase-app" className="bg-school-neon text-school-ink px-4 py-1.5 rounded-full text-[11px] font-black flex items-center gap-2 hover:scale-105 transition-all shadow-md">
+                <ArrowDown size={14} className="animate-bounce" />
+                Studybase App
+              </a>
+              <div className="flex gap-6 text-white text-[12px] font-bold uppercase tracking-wider">
+                <Link to="/admin" className="hover:text-school-neon transition-colors">Login</Link>
+                <Link to="/contact" className="hover:text-school-neon transition-colors">Contact Us</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Branding Section - Blended White */}
+        <div className="bg-white/40 backdrop-blur-xl py-8 border-b border-white/20">
+          <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <Link to="/" className="w-20 h-20 md:w-24 md:h-24 shrink-0 transition-transform hover:scale-110">
                 <img 
                   src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
                   alt="St. Xavier's Logo" 
                   className="w-full h-full object-contain"
-                  referrerPolicy="no-referrer"
                 />
-              </motion.div>
+              </Link>
               <div className="flex flex-col">
-                <h1 className={`font-serif text-lg md:text-xl font-black transition-colors leading-none tracking-tight ${isScrolled ? 'text-white' : 'text-school-navy'}`}>ST. XAVIER'S</h1>
-                <p className={`text-[8px] md:text-[9px] uppercase tracking-[0.2em] md:tracking-[0.4em] font-black transition-colors hidden sm:block mt-1 ${isScrolled ? 'text-white/40' : 'text-school-navy/40'}`}>SR. SEC. SCHOOL • JAIPUR</p>
+                <h1 className="text-3xl md:text-5xl font-black text-school-ink tracking-tighter leading-none">St. Xavier's Sr. Sec. School</h1>
+                <div className="flex items-center gap-3 mt-3">
+                  <span className="w-1.5 h-1.5 bg-school-gold rounded-full" />
+                  <p className="text-slate-500 text-[11px] md:text-sm font-medium">Bhagwan Das Road, C-Scheme, Jaipur - 302001</p>
+                </div>
+                <p className="text-slate-400 text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] mt-2">CBSE Affiliation No.: 1730003</p>
               </div>
-            </Link>
-          </div>
+            </div>
 
-          {/* Centered Navigation Items (Desktop) */}
-          <div className="hidden xl:flex absolute left-1/2 -translate-x-1/2 h-full items-center gap-6 z-30">
+            <button className="hidden md:flex p-5 bg-school-bronze text-school-ink rounded-full hover:bg-school-neon transition-all hover:scale-110">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Menu Bar (Sticky) - Glass Theme */}
+      <nav className={`w-full z-50 transition-all duration-500 ${isScrolled ? 'fixed top-0 bg-white/60 backdrop-blur-3xl shadow-2xl border-b border-white/20' : 'relative bg-white/20 backdrop-blur-sm border-b border-white/10'}`}>
+        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex items-center justify-between h-20 md:h-24">
+          {/* Main Navigation (Desktop) */}
+          <div className="hidden xl:flex items-center gap-12">
             {navLinks.map(l => (
-              <div key={l.label} className="relative group h-full flex items-center shrink-0">
+              <div key={l.label} className="relative group flex items-center h-full">
                 {l.subLinks ? (
                   <>
                     <button 
                       onMouseEnter={() => setActiveDropdown(l.label)}
-                      className={`text-[12px] font-black uppercase tracking-widest hover:text-school-gold transition-colors flex items-center gap-1.5 whitespace-nowrap ${location.pathname.startsWith(l.href) && l.href !== '#' ? 'text-school-gold' : isScrolled ? 'text-white' : 'text-school-navy'}`}
+                      className={`text-[13px] font-black uppercase tracking-widest flex items-center gap-2 transition-all ${activeDropdown === l.label ? 'text-school-accent scale-105' : 'text-school-ink/60 hover:text-school-ink'}`}
                     >
-                      {l.label} <ChevronRight size={10} className="rotate-90 group-hover:rotate-[270deg] transition-transform" />
+                      {l.label}
+                      <ArrowDown size={14} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180 text-school-accent' : 'opacity-20 group-hover:opacity-100'}`} />
                     </button>
-                    {/* Desktop Dropdown */}
-                    <div className="absolute top-[80%] left-1/2 -translate-x-1/2 pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300">
-                      <div className="bg-school-navy rounded-2xl shadow-2xl p-4 min-w-[240px] border border-white/10 glass-dark">
-                        {l.subLinks.map(sl => (
-                          <Link key={sl.label} to={sl.href} className="block px-6 py-3 text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-school-gold hover:bg-white/5 rounded-xl transition-all whitespace-nowrap">
-                            {sl.label}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
+                    
+                    <AnimatePresence>
+                      {activeDropdown === l.label && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 20, scale: 0.9 }}
+                          onMouseLeave={() => setActiveDropdown(null)}
+                          className="absolute top-full -left-12 pt-4 w-[320px]"
+                        >
+                          <div className="bg-white rounded-[40px] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.2)] border border-gray-100 p-6">
+                            <div className="grid gap-2">
+                              {l.subLinks.map(sl => (
+                                <Link 
+                                  key={sl.label} 
+                                  to={sl.href} 
+                                  onClick={() => setActiveDropdown(null)}
+                                  className="flex items-center justify-between px-6 py-4 rounded-[24px] hover:bg-school-neon group/item transition-all"
+                                >
+                                  <span className="text-[15px] font-black text-school-ink group-hover/item:text-school-accent">{sl.label}</span>
+                                  <ArrowRight size={18} className="text-school-accent opacity-0 group-hover/item:opacity-100 transition-all -translate-x-4 group-hover/item:translate-x-0" />
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </>
                 ) : (
-                  <Link to={l.href} className={`text-[12px] font-black uppercase tracking-widest hover:text-school-gold transition-colors relative group whitespace-nowrap ${location.pathname === l.href ? 'text-school-gold' : isScrolled ? 'text-white' : 'text-school-navy'}`}>
+                  <Link 
+                    to={l.href} 
+                    className={`text-[13px] font-black uppercase tracking-widest transition-all hover:scale-105 ${location.pathname === l.href ? 'text-school-accent' : 'text-school-ink/60 hover:text-school-ink'}`}
+                  >
                     {l.label}
-                    <span className={`absolute -bottom-1 left-0 h-0.5 bg-school-gold transition-all group-hover:w-full ${location.pathname === l.href ? 'w-full' : 'w-0'}`}></span>
                   </Link>
                 )}
               </div>
             ))}
           </div>
-          
-          {/* Action Buttons (Right) */}
-          <div className="flex-1 hidden xl:flex justify-end items-center gap-4 z-20">
-            <Link to="/admin" className={`flex items-center gap-2 px-3 py-1.5 rounded-xl glass-surface border border-school-navy/5 hover:border-school-gold transition-all shadow-sm group shrink-0 ${isScrolled ? 'bg-white/10 text-white border-white/10' : 'text-school-navy'}`}>
-              <Key size={14} className="group-hover:text-school-gold transition-colors" />
-              <span className="text-[11px] font-black uppercase tracking-widest hidden 2xl:block">Admin</span>
-            </Link>
-            <button className="px-6 py-2.5 bg-school-navy text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-school-accent transition-all shadow-lg active:scale-95 shrink-0 whitespace-nowrap">
-              Apply Now
+
+          {/* Action Area */}
+          <div className="flex items-center gap-8">
+            <button className="hidden lg:flex items-center gap-3 text-school-ink font-black text-xs uppercase tracking-widest bg-school-neon px-10 py-4 rounded-full hover:bg-school-accent hover:text-white transition-all shadow-xl active:scale-95">
+              Secure Fees
+              <ArrowRight size={16} />
             </button>
-          </div>
-          
-          <div className="xl:hidden flex-1 flex justify-end">
-            <button onClick={() => setIsNavOpen(true)} className="text-school-navy glass-surface p-2.5 rounded-xl block z-20"><Menu size={24} /></button>
+            <button onClick={() => setIsNavOpen(true)} className="xl:hidden p-4 bg-school-bronze text-school-ink rounded-[24px] hover:bg-school-neon transition-colors"><Menu size={28} /></button>
           </div>
         </div>
       </nav>
 
+      {/* Magical Mobile Nav */}
       <AnimatePresence>
         {isNavOpen && (
-          <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25 }} className="fixed inset-0 z-[60] bg-school-navy p-12 lg:hidden overflow-y-auto">
-            <button onClick={() => setIsNavOpen(false)} className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors"><X size={32} /></button>
-            <div className="mt-20 flex flex-col gap-8">
+          <motion.div 
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            className="fixed inset-0 z-[60] bg-white p-6 lg:hidden"
+          >
+            <div className="flex justify-between items-center mb-12">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-school-navy p-2 rounded-xl">
+                  <img src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" alt="Logo" className="w-full h-full object-contain invert" />
+                </div>
+                <span className="font-black text-school-navy">ST. XAVIER'S</span>
+              </div>
+              <button onClick={() => setIsNavOpen(false)} className="p-3 bg-school-bronze rounded-full"><X size={24} /></button>
+            </div>
+            <div className="flex flex-col gap-4">
               {navLinks.map(l => (
-                <div key={l.label}>
-                  {l.subLinks ? (
-                    <div className="space-y-6">
-                      <p className="text-sm font-black uppercase tracking-[0.3em] text-school-gold/50 mb-4">{l.label}</p>
-                      {l.subLinks.map(sl => (
-                        <Link 
-                          key={sl.label} 
-                          onClick={() => setIsNavOpen(false)} 
-                          to={sl.href} 
-                          className={`block text-3xl font-serif font-black hover:text-school-gold transition-colors ${location.pathname === sl.href ? 'text-school-gold' : 'text-white'}`}
-                        >
-                          {sl.label}
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <Link onClick={() => setIsNavOpen(false)} to={l.href} className={`text-4xl font-serif font-black hover:text-school-gold transition-colors ${location.pathname === l.href ? 'text-school-gold' : 'text-white'}`}>{l.label}</Link>
-                  )}
+                <div key={l.label} className="border-b border-gray-50 pb-4">
+                  <p className="text-[10px] font-black uppercase text-gray-400 mb-4">{l.label}</p>
+                  <div className="grid gap-4">
+                    {l.subLinks ? l.subLinks.map(sl => (
+                      <Link 
+                        key={sl.label} 
+                        to={sl.href} 
+                        onClick={() => setIsNavOpen(false)} 
+                        className="text-2xl font-black text-school-navy"
+                      >
+                        {sl.label}
+                      </Link>
+                    )) : (
+                      <Link 
+                        to={l.href} 
+                        onClick={() => setIsNavOpen(false)} 
+                        className="text-2xl font-black text-school-navy"
+                      >
+                        {l.label}
+                      </Link>
+                    )}
+                  </div>
                 </div>
               ))}
-              <Link to="/admin" onClick={() => setIsNavOpen(false)} className="text-4xl font-serif font-black text-white hover:text-school-gold transition-colors pt-8 border-t border-white/10">Admin Portal</Link>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <main className="pt-24 md:pt-32">
+      <main>
         {children}
       </main>
 
-      <footer className="relative bg-school-navy overflow-hidden">
-        {/* Aesthetic Background Image - No Effects Applied */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src={location.pathname === '/' ? "https://xaviersjaipur.edu.in/wp-content/uploads/2023/03/school3-1.png" : "https://picsum.photos/seed/school_grounds/1920/1080?blur=2"} 
-            className={`w-full h-full object-cover opacity-100 ${location.pathname === '/' ? 'object-bottom' : 'object-center'}`} 
-            alt="School Grounds"
-            referrerPolicy="no-referrer"
-          />
-          
-          {/* Enhanced Color-Changing Liquid Overlay Layer */}
-          <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-            {/* Liquid Blob 1 - Navy to Sky to Navy */}
-            <motion.div 
-              animate={{
-                x: [0, 150, -100, 0],
-                y: [0, -100, 80, 0],
-                scale: [1, 1.4, 0.8, 1],
-                backgroundColor: ["#00214733", "#38bdf822", "#00214733"], // Navy to Sky
-              }}
-              transition={{
-                duration: 20,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              className="absolute -top-[20%] -left-[10%] w-[70%] h-[90%] blur-[100px] rounded-full"
-            />
-            {/* Liquid Blob 2 - Gold to Navy to Gold */}
-            <motion.div 
-              animate={{
-                x: [0, -180, 100, 0],
-                y: [0, 120, -100, 0],
-                scale: [1, 0.7, 1.2, 1],
-                backgroundColor: ["#FFD70022", "#00214733", "#FFD70022"], // Gold to Navy
-              }}
-              transition={{
-                duration: 25,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              className="absolute -bottom-[30%] -right-[15%] w-[80%] h-[100%] blur-[120px] rounded-full"
-            />
-            {/* Liquid Blob 3 - Pulser */}
-            <motion.div 
-              animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.2, 0.4, 0.2],
-                backgroundColor: ["#38bdf811", "#FFD70011", "#38bdf811"], // Sky to Gold
-              }}
-              transition={{
-                duration: 18,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="absolute top-1/2 left-1/4 w-[60%] h-[60%] blur-[140px] rounded-full"
-            />
-          </div>
+      <footer className="bg-school-ink/90 backdrop-blur-3xl text-white pt-40 pb-20 relative overflow-hidden mt-20 rounded-t-[100px]">
+        {/* Dynamic Abstract Shapes in Footer - Multi tone */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-school-accent/40 blur-[150px] rounded-full -translate-y-1/2" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-school-gold/40 blur-[150px] rounded-full translate-y-1/2" />
+        <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] bg-school-neon/10 blur-[200px] rounded-full -translate-x-1/2 -translate-y-1/2" />
 
-          {/* Transparent Color Wash for Contrast - No Blur */}
-          <div className="absolute inset-0 bg-school-navy/30 z-[5]"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-school-navy/80 via-transparent to-transparent z-[8]"></div>
-        </div>
-
-        <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-12 pt-32 pb-24">
-          <div className="grid lg:grid-cols-12 gap-16 items-start">
-            
-            {/* Branding and Contact (Left) */}
-            <div className="lg:col-span-4 space-y-12">
-              <div className="space-y-8">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="grid lg:grid-cols-12 gap-24 border-b border-white/10 pb-24">
+            <div className="lg:col-span-5 space-y-12">
+              <div className="space-y-6">
                 <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shrink-0 drop-shadow-2xl brightness-110">
-                    <img 
-                      src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
-                      alt="St. Xavier's Logo" 
-                      className="w-full h-full object-contain"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                  <div className="drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
-                    <h3 className="text-3xl md:text-4xl font-serif font-black text-white leading-none tracking-tight">ST. XAVIER'S</h3>
-                    <p className="text-[12px] md:text-[14px] uppercase tracking-[0.3em] font-black text-white mt-2">SR. SEC. SCHOOL • JAIPUR</p>
-                  </div>
+                   <div className="w-20 h-20 bg-white p-4 rounded-[32px] hover:rotate-6 transition-transform">
+                     <img src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" alt="Xavier's Logo" className="w-full h-full object-contain" />
+                   </div>
+                   <h3 className="text-4xl font-black tracking-tighter leading-none italic">ST. XAVIER'S <br /><span className="text-school-neon not-italic">JAIPUR.</span></h3>
                 </div>
-                
-                <div className="flex items-center gap-5">
-                  {[
-                    { icon: <Facebook size={20} />, label: 'Facebook' },
-                    { icon: <Instagram size={20} />, label: 'Instagram' },
-                    { icon: <Youtube size={20} />, label: 'YouTube' }
-                  ].map((social) => (
-                    <a key={social.label} href="#" className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-2xl flex items-center justify-center hover:bg-school-gold hover:text-school-navy transition-all duration-300 shadow-xl">
-                      {social.icon}
-                    </a>
-                  ))}
-                </div>
+                <p className="text-2xl text-white/50 font-medium leading-relaxed max-w-md">
+                  Pioneering Jesuit excellence since 1941. Shaping the leaders of tomorrow with soul, heart, and mind.
+                </p>
               </div>
-
-              <div className="space-y-6 pt-4">
-                <a href="tel:01412372336" className="flex items-center gap-4 text-white/90 font-black hover:text-school-gold transition-colors group">
-                  <Phone size={22} className="text-school-gold" />
-                  <span className="text-[15px] md:text-[16px] tracking-widest group-hover:translate-x-1 transition-transform">0141-2372336, 2367792</span>
-                </a>
-                <a href="mailto:xavier41jaipur@gmail.com" className="flex items-center gap-4 text-white/90 font-black hover:text-school-gold transition-colors group">
-                  <Mail size={22} className="text-school-gold" />
-                  <span className="text-[15px] md:text-[16px] tracking-widest group-hover:translate-x-1 transition-transform lowercase">xavier41jaipur@gmail.com</span>
-                </a>
-              </div>
-
-              {/* Total Views Counter */}
-              <div className="pt-8 border-t border-white/10">
-                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white/60 mb-4">Portal Views</p>
-                <div className="flex gap-2 items-center">
-                  {[4, 6, 9, 5, 5, 2].map((num, i) => (
-                    <div key={i} className="w-10 h-12 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-xl flex items-center justify-center text-2xl font-black shadow-lg">
-                      {num}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Links (Middle) */}
-            <div className="lg:col-span-3 lg:pl-10">
-              <h4 className="text-school-gold font-black uppercase text-[15px] md:text-[16px] tracking-[0.4em] mb-10 pb-5 border-b-2 border-white/10">Quick Links</h4>
-              <ul className="space-y-6 font-black uppercase text-[13px] md:text-[14px] tracking-widest">
-                {data.links.map((item) => (
-                  <li key={item.id}>
-                    <Link to={item.url} className="text-white/80 hover:text-school-gold transition-all flex items-center gap-4 group">
-                      <div className="w-2.5 h-2.5 rounded-full bg-school-gold scale-0 group-hover:scale-100 transition-transform"></div>
-                      {item.title}
-                    </Link>
-                  </li>
+              
+              <div className="flex gap-4">
+                {[Facebook, Instagram, Youtube].map((Icon, i) => (
+                  <a key={i} href="#" className="w-16 h-16 bg-white/5 rounded-[24px] flex items-center justify-center hover:bg-school-accent transition-all hover:scale-110">
+                    <Icon size={24} />
+                  </a>
                 ))}
-              </ul>
+              </div>
             </div>
 
-            {/* More From Us (Right) */}
-            <div className="lg:col-span-3">
-              <h4 className="text-school-gold font-black uppercase text-[15px] md:text-[16px] tracking-[0.4em] mb-10 pb-5 border-b-2 border-white/10">More From Us</h4>
-              <ul className="space-y-6 font-black uppercase text-[13px] md:text-[14px] tracking-widest">
-                {['Media Gallery', 'For Parents', 'Fee Structure', 'Xavier\'s Alumni', 'Contact Us', 'Transfer Certificate'].map((item) => (
-                  <li key={item}>
-                    <Link to="/" className="text-white/80 hover:text-school-gold transition-all flex items-center gap-4 group">
-                      <div className="w-2.5 h-2.5 rounded-full bg-school-gold scale-0 group-hover:scale-100 transition-transform"></div>
-                      {item}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div className="lg:col-span-2">
-              <h4 className="text-school-gold font-black uppercase text-[15px] md:text-[16px] tracking-[0.4em] mb-10 pb-5 border-b-2 border-white/10">Address</h4>
-              <p className="text-[13px] md:text-[14px] text-white/90 font-black uppercase tracking-widest leading-loose">
-                Bhagwan Das Road, <br />
-                C-Scheme, Jaipur, <br />
-                Rajasthan 302001
-              </p>
+            <div className="lg:col-span-7 grid sm:grid-cols-2 gap-16">
+              <div className="space-y-10">
+                <h4 className="text-lg font-black text-school-neon uppercase tracking-widest">Navigation</h4>
+                <ul className="grid gap-6">
+                  {navLinks.map(l => (
+                    <li key={l.label} className="text-xl font-bold text-white/40 hover:text-white transition-colors">
+                      <Link to={l.href}>{l.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="space-y-10">
+                <h4 className="text-lg font-black text-school-neon uppercase tracking-widest">Contact</h4>
+                <div className="space-y-8">
+                  <p className="flex items-start gap-4 text-xl font-medium text-white/50 leading-snug">
+                    <MapPin size={24} className="text-school-neon shrink-0 mt-1" />
+                    Bhagwan Das Road, C-Scheme, Jaipur, Rajasthan 302001
+                  </p>
+                  <p className="flex items-center gap-4 text-xl font-medium text-white/50">
+                    <Phone size={24} className="text-school-neon shrink-0" />
+                    0141-2372336
+                  </p>
+                  <Link to="/contact" className="inline-flex items-center gap-4 px-10 py-4 bg-white/5 hover:bg-white/10 rounded-full text-sm font-black uppercase tracking-widest transition-all">
+                    Get in touch <ArrowRight size={16} />
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Bottom Footer Credits */}
-          <div className="mt-20 pt-10 border-t-2 border-white/10 flex flex-col md:flex-row justify-between items-center gap-8">
-            <p className="text-[13px] md:text-[14px] font-black uppercase tracking-widest text-white/60">
-              © 2024 St. Xavier's Sr. Sec. School | All Rights Reserved.
-            </p>
-            <p className="text-[13px] md:text-[14px] font-black uppercase tracking-widest text-white">
-              Developed & Hosted by <span className="border-b-2 border-school-gold/40">ABHISHEK MATHUR</span>
-            </p>
+          
+          <div className="pt-16 flex flex-col md:flex-row justify-between items-center gap-8 text-white/20 text-sm font-black tracking-widest uppercase">
+            <p>© 2026 St. Xavier's School Jaipur. All rights reserved.</p>
+            <div className="flex gap-12">
+              <span className="hover:text-white transition-colors cursor-pointer">Privacy</span>
+              <span className="hover:text-white transition-colors cursor-pointer">Terms</span>
+              <span className="hover:text-white transition-colors cursor-pointer">CBSE Disclosure</span>
+            </div>
           </div>
         </div>
       </footer>
 
-      {/* Floating Navigation Controls */}
-      <div className="fixed bottom-8 left-8 z-[100] flex flex-col gap-3">
-        <button 
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="w-12 h-12 bg-school-navy text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-school-accent hover:scale-110 active:scale-95 transition-all duration-300 group"
-          title="Back to Top"
-        >
-          <ArrowUp size={20} className="group-hover:-translate-y-1 transition-transform" />
-        </button>
-        <button 
-          onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
-          className="w-12 h-12 bg-school-gold text-school-navy rounded-full flex items-center justify-center shadow-2xl hover:brightness-110 hover:scale-110 active:scale-95 transition-all duration-300 group"
-          title="Scroll to Bottom"
-        >
-          <ArrowDown size={20} className="group-hover:translate-y-1 transition-transform" />
-        </button>
-      </div>
+      {/* Floating CTA - Ultra Modern & Responsive */}
+      <motion.button 
+        initial={{ y: 100 }}
+        animate={{ y: 0 }}
+        whileHover={{ scale: 1.05 }}
+        className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-[100] bg-school-gold text-white px-6 py-4 md:px-10 md:py-5 rounded-full font-black shadow-[0_20px_50px_rgba(255,0,146,0.3)] flex items-center gap-3 md:gap-4 group overflow-hidden text-xs md:text-base border border-white/20"
+      >
+        <span className="relative z-10">Apply 2026-27</span>
+        <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform relative z-10">
+          <ArrowUp className="rotate-45" size={18} />
+        </div>
+        <div className="absolute inset-0 bg-school-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+      </motion.button>
     </div>
   );
 };

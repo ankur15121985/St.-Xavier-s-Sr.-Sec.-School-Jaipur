@@ -75,7 +75,7 @@ export const Carousel = ({ images, autoPlayInterval = 5000 }: CarouselProps) => 
   };
 
   return (
-    <div className="relative w-full h-[50vh] md:h-[80vh] overflow-hidden group">
+    <div className="relative w-full h-[60vh] md:h-[85vh] overflow-hidden group rounded-[60px]">
       <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={currentIndex}
@@ -86,8 +86,8 @@ export const Carousel = ({ images, autoPlayInterval = 5000 }: CarouselProps) => 
           exit="exit"
           transition={{
             x: { type: "spring", stiffness: 300, damping: 30 },
-            opacity: { duration: 0.2 },
-            scale: { duration: 0.5 }
+            opacity: { duration: 0.3 },
+            scale: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
           }}
           className="absolute inset-0"
         >
@@ -96,30 +96,29 @@ export const Carousel = ({ images, autoPlayInterval = 5000 }: CarouselProps) => 
             className="w-full h-full object-cover"
             alt={`Carousel slide ${currentIndex + 1}`}
           />
-          {/* Subtle Liquid Overlay Effect consistent with the footer */}
-          <div className="absolute inset-0 bg-school-navy/20 mix-blend-overlay pointer-events-none"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-school-navy/40 to-transparent pointer-events-none"></div>
+          {/* Subtle Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-school-navy/30 to-transparent pointer-events-none"></div>
         </motion.div>
       </AnimatePresence>
 
       {/* Navigation Buttons */}
-      <div className="absolute inset-0 flex items-center justify-between p-6 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+      <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 flex justify-between z-10 pointer-events-none">
         <button
           onClick={prevStep}
-          className="w-14 h-14 bg-white/20 backdrop-blur-xl border border-white/30 text-white rounded-full flex items-center justify-center hover:bg-white hover:text-school-navy transition-all active:scale-90 pointer-events-auto shadow-2xl"
+          className="w-14 h-14 bg-white/80 backdrop-blur-xl text-school-navy rounded-2xl flex items-center justify-center hover:bg-white hover:scale-110 transition-all active:scale-95 pointer-events-auto shadow-2xl"
         >
-          <ChevronLeft size={32} />
+          <ChevronLeft size={24} />
         </button>
         <button
           onClick={nextStep}
-          className="w-14 h-14 bg-white/20 backdrop-blur-xl border border-white/30 text-white rounded-full flex items-center justify-center hover:bg-white hover:text-school-navy transition-all active:scale-90 pointer-events-auto shadow-2xl"
+          className="w-14 h-14 bg-white/80 backdrop-blur-xl text-school-navy rounded-2xl flex items-center justify-center hover:bg-white hover:scale-110 transition-all active:scale-95 pointer-events-auto shadow-2xl"
         >
-          <ChevronRight size={32} />
+          <ChevronRight size={24} />
         </button>
       </div>
 
       {/* Slide Indicators */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+      <div className="absolute bottom-10 left-10 flex gap-3 z-10">
         {images.map((_, idx) => (
           <button
             key={idx}
@@ -127,10 +126,10 @@ export const Carousel = ({ images, autoPlayInterval = 5000 }: CarouselProps) => 
               setDirection(idx > currentIndex ? 1 : -1);
               setCurrentIndex(idx);
             }}
-            className={`transition-all duration-500 rounded-full ${
+            className={`transition-all duration-500 rounded-full h-2 ${
               idx === currentIndex 
-                ? "w-12 h-2.5 bg-school-gold shadow-[0_0_20px_rgba(251,191,36,0.6)]" 
-                : "w-2.5 h-2.5 bg-white/40 hover:bg-white/60"
+                ? "w-8 bg-school-accent" 
+                : "w-2 bg-white/40 hover:bg-white/60"
             }`}
           />
         ))}

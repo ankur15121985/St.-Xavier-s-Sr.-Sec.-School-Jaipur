@@ -9,7 +9,7 @@ const AdmissionPolicyPage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="bg-slate-50 min-h-screen">
         {/* Banner Section */}
         <section className="py-20 bg-school-navy relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">

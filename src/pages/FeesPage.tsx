@@ -13,7 +13,7 @@ const FeesPage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
-      <section className="pt-48 pb-40 bg-white min-h-screen">
+      <section className="pt-12 pb-40 bg-white min-h-screen">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center mb-24">
            <h2 className="text-7xl font-serif font-black text-school-navy mb-8">Fee <span className="text-school-gold italic">Structure.</span></h2>
            <p className="text-xl text-school-navy/50 font-light max-w-2xl mx-auto">Transparent financial outlines for the academic year 2026-27. Click on a row to see detailed breakdowns.</p>

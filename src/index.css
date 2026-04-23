@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 @import "tailwindcss";
 
 html {
@@ -8,81 +8,121 @@ html {
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Cormorant Garamond", serif;
+  --font-display: "Playfair Display", serif;
   
-  --color-school-navy: #002147;
-  --color-school-gold: #fbbf24;
+  --color-school-navy: #1a1b4b;
+  --color-school-gold: #FF0092; /* Radiant Pink */
   --color-school-paper: #ffffff;
-  --color-school-ink: #002147;
-  --color-school-accent: #004a99;
+  --color-school-ink: #000000;
+  --color-school-accent: #7A3DFC; /* Vibrant Purple */
+  --color-school-neon: #C7F212; /* Neon Green */
+  --color-school-bronze: #F8F9FA;
 
-  --animate-spin-slow: spin 8s linear infinite;
+  --animate-spin-slow: spin 20s linear infinite;
+  --animate-float: float 8s ease-in-out infinite;
+  --animate-blob: blob 10s infinite;
 }
 
 @layer base {
   body {
-    @apply font-sans antialiased bg-white text-school-navy overflow-x-hidden;
+    @apply font-sans antialiased text-school-ink overflow-x-hidden;
+    background: 
+      radial-gradient(at 0% 0%, rgba(122, 61, 252, 0.25) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(255, 0, 146, 0.2) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(199, 242, 18, 0.15) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(122, 61, 252, 0.1) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, rgba(255, 0, 146, 0.05) 0px, transparent 50%),
+      #fcfaff;
+    background-attachment: fixed;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif;
+    @apply font-sans font-black tracking-tight;
   }
 }
 
-.perspective-1000 {
-  perspective: 1000px;
+/* Institutional Magical Overlay */
+.magical-glow {
+  @apply absolute blur-[120px] rounded-full opacity-20 pointer-events-none;
 }
 
+/* Zenda-Inspired Modern Surface */
 .glass-surface {
-  @apply bg-white/45 backdrop-blur-2xl border border-white/40 shadow-xl saturate-150;
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.02),
-    0 10px 15px -3px rgba(0, 0, 0, 0.03),
-    0 20px 40px -12px rgba(31, 38, 135, 0.08),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.4);
+  @apply bg-white/80 backdrop-blur-2xl border border-white/20 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)];
 }
 
 .glass-nav {
-  @apply bg-school-navy/95 backdrop-blur-3xl border-b border-school-gold/30 saturate-200;
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4);
+  @apply bg-white/90 backdrop-blur-xl border-b border-gray-100;
 }
 
 .glass-dark {
-  @apply bg-school-navy/85 backdrop-blur-3xl border border-white/10 shadow-2xl;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  @apply bg-school-navy/95 backdrop-blur-3xl border border-white/10 shadow-2xl;
 }
 
 .glass-card {
-  @apply bg-white/40 backdrop-blur-xl border border-white/50 shadow-lg hover:bg-white/60 transition-all duration-500 saturate-150;
-  box-shadow: 
-    0 10px 30px -5px rgba(0, 33, 71, 0.04),
-    0 4px 6px -2px rgba(0, 33, 71, 0.02);
+  @apply bg-white border border-gray-100 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-500 rounded-[40px];
 }
 
+/* Immersive Decorative Elements */
 .school-gradient-immersive {
-  background: radial-gradient(circle at 10% 20%, #001a35 0%, #003366 100%);
+  background: linear-gradient(135deg, #1a1b4b 0%, #7c3aed 100%);
 }
 
 .glow-text {
-  text-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-school-navy via-school-accent to-school-gold;
 }
 
-.hero-mask {
-  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: var(--animate-blob);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-white;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-200 border-4 border-white rounded-full hover:bg-school-accent transition-colors;
+}
+
+.glow-text {
+  text-shadow: 0 0 30px rgba(226, 180, 80, 0.3);
 }
 
 .side-rail-text {
   writing-mode: vertical-rl;
-  @apply rotate-180 uppercase tracking-[0.4em] text-[11px] font-black text-school-navy/40;
+  @apply rotate-180 uppercase tracking-[0.6em] text-[10px] font-bold text-school-gold/40;
 }
 
-.floating {
-  animation: floating 3s ease-in-out infinite;
+.mask-fade-bottom {
+  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
 }
 
-@keyframes floating {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(1deg); }
+}
+
+.animate-float {
+  animation: var(--animate-float);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-school-paper;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-school-gold/50 rounded-full hover:bg-school-gold transition-colors;
 }

@@ -6,7 +6,7 @@ import { AppData } from '../types';
 const FounderPatronPage = ({ data }: { data: AppData }) => {
   return (
     <Layout data={data}>
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="bg-slate-50 min-h-screen">
         {/* Banner Section */}
         <section className="relative h-[50vh] overflow-hidden group">
           <img 
