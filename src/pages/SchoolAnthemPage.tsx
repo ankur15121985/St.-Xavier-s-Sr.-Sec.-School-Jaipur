@@ -9,28 +9,28 @@ const SchoolAnthemPage = ({ data }: { data: AppData }) => {
     <Layout data={data}>
       <div className="bg-slate-50 min-h-screen">
         {/* Hero Section */}
-        <section className="relative h-[40vh] bg-school-navy flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
+        <section className="relative h-[55vh] md:h-[40vh] bg-school-navy flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 opacity-20">
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent"></div>
           </div>
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center relative z-10 px-6"
+            className="text-center relative z-10 px-6 pt-10"
           >
-            <div className="w-16 h-16 bg-school-gold rounded-full flex items-center justify-center text-school-navy mx-auto mb-6 shadow-xl">
-              <Music size={32} />
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-school-gold rounded-full flex items-center justify-center text-school-navy mx-auto mb-6 shadow-xl">
+              <Music className="w-6 h-6 md:w-8 md:h-8" />
             </div>
-            <h1 className="text-5xl md:text-7xl font-serif font-black text-white tracking-tighter italic">School <span className="text-school-gold not-italic uppercase text-3xl md:text-4xl tracking-[0.3em] block mt-2">Anthem</span></h1>
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif font-black text-white tracking-tighter italic leading-none">School <span className="text-school-gold not-italic uppercase text-2xl sm:text-3xl md:text-4xl tracking-[0.2em] md:tracking-[0.3em] block mt-4">Anthem</span></h1>
           </motion.div>
         </section>
 
         {/* Anthem Body */}
-        <section className="py-24 max-w-4xl mx-auto px-6 lg:px-12 relative z-10 -mt-12">
+        <section className="py-16 md:py-24 max-w-4xl mx-auto px-6 lg:px-12 relative z-10 -mt-10 md:-mt-12">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass-surface bg-white p-12 md:p-20 rounded-[64px] border border-white shadow-2xl relative overflow-hidden"
+            className="glass-surface bg-white p-8 md:p-20 rounded-[40px] md:rounded-[64px] border border-white shadow-2xl relative overflow-hidden"
           >
             {/* Decorative Element */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-school-gold/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>

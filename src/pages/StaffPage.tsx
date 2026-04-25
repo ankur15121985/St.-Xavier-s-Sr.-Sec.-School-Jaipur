@@ -80,8 +80,8 @@ const StaffPage = ({ data }: { data: AppData }) => {
                         Management
                       </div>
                     </div>
-                    <h4 className="text-2xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors">{s.name}</h4>
-                    <p className="text-[10px] uppercase font-black tracking-[0.2em] text-school-accent mb-6 border-b border-school-accent/20 pb-4">{s.role}</p>
+                    <h4 className="text-xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors break-words italic">{s.name}</h4>
+                    <p className="text-[9px] uppercase font-black tracking-[0.15em] text-school-accent mb-6 border-b border-school-accent/20 pb-4 leading-relaxed">{s.role}</p>
                     <p className="text-sm text-school-ink/60 font-medium leading-relaxed italic">{s.bio}</p>
                   </div>
                 </PerspectiveCard>
@@ -104,8 +104,8 @@ const StaffPage = ({ data }: { data: AppData }) => {
                     <div className="w-full h-64 rounded-[32px] mb-8 shadow-xl overflow-hidden bg-white/30 relative group-hover:-translate-y-2 transition-transform duration-500">
                       <img src={s.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={s.name} referrerPolicy="no-referrer" />
                     </div>
-                    <h4 className="text-2xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors">{s.name}</h4>
-                    <p className="text-[10px] uppercase font-black tracking-[0.2em] text-school-accent mb-6 border-b border-school-accent/20 pb-4">{s.role}</p>
+                    <h4 className="text-xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors break-words italic">{s.name}</h4>
+                    <p className="text-[9px] uppercase font-black tracking-[0.15em] text-school-accent mb-6 border-b border-school-accent/20 pb-4 leading-relaxed">{s.role}</p>
                     <p className="text-sm text-school-ink/60 font-medium leading-relaxed italic">{s.bio}</p>
                   </div>
                 </PerspectiveCard>

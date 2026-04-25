@@ -113,10 +113,22 @@ const FeesPage = ({ data }: { data: AppData }) => {
 
                                 <div className="bg-school-navy rounded-[32px] p-8 text-white flex flex-col justify-between shadow-2xl relative overflow-hidden group">
                                   <div className="absolute top-0 right-0 w-32 h-32 bg-school-gold/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-150 transition-transform"></div>
-                                  <div className="relative z-10">
+                                  <div className="relative z-10 space-y-6">
                                     <h5 className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-6">Payment Frequency</h5>
-                                    <p className="text-xs font-light text-white/70 leading-relaxed mb-6">Fees are payable in four quarterly installments. Concessions are available for full annual payment.</p>
-                                    <div className="flex items-center gap-4">
+                                    <p className="text-xs font-light text-white/70 leading-relaxed">Fees are payable in four quarterly installments. Concessions are available for full annual payment.</p>
+                                    
+                                    {f.attachmentUrl && (
+                                      <a 
+                                        href={f.attachmentUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-3 px-6 py-3 bg-school-gold text-school-navy rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl"
+                                      >
+                                        Official PDF Structure
+                                      </a>
+                                    )}
+
+                                    <div className="flex items-center gap-4 pt-4 border-t border-white/10">
                                       <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-school-gold">
                                         <CreditCard size={20} />
                                       </div>

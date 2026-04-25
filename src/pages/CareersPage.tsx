@@ -61,7 +61,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                   Application Form Closed
                 </h2>
                 
-                <div className="max-w-2xl mx-auto space-y-6">
+                <div className="max-w-2xl mx-auto space-y-6 text-justify">
                   <p className="text-lg text-slate-500 font-medium leading-relaxed">
                     Thank you for your interest in joining St. Xavier's Secondary School, Jaipur. Currently, the recruitment cycle is closed and we are not accepting new applications.
                   </p>

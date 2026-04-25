@@ -15,88 +15,7 @@ import {
 } from 'lucide-react';
 
 const NoticeBoardPage = ({ data }: { data: AppData }) => {
-  const notices = [
-    {
-      date: "March 30, 2026",
-      title: "Class Timetable 6 to 12 (2026_27)",
-      category: "Academic",
-      link: "#"
-    },
-    {
-      date: "March 30, 2026",
-      title: "Revised Provisional List of Std. XI(2026-27)",
-      category: "Admission",
-      link: "#"
-    },
-    {
-      date: "March 17, 2026",
-      title: "Provisional List of Std. XI (2026-27)",
-      category: "Admission",
-      link: "#"
-    },
-    {
-      date: "January 22, 2026",
-      title: "Schedule for final examinations 2025-26",
-      category: "Examination",
-      link: "#"
-    },
-    {
-      date: "December 13, 2025",
-      title: "Admission Notice for Std. 1 2026-27 (Corrigendum)",
-      category: "Admission",
-      link: "#"
-    },
-    {
-      date: "January 25, 2025",
-      title: "Schedule For Final Examination : 2024-25",
-      category: "Examination",
-      link: "#"
-    },
-    {
-      date: "January 15, 2025",
-      title: "SCHEDULE FOR PRE-BOARD II EXAM ( CLASS X ) 2024-25",
-      category: "Examination",
-      link: "#"
-    },
-    {
-      date: "December 10, 2024",
-      title: "Admission Notice for Std. 1 (2025-26)",
-      category: "Admission",
-      link: "#"
-    },
-    {
-      date: "May 18, 2024",
-      title: "Summer Holidays Notice 2024",
-      description: "In view of the summer holidays (from 18-05-2024 to 30-06-2024) the school will be closed. Students will report to school on 01-07-2024 @ 07:30 a.m. Principal SXS, C-Scheme",
-      category: "Administrative",
-      link: "#"
-    },
-    {
-      date: "April 24, 2024",
-      title: "EXAM SCHEDULE FOR PERIODIC TEST 2024 - 25",
-      category: "Examination",
-      link: "#"
-    },
-    {
-      date: "April 16, 2024",
-      title: "Fee Payment (Quarter-I 2024-25)",
-      description: "Fee challans for the academic year has been uploaded on Studybase App. Last date for payment is April 25, 2024. UPI, NETBANKING, and Credit Cards accepted without extra bank charges.",
-      category: "Finance",
-      link: "#"
-    },
-    {
-      date: "April 1, 2024",
-      title: "Class Time Table (I - V) 2024-25",
-      category: "Academic",
-      link: "#"
-    },
-    {
-      date: "April 1, 2024",
-      title: "Class Time Table (VI - XII) 2024-25",
-      category: "Academic",
-      link: "#"
-    }
-  ];
+  const notices = data.notices;
 
   return (
     <Layout data={data}>
@@ -153,18 +72,25 @@ const NoticeBoardPage = ({ data }: { data: AppData }) => {
                       <span className="text-[10px] font-black uppercase tracking-widest text-school-gold bg-school-gold/5 px-4 py-1.5 rounded-full">{notice.category}</span>
                     </div>
                     <h3 className="text-2xl md:text-3xl font-serif font-black text-school-navy group-hover:text-school-gold transition-colors duration-300 mb-4">{notice.title}</h3>
-                    {notice.description && (
+                    {notice.content && (
                       <p className="text-sm text-slate-500 leading-relaxed max-w-2xl font-medium mb-4 italic">
-                        {notice.description}
+                        {notice.content}
                       </p>
                     )}
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-3 px-8 py-4 bg-school-navy text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-school-accent transition-all shadow-xl active:scale-95">
-                      <Download size={14} className="text-school-gold" />
-                      View Attachment
-                    </button>
+                    {(notice.attachmentUrl || notice.link) && (
+                      <a 
+                        href={notice.attachmentUrl || notice.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 px-8 py-4 bg-school-navy text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-school-accent transition-all shadow-xl active:scale-95"
+                      >
+                        <Download size={14} className="text-school-gold" />
+                        View Attachment
+                      </a>
+                    )}
                     <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-school-navy opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all">
                       <ChevronRight size={20} />
                     </div>

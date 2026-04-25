@@ -61,8 +61,8 @@ const SportsComplexPage = ({ data }: { data: AppData }) => {
                 </div>
               </div>
 
-              <div className="grid gap-6">
-                {complexRules.map((rule, idx) => (
+              <div className="grid gap-6 text-justify">
+                 {complexRules.map((rule, idx) => (
                   <div key={idx} className="flex gap-4 group">
                     <div className="mt-1 text-school-navy/40 group-hover:text-school-gold transition-colors">{rule.icon}</div>
                     <p className="text-sm text-school-navy/70 leading-relaxed font-light">{rule.text}</p>

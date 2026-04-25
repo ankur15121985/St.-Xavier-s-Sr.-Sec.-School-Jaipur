@@ -29,10 +29,30 @@ const NoticesPage = ({ data }: { data: AppData }) => {
                 </div>
                 <h4 className="text-3xl font-serif font-black text-school-navy group-hover:text-school-gold transition-colors">{n.title}</h4>
               </div>
-              <button className="flex items-center gap-4 bg-school-navy text-white px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-school-accent transition-all">
-                Download PDF
-                <ArrowRight size={14} className="text-school-gold" />
-              </button>
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                {n.attachmentUrl && (
+                  <a 
+                    href={n.attachmentUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 bg-school-navy text-white px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-school-accent transition-all"
+                  >
+                    View Attachment
+                    <ArrowRight size={14} className="text-school-gold" />
+                  </a>
+                )}
+                {n.link && !n.attachmentUrl && (
+                  <a 
+                    href={n.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 bg-school-navy text-white px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-school-accent transition-all"
+                  >
+                    Read More
+                    <ArrowRight size={14} className="text-school-gold" />
+                  </a>
+                )}
+              </div>
             </motion.div>
           ))}
         </div>

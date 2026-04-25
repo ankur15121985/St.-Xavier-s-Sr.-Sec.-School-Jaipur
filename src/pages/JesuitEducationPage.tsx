@@ -35,7 +35,7 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
             >
               <div className="inline-block px-4 py-1.5 bg-school-gold/10 rounded-full text-[10px] font-black uppercase tracking-widest text-school-gold mb-2">Our Vision</div>
               <h2 className="text-4xl font-serif font-black text-school-navy italic tracking-tight">Inspired by Divine Wisdom</h2>
-              <div className="space-y-6 text-lg text-school-navy/70 font-light leading-relaxed">
+              <div className="space-y-6 text-lg text-school-navy/70 font-light leading-relaxed text-justify">
                 <p>
                   Jesuit Education is inspired by a vision drawn from the life and teachings of Jesus Christ and the principles of CHARACTER formation elaborated by <span className="font-bold text-school-navy">Ignatius Loyola</span>, the founder of the Society of Jesus.
                 </p>

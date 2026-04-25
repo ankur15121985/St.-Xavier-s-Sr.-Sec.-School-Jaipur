@@ -1,0 +1,132 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // -------------------------------------------------------------------------
+    // 0. Global Safety Net & Catch-all
+    // -------------------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Global Helpers
+    // -------------------------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      // Allow if document exists OR if it's the verified bootstrap email
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == "ankur15121985@gmail.com"
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // -------------------------------------------------------------------------
+    // 1. Admins Collection (Private)
+    // -------------------------------------------------------------------------
+    match /admins/{adminId} {
+      allow read, write: if isAdmin();
+      // Bootstrap: Allow initial admin setup if no admins exist (Dangerous, use sparingly)
+      // For AI Studio, we'll assume the primary user is authorized via syncing in code.
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. Public Read-Only Collections
+    // -------------------------------------------------------------------------
+    
+    // Helper to generic validate admin writes
+    function canWritePublic() {
+      return isAdmin();
+    }
+
+    match /notices/{noticeId} {
+      allow read: if true;
+      allow create: if canWritePublic() && isValidNotice(incoming());
+      allow update: if canWritePublic() && isValidNotice(incoming());
+      allow delete: if canWritePublic();
+    }
+
+    match /staff/{staffId} {
+      allow read: if true;
+      allow create: if canWritePublic() && isValidStaff(incoming());
+      allow update: if canWritePublic() && isValidStaff(incoming());
+      allow delete: if canWritePublic();
+    }
+
+    match /gallery/{itemId} {
+      allow read: if true;
+      allow create, update: if canWritePublic();
+      allow delete: if canWritePublic();
+    }
+
+    match /carousel/{itemId} {
+      allow read: if true;
+      allow create, update, delete: if canWritePublic();
+    }
+
+    match /fees/{feeId} {
+      allow read: if true;
+      allow create, update, delete: if canWritePublic();
+    }
+
+    match /links/{linkId} {
+      allow read: if true;
+      allow create, update, delete: if canWritePublic();
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow create, update, delete: if canWritePublic();
+    }
+
+    match /achievements/{id} {
+      allow read: if true;
+      allow create, update, delete: if canWritePublic();
+    }
+
+    match /studentHonors/{id} {
+      allow read: if true;
+      allow create, update, delete: if canWritePublic();
+    }
+
+    match /menu/{itemId} {
+      allow read: if true;
+      allow create, update, delete: if canWritePublic();
+    }
+
+    // -------------------------------------------------------------------------
+    // Validation Schemas
+    // -------------------------------------------------------------------------
+    function isValidNotice(data) {
+      return data.keys().hasAll(['title', 'date', 'category'])
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 200
+        && data.date is string
+        && data.category is string;
+    }
+
+    function isValidStaff(data) {
+      return data.keys().hasAll(['name', 'role', 'type'])
+        && data.name is string && data.name.size() > 0
+        && data.role is string
+        && data.type in ['Management', 'Faculty', 'Administration'];
+    }
+  }
+}

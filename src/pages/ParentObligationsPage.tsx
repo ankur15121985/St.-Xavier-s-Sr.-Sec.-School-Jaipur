@@ -213,14 +213,14 @@ const ParentObligationsPage = ({ data }: { data: AppData }) => {
                   <StickyNote className="text-slate-100" size={120} />
                 </div>
                 <h3 className="text-3xl font-serif font-black text-school-navy italic uppercase mb-10 relative z-10">Institutional Recommendations</h3>
-                <div className="grid md:grid-cols-2 gap-x-12 gap-y-8 relative z-10">
+                <div className="grid md:grid-cols-2 gap-x-12 gap-y-8 relative z-10 text-justify">
                   <div className="space-y-4">
-                    <p className="text-sm font-bold text-school-navy underline decoration-school-gold decoration-2 underline-offset-4 mb-4">Academic Hygiene</p>
+                    <p className="text-sm font-bold text-school-navy underline decoration-school-gold decoration-2 underline-offset-4 mb-4 text-left">Academic Hygiene</p>
                     <p className="text-sm text-slate-500 leading-relaxed">Remain regularly in touch with day-to-day studies and keep contact with the school.</p>
                     <p className="text-sm text-slate-500 leading-relaxed italic">Private tuitions are strongly discouraged; foster independent working habits.</p>
                   </div>
                   <div className="space-y-4">
-                    <p className="text-sm font-bold text-school-navy underline decoration-school-gold decoration-2 underline-offset-4 mb-4">Official Conduct</p>
+                    <p className="text-sm font-bold text-school-navy underline decoration-school-gold decoration-2 underline-offset-4 mb-4 text-left">Official Conduct</p>
                     <p className="text-sm text-slate-500 leading-relaxed">Always state full name, registration number, class, and roll number in official correspondence.</p>
                     <p className="text-sm text-slate-500 leading-relaxed">Ensure bags are packed according to the timetable every day to avoid over-loading.</p>
                   </div>

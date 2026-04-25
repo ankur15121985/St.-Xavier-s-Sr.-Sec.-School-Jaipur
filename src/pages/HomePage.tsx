@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Trophy, School as SchoolIcon, Map as MapIcon, Calendar, Bell, Users2 } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import { PerspectiveCard } from '../components/ui/PerspectiveCard';
+import { Campus3D } from '../components/ui/Campus3D';
 import { AppData } from '../types';
 
 import { Carousel } from '../components/ui/Carousel';
@@ -68,30 +69,30 @@ const HomePage = ({ data }: { data: AppData }) => {
       </section>
 
       {/* Immersive Wero-Style Hero Section - Background Transparent */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden px-6 py-32 bg-transparent">
+      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden px-6 py-20 md:py-32 bg-transparent">
         {/* Large Decorative Background Text for Mobile/Desktop */}
         <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 pointer-events-none select-none overflow-hidden lg:hidden">
-          <h2 className="text-[40vw] font-black text-school-accent opacity-[0.03] -rotate-12 translate-x-[-10%] translate-y-[20%] whitespace-nowrap">
+          <h2 className="text-[60vw] font-black text-school-accent opacity-[0.02] -rotate-12 translate-x-[-10%] translate-y-[20%] whitespace-nowrap">
             2026-27
           </h2>
         </div>
         
         <div className="max-w-7xl mx-auto relative z-10 w-full">
-          <div className="flex flex-col items-center text-center space-y-12">
+          <div className="flex flex-col items-center text-center space-y-8 md:space-y-12">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
-              className="px-6 py-2 bg-white/80 backdrop-blur-md rounded-full border border-school-accent/10 shadow-sm"
+              className="px-4 py-1.5 md:px-6 md:py-2 bg-white/80 backdrop-blur-md rounded-full border border-school-accent/10 shadow-sm"
             >
-              <span className="text-[14px] font-bold text-school-accent uppercase tracking-widest">A Legacy of Jesuit Excellence</span>
+              <span className="text-[10px] md:text-[14px] font-bold text-school-accent uppercase tracking-widest">A Legacy of Jesuit Excellence</span>
             </motion.div>
 
             <motion.h2
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[12vw] md:text-[8rem] font-sans font-black leading-[0.9] tracking-tighter text-school-ink"
+              className="text-[18vw] md:text-[8rem] font-sans font-black leading-[0.9] tracking-tighter text-school-ink"
             >
               Beyond <br />
               <span className="text-school-accent">Imagination.</span>
@@ -101,7 +102,7 @@ const HomePage = ({ data }: { data: AppData }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.2 }}
-              className="text-2xl md:text-3xl text-school-ink/60 font-medium max-w-3xl leading-snug"
+              className="text-lg md:text-3xl text-school-ink/60 font-medium max-w-3xl leading-snug px-4 text-justify md:text-center"
             >
               Step into a world where tradition meets innovation. <br className="hidden md:block" />
               Empowering leaders since <span className="text-school-accent font-black">1941</span>.
@@ -111,12 +112,12 @@ const HomePage = ({ data }: { data: AppData }) => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.4 }}
-              className="flex flex-wrap items-center justify-center gap-6"
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6"
             >
-              <button className="px-14 py-6 bg-school-accent text-white rounded-full text-xl font-black shadow-[0_20px_40px_rgba(122,61,252,0.3)] hover:scale-105 active:scale-95 transition-all">
+              <button className="w-full sm:w-auto px-8 md:px-14 py-4 md:py-6 bg-school-accent text-white rounded-full text-lg md:text-xl font-black shadow-[0_20px_40px_rgba(122,61,252,0.3)] hover:scale-105 active:scale-95 transition-all">
                 Join the Legacy
               </button>
-              <button className="px-14 py-6 bg-school-neon text-school-ink rounded-full text-xl font-black shadow-[0_20px_40px_rgba(199,242,18,0.2)] hover:scale-105 active:scale-95 transition-all">
+              <button className="w-full sm:w-auto px-8 md:px-14 py-4 md:py-6 bg-school-neon text-school-ink rounded-full text-lg md:text-xl font-black shadow-[0_20px_40px_rgba(199,242,18,0.2)] hover:scale-105 active:scale-95 transition-all">
                 Explore Campus
               </button>
             </motion.div>
@@ -125,42 +126,42 @@ const HomePage = ({ data }: { data: AppData }) => {
       </section>
 
       {/* Wero-style Marquee Wrapper - Semi-transparent */}
-      <section className="bg-school-accent/80 backdrop-blur-md py-12 overflow-hidden">
-        <div className="flex animate-infinite-scroll whitespace-nowrap gap-16">
+      <section className="bg-school-accent/80 backdrop-blur-md py-6 md:py-12 overflow-hidden">
+        <div className="flex animate-infinite-scroll whitespace-nowrap gap-8 md:gap-16">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="flex items-center gap-16 text-white text-[120px] font-black tracking-tighter uppercase leading-none opacity-90">
+            <div key={i} className="flex items-center gap-8 md:gap-16 text-white text-[60px] md:text-[120px] font-black tracking-tighter uppercase leading-none opacity-90">
               <span>St. Xaviers</span>
-              <div className="w-16 h-16 bg-school-neon rounded-full" />
+              <div className="w-8 h-8 md:w-16 md:h-16 bg-school-neon rounded-full" />
               <span className="text-school-neon italic">Jaipur</span>
-              <div className="w-16 h-16 bg-school-gold rounded-full" />
+              <div className="w-8 h-8 md:w-16 md:h-16 bg-school-gold rounded-full" />
               <span>Jesuit</span>
-              <div className="w-16 h-16 border-4 border-white rounded-full" />
+              <div className="w-8 h-8 md:w-16 md:h-16 border-4 border-white rounded-full" />
             </div>
           ))}
         </div>
       </section>
 
       {/* Feature Section - Overlapping Pills - BG Transparent */}
-      <section className="py-40 bg-transparent relative">
+      <section className="py-20 md:py-40 bg-transparent relative">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-24 items-center">
+          <div className="grid lg:grid-cols-2 gap-16 md:gap-24 items-center">
             <motion.div 
               initial={{ x: -100, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
               viewport={{ once: true }}
-              className="space-y-8"
+              className="space-y-6 md:space-y-8"
             >
-              <h2 className="text-[10vw] md:text-8xl font-black text-school-ink leading-none tracking-tight">
+              <h2 className="text-[12vw] md:text-8xl font-black text-school-ink leading-none tracking-tight">
                 Crafted for <br />
                 <span className="text-school-accent italic">Modernality.</span>
               </h2>
-              <p className="text-2xl text-school-ink/60 font-medium leading-relaxed max-w-xl">
+              <p className="text-xl md:text-2xl text-school-ink/60 font-medium leading-relaxed max-w-xl text-justify">
                 We believe in an education that transcends boundaries. Our curriculum is a perfect blend of digital fluency and ancient wisdom.
               </p>
               
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-3 md:gap-4">
                 {['Smart Labs', 'Global Network', 'Jesuit Values', 'High Performance'].map((tag, i) => (
-                  <span key={i} className="px-8 py-3 rounded-full border-2 border-school-accent/20 bg-white/40 backdrop-blur-sm text-xl font-bold hover:bg-school-accent hover:text-white transition-all cursor-default">
+                  <span key={i} className="px-5 md:px-8 py-2 md:py-3 rounded-full border-2 border-school-accent/20 bg-white/40 backdrop-blur-sm text-lg md:text-xl font-bold hover:bg-school-accent hover:text-white transition-all cursor-default">
                     {tag}
                   </span>
                 ))}
@@ -173,8 +174,8 @@ const HomePage = ({ data }: { data: AppData }) => {
               viewport={{ once: true }}
               className="relative aspect-square"
             >
-              <div className="absolute inset-0 bg-school-accent/10 rounded-[100px] rotate-3 -z-10 blur-3xl animate-blob" />
-              <div className="relative h-full w-full rounded-[100px] overflow-hidden shadow-2xl border-8 border-white bg-white/50 backdrop-blur-2xl">
+              <div className="absolute inset-0 bg-school-accent/10 rounded-[40px] md:rounded-[100px] rotate-3 -z-10 blur-3xl animate-blob" />
+              <div className="relative h-full w-full rounded-[40px] md:rounded-[100px] overflow-hidden shadow-2xl border-4 md:border-8 border-white bg-white/50 backdrop-blur-2xl">
                  <img src={carouselImages[0]} className="w-full h-full object-cover mix-blend-multiply opacity-90" alt="Feature" />
               </div>
             </motion.div>
@@ -183,22 +184,22 @@ const HomePage = ({ data }: { data: AppData }) => {
       </section>
 
       {/* Vision Section - Blended Tone Glass */}
-      <section className="py-40 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[80px] mx-6 mb-20 overflow-hidden relative shadow-2xl group">
+      <section className="py-20 md:py-40 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[40px] md:rounded-[80px] mx-6 mb-20 overflow-hidden relative shadow-2xl group">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true }}
-            className="space-y-12"
+            className="space-y-8 md:space-y-12"
           >
-            <h3 className="text-[15vw] md:text-[12rem] font-sans font-black leading-none tracking-tighter uppercase italic opacity-5 absolute top-10 left-1/2 -translate-x-1/2 select-none group-hover:opacity-10 transition-opacity">
+            <h3 className="text-[25vw] md:text-[12rem] font-sans font-black leading-none tracking-tighter uppercase italic opacity-5 absolute top-10 left-1/2 -translate-x-1/2 select-none group-hover:opacity-10 transition-opacity">
               Motto
             </h3>
-            <h4 className="text-5xl md:text-7xl font-black leading-tight relative z-10 max-w-5xl mx-auto text-school-ink">
+            <h4 className="text-3xl md:text-7xl font-black leading-tight relative z-10 max-w-5xl mx-auto text-school-ink">
               "For God and Country" represents our core ethos of service and devotion.
             </h4>
-            <div className="flex justify-center pt-10">
-              <Link to="/history" className="px-16 py-7 bg-school-accent text-white rounded-full text-2xl font-black hover:scale-110 active:scale-95 transition-all shadow-xl">
+            <div className="flex justify-center pt-6 md:pt-10">
+              <Link to="/history" className="px-10 md:px-16 py-4 md:py-7 bg-school-accent text-white rounded-full text-xl md:text-2xl font-black hover:scale-110 active:scale-95 transition-all shadow-xl">
                 The Full Story
               </Link>
             </div>
@@ -207,29 +208,29 @@ const HomePage = ({ data }: { data: AppData }) => {
       </section>
 
       {/* Campus Intelligence - BG Transparent */}
-      <section className="py-40 bg-transparent my-20">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 text-center mb-32 space-y-6">
-          <h3 className="text-6xl md:text-[8rem] font-sans font-black text-school-ink tracking-tight">Stay Wired.</h3>
-          <p className="text-2xl text-school-accent font-black uppercase tracking-widest">Real-time Institutional Heartbeat</p>
+      <section className="py-20 md:py-40 bg-transparent my-10 md:my-20">
+        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 text-center mb-16 md:mb-32 space-y-4 md:space-y-6">
+          <h3 className="text-4xl md:text-[8rem] font-sans font-black text-school-ink tracking-tight">Stay Wired.</h3>
+          <p className="text-lg md:text-2xl text-school-accent font-black uppercase tracking-widest">Real-time Institutional Heartbeat</p>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12">
+        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-8 md:gap-12">
            <motion.div 
              whileHover={{ y: -10 }}
-             className="bg-white/40 backdrop-blur-3xl p-12 rounded-[80px] shadow-2xl space-y-12 border border-white/40 hover:border-school-accent/20 transition-all"
+             className="bg-white/40 backdrop-blur-3xl p-6 md:p-12 rounded-[40px] md:rounded-[80px] shadow-2xl space-y-8 md:space-y-12 border border-white/40 hover:border-school-accent/20 transition-all"
            >
               <div className="flex items-center justify-between">
-                <h4 className="text-5xl font-black text-school-ink tracking-tighter">Notice Board</h4>
-                <div className="w-20 h-20 bg-school-accent/10 rounded-full flex items-center justify-center text-school-accent"><Bell size={40} /></div>
+                <h4 className="text-3xl md:text-5xl font-black text-school-ink tracking-tighter">Notice Board</h4>
+                <div className="w-12 h-12 md:w-20 md:h-20 bg-school-accent/10 rounded-full flex items-center justify-center text-school-accent"><Bell className="w-6 h-6 md:w-10 md:h-10" /></div>
               </div>
-              <div className="grid gap-6">
+              <div className="grid gap-4 md:gap-6">
                 {data.notices.slice(0, 3).map((n, i) => (
-                  <Link key={n.id} to="/notices" className="flex items-center justify-between p-8 bg-white/30 rounded-[40px] hover:bg-school-accent hover:text-white transition-all group">
-                    <div>
-                      <p className="text-sm font-black text-gray-500 uppercase tracking-widest mb-2 group-hover:text-white/60">{n.date}</p>
-                      <h5 className="text-2xl font-black text-school-ink leading-tight group-hover:text-white">{n.title}</h5>
+                  <Link key={n.id} to="/notices" className="flex items-center justify-between p-5 md:p-8 bg-white/30 rounded-[24px] md:rounded-[40px] hover:bg-school-accent hover:text-white transition-all group">
+                    <div className="flex-1 min-w-0 pr-4">
+                      <p className="text-[10px] md:text-sm font-black text-gray-500 uppercase tracking-widest mb-1 group-hover:text-white/60 truncate">{n.date}</p>
+                      <h5 className="text-lg md:text-2xl font-black text-school-ink leading-tight group-hover:text-white line-clamp-2">{n.title}</h5>
                     </div>
-                    <ArrowRight size={32} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0" />
+                    <ArrowRight size={24} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 shrink-0" />
                   </Link>
                 ))}
               </div>
@@ -237,21 +238,21 @@ const HomePage = ({ data }: { data: AppData }) => {
 
            <motion.div 
              whileHover={{ y: -10 }}
-             className="bg-school-accent/90 backdrop-blur-3xl p-12 rounded-[80px] shadow-2xl space-y-12 text-white border border-white/20"
+             className="bg-school-accent/90 backdrop-blur-3xl p-6 md:p-12 rounded-[40px] md:rounded-[80px] shadow-2xl space-y-8 md:space-y-12 text-white border border-white/20"
            >
               <div className="flex items-center justify-between">
-                <h4 className="text-5xl font-black tracking-tighter text-white">Engagements</h4>
-                <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center text-school-neon"><Calendar size={40} /></div>
+                <h4 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Engagements</h4>
+                <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 rounded-full flex items-center justify-center text-school-neon"><Calendar className="w-6 h-6 md:w-10 md:h-10" /></div>
               </div>
-              <div className="grid gap-8">
+              <div className="grid gap-6 md:gap-8">
                 {data.events.slice(0, 3).map((e, i) => (
-                  <div key={e.id} className="flex gap-8 items-center border-b border-white/10 pb-8 last:border-0 group cursor-default">
-                    <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-[32px] flex items-center justify-center text-white shrink-0 group-hover:scale-110 group-hover:bg-school-neon group-hover:text-school-ink transition-all">
-                      <span className="text-4xl font-black leading-none">{24 + i}</span>
+                  <div key={e.id} className="flex gap-4 md:gap-8 items-center border-b border-white/10 pb-6 md:pb-8 last:border-0 group cursor-default">
+                    <div className="w-16 h-16 md:w-24 md:h-24 bg-white/10 backdrop-blur-md rounded-[20px] md:rounded-[32px] flex items-center justify-center text-white shrink-0 group-hover:scale-110 group-hover:bg-school-neon group-hover:text-school-ink transition-all">
+                      <span className="text-2xl md:text-4xl font-black leading-none">{24 + i}</span>
                     </div>
-                    <div>
-                      <h5 className="text-3xl font-black text-white leading-tight">{e.title}</h5>
-                      <p className="text-white/60 font-black uppercase text-sm tracking-widest mt-2">{e.location}</p>
+                    <div className="flex-1 min-w-0">
+                      <h5 className="text-xl md:text-3xl font-black text-white leading-tight line-clamp-2">{e.title}</h5>
+                      <p className="text-white/60 font-black uppercase text-[10px] md:text-sm tracking-widest mt-1 truncate">{e.location}</p>
                     </div>
                   </div>
                 ))}
@@ -261,9 +262,9 @@ const HomePage = ({ data }: { data: AppData }) => {
       </section>
 
       {/* Message from the Principal Section - BG Transparent */}
-      <section className="py-40 bg-transparent relative">
+      <section className="py-20 md:py-40 bg-transparent relative">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-32 items-center">
+          <div className="grid lg:grid-cols-2 gap-16 md:gap-32 items-center">
             {/* Portrait - Large Rounded */}
             <motion.div 
                initial={{ opacity: 0, scale: 0.9 }}
@@ -271,37 +272,36 @@ const HomePage = ({ data }: { data: AppData }) => {
                viewport={{ once: true }}
                className="relative"
             >
-              <div className="aspect-[4/5] rounded-[100px] overflow-hidden shadow-[0_80px_160px_-40px_rgba(0,0,0,0.15)] relative group bg-white/30 backdrop-blur-xl border border-white/40">
+              <div className="aspect-[4/5] rounded-[40px] md:rounded-[100px] overflow-hidden shadow-[0_80px_160px_-40px_rgba(0,0,0,0.15)] relative group bg-white/30 backdrop-blur-xl border border-white/40">
                 <img 
                   src="https://picsum.photos/seed/arockiam_principal/800/1000" 
                   className="w-full h-full object-cover grayscale brightness-105 group-hover:grayscale-0 transition-all duration-[2s]" 
                   alt="Fr. M. Arockiam, SJ"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-school-ink/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
               {/* Badge */}
-              <div className="absolute -bottom-10 -right-10 bg-school-neon p-10 rounded-[40px] shadow-2xl rotate-3 border-4 border-white/80">
-                <p className="text-4xl font-black text-school-ink leading-none italic">Leadership</p>
-                <div className="w-12 h-2 bg-school-accent mt-4 rounded-full" />
+              <div className="absolute -bottom-6 -right-6 md:-bottom-10 md:-right-10 bg-school-neon p-6 md:p-10 rounded-[24px] md:rounded-[40px] shadow-2xl rotate-3 border-4 border-white/80">
+                <p className="text-2xl md:text-4xl font-black text-school-ink leading-none italic">Leadership</p>
+                <div className="w-8 h-1.5 md:w-12 md:h-2 bg-school-accent mt-3 md:mt-4 rounded-full" />
               </div>
             </motion.div>
 
             {/* Content */}
-            <div className="space-y-12">
-              <span className="px-8 py-3 bg-white/40 backdrop-blur-sm rounded-full text-sm font-black uppercase tracking-[0.3em] text-school-accent shadow-sm border border-white/60">Guardian's Vision</span>
-              <h2 className="text-[12vw] md:text-9xl font-black text-school-ink leading-[0.8] tracking-tighter">
+            <div className="space-y-8 md:space-y-12">
+              <span className="px-5 md:px-8 py-2 md:py-3 bg-white/40 backdrop-blur-sm rounded-full text-[10px] md:text-sm font-black uppercase tracking-[0.3em] text-school-accent shadow-sm border border-white/60">Guardian's Vision</span>
+              <h2 className="text-[15vw] md:text-9xl font-black text-school-ink leading-[0.8] tracking-tighter">
                 Lead <br />
                 with <br />
-                <span className="text-school-accent italic text-[14vw] md:text-[10rem]">Grace.</span>
+                <span className="text-school-accent italic text-[18vw] md:text-[10rem]">Grace.</span>
               </h2>
-              <div className="space-y-10 text-school-ink/60 font-medium text-3xl leading-snug">
+              <div className="space-y-6 md:space-y-10 text-school-ink/60 font-medium text-xl md:text-3xl leading-snug">
                 <p className="relative">
-                  <span className="absolute -top-12 -left-12 text-[15rem] font-serif text-school-accent opacity-5 pointer-events-none select-none">“</span>
+                  <span className="absolute -top-8 -left-8 md:-top-12 md:-left-12 text-[8rem] md:text-[15rem] font-serif text-school-accent opacity-5 pointer-events-none select-none">“</span>
                   We cultivate individuals of character, resilient in spirit and enlightened in soul. Education is the journey of becoming.
                 </p>
-                <div className="pt-6">
-                   <Link to="/principal-message" className="inline-flex items-center gap-6 px-14 py-6 bg-school-ink text-white rounded-full text-xl font-black hover:bg-school-accent transition-all shadow-xl active:scale-95">
-                     The Full Narrative <ArrowRight size={32} />
+                <div className="pt-4 md:pt-6">
+                   <Link to="/principal-message" className="inline-flex items-center gap-4 md:gap-6 px-10 md:px-14 py-4 md:py-6 bg-school-ink text-white rounded-full text-lg md:text-xl font-black hover:bg-school-accent transition-all shadow-xl active:scale-95">
+                     The Full Narrative <ArrowRight className="w-6 h-6 md:w-8 md:h-8" />
                    </Link>
                 </div>
               </div>
@@ -311,33 +311,33 @@ const HomePage = ({ data }: { data: AppData }) => {
       </section>
 
       {/* Distinction Section - Transparent with Glass Elements */}
-      <section className="py-40 bg-transparent relative overflow-hidden">
+      <section className="py-20 md:py-40 bg-transparent relative overflow-hidden">
         {/* Decorative Circle with Blend */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] border-[100px] border-school-accent/5 rounded-full pointer-events-none mix-blend-multiply" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120vw] h-[120vw] border-[40px] md:border-[100px] border-school-accent/5 rounded-full pointer-events-none mix-blend-multiply" />
         
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-32 space-y-4">
-            <h2 className="text-7xl md:text-[10rem] font-black text-school-ink tracking-tighter leading-none opacity-5 absolute -top-20 left-0 text-left">ESTABLISHED.</h2>
-            <h2 className="text-6xl md:text-8xl font-black text-school-ink tracking-tighter relative">Hyper-Focused <br /><span className="text-school-accent italic font-serif">Excellence.</span></h2>
+          <div className="text-center mb-16 md:mb-32 space-y-4">
+            <h2 className="text-5xl md:text-[10rem] font-black text-school-ink tracking-tighter leading-none opacity-5 absolute -top-10 md:-top-20 left-0 text-left">ESTABLISHED.</h2>
+            <h2 className="text-4xl md:text-8xl font-black text-school-ink tracking-tighter relative">Hyper-Focused <br /><span className="text-school-accent italic font-serif">Excellence.</span></h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
             {[
-              { title: 'Academic Mastery', subtitle: 'Section 01', icon: <SchoolIcon size={48} /> },
-              { title: 'Holistic Legacy', subtitle: 'Section 02', icon: <Trophy size={48} /> },
-              { title: 'Global Identity', subtitle: 'Section 03', icon: <Users2 size={48} /> }
+              { title: 'Academic Mastery', subtitle: 'Section 01', icon: <SchoolIcon className="w-8 h-8 md:w-12 md:h-12" /> },
+              { title: 'Holistic Legacy', subtitle: 'Section 02', icon: <Trophy className="w-8 h-8 md:w-12 md:h-12" /> },
+              { title: 'Global Identity', subtitle: 'Section 03', icon: <Users2 className="w-8 h-8 md:w-12 md:h-12" /> }
             ].map((h, i) => (
               <motion.div 
                 key={i}
                 whileHover={{ scale: 1.02, y: -5 }}
-                className="group bg-white/40 backdrop-blur-3xl p-16 rounded-[80px] border border-white/60 hover:bg-school-accent hover:text-white transition-all cursor-pointer flex flex-col justify-between min-h-[500px] shadow-xl shadow-school-accent/5"
+                className="group bg-white/40 backdrop-blur-3xl p-10 md:p-16 rounded-[40px] md:rounded-[80px] border border-white/60 hover:bg-school-accent hover:text-white transition-all cursor-pointer flex flex-col justify-between min-h-[350px] md:min-h-[500px] shadow-xl shadow-school-accent/5"
               >
-                <div className="w-24 h-24 bg-school-accent rounded-[32px] flex items-center justify-center text-white mb-10 group-hover:bg-white group-hover:text-school-accent group-hover:rotate-12 transition-all shadow-lg shadow-school-accent/20">
+                <div className="w-16 h-16 md:w-24 md:h-24 bg-school-accent rounded-[20px] md:rounded-[32px] flex items-center justify-center text-white mb-6 md:init-10 group-hover:bg-white group-hover:text-school-accent group-hover:rotate-12 transition-all shadow-lg shadow-school-accent/20">
                   {h.icon}
                 </div>
                 <div>
-                  <p className="text-sm font-black uppercase text-school-accent tracking-widest mb-4 group-hover:text-white/60">{h.subtitle}</p>
-                  <h4 className="text-5xl font-black text-school-ink leading-tight group-hover:text-white transition-colors">{h.title}</h4>
+                  <p className="text-[10px] md:text-sm font-black uppercase text-school-accent tracking-widest mb-2 md:mb-4 group-hover:text-white/60">{h.subtitle}</p>
+                  <h4 className="text-3xl md:text-5xl font-black text-school-ink leading-tight group-hover:text-white transition-colors">{h.title}</h4>
                 </div>
               </motion.div>
             ))}
@@ -345,34 +345,39 @@ const HomePage = ({ data }: { data: AppData }) => {
         </div>
       </section>
 
+      {/* 3D Campus Animation / Virtual Tour */}
+      <section className="relative w-full h-screen overflow-hidden">
+        <Campus3D />
+      </section>
+
       {/* Visual Narrative Grid - Ultra Rounded Gallery - BG Transparent */}
-      <section className="py-40 bg-transparent">
+      <section className="py-20 md:py-40 bg-transparent">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="mb-32 flex flex-col md:flex-row md:items-end justify-between gap-12">
-            <h2 className="text-7xl md:text-[12rem] font-black text-school-ink tracking-tighter leading-[0.8]">
+          <div className="mb-16 md:mb-32 flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12">
+            <h2 className="text-5xl md:text-[12rem] font-black text-school-ink tracking-tighter leading-[0.8]">
               Campus <br />
               <span className="text-school-accent italic">Oeuvre.</span>
             </h2>
-            <p className="text-2xl text-school-ink/40 font-medium max-w-sm leading-tight">
+            <p className="text-lg md:text-2xl text-school-ink/40 font-medium max-w-sm leading-tight">
               A visual collective capturing the vibrant soul of St. Xavier's Jaipur.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
              {data.gallery.slice(0, 6).map((img, i) => (
                 <motion.div
                   key={img.id}
                   whileHover={{ scale: 0.98 }}
-                  className="relative group overflow-hidden rounded-[80px] aspect-[4/5] bg-white/20 backdrop-blur-xl shadow-2xl border border-white/40"
+                  className="relative group overflow-hidden rounded-[40px] md:rounded-[80px] aspect-[4/5] bg-white/20 backdrop-blur-xl shadow-2xl border border-white/40"
                 >
                   <img 
                     src={img.url} 
                     className="w-full h-full object-cover grayscale brightness-110 group-hover:grayscale-0 transition-all duration-[1s]" 
                     alt={img.caption}
                   />
-                  <div className="absolute inset-x-6 bottom-6 bg-white/90 backdrop-blur-md p-8 rounded-[40px] translate-y-32 group-hover:translate-y-0 transition-transform duration-500 shadow-xl">
-                     <p className="text-sm font-black text-school-accent uppercase tracking-widest mb-2">Moments</p>
-                     <p className="text-xl font-black text-school-ink">{img.caption}</p>
+                  <div className="absolute inset-x-4 md:inset-x-6 bottom-4 md:bottom-6 bg-white/90 backdrop-blur-md p-6 md:p-8 rounded-[24px] md:rounded-[40px] translate-y-32 group-hover:translate-y-0 transition-transform duration-500 shadow-xl">
+                     <p className="text-[10px] md:text-sm font-black text-school-accent uppercase tracking-widest mb-1 md:mb-2">Moments</p>
+                     <p className="text-lg md:text-xl font-black text-school-ink">{img.caption}</p>
                   </div>
                 </motion.div>
              ))}
@@ -381,37 +386,41 @@ const HomePage = ({ data }: { data: AppData }) => {
       </section>
 
       {/* Leadership Section - Blended Regency Pills */}
-      <section className="py-40 bg-white/10 backdrop-blur-3xl rounded-[100px] mx-6 lg:mx-12 my-20 overflow-hidden relative shadow-2xl border border-white/20">
+      <section className="py-20 md:py-40 bg-white/10 backdrop-blur-3xl rounded-[40px] md:rounded-[100px] mx-6 lg:mx-12 my-10 md:my-20 overflow-hidden relative shadow-2xl border border-white/20">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="flex flex-col lg:flex-row justify-between items-end mb-32 gap-10">
-             <div className="space-y-4">
-                <span className="px-6 py-2 bg-school-accent text-white rounded-full text-xs font-black uppercase tracking-widest">The Guardians</span>
-                <h2 className="text-7xl md:text-[10rem] font-black text-school-ink tracking-tighter leading-[0.8]">The <br /><span className="text-school-accent italic">Regency.</span></h2>
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-16 md:mb-32 gap-8 md:gap-10">
+             <div className="space-y-3 md:space-y-4">
+                <span className="px-5 md:px-6 py-1.5 md:py-2 bg-school-accent text-white rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest">The Guardians</span>
+                <h2 className="text-5xl md:text-[10rem] font-black text-school-ink tracking-tighter leading-[0.8]">The <br /><span className="text-school-accent italic">Regency.</span></h2>
              </div>
-             <div className="max-w-xl">
-                <Link to="/staff" className="group flex items-center justify-center gap-6 px-16 py-7 bg-school-ink text-white rounded-full text-xl font-black hover:bg-school-accent transition-all shadow-2xl">
-                  Staff Archive <ArrowRight size={32} className="group-hover:translate-x-2 transition-transform" />
+             <div className="w-full lg:max-w-xl">
+                <Link to="/staff" className="group flex items-center justify-center gap-4 md:gap-6 px-10 md:px-16 py-4 md:py-7 bg-school-ink text-white rounded-full text-lg md:text-xl font-black hover:bg-school-accent transition-all shadow-2xl">
+                  Staff Archive <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
                 </Link>
              </div>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {data.staff.filter(s => s.type === 'Management' || s.type === 'Administration').slice(0, 4).map((s, i) => (
               <motion.div 
                 key={s.id}
                 whileHover={{ y: -10 }}
-                className="group bg-white/50 backdrop-blur-2xl p-8 rounded-[100px] shadow-2xl transition-all border border-white/60"
+                className="group bg-white/50 backdrop-blur-2xl p-6 md:p-8 rounded-[40px] md:rounded-[100px] shadow-2xl transition-all border border-white/60"
               >
-                <div className="relative aspect-square rounded-full overflow-hidden mb-10 border-8 border-white/80 shadow-inner">
+                <div className="relative aspect-square rounded-full overflow-hidden mb-6 md:mb-10 border-4 md:border-8 border-white/80 shadow-inner max-w-[200px] mx-auto lg:max-w-none">
                   {s.image ? (
                     <img src={s.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={s.name} />
                   ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center"><Users2 size={64} className="text-school-ink/10" /></div>
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center"><Users2 size={48} className="text-school-ink/10" /></div>
                   )}
                 </div>
-                <div className="text-center px-4 mb-8">
-                  <h4 className="text-3xl font-black text-school-ink leading-tight">{s.name}</h4>
-                  <p className="text-sm font-black uppercase text-school-accent tracking-widest mt-4">{s.role}</p>
+                <div className="text-center px-2 mb-4 md:mb-8 flex flex-col items-center justify-center min-h-[120px]">
+                  <h4 className="text-xl md:text-2xl font-black text-school-ink leading-tight break-words max-w-full italic px-2">
+                    {s.name}
+                  </h4>
+                  <p className="text-[9px] md:text-[11px] font-bold uppercase text-school-accent tracking-[0.15em] mt-3 md:mt-4 leading-relaxed max-w-[90%] mx-auto">
+                    {s.role}
+                  </p>
                 </div>
               </motion.div>
             ))}

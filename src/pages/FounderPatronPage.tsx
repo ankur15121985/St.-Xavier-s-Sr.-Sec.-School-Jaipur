@@ -8,29 +8,30 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
     <Layout data={data}>
       <div className="bg-slate-50 min-h-screen">
         {/* Banner Section */}
-        <section className="relative h-[50vh] overflow-hidden group">
+        <section className="relative h-[65vh] md:h-[50vh] overflow-hidden group">
           <img 
             src="https://picsum.photos/seed/xavier_patron_banner/1920/1080?blur=5" 
             className="w-full h-full object-cover brightness-50"
             alt="Spiritual Heritage"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-school-navy via-school-navy/40 to-transparent"></div>
-          <div className="absolute inset-0 flex items-center justify-center text-center px-6">
+          <div className="absolute inset-0 bg-gradient-to-t from-school-navy via-school-navy/60 to-transparent"></div>
+          <div className="absolute inset-0 flex items-center justify-center text-center px-6 pt-10">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1 }}
+              className="max-w-4xl"
             >
-              <div className="w-20 h-1 bg-school-gold mx-auto mb-8 rounded-full"></div>
-              <h1 className="text-5xl md:text-7xl font-serif font-black text-white tracking-tighter mb-4 italic">Our Founder & Patron</h1>
-              <p className="text-school-gold/80 text-xl font-light tracking-[0.2em] uppercase">The Pillars of the Society of Jesus</p>
+              <div className="w-12 md:w-20 h-1 bg-school-gold mx-auto mb-6 md:mb-8 rounded-full"></div>
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif font-black text-white tracking-tighter mb-4 italic leading-tight">Our Founder & <br className="sm:hidden" /> Patron</h1>
+              <p className="text-school-gold/90 text-sm sm:text-lg md:text-xl font-black tracking-[0.15em] md:tracking-[0.2em] uppercase leading-relaxed max-w-[280px] sm:max-w-none mx-auto">The Pillars of the Society of Jesus</p>
             </motion.div>
           </div>
         </section>
 
         {/* Content Section */}
-        <section className="py-24 bg-white relative z-10 -mt-20 rounded-t-[64px] shadow-2xl">
+        <section className="py-16 md:py-24 bg-white relative z-10 -mt-12 md:-mt-20 rounded-t-[40px] md:rounded-t-[64px] shadow-2xl">
           <div className="max-w-6xl mx-auto px-6 lg:px-12">
             
             {/* Saint Francis Xavier Section (Our Patron) */}
@@ -66,14 +67,14 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
                   <h3 className="text-5xl font-serif font-black text-school-navy tracking-tight">The Apostle of the Indies</h3>
                 </div>
 
-                <div className="bg-slate-50 p-10 rounded-[32px] border border-slate-100 italic font-medium text-xl text-school-navy leading-relaxed relative">
+                <div className="bg-slate-50 p-10 rounded-[32px] border border-slate-100 italic font-medium text-xl text-school-navy leading-relaxed relative text-justify">
                    <span className="absolute -top-6 -left-2 text-7xl text-school-gold opacity-30">"</span>
                    Jesus asked, "What profit would there be for one to gain the whole world and forfeit his soul?" (Matthew 16:26a).
-                   <p className="mt-4 text-[10px] font-sans font-black uppercase tracking-widest not-italic text-school-navy/40">— Reflection of Francis Xavier</p>
+                   <p className="mt-4 text-[10px] font-sans font-black uppercase tracking-widest not-italic text-school-navy/40 text-left">— Reflection of Francis Xavier</p>
                 </div>
 
-                <div className="space-y-6 text-lg text-school-navy/70 leading-relaxed font-light">
-                  <p>
+                <div className="space-y-6 text-lg text-school-navy/70 leading-relaxed font-light text-justify">
+                   <p>
                     These words were repeated to a young teacher of philosophy who had a highly promising career in academics, with success and a life of prestige and honor before him. Francis Xavier, 24 at the time, and living and teaching in Paris, did not heed these words at once. They came from a good friend, Ignatius of Loyola (July 31), whose tireless persuasion finally won the young man to Christ. 
                   </p>
                   <p>

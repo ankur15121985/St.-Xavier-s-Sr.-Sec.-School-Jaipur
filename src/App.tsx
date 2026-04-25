@@ -13,6 +13,8 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { AppData } from './types';
 import { HelmetProvider } from 'react-helmet-async';
+import { FirebaseProvider, useFirebase } from './components/FirebaseProvider';
+import { firebaseService } from './lib/firebaseService';
 
 // Page Imports
 import HomePage from './pages/HomePage';
@@ -37,6 +39,7 @@ import SchoolInformationPage from './pages/SchoolInformationPage';
 import ParentObligationsPage from './pages/ParentObligationsPage';
 import CareersPage from './pages/CareersPage';
 import NoticeBoardPage from './pages/NoticeBoardPage';
+import ContactPage from './pages/ContactPage';
 import AdminPortal from './pages/AdminPortal';
 
 const PageTransition = ({ children }: { children: React.ReactNode }) => {
@@ -235,6 +238,12 @@ const DEFAULT_DATA: AppData = {
     { id: '2-2', label: 'Governing Members', href: '/governing-members', parent_id: '2', order_index: 1 },
     { id: '2-3', label: 'School Anthem', href: '/anthem', parent_id: '2', order_index: 2 },
     { id: '2-4', label: 'History', href: '/history', parent_id: '2', order_index: 3 },
+    { id: '2-5', label: 'Other Association & Committee', href: '#', parent_id: '2', order_index: 4 },
+    { id: '2-5-1', label: 'Internal Complaints Committee (POSH)', href: '#', parent_id: '2-5', order_index: 0 },
+    { id: '2-5-2', label: 'Internal Grievance Cell', href: '#', parent_id: '2-5', order_index: 1 },
+    { id: '2-5-3', label: 'POCSO Committee', href: '#', parent_id: '2-5', order_index: 2 },
+    { id: '2-5-4', label: 'School Level Fee Committee (SLFC)', href: '#', parent_id: '2-5', order_index: 3 },
+    { id: '2-5-5', label: 'Parent Teacher Association (PTA)', href: '#', parent_id: '2-5', order_index: 4 },
     { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
     { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
     { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
@@ -259,62 +268,89 @@ const DEFAULT_DATA: AppData = {
     { id: '9', label: 'More', href: '#', parent_id: null, order_index: 8 },
     { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
     { id: '9-2', label: 'Gallery', href: '/gallery', parent_id: '9', order_index: 1 },
+    { id: '10', label: 'Contact', href: '/contact', parent_id: null, order_index: 9 },
   ],
   carousel: [
     { id: 'c1', url: 'https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600', caption: 'Legacy of Excellence' },
     { id: 'c2', url: 'https://lh3.googleusercontent.com/d/1ZfP3k6bFiwdZdEe3CI_U6KhBkAEaybUs=w1600', caption: 'Modern Campus Mastery' },
     { id: 'c3', url: 'https://lh3.googleusercontent.com/d/187y5AfGgvXnofNL6h85uU1rpdfaWYDCH=w1600', caption: 'St. Xavier\'s Spirit' },
-  ]
+  ],
+  faqs: [
+    { id: 'f1', question: 'What are the school timings?', answer: 'Junior School: 7:30 AM - 12:30 PM. Senior School: 7:30 AM - 1:30 PM.', category: 'General', order_index: 0 },
+    { id: 'f2', question: 'Is there a transport facility?', answer: 'Yes, the school provides bus facilities covering most major parts of Jaipur city.', category: 'General', order_index: 1 }
+  ],
+  messages: []
 };
 
-export default function App() {
-  const [data, setData] = useState<AppData>(DEFAULT_DATA);
-  const [loading, setLoading] = useState(true);
+const DataLoader = ({ children, data, setData, loading, setLoading }: { children: React.ReactNode, data: AppData, setData: (d: AppData) => void, loading: boolean, setLoading: (l: boolean) => void }) => {
+  const { isAdmin, loading: authLoading } = useFirebase();
 
   useEffect(() => {
+    if (authLoading) return;
+
     const fetchDataAndSeed = async () => {
       try {
-        const res = await fetch('/api/data');
-        const fetchedData = await res.json();
+        const fetchedData = await firebaseService.fetchAllData();
         
-        const merged = { ...DEFAULT_DATA };
         let hasData = false;
-        Object.keys(fetchedData).forEach(key => {
-          if (fetchedData[key] && fetchedData[key].length > 0) {
-            merged[key as keyof AppData] = fetchedData[key];
-            hasData = true;
-          }
-        });
+        if (fetchedData) {
+          Object.values(fetchedData).forEach(arr => {
+            if (Array.isArray(arr) && arr.length > 0) hasData = true;
+          });
+        }
         
-        if (hasData) {
-          setData(merged);
-        } else {
-          console.log('Fresh database detected. Starting sequential seeding...');
-          for (const table of Object.keys(DEFAULT_DATA)) {
-            const items = DEFAULT_DATA[table as keyof AppData];
-            for (const item of items) {
-              await fetch('/api/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ table, item })
-              });
+        if (hasData && fetchedData) {
+          const merged = { ...DEFAULT_DATA };
+          Object.keys(fetchedData).forEach(key => {
+            const k = key as keyof AppData;
+            if (fetchedData[k] && fetchedData[k]!.length > 0) {
+              merged[k] = fetchedData[k] as any;
             }
+          });
+          
+          if (fetchedData.menu?.length > 0) {
+            const fetchedIds = new Set(fetchedData.menu.map((m: any) => m.id));
+            const missing = DEFAULT_DATA.menu.filter(m => !fetchedIds.has(m.id));
+            
+            if (missing.length > 0 && isAdmin) {
+              for (const item of missing) {
+                await firebaseService.saveItem('menu', item);
+              }
+              const refresh = await firebaseService.fetchAllData();
+              const latest = { ...DEFAULT_DATA };
+              if (refresh) {
+                Object.keys(refresh).forEach(k => {
+                  const key = k as keyof AppData;
+                  if (refresh[key] && refresh[key]!.length > 0) latest[key] = refresh[key] as any;
+                });
+              }
+              setData(latest);
+            } else {
+              setData(merged);
+            }
+          } else {
+            setData(merged);
           }
-          const finalRes = await fetch('/api/data');
-          const finalData = await finalRes.json();
-          setData(finalData);
+        } else if (isAdmin) {
+          console.log('Fresh Firestore detected and user is admin. Starting sequential seeding...');
+          await firebaseService.syncAll(DEFAULT_DATA);
+          const finalData = await firebaseService.fetchAllData();
+          if (finalData) setData({ ...DEFAULT_DATA, ...finalData } as AppData);
+        } else {
+          // Keep default data if not admin and DB is empty
+          console.log('Firestore is empty. Log in as admin to sync/seed data.');
         }
       } catch (err) {
-        console.error('Data sync error:', err);
+        console.error('Firebase data sync error:', err);
       } finally {
-        setTimeout(() => setLoading(false), 1200); // Cinematic entry
+        setLoading(false);
       }
     };
 
     fetchDataAndSeed();
-  }, []);
+  }, [isAdmin, authLoading]);
 
-  if (loading) return (
+  if (loading || authLoading) return (
     <div className="h-screen w-screen flex flex-col items-center justify-center bg-school-navy overflow-hidden">
       <motion.div 
         initial={{ opacity: 0 }}
@@ -341,37 +377,49 @@ export default function App() {
     </div>
   );
 
+  return <>{children}</>;
+};
+
+export default function App() {
+  const [data, setData] = useState<AppData>(DEFAULT_DATA);
+  const [loading, setLoading] = useState(true);
+
   return (
-    <HelmetProvider>
-      <Router>
-        <AnimatePresence mode="wait">
-          <Routes>
-            <Route path="/" element={<PageTransition><HomePage data={data} /></PageTransition>} />
-            <Route path="/staff" element={<PageTransition><StaffPage data={data} /></PageTransition>} />
-            <Route path="/gallery" element={<PageTransition><GalleryPage data={data} /></PageTransition>} />
-            <Route path="/notices" element={<PageTransition><NoticesPage data={data} /></PageTransition>} />
-            <Route path="/events" element={<PageTransition><EventsPage data={data} /></PageTransition>} />
-            <Route path="/fees" element={<PageTransition><FeesPage data={data} /></PageTransition>} />
-            <Route path="/achievements" element={<PageTransition><AchievementsPage data={data} /></PageTransition>} />
-            <Route path="/history" element={<PageTransition><HistoryPage data={data} /></PageTransition>} />
-            <Route path="/founder-patron" element={<PageTransition><FounderPatronPage data={data} /></PageTransition>} />
-            <Route path="/governing-members" element={<PageTransition><GoverningMembersPage data={data} /></PageTransition>} />
-            <Route path="/anthem" element={<PageTransition><SchoolAnthemPage data={data} /></PageTransition>} />
-            <Route path="/admission-policy" element={<PageTransition><AdmissionPolicyPage data={data} /></PageTransition>} />
-            <Route path="/scholarships" element={<PageTransition><ScholarshipPage data={data} /></PageTransition>} />
-            <Route path="/studybase-app" element={<PageTransition><StudybaseAppPage data={data} /></PageTransition>} />
-            <Route path="/jesuit-education-objectives" element={<PageTransition><JesuitEducationPage data={data} /></PageTransition>} />
-            <Route path="/sports-complex" element={<PageTransition><SportsComplexPage data={data} /></PageTransition>} />
-            <Route path="/co-curricular" element={<PageTransition><CoCurricularActivitiesPage data={data} /></PageTransition>} />
-            <Route path="/alumni" element={<PageTransition><AlumniPage data={data} /></PageTransition>} />
-            <Route path="/school-info" element={<PageTransition><SchoolInformationPage data={data} /></PageTransition>} />
-            <Route path="/parent-obligations" element={<PageTransition><ParentObligationsPage data={data} /></PageTransition>} />
-            <Route path="/careers" element={<PageTransition><CareersPage data={data} /></PageTransition>} />
-            <Route path="/notice-board" element={<PageTransition><NoticeBoardPage data={data} /></PageTransition>} />
-            <Route path="/admin" element={<PageTransition><AdminPortal data={data} setData={setData} /></PageTransition>} />
-          </Routes>
-        </AnimatePresence>
-      </Router>
-    </HelmetProvider>
+    <FirebaseProvider>
+      <DataLoader data={data} setData={setData} loading={loading} setLoading={setLoading}>
+        <HelmetProvider>
+          <Router>
+            <AnimatePresence mode="wait">
+              <Routes>
+                <Route path="/" element={<PageTransition><HomePage data={data} /></PageTransition>} />
+                <Route path="/staff" element={<PageTransition><StaffPage data={data} /></PageTransition>} />
+                <Route path="/gallery" element={<PageTransition><GalleryPage data={data} /></PageTransition>} />
+                <Route path="/notices" element={<PageTransition><NoticesPage data={data} /></PageTransition>} />
+                <Route path="/events" element={<PageTransition><EventsPage data={data} /></PageTransition>} />
+                <Route path="/fees" element={<PageTransition><FeesPage data={data} /></PageTransition>} />
+                <Route path="/achievements" element={<PageTransition><AchievementsPage data={data} /></PageTransition>} />
+                <Route path="/history" element={<PageTransition><HistoryPage data={data} /></PageTransition>} />
+                <Route path="/founder-patron" element={<PageTransition><FounderPatronPage data={data} /></PageTransition>} />
+                <Route path="/governing-members" element={<PageTransition><GoverningMembersPage data={data} /></PageTransition>} />
+                <Route path="/anthem" element={<PageTransition><SchoolAnthemPage data={data} /></PageTransition>} />
+                <Route path="/admission-policy" element={<PageTransition><AdmissionPolicyPage data={data} /></PageTransition>} />
+                <Route path="/scholarships" element={<PageTransition><ScholarshipPage data={data} /></PageTransition>} />
+                <Route path="/studybase-app" element={<PageTransition><StudybaseAppPage data={data} /></PageTransition>} />
+                <Route path="/jesuit-education-objectives" element={<PageTransition><JesuitEducationPage data={data} /></PageTransition>} />
+                <Route path="/sports-complex" element={<PageTransition><SportsComplexPage data={data} /></PageTransition>} />
+                <Route path="/co-curricular" element={<PageTransition><CoCurricularActivitiesPage data={data} /></PageTransition>} />
+                <Route path="/alumni" element={<PageTransition><AlumniPage data={data} /></PageTransition>} />
+                <Route path="/school-info" element={<PageTransition><SchoolInformationPage data={data} /></PageTransition>} />
+                <Route path="/parent-obligations" element={<PageTransition><ParentObligationsPage data={data} /></PageTransition>} />
+                <Route path="/careers" element={<PageTransition><CareersPage data={data} /></PageTransition>} />
+                <Route path="/notice-board" element={<PageTransition><NoticeBoardPage data={data} /></PageTransition>} />
+                <Route path="/contact" element={<PageTransition><ContactPage data={data} /></PageTransition>} />
+                <Route path="/admin" element={<PageTransition><AdminPortal data={data} setData={setData} /></PageTransition>} />
+              </Routes>
+            </AnimatePresence>
+          </Router>
+        </HelmetProvider>
+      </DataLoader>
+    </FirebaseProvider>
   );
 }

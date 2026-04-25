@@ -3,9 +3,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
-  Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, AlertCircle
+  Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus,
+  Search, LayoutGrid, AlertCircle, MessageSquare, Mail
 } from 'lucide-react';
 import { AppData } from '../types';
+import { useFirebase } from '../components/FirebaseProvider';
+import { firebaseService } from '../lib/firebaseService';
+import { storageService } from '../lib/storageService';
 
 interface PendingGalleryItem {
   id: string;
@@ -18,13 +22,10 @@ interface PendingGalleryItem {
 }
 
 const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) => void }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginUsername, setLoginUsername] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
-  
+  const { user, isAdmin, loading: authLoading, login, logout } = useFirebase();
   const [activeSection, setActiveSection] = useState<keyof AppData>('notices');
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploadingPath, setUploadingPath] = useState<string | null>(null);
+  const isUploading = !!uploadingPath;
   const [pendingGalleryItems, setPendingGalleryItems] = useState<PendingGalleryItem[]>([]);
   const [itemToDelete, setItemToDelete] = useState<string | string[] | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -33,9 +34,188 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   const [isBulkEditing, setIsBulkEditing] = useState(false);
   const [bulkEditField, setBulkEditField] = useState<string>('');
   const [bulkEditValue, setBulkEditValue] = useState<string>('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [isLegacyAuthenticated, setIsLegacyAuthenticated] = useState(false);
+  const [showLegacyForm, setShowLegacyForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
-  const handleBulkUpdate = () => {
+  const handleLegacyLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginUsername === 'ankur15121985' && loginPassword === '24121985') {
+      setIsLegacyAuthenticated(true);
+      setLoginError('');
+      showToast('Welcome back, Admin', 'success');
+    } else {
+      setLoginError('Invalid credentials. Access Denied.');
+    }
+  };
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const toggleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    const currentItems = data[activeSection];
+    if (selectedIds.size === currentItems.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(currentItems.map((item: any) => item.id)));
+    }
+  };
+
+  const getGlobalSearchResults = () => {
+    if (!searchQuery) return [];
+    
+    const query = searchQuery.toLowerCase();
+    const results: { section: keyof AppData; items: any[] }[] = [];
+
+    Object.keys(data).forEach((key) => {
+      const section = key as keyof AppData;
+      const items = data[section];
+      if (!Array.isArray(items)) return;
+
+      const filtered = items.filter((item: any) => {
+        return Object.values(item).some(val => 
+          typeof val === 'string' && val.toLowerCase().includes(query)
+        );
+      });
+
+      if (filtered.length > 0) {
+        results.push({ section, items: filtered });
+      }
+    });
+
+    return results;
+  };
+
+  const renderItemCard = (item: any, section: keyof AppData) => (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={item.id} className={`bg-white p-6 md:p-8 rounded-3xl shadow-sm border transition-all flex flex-col md:flex-row items-start gap-6 md:gap-8 group ${selectedIds.has(item.id) ? 'border-school-gold ring-1 ring-school-gold/20' : 'border-slate-200'}`}>
+      <div className="flex items-center justify-between w-full md:w-auto">
+        <button onClick={() => toggleSelect(item.id)} className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${selectedIds.has(item.id) ? 'bg-school-gold border-school-gold text-school-navy scale-110' : 'border-slate-200 group-hover:border-slate-300'}`}>
+          {selectedIds.has(item.id) && <Check size={14} strokeWidth={4} />}
+        </button>
+        <button onClick={() => setItemToDelete(item.id)} className="md:hidden p-3 rounded-xl bg-red-50 text-red-400"><Trash2 size={18} /></button>
+      </div>
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+        {Object.keys({
+          ...item,
+          ...(section === 'notices' || section === 'fees' ? { attachmentUrl: item.attachmentUrl || '' } : {})
+        }).filter(k => k !== 'id').map(field => (
+          <div key={field} className="space-y-2">
+            <label className="text-[9px] font-black uppercase tracking-widest text-slate-300">{field as string}</label>
+            {field === 'bio' || field === 'description' || field === 'content' ? (
+               <textarea value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium h-24 focus:ring-1 focus:ring-school-gold transition-all resize-none" />
+            ) : (field.toLowerCase().includes('url') || field.toLowerCase().includes('image') || field.toLowerCase().includes('link') || field.toLowerCase().includes('file') || field.toLowerCase().includes('pdf') || field.toLowerCase().includes('attachment')) ? (
+              <div className="space-y-4">
+                <input value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all" />
+                <div className="flex items-center gap-4">
+                  <label className="flex-1 px-4 py-3 bg-school-navy/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-school-navy cursor-pointer hover:bg-school-navy/10 transition-all text-center">
+                    {uploadingPath === `${section}-${item.id}-${field}` ? 'Uploading...' : 'Browse & Upload'}
+                    <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, field as string, section)} disabled={!!uploadingPath} />
+                  </label>
+                  {(field.toLowerCase().includes('url') || field.toLowerCase().includes('image')) && item[field] && !item[field].endsWith('.pdf') && (
+                    <div className="w-12 h-12 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
+                      <img src={item[field]} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : field === 'type' && section === 'staff' ? (
+              <select 
+                value={item[field] ?? 'Faculty'} 
+                onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
+                className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
+              >
+                <option value="Management">Management</option>
+                <option value="Faculty">Faculty</option>
+                <option value="Administration">Administration</option>
+              </select>
+            ) : field === 'parent_id' && section === 'menu' ? (
+              <select 
+                value={item[field] || ''} 
+                onChange={(e) => handleUpdate(item.id, field as string, e.target.value || '', section)} 
+                className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
+              >
+                <option value="">None (Top Level)</option>
+                {data.menu.filter(m => !m.parent_id && m.id !== item.id).map(m => (
+                  <option key={m.id} value={m.id}>{m.label}</option>
+                ))}
+              </select>
+            ) : field === 'status' && section === 'messages' ? (
+              <select 
+                value={item[field] || 'new'} 
+                onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
+                className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
+              >
+                <option value="new">New</option>
+                <option value="read">Read</option>
+                <option value="replied">Replied</option>
+              </select>
+            ) : (
+              <div className="space-y-2">
+                <input value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all" />
+                {(field === 'href' || (section === 'fees' && field === 'grade') || (section === 'notices' && field === 'title')) && (
+                  <label className="block text-center px-4 py-2 bg-school-gold/10 text-school-gold rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
+                     {uploadingPath === `${section}-${item.id}-attachmentUrl` ? 'Uploading...' : (section === 'fees' ? 'Upload Fee PDF' : section === 'notices' ? 'Upload Notice PDF/Image' : 'Upload Document')}
+                     <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, (section === 'fees' || section === 'notices') ? 'attachmentUrl' : (field as string), section)} disabled={!!uploadingPath} />
+                  </label>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <button onClick={() => setItemToDelete(item.id)} className="p-4 rounded-2xl bg-red-50 text-red-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-100">
+        <Trash2 size={20} />
+      </button>
+    </motion.div>
+  );
+
+  const globalResults = getGlobalSearchResults();
+
+  const handleUpdate = (id: string, field: string, value: any, section: keyof AppData) => {
+    const updated = data[section].map((item: any) =>
+      item.id === id ? { ...item, [field]: value } : item
+    );
+    setData({ ...data, [section]: updated });
+    
+    // Auto-save logic with debounce
+    const timerId = `save-${section as string}-${id}`;
+    if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+    (window as any)[timerId] = setTimeout(async () => {
+      const item = updated.find((i: any) => i.id === id);
+      if (item) {
+        setSavePending(true);
+        try {
+          await firebaseService.saveItem(section, item);
+          showToast('Changes synced to cloud');
+        } catch (err: any) {
+          console.error('Sync failed:', err);
+          const msg = err.message.startsWith('{') ? JSON.parse(err.message).error : err.message;
+          showToast(`Sync failed: ${msg}`, 'error');
+        } finally {
+          setSavePending(false);
+        }
+      }
+    }, 1000);
+  };
+
+  const handleBulkUpdate = async () => {
     if (!bulkEditField || selectedIds.size === 0) return;
 
     const updatedSection = data[activeSection].map((item: any) => 
@@ -44,86 +224,67 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
 
     setData({ ...data, [activeSection]: updatedSection });
     setSavePending(true);
-    setIsBulkEditing(false);
-    setBulkEditField('');
-    setBulkEditValue('');
-    showToast(`Bulk updated ${selectedIds.size} items in ${activeSection}`);
-  };
-
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    
+    try {
+      const itemsToUpdate = updatedSection.filter(item => selectedIds.has(item.id));
+      for (const item of itemsToUpdate) {
+        await firebaseService.saveItem(activeSection, item);
+      }
+      showToast(`Bulk updated ${selectedIds.size} items in ${activeSection}`);
+    } catch (err: any) {
+      const msg = err.message.startsWith('{') ? JSON.parse(err.message).error : err.message;
+      showToast(`Bulk update failed: ${msg}`, 'error');
+    } finally {
+      setSavePending(false);
+      setIsBulkEditing(false);
+      setBulkEditField('');
+      setBulkEditValue('');
+    }
   };
 
   const handleRemove = async (ids: string | string[]) => {
     const isBulk = Array.isArray(ids);
     const idList = isBulk ? ids : [ids];
 
-    // Cleanup any pending save timers for these IDs
-    idList.forEach(id => {
-      const timerId = `save-${activeSection as string}-${id}`;
-      if ((window as any)[timerId]) {
-        clearTimeout((window as any)[timerId]);
-        delete (window as any)[timerId];
-      }
-    });
-
+    setSavePending(true);
     try {
-      const res = await fetch('/api/delete', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          table: activeSection as string, 
-          id: !isBulk ? ids : undefined,
-          ids: isBulk ? ids : undefined 
-        })
-      });
-      if (res.ok) {
-        showToast(`Successfully deleted from ${activeSection as string}`);
-        setData({ 
-          ...data, 
-          [activeSection]: data[activeSection].filter((i: any) => !idList.includes(i.id)) 
-        });
-        setItemToDelete(null);
-        setSelectedIds(new Set());
-      } else {
-        const err = await res.json();
-        showToast(`Delete failed: ${err.error}`, 'error');
+      for (const id of idList) {
+        await firebaseService.deleteItem(activeSection, id);
       }
-    } catch (err) {
-      console.error('Delete failed:', err);
-      showToast('Network error during deletion', 'error');
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    const next = new Set(selectedIds);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    setSelectedIds(next);
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedIds.size === data[activeSection].length) {
+      
+      showToast(`Successfully deleted from ${activeSection as string}`);
+      setData({ 
+        ...data, 
+        [activeSection]: data[activeSection].filter((i: any) => !idList.includes(i.id)) 
+      });
+      setItemToDelete(null);
       setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(data[activeSection].map((i: any) => i.id)));
+    } catch (err: any) {
+      console.error('Delete failed:', err);
+      const msg = err.message.startsWith('{') ? JSON.parse(err.message).error : err.message;
+      showToast(`Deletion failed: ${msg}`, 'error');
+    } finally {
+      setSavePending(false);
     }
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     const newItem: any = { id: Date.now().toString() };
     const tableStr = activeSection as string;
+    
+    // Initialize fields
     if (tableStr === 'notices') {
       newItem.title = 'New Notice Title';
       newItem.content = 'Enter notice details here...';
       newItem.date = new Date().toLocaleDateString();
       newItem.category = 'Circular';
-    } else if (tableStr === 'events') {
-      newItem.title = 'New Event';
-      newItem.date = 'Selected Date';
-      newItem.time = '10:00 AM';
-      newItem.location = 'Campus Grounds';
+      newItem.attachmentUrl = '';
+    } else if (tableStr === 'fees') {
+      newItem.grade = 'New Grade';
+      newItem.admissionFee = '₹0';
+      newItem.tuition_fees = '₹0';
+      newItem.quarterly = '₹0';
+      newItem.attachmentUrl = '';
     } else if (tableStr === 'staff') {
       newItem.name = 'New Staff Member';
       newItem.role = 'Role Description';
@@ -131,138 +292,144 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       newItem.type = 'Faculty';
       newItem.image = 'https://picsum.photos/seed/new/400/400';
     } else if (tableStr === 'gallery' || tableStr === 'carousel') {
-       newItem.url = tableStr === 'gallery' 
-         ? 'https://picsum.photos/seed/new_gallery/1200/800' 
-         : 'https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600';
-       newItem.caption = tableStr === 'gallery' ? 'Gallery Image Caption' : 'Carousel Slide Title';
-    } else if (tableStr === 'fees') {
-       newItem.grade = 'New Grade';
-       newItem.admissionFee = '₹0';
-       newItem.tuition_fees = '₹0';
-       newItem.quarterly = '₹0';
+      newItem.url = tableStr === 'gallery' 
+        ? 'https://picsum.photos/seed/new_gallery/1200/800' 
+        : 'https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600';
+      newItem.caption = tableStr === 'gallery' ? 'Gallery Image Caption' : 'Carousel Slide Title';
     } else if (tableStr === 'links') {
-       newItem.title = 'New Link';
-       newItem.url = '#';
+      newItem.title = 'New Link';
+      newItem.url = '#';
+    } else if (tableStr === 'events') {
+      newItem.title = 'New School Event';
+      newItem.date = new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
+      newItem.time = '10:00 AM - 12:00 PM';
+      newItem.location = 'St. Xavier\'s Jaipur Main Campus';
     } else if (tableStr === 'achievements') {
-       newItem.title = 'Achievement Title';
-       newItem.year = '2026';
-       newItem.description = 'Success story detail...';
+      newItem.title = 'Achievement Title';
+      newItem.year = '2026';
+      newItem.description = 'Success story detail...';
     } else if (tableStr === 'studentHonors') {
-       newItem.name = 'New Honor Student';
-       newItem.category = 'Category (e.g. JEE Mains)';
-       newItem.result = '99%';
-       newItem.subtext = 'Additional honors details...';
-       newItem.image = 'https://picsum.photos/seed/honor/300/300';
-       newItem.order_index = data.studentHonors.length;
+      newItem.name = 'New Honor Student';
+      newItem.category = 'Category (e.g. JEE Mains)';
+      newItem.result = '99%';
+      newItem.subtext = 'Additional honors details...';
+      newItem.image = 'https://picsum.photos/seed/honor/300/300';
+      newItem.order_index = (data.studentHonors?.length || 0);
     } else if (tableStr === 'menu') {
-       newItem.label = 'New Menu Item';
-       newItem.href = '#';
-       newItem.parent_id = null;
-       newItem.order_index = data.menu.filter(m => !m.parent_id).length;
+      newItem.label = 'New Menu Item';
+      newItem.href = '#';
+      newItem.parent_id = null;
+      newItem.order_index = (data.menu?.filter(m => !m.parent_id).length || 0);
+    } else if (tableStr === 'faqs') {
+      newItem.question = 'New Question';
+      newItem.answer = 'Answer text goes here...';
+      newItem.category = 'General';
+      newItem.order_index = (data.faqs?.length || 0);
+    } else if (tableStr === 'messages') {
+      newItem.name = 'System Test';
+      newItem.email = 'test@example.com';
+      newItem.subject = 'New Inbound';
+      newItem.message = 'Inquiry content...';
+      newItem.timestamp = new Date().toISOString();
+      newItem.status = 'new';
     }
 
-    setData({ ...data, [activeSection]: [newItem, ...data[activeSection]] });
     setSavePending(true);
-    showToast('New item added locally. Don\'t forget to save changes!', 'success');
+    try {
+      await firebaseService.saveItem(activeSection, newItem);
+      setData({ ...data, [activeSection]: [newItem, ...data[activeSection]] });
+      showToast('Item added and synced to cloud');
+    } catch (err: any) {
+      const msg = err.message.startsWith('{') ? JSON.parse(err.message).error : err.message;
+      showToast(`Failed to add item: ${msg}`, 'error');
+    } finally {
+      setSavePending(false);
+    }
   };
 
   const handleSaveAll = async () => {
-    setIsUploading(true);
+    setUploadingPath('global');
+    setSavePending(true);
     try {
-      const items = data[activeSection];
-      let successCount = 0;
-      let lastError = '';
-      
-      for (const item of items) {
-        const res = await fetch('/api/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ table: activeSection as string, item })
-        });
-        
-        if (res.ok) {
-          successCount++;
-        } else {
-          try {
-            const errData = await res.json();
-            lastError = errData.error || 'Unknown server error';
-          } catch (e) {
-            lastError = `Status ${res.status}`;
-          }
+      await firebaseService.syncAll(data);
+      showToast('Entire database synced successfully');
+    } catch (err) {
+      showToast('Critical sync failure', 'error');
+    } finally {
+      setUploadingPath(null);
+      setSavePending(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, id: string, field: string, section: keyof AppData) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    console.log(`[Upload] Starting upload for ${section}/${id}/${field} - File: ${file.name} (${file.size} bytes)`);
+    setUploadingPath(`${section}-${id}-${field}`);
+    
+    // Determine folder based on section
+    const folder = section === 'fees' ? 'fees' : 
+                   section === 'notices' ? 'notices' : 
+                   section === 'staff' ? 'staff' : 
+                   section === 'gallery' ? 'gallery' : 
+                   section === 'carousel' ? 'carousel' : 'misc';
+
+    try {
+      // 1. Try Firebase Storage first
+      try {
+        console.log(`[Upload] Attempting Firebase Storage upload to ${folder}...`);
+        const firebaseUrl = await storageService.uploadFile(file, folder);
+        console.log(`[Upload] Firebase Success: ${firebaseUrl}`);
+        handleUpdate(id, field, firebaseUrl, section);
+        showToast('Media uploaded to Firebase Storage', 'success');
+        return; // Success
+      } catch (fbErr: any) {
+        console.warn('[Upload] Firebase Storage upload failed:', fbErr.message || fbErr);
+        if (fbErr.code === 'storage/unauthorized') {
+          showToast('Firebase Access Denied. Check Auth.', 'error');
         }
       }
 
-      if (successCount === items.length) {
-        showToast(`Successfully saved all ${items.length} items to ${activeSection as string}`);
-        setSavePending(false);
-      } else {
-        showToast(`Saved ${successCount}/${items.length}. Error: ${lastError}`, 'error');
-      }
-    } catch (err) {
-      console.error('Save all failed:', err);
-      showToast('Network error while saving', 'error');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleUpdate = (id: string, field: string, value: string) => {
-    const updatedSection = data[activeSection].map((i: any) => 
-      i.id === id ? { ...i, [field]: value } : i
-    );
-    setData({ ...data, [activeSection]: updatedSection });
-    setSavePending(true);
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, itemId: string, field: string = 'url') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append('image', file);
-
-    try {
-      const res = await fetch('/api/gallery/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      const result = await res.json();
-      if (result.url) {
-        handleUpdate(itemId, field, result.url);
-      }
-    } catch (err) {
-      console.error('Upload failed:', err);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, itemId: string, field: string) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
+      // 2. Fallback to local server
+      console.log(`[Upload] Falling back to local server upload...`);
+      const formData = new FormData();
+      formData.append('file', file);
+      
       const res = await fetch('/api/upload', {
         method: 'POST',
-        body: formData,
+        body: formData
       });
-      const result = await res.json();
-      if (result.url) {
-        handleUpdate(itemId, field, result.url);
-        showToast('File uploaded successfully!');
-      } else if (result.error) {
-        showToast(result.error, 'error');
+      
+      if (res.ok) {
+        const text = await res.text();
+        try {
+          const result = JSON.parse(text);
+          console.log(`[Upload] Local Success: ${result.url}`);
+          handleUpdate(id, field, result.url, section);
+          showToast('Media uploaded to local server (Cloud Sync Pending)', 'success');
+        } catch (parseErr) {
+          console.error(`[Upload] Failed to parse local success response as JSON. Body starts with: ${text.substring(0, 100)}`);
+          throw new Error('Server returned invalid response format');
+        }
+      } else {
+        let errorMsg = 'Server error';
+        const text = await res.text();
+        try {
+          const errorData = JSON.parse(text);
+          errorMsg = errorData.error || errorMsg;
+        } catch (e) {
+          errorMsg = `${res.status} ${res.statusText}`;
+          console.warn(`[Upload] Non-OK response was not JSON: ${text.substring(0, 100)}`);
+        }
+        console.error(`[Upload] Local Failed: ${errorMsg}`);
+        showToast(`Upload failed: ${errorMsg}`, 'error');
       }
     } catch (err) {
-      console.error('Upload failed:', err);
-      showToast('Upload failed. Check server connection.', 'error');
+      console.error('[Upload] Process error:', err);
+      showToast('Network error during upload', 'error');
     } finally {
-      setIsUploading(false);
+      setUploadingPath(null);
     }
   };
 
@@ -270,44 +437,57 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'uploading', progress: 10 } : p));
     
     const formData = new FormData();
-    formData.append('image', pendingItem.file);
+    formData.append('file', pendingItem.file); // Use 'file' to match /api/upload expectations
 
     try {
-      // Simulate progress since fetch doesn't support it natively for uploads in most environments without XHR
-      const progressTimer = setInterval(() => {
-        setPendingGalleryItems(prev => prev.map(p => {
-          if (p.id === pendingItem.id && p.status === 'uploading' && p.progress < 90) {
-            return { ...p, progress: p.progress + 15 };
-          }
-          return p;
-        }));
-      }, 300);
+      // 1. Try Firebase Storage
+      try {
+        const firebaseUrl = await storageService.uploadFile(pendingItem.file, 'gallery');
+        setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: firebaseUrl } : p));
+        
+        const newItem = { id: pendingItem.id, url: firebaseUrl, caption: pendingItem.caption };
+        setData({ ...data, gallery: [newItem, ...(data.gallery || [])] });
+        await firebaseService.saveItem('gallery', newItem);
+        showToast('Gallery image synced to cloud', 'success');
+        return;
+      } catch (fbErr) {
+        console.warn('Firebase Storage gallery upload failed, falling back to local:', fbErr);
+      }
 
-      const res = await fetch('/api/gallery/upload', {
+      // 2. Fallback to local
+      const res = await fetch('/api/upload', { // Use /api/upload instead of /api/gallery/upload
         method: 'POST',
         body: formData,
       });
       
-      clearInterval(progressTimer);
-      
       if (!res.ok) {
+        const text = await res.text();
         let errorMessage = 'Upload failed';
         try {
-          const errorData = await res.json();
+          const errorData = JSON.parse(text);
           errorMessage = errorData.error || errorMessage;
         } catch (e) {
           // Fallback if not JSON
           errorMessage = `Error ${res.status}: ${res.statusText}`;
+          console.warn(`[Upload] Gallery upload failed with non-JSON response: ${text.substring(0, 100)}`);
         }
         throw new Error(errorMessage);
       }
 
-      const result = await res.json();
-      
-      if (result.url) {
-        setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: result.url } : p));
-      } else {
-        throw new Error('No URL returned');
+      const text = await res.text();
+      try {
+        const result = JSON.parse(text);
+        if (result.url) {
+          setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: result.url } : p));
+          const newItem = { id: pendingItem.id, url: result.url, caption: pendingItem.caption || '' };
+          setData(prev => ({ ...prev, gallery: [newItem, ...(prev.gallery || [])] }));
+          await firebaseService.saveItem('gallery', newItem);
+        } else {
+          throw new Error('No URL returned');
+        }
+      } catch (parseErr) {
+        console.error(`[Upload] Failed to parse gallery success response as JSON: ${text.substring(0, 100)}`);
+        throw new Error('Server returned invalid response format');
       }
     } catch (err: any) {
       console.error('Individual upload failed:', err);
@@ -352,7 +532,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     const finishedItems = pendingGalleryItems.filter(p => p.status === 'completed' && p.url);
     if (finishedItems.length === 0) return;
 
-    setIsUploading(true);
+    setUploadingPath('finalize');
     try {
       const newEntries = finishedItems.map(p => ({
         id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
@@ -362,11 +542,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
 
       // Map over and save to DB
       for (const entry of newEntries) {
-        await fetch('/api/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ table: 'gallery', item: entry })
-        });
+        await firebaseService.saveItem('gallery', entry);
       }
 
       setData({ ...data, gallery: [...newEntries, ...data.gallery] });
@@ -376,7 +552,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       console.error('Finalize failed:', err);
       showToast('Error saving gallery items', 'error');
     } finally {
-      setIsUploading(false);
+      setUploadingPath(null);
     }
   };
 
@@ -390,24 +566,20 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     { id: 'links', label: 'Links', icon: <LinkIcon size={18} /> },
     { id: 'achievements', label: 'Success', icon: <Award size={18} /> },
     { id: 'studentHonors', label: 'Honors', icon: <Award size={18} className="text-school-gold" /> },
+    { id: 'faqs', label: 'FAQs', icon: <MessageSquare size={18} className="text-school-gold" /> },
+    { id: 'messages', label: 'Inquiries', icon: <Mail size={18} className="text-school-accent" /> },
     { id: 'menu', label: 'Menu', icon: <Menu size={18} /> }
   ];
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loginUsername === 'ankur15121985' && loginPassword === 'M@thur24') {
-      setIsAuthenticated(true);
-      setLoginError('');
-      showToast('Welcome back, Admin', 'success');
-    } else {
-      setLoginError('Invalid username or password. Please try again.');
-    }
-  };
+  if (authLoading) return (
+    <div className="min-h-screen bg-school-navy flex items-center justify-center">
+      <Loader2 className="text-school-gold animate-spin" size={48} />
+    </div>
+  );
 
-  if (!isAuthenticated) {
+  if (!isAdmin && !isLegacyAuthenticated) {
     return (
       <div className="min-h-screen bg-school-navy flex items-center justify-center p-6 relative overflow-hidden">
-        {/* Animated Background Blobs */}
         <motion.div 
           animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
           transition={{ duration: 20, repeat: Infinity }}
@@ -434,80 +606,111 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
             </Link>
           </div>
 
-          <form onSubmit={handleLogin} className="glass-dark border border-white/10 p-12 rounded-[40px] shadow-2xl space-y-8">
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Username</label>
-                <div className="relative">
-                  <Key className="absolute left-5 top-1/2 -translate-y-1/2 text-school-gold" size={18} />
-                  <input 
-                    type="text" 
-                    value={loginUsername}
-                    onChange={(e) => setLoginUsername(e.target.value)}
-                    placeholder="Enter admin ID"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-school-gold/50 transition-all font-medium"
-                    required
-                  />
-                </div>
+          <div className="glass-dark border border-white/10 p-12 rounded-[40px] shadow-2xl space-y-8">
+            <div className="space-y-4 text-center">
+              <div className="w-20 h-20 bg-school-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Key className="text-school-gold" size={32} />
               </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Secure Password</label>
-                <div className="relative">
-                  <AlertCircle className="absolute left-5 top-1/2 -translate-y-1/2 text-school-gold" size={18} />
-                  <input 
-                    type="password" 
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-school-gold/50 transition-all font-medium"
-                    required
-                  />
-                </div>
-              </div>
+              <h2 className="text-2xl font-serif font-black text-white italic tracking-tight">Authorized Access Only</h2>
+              <p className="text-white/40 text-sm font-light leading-relaxed">
+                This portal is reserved for school administrators. Please use your credentials to manage the portal.
+              </p>
             </div>
 
-            <AnimatePresence>
-              {loginError && (
-                <motion.div 
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3 text-red-500 text-xs font-black uppercase tracking-widest"
-                >
-                  <AlertCircle size={16} />
-                  {loginError}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <form onSubmit={handleLegacyLogin} className="space-y-6">
+               <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Username</label>
+                <input 
+                  type="text" 
+                  value={loginUsername}
+                  onChange={(e) => setLoginUsername(e.target.value)}
+                  placeholder="Enter admin ID"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-school-gold/50 transition-all font-medium"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Password</label>
+                <input 
+                  type="password" 
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-school-gold/50 transition-all font-medium"
+                  required
+                />
+              </div>
+              
+              <AnimatePresence>
+                {loginError && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="text-red-400 text-[10px] font-black uppercase tracking-widest bg-red-400/10 p-3 rounded-xl border border-red-400/20 text-center">
+                    {loginError}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-            <button 
-              type="submit"
-              className="w-full bg-school-gold text-school-navy py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl active:scale-[0.98]"
-            >
-              Enter Console
-            </button>
+              <button type="submit" className="w-full bg-school-gold text-school-navy py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl active:scale-[0.98]">
+                Open Console
+              </button>
+            </form>
             
             <Link to="/" className="block text-center text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-white transition-colors">
               Return to Public Portal
             </Link>
-          </form>
+          </div>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F0F2F5] flex font-sans">
-      <aside className="w-80 bg-school-navy text-white flex flex-col fixed h-full z-10">
+    <div className="min-h-screen bg-[#F0F2F5] flex font-sans relative pt-10 md:pt-0">
+      <AnimatePresence>
+        {isLegacyAuthenticated && (
+          <motion.div 
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="fixed top-0 left-0 right-0 z-[100] bg-school-gold text-school-navy px-6 py-2.5 flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest shadow-lg"
+          >
+            <Check size={14} />
+            Authenticated Session Active
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-school-navy/60 backdrop-blur-sm z-40 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      <aside className={`w-80 bg-school-navy text-white flex flex-col fixed h-full z-50 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="p-8 pb-12">
-          <Link to="/" className="flex items-center gap-3 mb-12 group">
-            <div className="w-10 h-10 bg-school-gold rounded-lg flex items-center justify-center text-school-navy font-black text-xl group-hover:scale-110 transition-transform">X</div>
-            <span className="font-serif text-lg font-black tracking-tight">Admin Console</span>
-          </Link>
+          <div className="flex items-center justify-between mb-12">
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 bg-school-gold rounded-lg flex items-center justify-center text-school-navy font-black text-xl group-hover:scale-110 transition-transform">X</div>
+              <span className="font-serif text-lg font-black tracking-tight">Admin Console</span>
+            </Link>
+            <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-white/40 hover:text-white p-2">
+              <X size={24} />
+            </button>
+          </div>
           <div className="space-y-4">
             {sections.map(s => (
-              <button key={s.id} onClick={() => setActiveSection(s.id as keyof AppData)} className={`w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-all ${activeSection === s.id ? 'bg-school-gold text-school-navy font-black shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}>
+              <button 
+                key={s.id} 
+                onClick={() => {
+                  setActiveSection(s.id as keyof AppData);
+                  setIsSidebarOpen(false);
+                }} 
+                className={`w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-all ${activeSection === s.id ? 'bg-school-gold text-school-navy font-black shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+              >
                 {s.icon} <span className="text-[11px] uppercase tracking-widest">{s.label}</span>
               </button>
             ))}
@@ -524,7 +727,17 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
         </div>
       </aside>
 
-      <main className="flex-1 ml-80 p-12">
+      <main className="flex-1 md:ml-80 p-6 md:p-12 min-w-0">
+        {/* Mobile Header Toggle */}
+        <div className="md:hidden flex items-center justify-between mb-8 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+           <div className="flex items-center gap-3">
+             <div className="w-8 h-8 bg-school-gold rounded-lg flex items-center justify-center text-school-navy font-black text-sm">X</div>
+             <span className="font-serif font-black text-school-navy">Console</span>
+           </div>
+           <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-school-navy hover:bg-slate-50 rounded-xl transition-colors">
+              <Menu size={24} />
+           </button>
+        </div>
         <AnimatePresence>
           {toast && (
             <motion.div initial={{ opacity: 0, y: -20, x: '-50%' }} animate={{ opacity: 1, y: 0, x: '-50%' }} exit={{ opacity: 0, y: -20, x: '-50%' }} className={`fixed top-12 left-1/2 z-[200] px-8 py-4 rounded-2xl shadow-2xl text-[11px] font-black uppercase tracking-widest text-white flex items-center gap-3 ${toast.type === 'error' ? 'bg-red-500' : 'bg-school-navy'}`}>
@@ -536,45 +749,66 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
           )}
         </AnimatePresence>
 
-        <header className="flex justify-between items-end mb-16">
-          <div>
-            <h1 className="text-5xl font-serif font-black text-school-navy mb-4 tracking-tight capitalize">Manage {activeSection}</h1>
-            <p className="text-sm text-school-navy/40 font-light">Comprehensive CRUD control for {activeSection} on the main portal.</p>
+        <header className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-12 mb-16">
+          <div className="flex-1 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center gap-6">
+               <h1 className="text-3xl md:text-5xl font-serif font-black text-school-navy tracking-tight capitalize">
+                 {searchQuery ? 'Search Results' : `Manage ${activeSection}`}
+               </h1>
+               <div className="relative group flex-1 max-w-md">
+                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-school-gold transition-colors">
+                   <Search size={18} strokeWidth={2.5} />
+                 </div>
+                 <input 
+                   type="text" 
+                   placeholder="Search all content..." 
+                   value={searchQuery}
+                   onChange={(e) => setSearchQuery(e.target.value)}
+                   className="w-full bg-slate-100 border-none rounded-2xl py-4 pl-12 pr-4 text-xs font-black uppercase tracking-widest text-school-navy placeholder:text-slate-400 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                 />
+                 {searchQuery && (
+                   <button 
+                     onClick={() => setSearchQuery('')}
+                     className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-red-400 transition-colors"
+                   >
+                     <X size={16} strokeWidth={3} />
+                   </button>
+                 )}
+               </div>
+            </div>
+            <p className="text-sm text-school-navy/40 font-light">
+              {searchQuery ? `Showing matches for "${searchQuery}" across all categories.` : `Comprehensive CRUD control for ${activeSection} on the main portal.`}
+            </p>
           </div>
-          <div className="flex gap-4">
-            {savePending && (
-              <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} onClick={handleSaveAll} className="flex items-center gap-3 px-8 py-4 bg-emerald-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">
-                <Check size={16} /> Save Changes
-              </motion.button>
-            )}
-            {selectedIds.size > 0 && (
+          <div className="flex flex-wrap gap-4 shrink-0">
+            {!searchQuery && (
               <>
-                <motion.button initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={() => setIsBulkEditing(!isBulkEditing)} className={`flex items-center gap-3 px-8 py-4 ${isBulkEditing ? 'bg-school-navy text-white' : 'glass-dark text-white'} rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none`}>
-                   <Settings size={16} /> {isBulkEditing ? 'Cancel Edit' : 'Bulk Edit'}
-                </motion.button>
-                <motion.button initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={() => setItemToDelete(Array.from(selectedIds))} className="flex items-center gap-3 px-8 py-4 bg-red-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-red-600 transition-all outline-none">
-                  <Trash2 size={16} /> Delete ({selectedIds.size})
-                </motion.button>
+                {savePending && (
+                  <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} onClick={handleSaveAll} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-emerald-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">
+                    <Check size={16} /> Save
+                  </motion.button>
+                )}
+                {selectedIds.size > 0 && (
+                  <>
+                    <motion.button initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={() => setIsBulkEditing(!isBulkEditing)} className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 ${isBulkEditing ? 'bg-school-navy text-white' : 'glass-dark text-white'} rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none`}>
+                       <Settings size={16} /> {isBulkEditing ? 'Cancel' : 'Bulk'}
+                    </motion.button>
+                    <motion.button initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={() => setItemToDelete(Array.from(selectedIds))} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-red-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-red-600 transition-all outline-none">
+                      <Trash2 size={16} /> Delete ({selectedIds.size})
+                    </motion.button>
+                  </>
+                )}
+                {activeSection === 'gallery' && (
+                  <label className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 glass-dark text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none cursor-pointer">
+                    <ImageIcon size={16} /> {isUploading ? '...' : 'Upload'}
+                    <input type="file" multiple className="hidden" accept="image/*" onChange={handleBatchUpload} disabled={isUploading} />
+                  </label>
+                )}
+                <button onClick={handleAdd} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none whitespace-nowrap">
+                  <Plus size={16} /> New Item
+                </button>
               </>
             )}
-            {activeSection === 'gallery' && (
-              <label className="flex items-center gap-3 px-8 py-4 glass-dark text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none cursor-pointer">
-                <ImageIcon size={16} /> {isUploading ? 'Uploading...' : 'Bulk Upload'}
-                <input type="file" multiple className="hidden" accept="image/*" onChange={handleBatchUpload} disabled={isUploading} />
-              </label>
-            )}
-            <button onClick={handleAdd} className="flex items-center gap-3 px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">
-              <Plus size={16} /> New {
-                activeSection === 'fees' ? 'Fee Class' : 
-                activeSection === 'staff' ? 'Faculty Member' : 
-                activeSection === 'gallery' ? 'Gallery Item' : 
-                activeSection === 'carousel' ? 'Carousel Slide' :
-                activeSection === 'achievements' ? 'Achievement' : 
-                activeSection === 'studentHonors' ? 'Honor Student' : 
-                activeSection === 'links' ? 'Quick Link' : 
-                activeSection === 'events' ? 'Event' : 'Notice'
-              }
-            </button>
           </div>
         </header>
 
@@ -717,71 +951,36 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
           </div>
         )}
 
-        <div className="grid gap-6">
-          {data[activeSection].map((item: any) => (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={item.id} className={`bg-white p-8 rounded-3xl shadow-sm border transition-all flex items-start gap-8 group ${selectedIds.has(item.id) ? 'border-school-gold ring-1 ring-school-gold/20' : 'border-slate-200'}`}>
-              <button onClick={() => toggleSelect(item.id)} className={`mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${selectedIds.has(item.id) ? 'bg-school-gold border-school-gold text-school-navy scale-110' : 'border-slate-200 group-hover:border-slate-300'}`}>
-                {selectedIds.has(item.id) && <Check size={14} strokeWidth={4} />}
-              </button>
-              <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-6">
-                {Object.keys(item).filter(k => k !== 'id').map(field => (
-                  <div key={field} className="space-y-2">
-                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-300">{field as string}</label>
-                    {field === 'bio' || field === 'description' || field === 'content' ? (
-                       <textarea value={item[field]} onChange={(e) => handleUpdate(item.id, field as string, e.target.value)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium h-24 focus:ring-1 focus:ring-school-gold transition-all resize-none" />
-                    ) : (field.toLowerCase().includes('url') || field.toLowerCase().includes('image') || field.toLowerCase().includes('link') || field.toLowerCase().includes('file') || field.toLowerCase().includes('pdf')) ? (
-                      <div className="space-y-4">
-                        <input value={item[field]} onChange={(e) => handleUpdate(item.id, field as string, e.target.value)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all" />
-                        <div className="flex items-center gap-4">
-                          <label className="flex-1 px-4 py-3 bg-school-navy/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-school-navy cursor-pointer hover:bg-school-navy/10 transition-all text-center">
-                            {isUploading ? 'Uploading...' : 'Browse & Upload'}
-                            <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, field as string)} disabled={isUploading} />
-                          </label>
-                          {(field.toLowerCase().includes('url') || field.toLowerCase().includes('image')) && item[field] && !item[field].endsWith('.pdf') && (
-                            <div className="w-12 h-12 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
-                              <img src={item[field]} className="w-full h-full object-cover" />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ) : field === 'type' && activeSection === 'staff' ? (
-                      <select 
-                        value={item[field]} 
-                        onChange={(e) => handleUpdate(item.id, field as string, e.target.value)} 
-                        className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
-                      >
-                        <option value="Management">Management</option>
-                        <option value="Faculty">Faculty</option>
-                        <option value="Administration">Administration</option>
-                      </select>
-                    ) : field === 'parent_id' && activeSection === 'menu' ? (
-                      <select 
-                        value={item[field] || ''} 
-                        onChange={(e) => handleUpdate(item.id, field as string, e.target.value || '')} 
-                        className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
-                      >
-                        <option value="">None (Top Level)</option>
-                        {data.menu.filter(m => !m.parent_id && m.id !== item.id).map(m => (
-                          <option key={m.id} value={m.id}>{m.label}</option>
-                        ))}
-                      </select>
-                    ) : (
-                       <div className="space-y-2">
-                        <input value={item[field]} onChange={(e) => handleUpdate(item.id, field as string, e.target.value)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all" />
-                        {(field === 'href' || (activeSection === 'fees' && field === 'grade')) && (
-                          <label className="block text-center px-4 py-2 bg-school-gold/10 text-school-gold rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
-                             {activeSection === 'fees' ? 'Upload Fee PDF' : 'Upload Document'}
-                             <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, field === 'grade' ? 'grade_pdf' : field)} />
-                          </label>
-                        )}
-                       </div>
-                    )}
+        <div className="grid gap-12">
+          {searchQuery ? (
+            globalResults.length > 0 ? (
+              globalResults.map(({ section, items }) => (
+                <div key={section} className="space-y-6">
+                  <div className="flex items-center gap-4 px-4">
+                    <div className="w-10 h-10 bg-school-gold/10 rounded-xl flex items-center justify-center text-school-gold">
+                      <LayoutGrid size={20} />
+                    </div>
+                    <h2 className="text-xl font-black text-school-navy uppercase tracking-widest">{section}</h2>
+                    <div className="h-px flex-1 bg-slate-100" />
+                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{items.length} Matches</span>
                   </div>
-                ))}
+                  <div className="grid gap-6">
+                    {items.map(item => renderItemCard(item, section))}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center py-24 text-center">
+                <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mb-6">
+                   <Search size={40} />
+                </div>
+                <h3 className="text-xl font-black text-school-navy mb-2 uppercase tracking-widest">No Results Found</h3>
+                <p className="text-sm text-school-navy/30 max-w-xs mx-auto">We couldn't find any items matching "{searchQuery}" in any of your tables.</p>
               </div>
-              <button onClick={() => setItemToDelete(item.id)} className="p-4 rounded-2xl bg-red-50 text-red-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-100"><Trash2 size={20} /></button>
-            </motion.div>
-          ))}
+            )
+          ) : (
+            data[activeSection].map((item: any) => renderItemCard(item, activeSection))
+          )}
         </div>
       </main>
 

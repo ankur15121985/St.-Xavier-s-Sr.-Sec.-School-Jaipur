@@ -43,14 +43,14 @@ const AdmissionPolicyPage = ({ data }: { data: AppData }) => {
                 <h2 className="text-4xl font-serif font-black text-school-navy italic tracking-tight uppercase">Withdrawal</h2>
               </div>
               
-              <div className="space-y-6 text-lg text-school-navy/80 leading-relaxed font-light">
+              <div className="space-y-6 text-lg text-school-navy/80 leading-relaxed font-light text-justify">
                 <p>
                   Any intended withdrawal of a student from the school must be communicated to the Principal in writing at least one calendar month (30 days) in advance; otherwise one month's fee will be charged. Those who withdraw from the school in April or May must pay fee up to June inclusive.
                 </p>
                 <p>
                   The School reserves the right to ask the parents to withdraw their child if his/her progress in studies is unsatisfactory, conduct harmful to other students, fee is not paid on time or if there are other reasons which, in the opinion of the school authorities, render his/her continuation in the school undesirable. 
                 </p>
-                <div className="bg-slate-50 p-10 rounded-[32px] border border-slate-100 italic">
+                <div className="bg-slate-50 p-10 rounded-[32px] border border-slate-100 italic text-justify">
                   Honesty, cleanliness of person and dress, good manners and loyalty are expected of each student and anyone not conforming to the School's ideals in these matters may be asked to leave. Immorality, grave insubordination, contempt of authority or wilful damage to property are always reasons for dismissal.
                 </div>
               </div>

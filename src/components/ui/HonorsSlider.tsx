@@ -21,13 +21,13 @@ export const HonorsSlider = ({ honors }: HonorsSliderProps) => {
   if (!honors || honors.length === 0) return null;
 
   return (
-    <div className="py-40 bg-white overflow-hidden relative border-t border-gray-50">
+    <div className="py-20 md:py-40 bg-transparent overflow-hidden relative">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 relative z-10">
-        <div className="text-center mb-32 space-y-6">
-          <span className="text-school-accent font-black uppercase tracking-widest text-[12px]">Distinguished Alumni</span>
-          <h2 className="text-7xl md:text-[9rem] font-black text-school-navy leading-[0.8] tracking-tight">
+        <div className="text-center mb-16 md:mb-32 space-y-4 md:space-y-6">
+          <span className="text-school-accent font-black uppercase tracking-widest text-[10px] md:text-[12px]">Distinguished Alumni</span>
+          <h2 className="text-5xl md:text-[9rem] font-black text-school-ink leading-[0.8] tracking-tight">
             Laurel & <br />
-            <span className="text-school-gold italic">Distinction</span>
+            <span className="text-school-accent italic">Distinction</span>
           </h2>
         </div>
 
@@ -48,19 +48,19 @@ export const HonorsSlider = ({ honors }: HonorsSliderProps) => {
                   return (
                     <motion.div 
                       key={item.id} 
-                      className="bg-school-bronze/30 p-10 md:p-14 rounded-[60px] flex flex-col md:flex-row items-center gap-10 relative overflow-hidden group/card hover:bg-school-bronze transition-colors"
+                      className="bg-white/40 backdrop-blur-3xl p-8 md:p-14 rounded-[40px] md:rounded-[60px] flex flex-col md:flex-row items-center gap-8 md:gap-10 relative overflow-hidden group/card hover:bg-white/60 transition-all border border-white/40 shadow-xl"
                     >
-                      <div className="w-40 h-40 md:w-48 md:h-48 rounded-[40px] overflow-hidden shrink-0 shadow-2xl relative">
+                      <div className="w-32 h-32 md:w-48 md:h-48 rounded-[32px] md:rounded-[40px] overflow-hidden shrink-0 shadow-2xl relative">
                         <img 
                           src={item.image} 
                           alt={item.name} 
                           className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
                         />
                       </div>
-                      <div className="flex-1 space-y-4 text-center md:text-left">
-                        <p className="text-[12px] font-black uppercase tracking-widest text-school-accent">{item.category}</p>
-                        <h4 className="text-3xl md:text-4xl font-black text-school-navy leading-none tracking-tight">{item.name}</h4>
-                        <p className="text-lg font-medium text-school-navy/60 leading-relaxed">
+                      <div className="flex-1 space-y-3 md:space-y-4 text-center md:text-left">
+                        <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest text-school-accent">{item.category}</p>
+                        <h4 className="text-2xl md:text-4xl font-black text-school-ink leading-tight tracking-tight">{item.name}</h4>
+                        <p className="text-base md:text-lg font-medium text-school-ink/60 leading-relaxed">
                           {item.subtext}
                         </p>
                       </div>
@@ -72,18 +72,18 @@ export const HonorsSlider = ({ honors }: HonorsSliderProps) => {
           </div>
 
           {/* Navigation Controls */}
-          <div className="flex justify-center gap-6 mt-12">
+          <div className="flex justify-center gap-4 md:gap-6 mt-8 md:mt-12">
             <button 
               onClick={prevSlide}
-              className="w-16 h-16 bg-school-navy text-white rounded-full flex items-center justify-center hover:bg-school-accent hover:scale-110 transition-all shadow-xl active:scale-95 group/btn"
+              className="w-12 h-12 md:w-16 md:h-16 bg-school-ink text-white rounded-full flex items-center justify-center hover:bg-school-accent hover:scale-110 transition-all shadow-xl active:scale-95 group/btn"
             >
-              <ChevronLeft size={24} className="group-hover/btn:-translate-x-1 transition-transform" />
+              <ChevronLeft size={20} className="md:size-6 group-hover/btn:-translate-x-1 transition-transform" />
             </button>
             <button 
               onClick={nextSlide}
-              className="w-16 h-16 bg-school-navy text-white rounded-full flex items-center justify-center hover:bg-school-accent hover:scale-110 transition-all shadow-xl active:scale-95 group/btn"
+              className="w-12 h-12 md:w-16 md:h-16 bg-school-ink text-white rounded-full flex items-center justify-center hover:bg-school-accent hover:scale-110 transition-all shadow-xl active:scale-95 group/btn"
             >
-              <ChevronRight size={24} className="group-hover/btn:translate-x-1 transition-transform" />
+              <ChevronRight size={20} className="md:size-6 group-hover/btn:translate-x-1 transition-transform" />
             </button>
           </div>
         </div>

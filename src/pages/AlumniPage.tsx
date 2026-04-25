@@ -56,8 +56,8 @@ const AlumniPage = ({ data }: { data: AppData }) => {
                   The Apex Body of Global Xaverians
                 </h2>
                 <div className="w-24 h-1.5 bg-school-gold rounded-full"></div>
-                <p className="text-xl text-school-navy/70 font-light leading-relaxed">
-                  Xavier’s Alumni is the new name for the <span className="font-bold text-school-navy italic text-lg">Old Boy’s Association (OBA)</span>, the apex body of the alumni of St. Xavier’s School, Jaipur. With a rich and textured history of its own, Xavier’s Alumni (XA) has over <span className="font-bold text-school-navy">4000 members</span> who are spread far and wide to every corner of the earth. 
+                <p className="text-xl text-school-navy/70 font-light leading-relaxed text-justify">
+                   Xavier’s Alumni is the new name for the <span className="font-bold text-school-navy italic text-lg">Old Boy’s Association (OBA)</span>, the apex body of the alumni of St. Xavier’s School, Jaipur. With a rich and textured history of its own, Xavier’s Alumni (XA) has over <span className="font-bold text-school-navy">4000 members</span> who are spread far and wide to every corner of the earth. 
                 </p>
                 <div className="p-8 bg-white border-l-4 border-school-gold rounded-r-3xl shadow-lg italic text-lg text-school-navy/80 font-serif">
                    "To foster and to keep alive the bonds of friendship and understanding among the alumni themselves and between the Alumni and the School."

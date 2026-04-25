@@ -33,7 +33,8 @@ db.exec(`
     content TEXT,
     date TEXT NOT NULL,
     category TEXT NOT NULL,
-    link TEXT
+    link TEXT,
+    attachmentUrl TEXT
   )
 `);
 
@@ -55,7 +56,7 @@ db.exec(`
     admissionFee TEXT NOT NULL,
     tuition_fees TEXT NOT NULL,
     quarterly TEXT NOT NULL,
-    pdf_url TEXT
+    attachmentUrl TEXT
   )
 `);
 
@@ -88,6 +89,18 @@ db.exec(`
 `);
 
 db.exec(`
+  CREATE TABLE IF NOT EXISTS studentHonors (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    result TEXT NOT NULL,
+    subtext TEXT NOT NULL,
+    image TEXT NOT NULL,
+    order_index INTEGER NOT NULL
+  )
+`);
+
+db.exec(`
   CREATE TABLE IF NOT EXISTS achievements (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
@@ -101,6 +114,28 @@ db.exec(`
     id TEXT PRIMARY KEY,
     url TEXT NOT NULL,
     caption TEXT NOT NULL
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS faqs (
+    id TEXT PRIMARY KEY,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    category TEXT,
+    order_index INTEGER NOT NULL
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS messages (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    subject TEXT,
+    message TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    status TEXT NOT NULL
   )
 `);
 
@@ -163,6 +198,84 @@ if ((carouselCountResult?.count || 0) === 0) {
     });
     transaction(defaultSlides);
 }
+
+// General Seeding for missing tables
+const tablesToSeed = ['notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors'];
+tablesToSeed.forEach(table => {
+    const countResult = db.prepare(`SELECT COUNT(*) as count FROM "${table}"`).get() as any;
+    if ((countResult?.count || 0) === 0) {
+        console.log(`Seeding default ${table} items...`);
+        let defaultData: any[] = [];
+        if (table === 'notices') {
+            defaultData = [
+                { id: '1', title: 'Summer Holiday Closure Notice', content: 'Dear parents, In view of the summer holidays (from 18-05-2024 to 30-06-2024) the school will be closed. Students will report to school on 01-07-2024 @ 07:30 a.m. Principal SXS, C-Scheme', date: 'May 18, 2024 10:52 AM', category: 'Circular' },
+                { id: '2', title: 'Class Timetable 6 to 12 (2026_27)', content: '', date: 'March 30, 2026 5:50 PM', category: 'Circular' },
+                { id: '3', title: 'Revised Provisional List of Std. XI (2026-27)', content: '', date: 'March 30, 2026 5:49 PM', category: 'Circular' },
+            ];
+        } else if (table === 'gallery') {
+            defaultData = [
+                { id: '1', url: 'https://picsum.photos/seed/x_facade/1200/800', caption: 'St. Xavier\'s Main Architecture' },
+                { id: '2', url: 'https://picsum.photos/seed/x_prayer/1200/800', caption: 'The Morning Assembly Circle' },
+                { id: '3', url: 'https://picsum.photos/seed/x_lab/1200/800', caption: 'Physics Research Wing' },
+            ];
+        } else if (table === 'fees') {
+            defaultData = [
+                { id: '1', grade: 'LKG - Prep', admissionFee: '₹40,000', tuition_fees: '₹4,500', quarterly: '₹13,500' },
+                { id: '2', grade: 'I - V', admissionFee: '₹40,000', tuition_fees: '₹5,200', quarterly: '₹15,600' },
+                { id: '3', grade: 'VI - VIII', admissionFee: '₹45,000', tuition_fees: '₹5,800', quarterly: '₹17,400' },
+                { id: '4', grade: 'IX - X', admissionFee: '₹50,000', tuition_fees: '₹6,400', quarterly: '₹19,200' },
+                { id: '5', grade: 'XI - XII', admissionFee: '₹55,000', tuition_fees: '₹7,200', quarterly: '₹21,600' }
+            ];
+        } else if (table === 'links') {
+            defaultData = [
+                { id: '1', title: 'Admission Prospectus 2026-27', url: '#' },
+                { id: '2', title: 'Student & Parent Portal', url: '#' },
+            ];
+        } else if (table === 'events') {
+            defaultData = [
+                { id: '1', title: 'Investiture Ceremony 2026', date: 'May 15, 2026', time: '09:00 AM', location: 'St. Ignatius Hall' },
+                { id: '2', title: 'Summer Football Camp', date: 'June 01, 2026', time: '06:30 AM', location: 'Main School Grounds' },
+            ];
+        } else if (table === 'achievements') {
+            defaultData = [
+                { id: '1', title: 'National Science Fair Gold', year: '2026', description: 'Our senior robotics team secured the first position at the National Science Congress.' },
+                { id: '2', title: 'Best School in Jaipur 2025', year: '2025', description: 'Ranked #1 for Holistic Development by Education World.' },
+            ];
+        } else if (table === 'studentHonors') {
+            defaultData = [
+                { id: '1', name: 'Rijul Jain', category: 'JEE Mains:- 90.44%', result: '90.44%', subtext: 'SCIENCE CLUB (JOINT SECRETARY), RAJYA PURASKAR AWARDEE (SCOUTS AND GUIDES)', image: 'https://picsum.photos/seed/student1/300/300', order_index: 0 },
+                { id: '2', name: 'Ameyatman Roy', category: 'JEE Mains:- 90.27%', result: '90.27%', subtext: '90.27 PERCENTILE', image: 'https://picsum.photos/seed/student2/300/300', order_index: 1 },
+                { id: '3', name: 'Aryan Sharma', category: 'JEE Mains:- 99.12%', result: '99.12%', subtext: 'ACADEMIC EXCELLENCE AWARD WINNER', image: 'https://picsum.photos/seed/student3/300/300', order_index: 2 },
+            ];
+        }
+
+        if (defaultData.length > 0) {
+            const fields = Object.keys(defaultData[0]);
+            const placeholders = fields.map(() => '?').join(',');
+            const insert = db.prepare(`INSERT INTO "${table}" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`);
+            const transaction = db.transaction((items) => {
+                for (const item of items) insert.run(fields.map(f => item[f]));
+            });
+            transaction(defaultData);
+        }
+    }
+});
+
+// Ensure columns exist (handle migrations)
+const addColumnIfMissing = (table: string, column: string, type: string) => {
+  try {
+    const info = db.pragma(`table_info("${table}")`) as any[];
+    if (!info.some(col => col.name === column)) {
+      console.log(`[MIGRATION] Adding column ${column} to ${table}...`);
+      db.exec(`ALTER TABLE "${table}" ADD COLUMN "${column}" ${type}`);
+    }
+  } catch (err) {
+    console.error(`[MIGRATION ERROR] ${table}.${column}:`, err);
+  }
+};
+
+addColumnIfMissing('fees', 'attachmentUrl', 'TEXT');
+addColumnIfMissing('notices', 'attachmentUrl', 'TEXT');
 
 // Diagnostic: Check fees table columns
 const columns = db.pragma('table_info(fees)');
@@ -307,38 +420,60 @@ const targetStaff = [
   }
 
 // Setup Multer for Image Uploads
-const uploadDir = path.join(__dirname, 'public', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+const uploadDir = path.resolve(__dirname, 'public', 'uploads');
+console.log(`[STORAGE] Target upload directory: ${uploadDir}`);
+
+const ensureDirectoryExists = (dir: string) => {
+  const parent = path.dirname(dir);
+  if (!fs.existsSync(parent)) {
+    ensureDirectoryExists(parent);
+  }
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`[STORAGE] Created directory: ${dir}`);
+  }
+};
+
+try {
+  ensureDirectoryExists(uploadDir);
+} catch (err) {
+  console.error(`[STORAGE ERROR] Failed to prepare upload directory:`, err);
 }
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    // Ensure it exists right before saving too, just in case
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `${uniqueSuffix}${ext}`);
   }
 });
 
 const upload = multer({ 
   storage: storage,
-  limits: { fileSize: 20 * 1024 * 1024 } // 20MB limit for high-res photos
+  limits: { fileSize: 20 * 1024 * 1024 } // 20MB limit
 });
 
 app.use(cors());
 app.use(express.json());
+// Serve uploads from both /uploads and /public/uploads for maximum compatibility
 app.use('/uploads', express.static(uploadDir));
+app.use('/public/uploads', express.static(uploadDir));
 
 // API Routes
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};
-    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel'];
+    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages'];
 
     tables.forEach(table => {
-      data[table] = db.prepare(`SELECT * FROM ${table}`).all();
+      data[table] = db.prepare(`SELECT * FROM "${table}"`).all();
     });
 
     res.json(data);
@@ -348,44 +483,26 @@ app.get('/api/data', (req, res) => {
   }
 });
 
-app.post('/api/upload', (req, res) => {
-  upload.single('file')(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({ error: 'File exceeds 20MB limit' });
-      }
-      return res.status(400).json({ error: err.message });
-    } else if (err) {
-      return res.status(500).json({ error: 'Internal server error during upload' });
-    }
+app.post('/api/upload', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    console.warn(`[UPLOAD WARNING] No file attached to 'file' field`);
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
 
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-
-    const fileUrl = `/uploads/${req.file.filename}`;
-    res.json({ url: fileUrl });
-  });
+  console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename}`);
+  const fileUrl = `/uploads/${req.file.filename}`;
+  res.json({ url: fileUrl });
 });
 
-app.post('/api/gallery/upload', (req, res) => {
-  upload.single('image')(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({ error: 'Image exceeds 20MB limit' });
-      }
-      return res.status(400).json({ error: err.message });
-    } else if (err) {
-      return res.status(500).json({ error: 'Internal server error during upload' });
-    }
+app.post('/api/gallery/upload', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    console.warn(`[GALLERY WARNING] No file attached to 'image' field`);
+    return res.status(400).json({ error: 'No image file uploaded' });
+  }
 
-    if (!req.file) {
-      return res.status(400).json({ error: 'No image file uploaded' });
-    }
-
-    const imageUrl = `/uploads/${req.file.filename}`;
-    res.json({ url: imageUrl });
-  });
+  console.log(`[GALLERY SUCCESS] Saved: ${req.file.filename}`);
+  const imageUrl = `/uploads/${req.file.filename}`;
+  res.json({ url: imageUrl });
 });
 
 app.post('/api/gallery/upload-multiple', upload.array('images', 10), (req, res) => {
@@ -401,13 +518,16 @@ app.post('/api/gallery/upload-multiple', upload.array('images', 10), (req, res) 
 const SCHEMA: { [key: string]: string[] } = {
   gallery: ['id', 'url', 'caption'],
   carousel: ['id', 'url', 'caption'],
-  notices: ['id', 'title', 'content', 'date', 'category', 'link'],
+  notices: ['id', 'title', 'content', 'date', 'category', 'link', 'attachmentUrl'],
   staff: ['id', 'name', 'role', 'bio', 'image', 'type'],
-  fees: ['id', 'grade', 'admissionFee', 'tuition_fees', 'quarterly'],
+  fees: ['id', 'grade', 'admissionFee', 'tuition_fees', 'quarterly', 'attachmentUrl'],
   links: ['id', 'title', 'url'],
   events: ['id', 'title', 'date', 'time', 'location'],
   achievements: ['id', 'title', 'year', 'description'],
-  menu: ['id', 'label', 'href', 'parent_id', 'order_index']
+  menu: ['id', 'label', 'href', 'parent_id', 'order_index'],
+  studentHonors: ['id', 'name', 'category', 'result', 'subtext', 'image', 'order_index'],
+  faqs: ['id', 'question', 'answer', 'category', 'order_index'],
+  messages: ['id', 'name', 'email', 'subject', 'message', 'timestamp', 'status']
 };
 
 app.post('/api/save', (req, res) => {
@@ -447,7 +567,7 @@ app.post('/api/save', (req, res) => {
 app.delete('/api/delete', (req, res) => {
   try {
     const { table, id, ids } = req.body;
-    const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel'];
+    const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors'];
     
     if (!whitelist.includes(table)) {
       return res.status(400).json({ error: 'Invalid table name' });
@@ -468,6 +588,12 @@ app.delete('/api/delete', (req, res) => {
   }
 });
 
+// Explicit API 404 handler to prevent SPA fallback for missing API routes
+app.all('/api/*', (req, res) => {
+  console.warn(`[API 404] ${req.method} ${req.url}`);
+  res.status(404).json({ error: `API route not found: ${req.method} ${req.url}` });
+});
+
 // Vite Integration
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
@@ -483,6 +609,15 @@ async function startServer() {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
+
+  // Global Error Handler
+  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error(`[SERVER ERROR]`, err);
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ error: `Upload error: ${err.message}` });
+    }
+    res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
+  });
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
