@@ -125,7 +125,7 @@ const SchoolInformationPage = ({ data }: { data: AppData }) => {
         <meta property="og:description" content="Official mandatory public disclosure and statutory information for St. Xavier's Sr. Sec. School, Jaipur." />
         <meta property="og:type" content="website" />
       </Helmet>
-      <div className="bg-slate-50 min-h-screen">
+      <div className="bg-school-paper min-h-screen">
         {/* Hero Section */}
         <section className="py-20 bg-school-navy relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
@@ -160,7 +160,7 @@ const SchoolInformationPage = ({ data }: { data: AppData }) => {
         {/* Data Grid - Standard Info */}
         <section className="py-24 max-w-7xl mx-auto px-6 lg:px-12">
           <div className="mb-12">
-            <h2 className="text-3xl font-serif font-black text-school-navy italic uppercase tracking-tight flex items-center gap-4">
+            <h2 className="text-3xl font-serif font-black text-school-ink italic uppercase tracking-tight flex items-center gap-4">
               <span className="w-12 h-px bg-school-gold"></span>
               Statutory Disclosure
             </h2>
@@ -173,24 +173,24 @@ const SchoolInformationPage = ({ data }: { data: AppData }) => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.05 }}
-                className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden"
+                className="bg-school-paper rounded-[40px] border border-school-ink/10 shadow-sm overflow-hidden"
               >
-                <div className="p-8 border-b border-slate-50 bg-slate-50/50 flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+                <div className="p-8 border-b border-school-ink/5 bg-school-ink/5 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-school-paper rounded-2xl flex items-center justify-center shadow-sm">
                     {section.icon}
                   </div>
-                  <h3 className="text-xl font-serif font-black text-school-navy italic uppercase tracking-tight">{section.title}</h3>
+                  <h3 className="text-xl font-serif font-black text-school-ink italic uppercase tracking-tight">{section.title}</h3>
                 </div>
                 <div className="p-8 space-y-4">
                   {section.items.map((item, i) => (
                     <div key={i} className="flex justify-between items-start gap-4 text-sm group">
-                      <span className="text-school-navy/40 font-black uppercase tracking-widest text-[10px] pt-1">{item.label}</span>
+                      <span className="text-school-ink/40 font-black uppercase tracking-widest text-[10px] pt-1">{item.label}</span>
                       {item.isLink ? (
                         <Link to={item.to || '#'} className="text-school-gold font-bold flex items-center gap-1 hover:underline">
                           View {item.label} <ExternalLink size={12} />
                         </Link>
                       ) : (
-                        <span className="text-school-navy text-right font-medium">{item.value}</span>
+                        <span className="text-school-ink text-right font-medium">{item.value}</span>
                       )}
                     </div>
                   ))}
@@ -201,11 +201,11 @@ const SchoolInformationPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Detailed Facilities & Library Section */}
-        <section className="py-24 bg-white border-y border-slate-100">
+        <section className="py-24 border-y border-school-ink/10">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-serif font-black text-school-navy italic uppercase tracking-tight">Facilities & Academic Resources</h2>
-              <p className="text-slate-400 text-sm mt-4 tracking-widest uppercase font-black">Campus Infrastructure & Learning Environment</p>
+              <h2 className="text-4xl font-serif font-black text-school-ink italic uppercase tracking-tight">Facilities & Academic Resources</h2>
+              <p className="text-school-ink/40 text-sm mt-4 tracking-widest uppercase font-black">Campus Infrastructure & Learning Environment</p>
             </div>
 
             <div className="space-y-12">
@@ -215,36 +215,36 @@ const SchoolInformationPage = ({ data }: { data: AppData }) => {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className="bg-slate-50/50 rounded-[48px] p-1 md:p-2 border border-slate-100"
+                  className="bg-school-paper/50 rounded-[48px] p-1 md:p-2 border border-school-ink/10"
                 >
-                  <div className="bg-white rounded-[44px] shadow-sm overflow-hidden">
-                    <div className="p-8 md:p-12 border-b border-slate-50 flex items-center justify-between">
+                  <div className="bg-school-paper rounded-[44px] shadow-sm overflow-hidden">
+                    <div className="p-8 md:p-12 border-b border-school-ink/5 flex items-center justify-between">
                        <div className="flex items-center gap-6">
                          <div className="w-16 h-16 bg-school-navy rounded-[24px] flex items-center justify-center text-school-gold shadow-xl">
                             {section.icon}
                          </div>
-                         <h3 className="text-3xl font-serif font-black text-school-navy italic uppercase">{section.title}</h3>
+                         <h3 className="text-3xl font-serif font-black text-school-ink italic uppercase">{section.title}</h3>
                        </div>
                     </div>
                     
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-slate-50">
-                            <th className="px-12 py-6 text-[10px] font-black uppercase tracking-widest text-school-navy/40">Specification</th>
-                            <th className="px-12 py-6 text-[10px] font-black uppercase tracking-widest text-school-navy/40">Details & Capacity</th>
+                          <tr className="bg-school-ink/5">
+                            <th className="px-12 py-6 text-[10px] font-black uppercase tracking-widest text-school-ink/40">Specification</th>
+                            <th className="px-12 py-6 text-[10px] font-black uppercase tracking-widest text-school-ink/40">Details & Capacity</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
+                        <tbody className="divide-y divide-school-ink/5">
                           {section.items.map((item, i) => (
-                            <tr key={i} className="hover:bg-slate-50/30 transition-colors">
+                            <tr key={i} className="hover:bg-school-ink/5 transition-colors">
                               <td className="px-12 py-8 align-top">
-                                <span className="text-sm font-black text-school-navy uppercase tracking-tight">{item.label}</span>
+                                <span className="text-sm font-black text-school-ink uppercase tracking-tight">{item.label}</span>
                               </td>
                               <td className="px-12 py-8">
                                 <div className="flex items-center gap-4">
                                   <div className="w-2 h-2 bg-school-gold rounded-full shrink-0"></div>
-                                  <span className="text-md text-slate-600 font-medium leading-relaxed">{item.value}</span>
+                                  <span className="text-md text-school-ink/70 font-medium leading-relaxed">{item.value}</span>
                                 </div>
                               </td>
                             </tr>
@@ -260,34 +260,34 @@ const SchoolInformationPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Officers & Committees */}
-        <section className="py-24 bg-white border-t border-slate-100">
+        <section className="py-24 border-t border-school-ink/10">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className="mb-16 text-center">
-              <h2 className="text-4xl font-serif font-black text-school-navy italic uppercase tracking-tight">Statutory Officers</h2>
+              <h2 className="text-4xl font-serif font-black text-school-ink italic uppercase tracking-tight">Statutory Officers</h2>
               <div className="w-24 h-1 bg-school-gold mx-auto mt-6 rounded-full"></div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-12">
-              <div className="p-12 glass-surface rounded-[48px] border border-slate-100">
+              <div className="p-12 glass-surface rounded-[48px] border border-school-ink/10">
                 <div className="flex items-center gap-4 mb-8">
                   <UserCheck className="text-school-gold" size={32} />
                   <div>
-                    <h3 className="text-2xl font-serif font-black text-school-navy italic">Grievance Officer</h3>
-                    <p className="text-[10px] uppercase font-black tracking-widest text-school-navy/30">Redressal & Compliance</p>
+                    <h3 className="text-2xl font-serif font-black text-school-ink italic">Grievance Officer</h3>
+                    <p className="text-[10px] uppercase font-black tracking-widest text-school-ink/30">Redressal & Compliance</p>
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex justify-between border-b border-slate-50 pb-4">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/40">Name</span>
-                    <span className="text-sm font-bold text-school-navy">Fr. M. Arockiam, SJ</span>
+                  <div className="flex justify-between border-b border-school-ink/5 pb-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Name</span>
+                    <span className="text-sm font-bold text-school-ink">Fr. M. Arockiam, SJ</span>
                   </div>
-                  <div className="flex justify-between border-b border-slate-50 pb-4">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/40">Email</span>
-                    <span className="text-sm text-school-navy/70">xavier41jaipur@gmail.com</span>
+                  <div className="flex justify-between border-b border-school-ink/5 pb-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Email</span>
+                    <span className="text-sm text-school-ink/70">xavier41jaipur@gmail.com</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/40">Phone</span>
-                    <span className="text-sm text-school-navy/70">0141-2372336</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Phone</span>
+                    <span className="text-sm text-school-ink/70">0141-2372336</span>
                   </div>
                 </div>
               </div>
@@ -323,10 +323,10 @@ const SchoolInformationPage = ({ data }: { data: AppData }) => {
         {/* Contact Footer Banner */}
         <section className="py-24 text-center max-w-4xl mx-auto px-6">
           <div className="space-y-8">
-            <h2 className="text-3xl md:text-4xl font-serif font-black text-school-navy italic tracking-tight underline decoration-school-gold decoration-4 underline-offset-8">
+            <h2 className="text-3xl md:text-4xl font-serif font-black text-school-ink italic tracking-tight underline decoration-school-gold decoration-4 underline-offset-8">
               "Dedicated to Excellence in Education Since 1941"
             </h2>
-            <p className="text-xs font-black uppercase tracking-[0.4em] text-school-navy/30">Jaipur Xavier Educational Association</p>
+            <p className="text-xs font-black uppercase tracking-[0.4em] text-school-ink/30">Jaipur Xavier Educational Association</p>
           </div>
         </section>
       </div>

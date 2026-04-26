@@ -13,6 +13,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
+// Basic Middleware
+app.use(cors());
+app.use(express.json());
+
 // Setup Database
 const dbPath = path.join(__dirname, 'database.sqlite');
 const db = new Database(dbPath);
@@ -139,6 +143,121 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS settings (
+    id TEXT PRIMARY KEY,
+    applyNowEnabled INTEGER NOT NULL,
+    applyNowUrl TEXT NOT NULL,
+    applyNowLabel TEXT NOT NULL,
+    siteName TEXT,
+    siteLogo TEXT,
+    contactEmail TEXT,
+    contactPhone TEXT,
+    contactAddress TEXT
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS content (
+    id TEXT PRIMARY KEY,
+    heroTitle1 TEXT,
+    heroTitle2 TEXT,
+    heroBadge TEXT,
+    heroDescription TEXT,
+    carouselBranding TEXT,
+    aboutBadge TEXT,
+    aboutTitle1 TEXT,
+    aboutTitle2 TEXT,
+    aboutDescription TEXT,
+    mottoTitle TEXT,
+    mottoDescription TEXT,
+    historyButton TEXT,
+    principalBadge TEXT,
+    principalTitle1 TEXT,
+    principalTitle2 TEXT,
+    principalTitle3 TEXT,
+    principalQuote TEXT,
+    principalButton TEXT,
+    oeuvreTitle1 TEXT,
+    oeuvreTitle2 TEXT,
+    oeuvreDescription TEXT,
+    regencyBadge TEXT,
+    regencyTitle1 TEXT,
+    regencyTitle2 TEXT,
+    nodesTitle1 TEXT,
+    nodesTitle2 TEXT,
+    nodesDescription TEXT,
+    helpdeskLabel TEXT,
+    wiredTitle TEXT,
+    wiredBadge TEXT,
+    exploreButton TEXT,
+    footerDescription TEXT
+  )
+`);
+
+// Seed Default Settings if empty
+const settingsCountResult = db.prepare("SELECT COUNT(*) as count FROM settings").get() as any;
+if ((settingsCountResult?.count || 0) === 0) {
+    console.log("Seeding default settings...");
+    db.prepare("INSERT INTO settings (id, applyNowEnabled, applyNowUrl, applyNowLabel, siteName, siteLogo, contactEmail, contactPhone, contactAddress) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").run(
+      'global',
+      1,
+      'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
+      'Apply 2026-27',
+      "St. Xavier's Sr. Sec. School, Jaipur",
+      'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
+      'xaviersjaipur@gmail.com',
+      '0141-2372336, 2362436',
+      'Bhagwan Das Road, C-Scheme, Jaipur - 302001, Rajasthan, India'
+    );
+}
+
+// Seed Default Content if empty
+const contentCountResult = db.prepare("SELECT COUNT(*) as count FROM content").get() as any;
+if ((contentCountResult?.count || 0) === 0) {
+    console.log("Seeding default content...");
+    const content = {
+        id: 'global',
+        heroTitle1: 'Beyond',
+        heroTitle2: 'Imagination.',
+        heroBadge: 'A Legacy of Jesuit Excellence',
+        heroDescription: 'Step into a world where tradition meets innovation. Empowering leaders since 1941.',
+        carouselBranding: 'Jaipur Legacy.',
+        aboutBadge: 'Welcome to Excellence',
+        aboutTitle1: 'About',
+        aboutTitle2: 'St. Xavier’s School.',
+        aboutDescription: 'Established in 1941, St. Xavier\'s School, Jaipur, is a premier Jesuit institution dedicated to the holistic development of its students. Rooted in the rich heritage of the Society of Jesus, we strive to nurture "men and women for others" through academic excellence, character building, and social responsibility.',
+        mottoTitle: 'Motto',
+        mottoDescription: '"For God and Country" represents our core ethos of service and devotion.',
+        historyButton: 'Discover Our Story',
+        principalBadge: "Guardian's Vision",
+        principalTitle1: 'Lead',
+        principalTitle2: 'with',
+        principalTitle3: 'Grace.',
+        principalQuote: 'We cultivate individuals of character, resilient in spirit and enlightened in soul. Education is the journey of becoming.',
+        principalButton: 'The Full Narrative',
+        oeuvreTitle1: 'Campus',
+        oeuvreTitle2: 'Oeuvre.',
+        oeuvreDescription: 'A visual collective capturing the vibrant soul of St. Xavier\'s Jaipur.',
+        regencyBadge: 'The Guardians',
+        regencyTitle1: 'The',
+        regencyTitle2: 'Regency.',
+        nodesTitle1: 'Vital',
+        nodesTitle2: 'Nodes.',
+        nodesDescription: 'The administrative heart of our institution, condensed for your convenience.',
+        helpdeskLabel: 'Support Helpdesk',
+        wiredTitle: 'Stay Wired.',
+        wiredBadge: 'Real-time Institutional Heartbeat',
+        exploreButton: 'Explore Campus',
+        footerDescription: 'Pioneering Jesuit excellence since 1941. Shaping the leaders of tomorrow with soul, heart, and mind.'
+    };
+    
+    const fields = Object.keys(content);
+    const placeholders = fields.map(() => '?').join(',');
+    const query = `INSERT INTO content (${fields.join(',')}) VALUES (${placeholders})`;
+    db.prepare(query).run(fields.map(f => (content as any)[f]));
+}
+
 // Seed Default Menu if empty
 const menuCountResult = db.prepare("SELECT COUNT(*) as count FROM menu").get() as any;
 if ((menuCountResult?.count || 0) === 0) {
@@ -147,17 +266,21 @@ if ((menuCountResult?.count || 0) === 0) {
         { id: '1', label: 'Home', href: '/', parent_id: null, order_index: 0 },
         { id: '2', label: 'About Us', href: '#', parent_id: null, order_index: 1 },
         { id: '2-1', label: 'Our Founder & Patron', href: '/founder-patron', parent_id: '2', order_index: 0 },
-        { id: '2-2', label: 'Governing Members', href: '/governing-members', parent_id: '2', order_index: 1 },
-        { id: '2-3', label: 'School Anthem', href: '/anthem', parent_id: '2', order_index: 2 },
-        { id: '2-4', label: 'History', href: '/history', parent_id: '2', order_index: 3 },
+        { id: '2-2', label: 'our Founder', href: '/founder-patron#founder', parent_id: '2', order_index: 1 },
+        { id: '2-3', label: 'Our Patron', href: '/founder-patron#patron', parent_id: '2', order_index: 2 },
+        { id: '2-4', label: 'School Governing Members', href: '/governing-members', parent_id: '2', order_index: 3 },
+        { id: '2-5', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 4 },
+        { id: '2-6', label: 'Other Association & Committee', href: '/school-info', parent_id: '2', order_index: 5 },
         { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
         { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
         { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
         { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: '3', order_index: 2 },
         { id: '3-4', label: 'Studybase Mobile App', href: '/studybase-app', parent_id: '3', order_index: 3 },
+        { id: '3-5', label: 'Prospectus', href: '/admission-policy#prospectus', parent_id: '3', order_index: 4 },
         { id: '4', label: 'Academics', href: '#', parent_id: null, order_index: 3 },
         { id: '4-1', label: 'Jesuit Education Objectives', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
-        { id: '4-2', label: 'Staff Directory', href: '/staff', parent_id: '4', order_index: 1 },
+        { id: '4-2', label: 'Examinations & Premotions', href: '#', parent_id: '4', order_index: 1 },
+        { id: '4-3', label: 'rules & Discipline', href: '#', parent_id: '4', order_index: 2 },
         { id: '5', label: 'Activities', href: '#', parent_id: null, order_index: 4 },
         { id: '5-1', label: 'Co-Curricular Activities', href: '/co-curricular', parent_id: '5', order_index: 0 },
         { id: '5-2', label: 'Fr. Batson Sports Complex', href: '/sports-complex', parent_id: '5', order_index: 1 },
@@ -167,13 +290,15 @@ if ((menuCountResult?.count || 0) === 0) {
         { id: '5-6', label: 'Student Achievements', href: '/achievements', parent_id: '5', order_index: 5 },
         { id: '6', label: 'CBSE Corner', href: '#', parent_id: null, order_index: 5 },
         { id: '6-1', label: 'School Information', href: '/school-info', parent_id: '6', order_index: 0 },
+        { id: '6-2', label: 'Fire safety', href: '#', parent_id: '6', order_index: 1 },
         { id: '7', label: 'For Parents', href: '#', parent_id: null, order_index: 6 },
         { id: '7-1', label: 'Obligations of Parents', href: '/parent-obligations', parent_id: '7', order_index: 0 },
         { id: '8', label: 'Career', href: '#', parent_id: null, order_index: 7 },
         { id: '8-1', label: 'Careers', href: '/careers', parent_id: '8', order_index: 0 },
         { id: '9', label: 'More', href: '#', parent_id: null, order_index: 8 },
         { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
-        { id: '9-2', label: 'Gallery', href: '/gallery', parent_id: '9', order_index: 1 },
+        { id: '9-3', label: 'Mandatory disclosure', href: '#', parent_id: '9', order_index: 1 },
+        { id: '9-4', label: 'Transfer Certificate', href: '#', parent_id: '9', order_index: 2 },
     ];
 
     const insert = db.prepare("INSERT INTO menu (id, label, href, parent_id, order_index) VALUES (?, ?, ?, ?, ?)");
@@ -276,6 +401,11 @@ const addColumnIfMissing = (table: string, column: string, type: string) => {
 
 addColumnIfMissing('fees', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('notices', 'attachmentUrl', 'TEXT');
+addColumnIfMissing('settings', 'siteName', 'TEXT');
+addColumnIfMissing('settings', 'siteLogo', 'TEXT');
+addColumnIfMissing('settings', 'contactEmail', 'TEXT');
+addColumnIfMissing('settings', 'contactPhone', 'TEXT');
+addColumnIfMissing('settings', 'contactAddress', 'TEXT');
 
 // Diagnostic: Check fees table columns
 const columns = db.pragma('table_info(fees)');
@@ -460,21 +590,23 @@ const upload = multer({
   limits: { fileSize: 20 * 1024 * 1024 } // 20MB limit
 });
 
-app.use(cors());
-app.use(express.json());
-// Serve uploads from both /uploads and /public/uploads for maximum compatibility
-app.use('/uploads', express.static(uploadDir));
-app.use('/public/uploads', express.static(uploadDir));
-
 // API Routes
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};
-    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages'];
+    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content'];
 
     tables.forEach(table => {
       data[table] = db.prepare(`SELECT * FROM "${table}"`).all();
     });
+
+    const settings = db.prepare(`SELECT * FROM settings WHERE id = 'global'`).get() as any;
+    if (settings) {
+      data.settings = {
+        ...settings,
+        applyNowEnabled: Boolean(settings.applyNowEnabled)
+      };
+    }
 
     res.json(data);
   } catch (err: any) {
@@ -483,13 +615,19 @@ app.get('/api/data', (req, res) => {
   }
 });
 
-app.post('/api/upload', upload.single('file'), (req, res) => {
+app.use('/uploads', express.static(uploadDir));
+app.use('/public/uploads', express.static(uploadDir));
+
+app.post('/api/upload', (req, res, next) => {
+  console.log(`[SERVER] Incoming /api/upload request. Size: ${req.headers['content-length']} bytes`);
+  next();
+}, upload.single('file'), (req, res) => {
   if (!req.file) {
-    console.warn(`[UPLOAD WARNING] No file attached to 'file' field`);
-    return res.status(400).json({ error: 'No file uploaded' });
+    console.warn(`[UPLOAD WARNING] No file attached to 'file' field or filter rejected it`);
+    return res.status(400).json({ error: 'No file uploaded or invalid field name' });
   }
 
-  console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename}`);
+  console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename} (${req.file.size} bytes)`);
   const fileUrl = `/uploads/${req.file.filename}`;
   res.json({ url: fileUrl });
 });
@@ -527,7 +665,9 @@ const SCHEMA: { [key: string]: string[] } = {
   menu: ['id', 'label', 'href', 'parent_id', 'order_index'],
   studentHonors: ['id', 'name', 'category', 'result', 'subtext', 'image', 'order_index'],
   faqs: ['id', 'question', 'answer', 'category', 'order_index'],
-  messages: ['id', 'name', 'email', 'subject', 'message', 'timestamp', 'status']
+  messages: ['id', 'name', 'email', 'subject', 'message', 'timestamp', 'status'],
+  settings: ['id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 'contactEmail', 'contactPhone', 'contactAddress'],
+  content: ['id', 'heroTitle1', 'heroTitle2', 'heroBadge', 'heroDescription', 'carouselBranding', 'aboutBadge', 'aboutTitle1', 'aboutTitle2', 'aboutDescription', 'mottoTitle', 'mottoDescription', 'historyButton', 'principalBadge', 'principalTitle1', 'principalTitle2', 'principalTitle3', 'principalQuote', 'principalButton', 'oeuvreTitle1', 'oeuvreTitle2', 'oeuvreDescription', 'regencyBadge', 'regencyTitle1', 'regencyTitle2', 'nodesTitle1', 'nodesTitle2', 'nodesDescription', 'helpdeskLabel', 'wiredTitle', 'wiredBadge', 'exploreButton', 'footerDescription']
 };
 
 app.post('/api/save', (req, res) => {
@@ -548,7 +688,11 @@ app.post('/api/save', (req, res) => {
     }
 
     const placeholders = fields.map(() => '?').join(',');
-    const values = fields.map(f => item[f]);
+    const values = fields.map(f => {
+      const val = item[f];
+      if (typeof val === 'boolean') return val ? 1 : 0;
+      return val;
+    });
 
     // Use double quotes for column names to avoid issues with reserved words
     const query = `INSERT OR REPLACE INTO "${table}" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`;

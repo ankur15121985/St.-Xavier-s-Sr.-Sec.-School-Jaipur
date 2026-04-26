@@ -16,7 +16,7 @@ import {
 const AlumniPage = ({ data }: { data: AppData }) => {
   return (
     <Layout data={data}>
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="pt-32 bg-school-paper min-h-screen">
         {/* Banner with Background Image */}
         <section className="relative h-[400px] overflow-hidden flex items-center justify-center">
           <div className="absolute inset-0">
@@ -52,14 +52,14 @@ const AlumniPage = ({ data }: { data: AppData }) => {
               className="lg:col-span-2 space-y-10"
             >
               <div className="space-y-6">
-                <h2 className="text-4xl font-serif font-black text-school-navy italic leading-snug">
+                <h2 className="text-4xl font-serif font-black text-school-ink italic leading-snug">
                   The Apex Body of Global Xaverians
                 </h2>
                 <div className="w-24 h-1.5 bg-school-gold rounded-full"></div>
-                <p className="text-xl text-school-navy/70 font-light leading-relaxed text-justify">
-                   Xavier’s Alumni is the new name for the <span className="font-bold text-school-navy italic text-lg">Old Boy’s Association (OBA)</span>, the apex body of the alumni of St. Xavier’s School, Jaipur. With a rich and textured history of its own, Xavier’s Alumni (XA) has over <span className="font-bold text-school-navy">4000 members</span> who are spread far and wide to every corner of the earth. 
+                <p className="text-xl text-school-ink/70 font-light leading-relaxed text-justify">
+                   Xavier’s Alumni is the new name for the <span className="font-bold text-school-ink italic text-lg">Old Boy’s Association (OBA)</span>, the apex body of the alumni of St. Xavier’s School, Jaipur. With a rich and textured history of its own, Xavier’s Alumni (XA) has over <span className="font-bold text-school-ink">4000 members</span> who are spread far and wide to every corner of the earth. 
                 </p>
-                <div className="p-8 bg-white border-l-4 border-school-gold rounded-r-3xl shadow-lg italic text-lg text-school-navy/80 font-serif">
+                <div className="p-8 bg-school-paper border-l-4 border-school-gold rounded-r-3xl shadow-lg italic text-lg text-school-ink/80 font-serif">
                    "To foster and to keep alive the bonds of friendship and understanding among the alumni themselves and between the Alumni and the School."
                 </div>
               </div>
@@ -68,18 +68,18 @@ const AlumniPage = ({ data }: { data: AppData }) => {
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 text-school-gold">
                     <Users size={20} />
-                    <h3 className="text-lg font-serif font-black uppercase tracking-tight text-school-navy italic">Membership</h3>
+                    <h3 className="text-lg font-serif font-black uppercase tracking-tight text-school-ink italic">Membership</h3>
                   </div>
-                  <p className="text-sm text-school-navy/60 leading-relaxed font-light">
+                  <p className="text-sm text-school-ink/60 leading-relaxed font-light">
                     Available to students of St. Xavier’s School, Jaipur per the XA constitution. Principal's approval is mandatory for passing out batches. Members gain access to specified privileges detailed in the X.A. directory.
                   </p>
                 </div>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 text-school-gold">
                     <Calendar size={20} />
-                    <h3 className="text-lg font-serif font-black uppercase tracking-tight text-school-navy italic">Event Calendar</h3>
+                    <h3 className="text-lg font-serif font-black uppercase tracking-tight text-school-ink italic">Event Calendar</h3>
                   </div>
-                  <p className="text-sm text-school-navy/60 leading-relaxed font-light">
+                  <p className="text-sm text-school-ink/60 leading-relaxed font-light">
                     From career counseling for seniors to sporting events, debates, and quiz contests, XA maintains a vibrant annual calendar that serves both the school and the nation.
                   </p>
                 </div>
@@ -138,7 +138,7 @@ const AlumniPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Closing Quote */}
-        <section className="py-24 bg-white border-y border-slate-50 text-center px-6">
+        <section className="py-24 bg-school-paper border-y border-school-ink/10 text-center px-6">
            <motion.div 
              initial={{ opacity: 0 }}
              whileInView={{ opacity: 1 }}
@@ -146,7 +146,7 @@ const AlumniPage = ({ data }: { data: AppData }) => {
              className="max-w-2xl mx-auto space-y-6"
            >
              <MessageSquare className="text-school-gold mx-auto" size={32} />
-             <p className="text-xl font-serif font-black italic text-school-navy leading-relaxed">
+             <p className="text-xl font-serif font-black italic text-school-ink leading-relaxed">
                "Once a Xaverian, Always a Xaverian. Our legacy is built by the footprints of those who walked these halls before us."
              </p>
              <div className="w-16 h-1 bg-school-gold mx-auto"></div>

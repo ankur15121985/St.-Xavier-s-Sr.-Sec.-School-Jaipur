@@ -112,6 +112,26 @@ service cloud.firestore {
       allow create, update, delete: if canWritePublic();
     }
 
+    match /faqs/{id} {
+      allow read: if true;
+      allow create, update, delete: if canWritePublic();
+    }
+
+    match /settings/{id} {
+      allow read: if true;
+      allow create, update, delete: if canWritePublic();
+    }
+
+    match /content/{id} {
+      allow read: if true;
+      allow create, update, delete: if canWritePublic();
+    }
+
+    match /messages/{id} {
+      allow create: if true; // Public can send messages
+      allow read, update, delete: if isAdmin();
+    }
+
     // -------------------------------------------------------------------------
     // Validation Schemas
     // -------------------------------------------------------------------------

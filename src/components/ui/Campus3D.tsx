@@ -79,7 +79,7 @@ const CampusSceneContent = () => {
 
 export const Campus3D = () => {
   return (
-    <div className="w-full h-screen bg-[#050505] relative overflow-hidden">
+    <div id="campus-3d" className="w-full h-screen bg-[#050505] relative overflow-hidden">
       <Canvas shadows dpr={[1, 2]}>
         <PerspectiveCamera makeDefault position={[0, 5, 20]} fov={35} />
         <ScrollControls pages={3} damping={0.1}>

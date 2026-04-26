@@ -56,7 +56,7 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="pt-32 bg-school-paper min-h-screen">
         {/* Hero Section */}
         <section className="py-20 bg-school-navy relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
@@ -81,7 +81,7 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
             viewport={{ once: true }}
             className="space-y-8"
           >
-            <p className="text-2xl md:text-3xl font-serif font-black text-school-navy italic leading-tight">
+            <p className="text-2xl md:text-3xl font-serif font-black text-school-ink italic leading-tight">
               "Honesty, trust, cooperation, self-reliance, and hard work are inculcated through various school activities. In these, the student learns to do things for themselves under guidance."
             </p>
             <div className="w-24 h-1 bg-school-gold mx-auto"></div>
@@ -95,19 +95,19 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="glass-surface bg-white p-12 rounded-[48px] border border-white shadow-xl space-y-8"
+            className="glass-surface bg-school-paper/50 p-12 rounded-[48px] border border-school-ink/10 shadow-xl space-y-8"
           >
             <div className="w-16 h-16 bg-school-gold/10 rounded-2xl flex items-center justify-center text-school-gold">
               <Users size={32} />
             </div>
-            <h2 className="text-3xl font-serif font-black text-school-navy italic uppercase">House System</h2>
+            <h2 className="text-3xl font-serif font-black text-school-ink italic uppercase">House System</h2>
             <div className="space-y-4">
               <div className="flex gap-2">
                 {['Blues', 'Golds', 'Greens', 'Reds'].map(h => (
-                  <span key={h} className="px-4 py-1 bg-slate-50 border border-slate-100 rounded-full text-[10px] uppercase font-black tracking-widest text-school-navy">{h}</span>
+                  <span key={h} className="px-4 py-1 bg-school-paper/50 border border-school-ink/5 rounded-full text-[10px] uppercase font-black tracking-widest text-school-ink">{h}</span>
                 ))}
               </div>
-              <p className="text-school-navy/70 leading-relaxed font-light">
+              <p className="text-school-ink/70 leading-relaxed font-light">
                 Activities like dramatics, elocution, sports and games are conducted under the guidance of the Vice-Principals and House Moderators assisted by Captains and Cultural Secretaries.
               </p>
             </div>
@@ -133,7 +133,7 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
         {/* Office Bearers Section */}
         <section className="py-24 max-w-7xl mx-auto px-6 lg:px-12">
           <div className="mb-16 text-center">
-            <h2 className="text-4xl md:text-5xl font-serif font-black text-school-navy italic tracking-tight uppercase">School Office Bearers</h2>
+            <h2 className="text-4xl md:text-5xl font-serif font-black text-school-ink italic tracking-tight uppercase">School Office Bearers</h2>
             <div className="w-24 h-1 bg-school-gold mx-auto mt-6 rounded-full"></div>
           </div>
 
@@ -161,14 +161,14 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="p-10 border border-slate-100 bg-white rounded-[40px] shadow-lg hover:shadow-2xl transition-all"
+                className="p-10 border border-school-ink/5 bg-school-paper/50 rounded-[40px] shadow-lg hover:shadow-2xl transition-all"
               >
                 <div className="flex items-center gap-4 mb-8">
                    {dept.icon}
-                   <h3 className="text-xl font-serif font-black text-school-navy italic uppercase">{dept.category}</h3>
+                   <h3 className="text-xl font-serif font-black text-school-ink italic uppercase">{dept.category}</h3>
                 </div>
-                <ul className="space-y-4 text-sm text-school-navy/60 font-light italic">
-                  {dept.roles.map(r => <li key={r} className="border-b border-slate-50 pb-2 last:border-0">{r}</li>)}
+                <ul className="space-y-4 text-sm text-school-ink/60 font-light italic">
+                  {dept.roles.map(r => <li key={r} className="border-b border-school-ink/5 pb-2 last:border-0">{r}</li>)}
                 </ul>
               </motion.div>
             ))}
@@ -176,19 +176,19 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Comprehensive Activities Grid */}
-        <section className="py-24 bg-white border-y border-slate-50">
+        <section className="py-24 bg-school-paper border-y border-school-ink/5">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className="grid lg:grid-cols-4 gap-16">
               
               {/* Sports Column */}
               <div className="space-y-8">
                 <div className="flex items-center gap-3">
-                  <Trophy size={20} className="text-school-navy" />
-                  <h4 className="text-lg font-serif font-black text-school-navy italic uppercase">Athletics</h4>
+                  <Trophy size={20} className="text-school-ink" />
+                  <h4 className="text-lg font-serif font-black text-school-ink italic uppercase">Athletics</h4>
                 </div>
                 <div className="grid gap-3">
                   {sportsActivities.map(a => (
-                    <div key={a} className="text-xs font-black uppercase tracking-widest text-school-navy/50">{a}</div>
+                    <div key={a} className="text-xs font-black uppercase tracking-widest text-school-ink/50">{a}</div>
                   ))}
                 </div>
               </div>
@@ -196,12 +196,12 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
               {/* Cultural Column */}
               <div className="space-y-8">
                 <div className="flex items-center gap-3">
-                  <Palette size={20} className="text-school-navy" />
-                  <h4 className="text-lg font-serif font-black text-school-navy italic uppercase">Arts & Culture</h4>
+                  <Palette size={20} className="text-school-ink" />
+                  <h4 className="text-lg font-serif font-black text-school-ink italic uppercase">Arts & Culture</h4>
                 </div>
                 <div className="grid gap-3">
                   {culturalActivities.map(a => (
-                    <div key={a} className="text-xs font-black uppercase tracking-widest text-school-navy/50">{a}</div>
+                    <div key={a} className="text-xs font-black uppercase tracking-widest text-school-ink/50">{a}</div>
                   ))}
                 </div>
               </div>
@@ -209,12 +209,12 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
               {/* Clubs Column */}
               <div className="space-y-8">
                 <div className="flex items-center gap-3">
-                  <Microscope size={20} className="text-school-navy" />
-                  <h4 className="text-lg font-serif font-black text-school-navy italic uppercase">Societies</h4>
+                  <Microscope size={20} className="text-school-ink" />
+                  <h4 className="text-lg font-serif font-black text-school-ink italic uppercase">Societies</h4>
                 </div>
                 <div className="grid gap-3">
                   {clubsAndSocieties.map(a => (
-                    <div key={a} className="text-xs font-black uppercase tracking-widest text-school-navy/50">{a}</div>
+                    <div key={a} className="text-xs font-black uppercase tracking-widest text-school-ink/50">{a}</div>
                   ))}
                 </div>
               </div>
@@ -222,12 +222,12 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
               {/* Programs Column */}
               <div className="space-y-8">
                 <div className="flex items-center gap-3">
-                  <Heart size={20} className="text-school-navy" />
-                  <h4 className="text-lg font-serif font-black text-school-navy italic uppercase">Service</h4>
+                  <Heart size={20} className="text-school-ink" />
+                  <h4 className="text-lg font-serif font-black text-school-ink italic uppercase">Service</h4>
                 </div>
                 <div className="grid gap-3">
                   {serviceAndPrograms.map(a => (
-                    <div key={a} className="text-xs font-black uppercase tracking-widest text-school-navy/50">{a}</div>
+                    <div key={a} className="text-xs font-black uppercase tracking-widest text-school-ink/50">{a}</div>
                   ))}
                 </div>
               </div>
@@ -239,16 +239,16 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
         {/* Closing Image Grid */}
         <section className="py-24">
            <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="aspect-video bg-slate-100 rounded-[32px] overflow-hidden group">
+              <div className="aspect-video bg-school-ink/5 rounded-[32px] overflow-hidden group">
                  <img src="https://picsum.photos/seed/debate/800/600" alt="Debate" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
               </div>
-              <div className="aspect-video bg-slate-100 rounded-[32px] overflow-hidden group md:mt-12">
+              <div className="aspect-video bg-school-ink/5 rounded-[32px] overflow-hidden group md:mt-12">
                  <img src="https://picsum.photos/seed/music/800/600" alt="Music" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
               </div>
-              <div className="aspect-video bg-slate-100 rounded-[32px] overflow-hidden group">
+              <div className="aspect-video bg-school-ink/5 rounded-[32px] overflow-hidden group">
                  <img src="https://picsum.photos/seed/science/800/600" alt="Science" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
               </div>
-              <div className="aspect-video bg-slate-100 rounded-[32px] overflow-hidden group md:mt-12">
+              <div className="aspect-video bg-school-ink/5 rounded-[32px] overflow-hidden group md:mt-12">
                  <img src="https://picsum.photos/seed/social/800/600" alt="Social Service" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
               </div>
            </div>

@@ -7,10 +7,10 @@ import { Trophy, Award, Star } from 'lucide-react';
 const AchievementsPage = ({ data }: { data: AppData }) => {
   return (
     <Layout data={data}>
-      <section className="pt-48 pb-40 bg-white min-h-screen">
+      <section className="pt-48 pb-40 bg-school-paper min-h-screen">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center mb-24">
-           <h2 className="text-7xl font-serif font-black text-school-navy mb-8">Pillars of <span className="text-school-gold italic">Pride.</span></h2>
-           <p className="text-xl text-school-navy/50 font-light max-w-2xl mx-auto">Celebrating the academic, cultural, and sporting milestones of the Xavierite community.</p>
+           <h2 className="text-7xl font-serif font-black text-school-ink mb-8">Pillars of <span className="text-school-gold italic">Pride.</span></h2>
+           <p className="text-xl text-school-ink/40 font-light max-w-2xl mx-auto">Celebrating the academic, cultural, and sporting milestones of the Xavierite community.</p>
         </div>
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid md:grid-cols-3 gap-12">
@@ -26,8 +26,8 @@ const AchievementsPage = ({ data }: { data: AppData }) => {
                 {i % 2 === 0 ? <Trophy size={40} /> : <Award size={40} />}
               </div>
               <span className="text-[10px] font-black uppercase tracking-[0.5em] text-school-gold mb-4">{a.year} Milestone</span>
-              <h4 className="text-3xl font-serif font-black text-school-navy mb-6 group-hover:text-school-gold transition-colors">{a.title}</h4>
-              <p className="text-sm text-school-navy/40 font-light leading-relaxed">{a.description}</p>
+              <h4 className="text-3xl font-serif font-black text-school-ink mb-6 group-hover:text-school-gold transition-colors">{a.title}</h4>
+              <p className="text-sm text-school-ink/40 font-light leading-relaxed">{a.description}</p>
             </motion.div>
           ))}
         </div>

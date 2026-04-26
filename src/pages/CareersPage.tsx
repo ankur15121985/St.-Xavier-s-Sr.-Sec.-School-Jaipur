@@ -19,7 +19,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
         <meta name="description" content="Career opportunities at St. Xavier's Jaipur. Join our dedicated team of educators and administrative staff." />
       </Helmet>
 
-      <div className="bg-slate-50 min-h-screen">
+      <div className="bg-school-paper min-h-screen">
         {/* Banner Section */}
         <section className="relative h-[400px] overflow-hidden flex items-center justify-center">
           <div className="absolute inset-0">
@@ -48,35 +48,35 @@ const CareersPage = ({ data }: { data: AppData }) => {
            <motion.div
              initial={{ opacity: 0, scale: 0.95 }}
              animate={{ opacity: 1, scale: 1 }}
-             className="w-full max-w-4xl bg-white rounded-[48px] border border-slate-100 shadow-[0_32px_64px_-16px_rgba(0,33,71,0.1)] p-12 md:p-24 text-center relative overflow-hidden"
+             className="w-full max-w-4xl bg-school-paper rounded-[48px] border border-school-ink/10 shadow-[0_32px_64px_-16px_rgba(0,33,71,0.1)] p-12 md:p-24 text-center relative overflow-hidden"
            >
               <div className="absolute top-0 left-0 w-full h-2 bg-school-gold"></div>
               
               <div className="space-y-10">
-                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-school-navy mb-12">
+                <div className="w-20 h-20 bg-school-paper/50 rounded-full flex items-center justify-center mx-auto text-school-navy mb-12">
                    <Lock size={40} className="text-school-gold" />
                 </div>
                 
-                <h2 className="text-4xl md:text-6xl font-serif font-black text-school-navy italic tracking-tight">
+                <h2 className="text-4xl md:text-6xl font-serif font-black text-school-ink italic tracking-tight">
                   Application Form Closed
                 </h2>
                 
                 <div className="max-w-2xl mx-auto space-y-6 text-justify">
-                  <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                  <p className="text-lg text-school-ink/60 font-medium leading-relaxed">
                     Thank you for your interest in joining St. Xavier's Secondary School, Jaipur. Currently, the recruitment cycle is closed and we are not accepting new applications.
                   </p>
-                  <p className="text-sm text-slate-400 italic">
+                  <p className="text-sm text-school-ink/40 italic">
                     Please check back regularly or follow our social media handles for future vacancy announcements.
                   </p>
                 </div>
 
-                <div className="pt-12 border-t border-slate-50 flex flex-col md:flex-row items-center justify-center gap-8">
-                   <div className="flex items-center gap-3 text-school-navy">
+                <div className="pt-12 border-t border-school-ink/10 flex flex-col md:flex-row items-center justify-center gap-8">
+                   <div className="flex items-center gap-3 text-school-ink">
                       <Mail size={18} className="text-school-gold" />
                       <span className="text-xs font-black uppercase tracking-widest leading-none">xavier41jaipur@gmail.com</span>
                    </div>
-                   <div className="hidden md:block w-px h-4 bg-slate-200"></div>
-                   <div className="flex items-center gap-3 text-school-navy">
+                   <div className="hidden md:block w-px h-4 bg-school-ink/10"></div>
+                   <div className="flex items-center gap-3 text-school-ink">
                       <Info size={18} className="text-school-gold" />
                       <span className="text-xs font-black uppercase tracking-widest leading-none">Institutional Recruitment</span>
                    </div>
@@ -84,16 +84,16 @@ const CareersPage = ({ data }: { data: AppData }) => {
               </div>
 
               {/* Decorative background mark */}
-              <Briefcase className="absolute -bottom-10 -right-10 text-slate-50 w-64 h-64 -rotate-12 pointer-events-none" />
+              <Briefcase className="absolute -bottom-10 -right-10 text-school-ink/5 w-64 h-64 -rotate-12 pointer-events-none" />
            </motion.div>
         </section>
 
         {/* General Guidelines */}
         <section className="pb-24 max-w-7xl mx-auto px-6 lg:px-12">
            <div className="grid md:grid-cols-2 gap-12">
-              <div className="p-10 glass-surface rounded-[40px] border border-white">
-                 <h3 className="text-2xl font-serif font-black text-school-navy italic mb-6">Selection Process</h3>
-                 <p className="text-sm text-slate-600 leading-relaxed mb-6 font-medium">
+              <div className="p-10 glass-surface rounded-[40px] border border-school-ink/10">
+                 <h3 className="text-2xl font-serif font-black text-school-ink italic mb-6">Selection Process</h3>
+                 <p className="text-sm text-school-ink/60 leading-relaxed mb-6 font-medium">
                    St. Xavier's follows a rigorous selection procedure based on merit, pedagogical expertise, and alignment with Jesuit values. This typically includes:
                  </p>
                  <ul className="space-y-3">
@@ -103,7 +103,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                      'Personal Interview with the Board',
                      'Classroom Demonstration'
                    ].map(item => (
-                     <li key={item} className="flex items-center gap-3 text-xs font-black uppercase tracking-widest text-school-navy/60">
+                     <li key={item} className="flex items-center gap-3 text-xs font-black uppercase tracking-widest text-school-ink/60">
                         <div className="w-1.5 h-1.5 bg-school-gold rounded-full"></div>
                         {item}
                      </li>

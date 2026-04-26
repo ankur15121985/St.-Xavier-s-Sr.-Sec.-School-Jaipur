@@ -13,15 +13,15 @@ const FeesPage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
-      <section className="pt-12 pb-40 bg-white min-h-screen">
+      <section className="pt-12 pb-40 bg-school-paper min-h-screen">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center mb-24">
-           <h2 className="text-7xl font-serif font-black text-school-navy mb-8">Fee <span className="text-school-gold italic">Structure.</span></h2>
-           <p className="text-xl text-school-navy/50 font-light max-w-2xl mx-auto">Transparent financial outlines for the academic year 2026-27. Click on a row to see detailed breakdowns.</p>
+           <h2 className="text-7xl font-serif font-black text-school-ink mb-8">Fee <span className="text-school-gold italic">Structure.</span></h2>
+           <p className="text-xl text-school-ink/40 font-light max-w-2xl mx-auto">Transparent financial outlines for the academic year 2026-27. Click on a row to see detailed breakdowns.</p>
         </div>
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="overflow-x-auto rounded-[40px] shadow-2xl border border-slate-100">
-            <table className="w-full text-left border-collapse bg-white">
+          <div className="overflow-x-auto rounded-[40px] shadow-2xl border border-school-ink/10">
+            <table className="w-full text-left border-collapse bg-school-paper">
               <thead>
                 <tr className="bg-school-navy text-white text-[10px] font-black uppercase tracking-[0.3em]">
                   <th className="p-10 border-b border-white/10">Grade</th>
@@ -31,7 +31,7 @@ const FeesPage = ({ data }: { data: AppData }) => {
                   <th className="p-10 border-b border-white/10 text-center w-24">Details</th>
                 </tr>
               </thead>
-              <tbody className="text-school-navy">
+              <tbody className="text-school-ink">
                 {data.fees.map((f, i) => (
                   <React.Fragment key={f.id}>
                     <motion.tr 
@@ -39,7 +39,7 @@ const FeesPage = ({ data }: { data: AppData }) => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
                       onClick={() => toggleRow(f.id)}
-                      className={`cursor-pointer group transition-all ${expandedRow === f.id ? 'bg-slate-50' : 'hover:bg-slate-50'} border-b border-slate-50 last:border-none`}
+                      className={`cursor-pointer group transition-all ${expandedRow === f.id ? 'bg-school-paper/50' : 'hover:bg-school-paper/50'} border-b border-school-ink/5 last:border-none`}
                     >
                       <td className="p-10">
                         <div className="flex flex-col">
@@ -47,13 +47,13 @@ const FeesPage = ({ data }: { data: AppData }) => {
                           {expandedRow === f.id && <span className="text-[9px] font-black uppercase text-school-gold mt-1 tracking-widest">Active Viewing</span>}
                         </div>
                       </td>
-                      <td className="p-10 text-school-navy/60 font-medium">{f.admissionFee}</td>
-                      <td className="p-10 text-school-navy/60 font-medium">{f.tuition_fees}</td>
+                      <td className="p-10 text-school-ink/60 font-medium">{f.admissionFee}</td>
+                      <td className="p-10 text-school-ink/60 font-medium">{f.tuition_fees}</td>
                       <td className="p-10">
                         <span className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full font-black text-lg">{f.quarterly}</span>
                       </td>
                       <td className="p-10 text-center">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${expandedRow === f.id ? 'bg-school-navy text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-school-gold group-hover:text-school-navy'}`}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${expandedRow === f.id ? 'bg-school-navy text-white' : 'bg-school-paper/50 text-school-ink/40 group-hover:bg-school-gold group-hover:text-school-navy'}`}>
                           {expandedRow === f.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                         </div>
                       </td>
@@ -61,52 +61,52 @@ const FeesPage = ({ data }: { data: AppData }) => {
                     <AnimatePresence>
                       {expandedRow === f.id && (
                         <tr>
-                          <td colSpan={5} className="p-0 border-b border-slate-100">
+                          <td colSpan={5} className="p-0 border-b border-school-ink/10">
                             <motion.div 
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              className="overflow-hidden bg-slate-50/50"
+                              className="overflow-hidden bg-school-paper/80"
                             >
                               <div className="p-12 pl-24 grid md:grid-cols-3 gap-12">
                                 <div className="space-y-6">
-                                  <h5 className="text-[10px] font-black uppercase tracking-widest text-school-navy/40 flex items-center gap-2">
+                                  <h5 className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 flex items-center gap-2">
                                     <Info size={14} className="text-school-gold" />
                                     Academic Components
                                   </h5>
                                   <div className="space-y-4">
-                                    <div className="flex justify-between items-center py-2 border-b border-slate-200/50">
-                                      <span className="text-sm font-medium text-school-navy/60">Library Access</span>
-                                      <span className="text-sm font-black text-school-navy tracking-tight">₹1,200 / yr</span>
+                                    <div className="flex justify-between items-center py-2 border-b border-school-ink/5">
+                                      <span className="text-sm font-medium text-school-ink/60">Library Access</span>
+                                      <span className="text-sm font-black text-school-ink tracking-tight">₹1,200 / yr</span>
                                     </div>
-                                    <div className="flex justify-between items-center py-2 border-b border-slate-200/50">
-                                      <span className="text-sm font-medium text-school-navy/60">Lab Facilities</span>
-                                      <span className="text-sm font-black text-school-navy tracking-tight">₹2,500 / yr</span>
+                                    <div className="flex justify-between items-center py-2 border-b border-school-ink/5">
+                                      <span className="text-sm font-medium text-school-ink/60">Lab Facilities</span>
+                                      <span className="text-sm font-black text-school-ink tracking-tight">₹2,500 / yr</span>
                                     </div>
-                                    <div className="flex justify-between items-center py-2 border-b border-slate-200/50">
-                                      <span className="text-sm font-medium text-school-navy/60">Digital Resources</span>
-                                      <span className="text-sm font-black text-school-navy tracking-tight">Included</span>
+                                    <div className="flex justify-between items-center py-2 border-b border-school-ink/5">
+                                      <span className="text-sm font-medium text-school-ink/60">Digital Resources</span>
+                                      <span className="text-sm font-black text-school-ink tracking-tight">Included</span>
                                     </div>
                                   </div>
                                 </div>
 
                                 <div className="space-y-6">
-                                  <h5 className="text-[10px] font-black uppercase tracking-widest text-school-navy/40 flex items-center gap-2">
+                                  <h5 className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 flex items-center gap-2">
                                     <ShieldCheck size={14} className="text-school-gold" />
                                     Extra-Curricular
                                   </h5>
                                   <div className="space-y-4">
-                                    <div className="flex justify-between items-center py-2 border-b border-slate-200/50">
-                                      <span className="text-sm font-medium text-school-navy/60">Sports & Fitness</span>
-                                      <span className="text-sm font-black text-school-navy tracking-tight">₹1,800 / yr</span>
+                                    <div className="flex justify-between items-center py-2 border-b border-school-ink/5">
+                                      <span className="text-sm font-medium text-school-ink/60">Sports & Fitness</span>
+                                      <span className="text-sm font-black text-school-ink tracking-tight">₹1,800 / yr</span>
                                     </div>
-                                    <div className="flex justify-between items-center py-2 border-b border-slate-200/50">
-                                      <span className="text-sm font-medium text-school-navy/60">Art & Culture</span>
-                                      <span className="text-sm font-black text-school-navy tracking-tight">₹1,500 / yr</span>
+                                    <div className="flex justify-between items-center py-2 border-b border-school-ink/5">
+                                      <span className="text-sm font-medium text-school-ink/60">Art & Culture</span>
+                                      <span className="text-sm font-black text-school-ink tracking-tight">₹1,500 / yr</span>
                                     </div>
-                                    <div className="flex justify-between items-center py-2 border-b border-slate-200/50">
-                                      <span className="text-sm font-medium text-school-navy/60">Smart Class Levy</span>
-                                      <span className="text-sm font-black text-school-navy tracking-tight">₹1,000 / yr</span>
+                                    <div className="flex justify-between items-center py-2 border-b border-school-ink/5">
+                                      <span className="text-sm font-medium text-school-ink/60">Smart Class Levy</span>
+                                      <span className="text-sm font-black text-school-ink tracking-tight">₹1,000 / yr</span>
                                     </div>
                                   </div>
                                 </div>
@@ -153,8 +153,8 @@ const FeesPage = ({ data }: { data: AppData }) => {
               <CreditCard size={40} />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h4 className="text-3xl font-serif font-black text-school-navy mb-4">Digital Fee Portal</h4>
-              <p className="text-school-navy/50 text-base leading-relaxed max-w-2xl">Pay fees securely through our online digital registration system. We support major credit cards, UPI, and net banking for your convenience.</p>
+              <h4 className="text-3xl font-serif font-black text-school-ink mb-4">Digital Fee Portal</h4>
+              <p className="text-school-ink/50 text-base leading-relaxed max-w-2xl">Pay fees securely through our online digital registration system. We support major credit cards, UPI, and net banking for your convenience.</p>
             </div>
             <button className="px-12 py-5 bg-school-navy text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-school-accent transition-all shadow-xl">
               Proceed to Payment

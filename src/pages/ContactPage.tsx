@@ -82,53 +82,53 @@ const ContactPage = ({ data }: { data: AppData }) => {
                className="space-y-12"
             >
               <div className="space-y-4">
-                <h2 className="text-4xl md:text-6xl font-black text-school-navy tracking-tight">Drop a Message.</h2>
-                <p className="text-lg text-slate-500 font-medium leading-relaxed">Our administrative team usually responds within 24-48 business hours.</p>
+                <h2 className="text-4xl md:text-6xl font-black text-school-ink tracking-tight">Drop a Message.</h2>
+                <p className="text-lg text-school-ink/60 font-medium leading-relaxed">Our administrative team usually responds within 24-48 business hours.</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Your Name</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 ml-1">Your Name</label>
                     <input 
                       required
                       type="text" 
                       value={formData.name}
                       onChange={e => setFormData({...formData, name: e.target.value})}
                       placeholder="e.g. John Doe"
-                      className="w-full bg-slate-100 border-none rounded-2xl py-5 px-8 text-school-navy font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-school-gold/20 transition-all outline-none"
+                      className="w-full bg-school-paper rounded-2xl py-5 px-8 text-school-ink font-bold placeholder:text-school-ink/20 focus:ring-2 focus:ring-school-gold/20 transition-all outline-none border border-school-ink/10"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 ml-1">Email Address</label>
                     <input 
                       required
                       type="email" 
                       value={formData.email}
                       onChange={e => setFormData({...formData, email: e.target.value})}
                       placeholder="email@example.com"
-                      className="w-full bg-slate-100 border-none rounded-2xl py-5 px-8 text-school-navy font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-school-gold/20 transition-all outline-none"
+                      className="w-full bg-school-paper rounded-2xl py-5 px-8 text-school-ink font-bold placeholder:text-school-ink/20 focus:ring-2 focus:ring-school-gold/20 transition-all outline-none border border-school-ink/10"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Subject</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 ml-1">Subject</label>
                   <input 
                     type="text" 
                     value={formData.subject}
                     onChange={e => setFormData({...formData, subject: e.target.value})}
                     placeholder="Briefly describe your inquiry"
-                    className="w-full bg-slate-100 border-none rounded-2xl py-5 px-8 text-school-navy font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-school-gold/20 transition-all outline-none"
+                    className="w-full bg-school-paper rounded-2xl py-5 px-8 text-school-ink font-bold placeholder:text-school-ink/20 focus:ring-2 focus:ring-school-gold/20 transition-all outline-none border border-school-ink/10"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Your Message</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 ml-1">Your Message</label>
                   <textarea 
                     required
                     value={formData.message}
                     onChange={e => setFormData({...formData, message: e.target.value})}
                     placeholder="How can we help you today?"
-                    className="w-full bg-slate-100 border-none rounded-2xl py-5 px-8 text-school-navy font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-school-gold/20 transition-all outline-none h-48 resize-none"
+                    className="w-full bg-school-paper rounded-2xl py-5 px-8 text-school-ink font-bold placeholder:text-school-ink/20 focus:ring-2 focus:ring-school-gold/20 transition-all outline-none h-48 resize-none border border-school-ink/10"
                   />
                 </div>
 
@@ -169,15 +169,15 @@ const ContactPage = ({ data }: { data: AppData }) => {
                     <motion.div 
                       key={i}
                       whileHover={{ scale: 1.02 }}
-                      className="flex items-center gap-8 p-8 bg-white rounded-[40px] shadow-sm border border-slate-50 transition-all"
+                      className="flex items-center gap-8 p-8 bg-school-paper rounded-[40px] shadow-sm border border-school-ink/10 transition-all"
                     >
                       <div className="w-16 h-16 bg-school-gold/10 rounded-[24px] flex items-center justify-center text-school-gold">
                         {info.icon}
                       </div>
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 mb-1">{info.label}</p>
-                        <p className="text-xl md:text-2xl font-black text-school-navy">{info.value}</p>
-                        <p className="text-sm font-medium text-slate-400 mt-1">{info.sub}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-school-ink/30 mb-1">{info.label}</p>
+                        <p className="text-xl md:text-2xl font-black text-school-ink">{info.value}</p>
+                        <p className="text-sm font-medium text-school-ink/40 mt-1">{info.sub}</p>
                       </div>
                     </motion.div>
                   ))}
@@ -193,14 +193,13 @@ const ContactPage = ({ data }: { data: AppData }) => {
                     {data.faqs.map((faq) => (
                       <div 
                         key={faq.id} 
-                        className={`rounded-[32px] overflow-hidden border transition-all ${activeFaq === faq.id ? 'bg-school-navy text-white border-school-navy shadow-xl' : 'bg-slate-50 border-transparent hover:bg-slate-100'}`}
+                        className={`rounded-[32px] overflow-hidden border transition-all ${activeFaq === faq.id ? 'bg-school-ink text-school-paper border-school-ink shadow-xl' : 'bg-school-paper/50 border-school-ink/5 hover:bg-school-paper'}`}
                       >
                         <button 
                           onClick={() => setActiveFaq(activeFaq === faq.id ? null : faq.id)}
                           className="w-full flex items-center justify-between p-8 text-left"
                         >
                           <span className="text-lg font-black leading-tight pr-6">{faq.question}</span>
-                          <ChevronDown className={`shrink-0 transition-transform duration-300 ${activeFaq === faq.id ? 'rotate-180' : ''}`} />
                         </button>
                         <AnimatePresence>
                           {activeFaq === faq.id && (
@@ -210,8 +209,8 @@ const ContactPage = ({ data }: { data: AppData }) => {
                               exit={{ height: 0, opacity: 0 }}
                               className="px-8 pb-8 pt-0"
                             >
-                              <div className={`h-1 w-12 rounded-full mb-6 ${activeFaq === faq.id ? 'bg-school-gold' : 'bg-slate-200'}`} />
-                              <p className={`text-lg font-medium leading-relaxed ${activeFaq === faq.id ? 'text-white/60' : 'text-slate-500'}`}>
+                              <div className={`h-1 w-12 rounded-full mb-6 ${activeFaq === faq.id ? 'bg-school-gold' : 'bg-school-ink/20'}`} />
+                              <p className={`text-lg font-medium leading-relaxed ${activeFaq === faq.id ? 'text-school-paper/60' : 'text-school-ink/60'}`}>
                                 {faq.answer}
                               </p>
                             </motion.div>
@@ -228,21 +227,21 @@ const ContactPage = ({ data }: { data: AppData }) => {
       </section>
 
       {/* Map Section */}
-      <section className="py-20 bg-slate-50 relative overflow-hidden">
+      <section className="py-20 bg-school-paper relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 items-center">
           <div className="lg:col-span-4 space-y-8">
-            <h2 className="text-5xl font-black text-school-navy tracking-tighter leading-none italic">
+            <h2 className="text-5xl font-black text-school-ink tracking-tighter leading-none italic">
               Institutional <br /><span className="text-school-accent">Terrain.</span>
             </h2>
-            <p className="text-lg text-slate-500 font-medium leading-relaxed">
+            <p className="text-lg text-school-ink/60 font-medium leading-relaxed">
               Located in the heart of C-Scheme, our campus is easily accessible from any part of the Pink City.
             </p>
             <div className="flex flex-col gap-4">
-               <div className="flex items-center gap-4 text-school-navy font-bold">
+               <div className="flex items-center gap-4 text-school-ink font-bold">
                  <Clock className="text-school-gold" size={20} />
                  <span>Office: 8:00 AM - 2:00 PM</span>
                </div>
-               <div className="flex items-center gap-4 text-school-navy font-bold">
+               <div className="flex items-center gap-4 text-school-ink font-bold">
                  <Calendar className="text-school-gold" size={20} />
                  <span>Monday — Saturday</span>
                </div>
@@ -251,13 +250,13 @@ const ContactPage = ({ data }: { data: AppData }) => {
               href="https://maps.google.com" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="inline-flex items-center gap-4 text-school-navy font-bold group"
+              className="inline-flex items-center gap-4 text-school-ink font-bold group"
             >
               Get Directions <ArrowRight className="group-hover:translate-x-2 transition-transform" />
             </a>
           </div>
           <div className="lg:col-span-8">
-            <div className="aspect-video w-full rounded-[40px] overflow-hidden bg-slate-200 shadow-2xl relative border-8 border-white">
+            <div className="aspect-video w-full rounded-[40px] overflow-hidden bg-school-paper shadow-2xl relative border-8 border-school-ink/10">
                <iframe 
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3557.88602237072!2d75.8049591761884!3d26.90793746033878!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db421f148e6c7%3A0x6e76cf0e353279c1!2sSt.%20Xavier&#39;s%20School!5e0!3m2!1sen!2sin!4v1713968265432!5m2!1sen!2sin" 
                 width="100%" 

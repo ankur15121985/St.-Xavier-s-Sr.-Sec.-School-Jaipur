@@ -46,8 +46,18 @@ const PageTransition = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
+    if (location.hash) {
+      setTimeout(() => {
+        const id = location.hash.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 500); // Wait for page transition
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname, location.hash]);
 
   return (
     <motion.div
@@ -210,11 +220,16 @@ const DEFAULT_DATA: AppData = {
     { id: '5', grade: 'XI - XII', admissionFee: '₹55,000', tuition_fees: '₹7,200', quarterly: '₹21,600' }
   ],
   links: [
-    { id: '1', title: 'Admission Prospectus 2026-27', url: '#' },
-    { id: '2', title: 'Student & Parent Portal', url: '#' },
-    { id: '3', title: 'Academic Calendar 2025-26', url: '#' },
-    { id: '4', title: 'XAOSA Alumni Registration', url: '#' },
-    { id: '5', title: 'CBSE Affiliation Info', url: '#' }
+    { id: '1', title: 'Schedule for PT1 (2026-27)', url: '#', isPriority: true, icon: 'Calendar' },
+    { id: '2', title: 'Revised Provisional List of Std. XI', url: '#', isPriority: true, icon: 'FileText' },
+    { id: '3', title: 'Class Timetable 6 to 12', url: '#', isPriority: true, icon: 'Calendar' },
+    { id: '4', title: 'Admission Notice for Std. 1', url: '#', isPriority: true, icon: 'Bell' },
+    { id: '5', title: 'Booklet for Session 2025-26', url: '#', isPriority: true, icon: 'FileText' },
+    { id: '6', title: 'Admission Prospectus', url: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf', icon: 'FileText' },
+    { id: 'app-1', title: 'Apply Now 2026-27', url: '#', icon: 'Send' },
+    { id: '7', title: 'Parent Portal', url: '/studybase-app', icon: 'Layout' },
+    { id: '8', title: 'XAOSA Alumni', url: '#', icon: 'Users' },
+    { id: '9', title: 'CBSE Affiliation', url: '#', icon: 'Shield' }
   ],
   events: [
     { id: '1', title: 'Investiture Ceremony 2026', date: 'May 15, 2026', time: '09:00 AM', location: 'St. Ignatius Hall' },
@@ -234,24 +249,22 @@ const DEFAULT_DATA: AppData = {
   menu: [
     { id: '1', label: 'Home', href: '/', parent_id: null, order_index: 0 },
     { id: '2', label: 'About Us', href: '#', parent_id: null, order_index: 1 },
-    { id: '2-1', label: 'Our Founder & Patron', href: '/founder-patron', parent_id: '2', order_index: 0 },
-    { id: '2-2', label: 'Governing Members', href: '/governing-members', parent_id: '2', order_index: 1 },
-    { id: '2-3', label: 'School Anthem', href: '/anthem', parent_id: '2', order_index: 2 },
-    { id: '2-4', label: 'History', href: '/history', parent_id: '2', order_index: 3 },
-    { id: '2-5', label: 'Other Association & Committee', href: '#', parent_id: '2', order_index: 4 },
-    { id: '2-5-1', label: 'Internal Complaints Committee (POSH)', href: '#', parent_id: '2-5', order_index: 0 },
-    { id: '2-5-2', label: 'Internal Grievance Cell', href: '#', parent_id: '2-5', order_index: 1 },
-    { id: '2-5-3', label: 'POCSO Committee', href: '#', parent_id: '2-5', order_index: 2 },
-    { id: '2-5-4', label: 'School Level Fee Committee (SLFC)', href: '#', parent_id: '2-5', order_index: 3 },
-    { id: '2-5-5', label: 'Parent Teacher Association (PTA)', href: '#', parent_id: '2-5', order_index: 4 },
+    { id: '2-1', label: 'Historical view of the school', href: '/history', parent_id: '2', order_index: 0 },
+    { id: '2-2', label: 'our Founder', href: '/founder-patron#founder', parent_id: '2', order_index: 1 },
+    { id: '2-3', label: 'Our Patron', href: '/founder-patron#patron', parent_id: '2', order_index: 2 },
+    { id: '2-4', label: 'School Governing Members', href: '/governing-members', parent_id: '2', order_index: 3 },
+    { id: '2-5', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 4 },
+    { id: '2-6', label: 'Other Association & Committee', href: '/school-info', parent_id: '2', order_index: 5 },
     { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
     { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
     { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
     { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: '3', order_index: 2 },
     { id: '3-4', label: 'Studybase Mobile App', href: '/studybase-app', parent_id: '3', order_index: 3 },
+    { id: '3-5', label: 'Prospectus', href: '/admission-policy#prospectus', parent_id: '3', order_index: 4 },
     { id: '4', label: 'Academics', href: '#', parent_id: null, order_index: 3 },
     { id: '4-1', label: 'Jesuit Education Objectives', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
-    { id: '4-2', label: 'Staff Directory', href: '/staff', parent_id: '4', order_index: 1 },
+    { id: '4-2', label: 'Examinations & Premotions', href: '#', parent_id: '4', order_index: 1 },
+    { id: '4-3', label: 'rules & Discipline', href: '#', parent_id: '4', order_index: 2 },
     { id: '5', label: 'Activities', href: '#', parent_id: null, order_index: 4 },
     { id: '5-1', label: 'Co-Curricular Activities', href: '/co-curricular', parent_id: '5', order_index: 0 },
     { id: '5-2', label: 'Fr. Batson Sports Complex', href: '/sports-complex', parent_id: '5', order_index: 1 },
@@ -261,13 +274,15 @@ const DEFAULT_DATA: AppData = {
     { id: '5-6', label: 'Student Achievements', href: '/achievements', parent_id: '5', order_index: 5 },
     { id: '6', label: 'CBSE Corner', href: '#', parent_id: null, order_index: 5 },
     { id: '6-1', label: 'School Information', href: '/school-info', parent_id: '6', order_index: 0 },
+    { id: '6-2', label: 'Fire safety', href: '#', parent_id: '6', order_index: 1 },
     { id: '7', label: 'For Parents', href: '#', parent_id: null, order_index: 6 },
     { id: '7-1', label: 'Obligations of Parents', href: '/parent-obligations', parent_id: '7', order_index: 0 },
     { id: '8', label: 'Career', href: '#', parent_id: null, order_index: 7 },
     { id: '8-1', label: 'Careers', href: '/careers', parent_id: '8', order_index: 0 },
     { id: '9', label: 'More', href: '#', parent_id: null, order_index: 8 },
     { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
-    { id: '9-2', label: 'Gallery', href: '/gallery', parent_id: '9', order_index: 1 },
+    { id: '9-3', label: 'Mandatory disclosure', href: '#', parent_id: '9', order_index: 1 },
+    { id: '9-4', label: 'Transfer Certificate', href: '#', parent_id: '9', order_index: 2 },
     { id: '10', label: 'Contact', href: '/contact', parent_id: null, order_index: 9 },
   ],
   carousel: [
@@ -279,7 +294,52 @@ const DEFAULT_DATA: AppData = {
     { id: 'f1', question: 'What are the school timings?', answer: 'Junior School: 7:30 AM - 12:30 PM. Senior School: 7:30 AM - 1:30 PM.', category: 'General', order_index: 0 },
     { id: 'f2', question: 'Is there a transport facility?', answer: 'Yes, the school provides bus facilities covering most major parts of Jaipur city.', category: 'General', order_index: 1 }
   ],
-  messages: []
+  messages: [],
+  settings: {
+    id: 'global',
+    applyNowEnabled: true,
+    applyNowUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
+    applyNowLabel: 'Apply 2026-27',
+    siteName: "St. Xavier's Sr. Sec. School, Jaipur",
+    siteLogo: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
+    contactEmail: 'xaviersjaipur@gmail.com',
+    contactPhone: '0141-2372336, 2362436',
+    contactAddress: 'Bhagwan Das Road, C-Scheme, Jaipur - 302001, Rajasthan, India'
+  },
+  content: {
+    id: 'global',
+    heroTitle1: 'Beyond',
+    heroTitle2: 'Imagination.',
+    heroBadge: 'A Legacy of Jesuit Excellence',
+    heroDescription: 'Step into a world where tradition meets innovation. Empowering leaders since 1941.',
+    carouselBranding: 'Jaipur Legacy.',
+    aboutBadge: 'Welcome to Excellence',
+    aboutTitle1: 'About',
+    aboutTitle2: 'St. Xavier’s School.',
+    aboutDescription: 'Established in 1941, St. Xavier\'s School, Jaipur, is a premier Jesuit institution dedicated to the holistic development of its students. Rooted in the rich heritage of the Society of Jesus, we strive to nurture "men and women for others" through academic excellence, character building, and social responsibility.',
+    mottoTitle: 'Motto',
+    mottoDescription: '"For God and Country" represents our core ethos of service and devotion.',
+    historyButton: 'Discover Our Story',
+    exploreButton: 'Explore Campus',
+    nodesTitle1: 'Vital',
+    nodesTitle2: 'Nodes.',
+    nodesDescription: 'The administrative heart of our institution, condensed for your convenience.',
+    helpdeskLabel: 'Support Helpdesk',
+    wiredTitle: 'Stay Wired.',
+    wiredBadge: 'Real-time Institutional Heartbeat',
+    principalBadge: "Guardian's Vision",
+    principalTitle1: 'Lead',
+    principalTitle2: 'with',
+    principalTitle3: 'Grace.',
+    principalQuote: 'We cultivate individuals of character, resilient in spirit and enlightened in soul. Education is the journey of becoming.',
+    principalButton: 'The Full Narrative',
+    regencyBadge: 'The Guardians',
+    regencyTitle1: 'The',
+    regencyTitle2: 'Regency.',
+    oeuvreTitle1: 'Campus',
+    oeuvreTitle2: 'Oeuvre.',
+    oeuvreDescription: 'A visual collective capturing the vibrant soul of St. Xavier\'s Jaipur.'
+  }
 };
 
 const DataLoader = ({ children, data, setData, loading, setLoading }: { children: React.ReactNode, data: AppData, setData: (d: AppData) => void, loading: boolean, setLoading: (l: boolean) => void }) => {
@@ -303,12 +363,32 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
           const merged = { ...DEFAULT_DATA };
           Object.keys(fetchedData).forEach(key => {
             const k = key as keyof AppData;
-            if (fetchedData[k] && fetchedData[k]!.length > 0) {
-              merged[k] = fetchedData[k] as any;
+            let val = fetchedData[k];
+            if (val) {
+              if (Array.isArray(val)) {
+                if (val.length > 0) {
+                  if (k === 'menu') {
+                    // Filter out deprecated or duplicate menu items
+                    val = (val as any[]).filter(m => 
+                      m.label !== 'Staff Directory' && 
+                      m.id !== '2-7' &&
+                      m.label !== 'School ANthem'
+                    );
+                    
+                    const fetchedIds = new Set((val as any[]).map(m => m.id));
+                    const missing = DEFAULT_DATA.menu.filter(m => !fetchedIds.has(m.id));
+                    merged[k] = [...(val as any[]), ...missing] as any;
+                  } else {
+                    merged[k] = val as any;
+                  }
+                }
+              } else {
+                merged[k] = val as any;
+              }
             }
           });
           
-          if (fetchedData.menu?.length > 0) {
+          if (fetchedData.menu?.length > 0 && isAdmin) {
             const fetchedIds = new Set(fetchedData.menu.map((m: any) => m.id));
             const missing = DEFAULT_DATA.menu.filter(m => !fetchedIds.has(m.id));
             
@@ -321,7 +401,14 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
               if (refresh) {
                 Object.keys(refresh).forEach(k => {
                   const key = k as keyof AppData;
-                  if (refresh[key] && refresh[key]!.length > 0) latest[key] = refresh[key] as any;
+                  const val = refresh[key];
+                  if (val) {
+                    if (Array.isArray(val)) {
+                      if (val.length > 0) latest[key] = val as any;
+                    } else {
+                      latest[key] = val as any;
+                    }
+                  }
                 });
               }
               setData(latest);

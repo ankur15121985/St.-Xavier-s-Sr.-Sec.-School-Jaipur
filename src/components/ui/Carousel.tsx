@@ -75,7 +75,7 @@ export const Carousel = ({ images, autoPlayInterval = 5000 }: CarouselProps) => 
   };
 
   return (
-    <div className="relative w-full h-[60vh] md:h-[85vh] overflow-hidden group rounded-[60px]">
+    <div className="relative w-full h-full overflow-hidden group">
       <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={currentIndex}
@@ -105,13 +105,13 @@ export const Carousel = ({ images, autoPlayInterval = 5000 }: CarouselProps) => 
       <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 flex justify-between z-10 pointer-events-none">
         <button
           onClick={prevStep}
-          className="w-14 h-14 bg-white/80 backdrop-blur-xl text-school-navy rounded-2xl flex items-center justify-center hover:bg-white hover:scale-110 transition-all active:scale-95 pointer-events-auto shadow-2xl"
+          className="w-14 h-14 bg-school-paper/80 backdrop-blur-xl text-school-ink rounded-2xl flex items-center justify-center hover:bg-school-paper hover:scale-110 transition-all active:scale-95 pointer-events-auto shadow-2xl"
         >
           <ChevronLeft size={24} />
         </button>
         <button
           onClick={nextStep}
-          className="w-14 h-14 bg-white/80 backdrop-blur-xl text-school-navy rounded-2xl flex items-center justify-center hover:bg-white hover:scale-110 transition-all active:scale-95 pointer-events-auto shadow-2xl"
+          className="w-14 h-14 bg-school-paper/80 backdrop-blur-xl text-school-ink rounded-2xl flex items-center justify-center hover:bg-school-paper hover:scale-110 transition-all active:scale-95 pointer-events-auto shadow-2xl"
         >
           <ChevronRight size={24} />
         </button>

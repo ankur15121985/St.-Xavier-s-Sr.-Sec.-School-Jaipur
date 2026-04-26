@@ -18,7 +18,7 @@ const StudybaseAppPage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="pt-32 bg-school-paper min-h-screen">
         {/* Banner Section */}
         <section className="py-20 bg-school-navy relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
@@ -41,7 +41,7 @@ const StudybaseAppPage = ({ data }: { data: AppData }) => {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="glass-surface bg-white p-12 md:p-20 rounded-[64px] border border-white shadow-2xl"
+            className="glass-surface bg-school-paper p-12 md:p-20 rounded-[64px] border border-school-ink/10 shadow-2xl"
           >
             <div className="flex flex-col lg:flex-row gap-16 items-center">
               <div className="lg:w-1/2 space-y-8">
@@ -49,28 +49,28 @@ const StudybaseAppPage = ({ data }: { data: AppData }) => {
                   <div className="w-12 h-12 bg-school-gold/10 rounded-2xl flex items-center justify-center text-school-gold">
                     <Smartphone size={24} />
                   </div>
-                  <h2 className="text-3xl font-serif font-black text-school-navy tracking-tight uppercase italic">Stay Connected</h2>
+                  <h2 className="text-3xl font-serif font-black text-school-ink tracking-tight uppercase italic">Stay Connected</h2>
                 </div>
-                <div className="space-y-6 text-xl text-school-navy/80 font-light leading-relaxed">
+                <div className="space-y-6 text-xl text-school-ink/80 font-light leading-relaxed">
                   <p>
-                    We are happy to introduce <span className="font-bold text-school-navy uppercase">STUDYBASE MOBILE APPLICATION</span> to track your progress, school notifications, tuition fee and so much more.
+                    We are happy to introduce <span className="font-bold text-school-ink uppercase">STUDYBASE MOBILE APPLICATION</span> to track your progress, school notifications, tuition fee and so much more.
                   </p>
                   <p>
                     All school updates available at just a click! School has implemented Studybase for your benefits. Please download the app for <span className="text-school-gold font-bold uppercase">FREE</span> from the links given below.
                   </p>
-                  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex items-start gap-4">
-                    <ShieldCheck className="text-school-navy shrink-0 mt-1" size={20} />
-                    <p className="text-sm font-medium text-school-navy italic">
+                  <div className="bg-school-paper/50 p-6 rounded-3xl border border-school-ink/10 flex items-start gap-4">
+                    <ShieldCheck className="text-school-ink shrink-0 mt-1" size={20} />
+                    <p className="text-sm font-medium text-school-ink italic">
                       This is mandatory for all students to ensure timely communication and access to academic resources.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-4 pt-8">
-                   <a href="#" className="flex items-center gap-3 px-8 py-4 bg-black text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
+                   <a href="https://play.google.com/store/apps/details?id=com.studybase" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-8 py-4 bg-black text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
                      <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" className="h-8" referrerPolicy="no-referrer" />
                    </a>
-                   <a href="#" className="flex items-center gap-3 px-8 py-4 bg-black text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
+                   <a href="https://apps.apple.com/in/app/studybase/id1435205565" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-8 py-4 bg-black text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
                      <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" className="h-8" referrerPolicy="no-referrer" />
                    </a>
                 </div>
@@ -94,7 +94,7 @@ const StudybaseAppPage = ({ data }: { data: AppData }) => {
         {/* Activation Steps */}
         <section className="py-24 max-w-7xl mx-auto px-6 lg:px-12">
           <div className="text-center mb-20">
-             <h2 className="text-4xl md:text-5xl font-serif font-black text-school-navy italic tracking-tight mb-4 uppercase">Steps to activate the Studybase App</h2>
+             <h2 className="text-4xl md:text-5xl font-serif font-black text-school-ink italic tracking-tight mb-4 uppercase">Steps to activate the Studybase App</h2>
              <div className="w-24 h-1 bg-school-gold mx-auto rounded-full"></div>
           </div>
 
@@ -106,16 +106,16 @@ const StudybaseAppPage = ({ data }: { data: AppData }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="relative group p-10 bg-white border border-slate-100 rounded-[40px] hover:shadow-2xl transition-all"
+                className="relative group p-10 bg-school-paper border border-school-ink/10 rounded-[40px] hover:shadow-2xl transition-all"
               >
                 <div className="absolute -top-6 -left-6 w-14 h-14 bg-school-navy text-school-gold rounded-2xl flex items-center justify-center font-black text-xl shadow-xl group-hover:scale-110 transition-transform">
                   {idx + 1}
                 </div>
                 <div className="mt-4 space-y-4">
-                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-school-gold">
+                  <div className="w-10 h-10 bg-school-paper/50 rounded-xl flex items-center justify-center text-school-gold">
                     <Zap size={20} />
                   </div>
-                  <p className="text-school-navy font-bold text-sm tracking-tight leading-relaxed">
+                  <p className="text-school-ink font-bold text-sm tracking-tight leading-relaxed">
                     {step}
                   </p>
                 </div>

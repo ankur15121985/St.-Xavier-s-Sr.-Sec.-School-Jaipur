@@ -6,7 +6,7 @@ import { AppData } from '../types';
 const FounderPatronPage = ({ data }: { data: AppData }) => {
   return (
     <Layout data={data}>
-      <div className="bg-slate-50 min-h-screen">
+      <div className="bg-school-paper min-h-screen">
         {/* Banner Section */}
         <section className="relative h-[65vh] md:h-[50vh] overflow-hidden group">
           <img 
@@ -31,18 +31,18 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Content Section */}
-        <section className="py-16 md:py-24 bg-white relative z-10 -mt-12 md:-mt-20 rounded-t-[40px] md:rounded-t-[64px] shadow-2xl">
+        <section className="py-16 md:py-24 bg-school-paper relative z-10 -mt-12 md:-mt-20 rounded-t-[40px] md:rounded-t-[64px] shadow-2xl">
           <div className="max-w-6xl mx-auto px-6 lg:px-12">
             
             {/* Saint Francis Xavier Section (Our Patron) */}
-            <div className="grid lg:grid-cols-12 gap-16 items-start mb-32">
+            <div id="patron" className="grid lg:grid-cols-12 gap-16 items-start mb-32">
               <motion.div 
                 initial={{ opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 className="lg:col-span-5 relative"
               >
-                <div className="aspect-[3/4] rounded-[40px] overflow-hidden shadow-2xl border-8 border-white group">
+                <div className="aspect-[3/4] rounded-[40px] overflow-hidden shadow-2xl border-8 border-school-paper group">
                    <img 
                       src="https://picsum.photos/seed/st_francis_xavier/600/800" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
@@ -64,16 +64,16 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
               >
                 <div className="space-y-4">
                   <h2 className="text-school-gold font-black uppercase text-sm tracking-[0.3em]">Our Patron</h2>
-                  <h3 className="text-5xl font-serif font-black text-school-navy tracking-tight">The Apostle of the Indies</h3>
+                  <h3 className="text-5xl font-serif font-black text-school-ink tracking-tight">The Apostle of the Indies</h3>
                 </div>
 
-                <div className="bg-slate-50 p-10 rounded-[32px] border border-slate-100 italic font-medium text-xl text-school-navy leading-relaxed relative text-justify">
+                <div className="bg-school-paper/50 p-10 rounded-[32px] border border-school-ink/10 italic font-medium text-xl text-school-ink leading-relaxed relative text-justify">
                    <span className="absolute -top-6 -left-2 text-7xl text-school-gold opacity-30">"</span>
                    Jesus asked, "What profit would there be for one to gain the whole world and forfeit his soul?" (Matthew 16:26a).
-                   <p className="mt-4 text-[10px] font-sans font-black uppercase tracking-widest not-italic text-school-navy/40 text-left">— Reflection of Francis Xavier</p>
+                   <p className="mt-4 text-[10px] font-sans font-black uppercase tracking-widest not-italic text-school-ink/40 text-left">— Reflection of Francis Xavier</p>
                 </div>
 
-                <div className="space-y-6 text-lg text-school-navy/70 leading-relaxed font-light text-justify">
+                <div className="space-y-6 text-lg text-school-ink/70 leading-relaxed font-light text-justify">
                    <p>
                     These words were repeated to a young teacher of philosophy who had a highly promising career in academics, with success and a life of prestige and honor before him. Francis Xavier, 24 at the time, and living and teaching in Paris, did not heed these words at once. They came from a good friend, Ignatius of Loyola (July 31), whose tireless persuasion finally won the young man to Christ. 
                   </p>
@@ -94,7 +94,7 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
             </div>
 
             {/* Saint Ignatius of Loyola Section (Our Founder) */}
-            <div className="pt-24 border-t border-slate-100 flex flex-col items-center">
+            <div id="founder" className="pt-24 border-t border-school-ink/10 flex flex-col items-center">
                <motion.div 
                  initial={{ opacity: 0, y: 30 }}
                  whileInView={{ opacity: 1, y: 0 }}
@@ -102,8 +102,8 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
                  className="text-center max-w-3xl mb-16"
                >
                   <h4 className="text-school-gold font-black uppercase text-sm tracking-[0.3em] mb-4">Our Founder</h4>
-                  <h3 className="text-6xl font-serif font-black text-school-navy tracking-tight mb-8">Saint Ignatius of Loyola</h3>
-                  <p className="text-xl text-school-navy/60 font-light leading-relaxed">
+                  <h3 className="text-6xl font-serif font-black text-school-ink tracking-tight mb-8">Saint Ignatius of Loyola</h3>
+                  <p className="text-xl text-school-ink/60 font-light leading-relaxed">
                     The visionary who transformed a soldier's ambition into a worldwide mission for the "Greater Glory of God" (Ad Maiorem Dei Gloriam).
                   </p>
                </motion.div>
@@ -120,10 +120,10 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: i * 0.1 }}
-                      className="p-10 glass-surface rounded-[40px] border border-slate-100 shadow-sm"
+                      className="p-10 glass-surface rounded-[40px] border border-school-ink/10 shadow-sm"
                     >
-                      <h5 className="text-xl font-serif font-black text-school-navy mb-4">{feat.title}</h5>
-                      <p className="text-sm text-school-navy/50 leading-relaxed font-light">{feat.desc}</p>
+                      <h5 className="text-xl font-serif font-black text-school-ink mb-4">{feat.title}</h5>
+                      <p className="text-sm text-school-ink/50 leading-relaxed font-light">{feat.desc}</p>
                     </motion.div>
                   ))}
                </div>

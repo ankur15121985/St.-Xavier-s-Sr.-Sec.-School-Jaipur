@@ -71,10 +71,12 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
 
   const toggleSelectAll = () => {
     const currentItems = data[activeSection];
-    if (selectedIds.size === currentItems.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(currentItems.map((item: any) => item.id)));
+    if (Array.isArray(currentItems)) {
+      if (selectedIds.size === currentItems.length) {
+        setSelectedIds(new Set());
+      } else {
+        setSelectedIds(new Set(currentItems.map((item: any) => item.id)));
+      }
     }
   };
 
@@ -104,9 +106,9 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   };
 
   const renderItemCard = (item: any, section: keyof AppData) => (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={item.id} className={`bg-white p-6 md:p-8 rounded-3xl shadow-sm border transition-all flex flex-col md:flex-row items-start gap-6 md:gap-8 group ${selectedIds.has(item.id) ? 'border-school-gold ring-1 ring-school-gold/20' : 'border-slate-200'}`}>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={item.id} className={`bg-school-paper p-6 md:p-8 rounded-3xl shadow-sm border transition-all flex flex-col md:flex-row items-start gap-6 md:gap-8 group ${selectedIds.has(item.id) ? 'border-school-gold ring-1 ring-school-gold/20' : 'border-school-ink/10'}`}>
       <div className="flex items-center justify-between w-full md:w-auto">
-        <button onClick={() => toggleSelect(item.id)} className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${selectedIds.has(item.id) ? 'bg-school-gold border-school-gold text-school-navy scale-110' : 'border-slate-200 group-hover:border-slate-300'}`}>
+        <button onClick={() => toggleSelect(item.id)} className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${selectedIds.has(item.id) ? 'bg-school-gold border-school-gold text-school-navy scale-110' : 'border-school-ink/10 group-hover:border-school-ink/20'}`}>
           {selectedIds.has(item.id) && <Check size={14} strokeWidth={4} />}
         </button>
         <button onClick={() => setItemToDelete(item.id)} className="md:hidden p-3 rounded-xl bg-red-50 text-red-400"><Trash2 size={18} /></button>
@@ -114,22 +116,22 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.keys({
           ...item,
-          ...(section === 'notices' || section === 'fees' ? { attachmentUrl: item.attachmentUrl || '' } : {})
+          ...( ['notices', 'fees', 'links', 'events', 'achievements'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
         }).filter(k => k !== 'id').map(field => (
           <div key={field} className="space-y-2">
-            <label className="text-[9px] font-black uppercase tracking-widest text-slate-300">{field as string}</label>
+            <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30">{field as string}</label>
             {field === 'bio' || field === 'description' || field === 'content' ? (
-               <textarea value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium h-24 focus:ring-1 focus:ring-school-gold transition-all resize-none" />
-            ) : (field.toLowerCase().includes('url') || field.toLowerCase().includes('image') || field.toLowerCase().includes('link') || field.toLowerCase().includes('file') || field.toLowerCase().includes('pdf') || field.toLowerCase().includes('attachment')) ? (
+               <textarea value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium h-24 focus:ring-1 focus:ring-school-gold transition-all resize-none" />
+            ) : (field.toLowerCase().includes('url') || field.toLowerCase().includes('image') || field.toLowerCase().includes('link') || field.toLowerCase().includes('file') || field.toLowerCase().includes('pdf') || field.toLowerCase().includes('attachment') || field === 'href' || field === 'src') ? (
               <div className="space-y-4">
-                <input value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all" />
+                <input value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all" />
                 <div className="flex items-center gap-4">
-                  <label className="flex-1 px-4 py-3 bg-school-navy/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-school-navy cursor-pointer hover:bg-school-navy/10 transition-all text-center">
+                  <label className="flex-1 px-4 py-3 bg-school-ink/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-school-ink cursor-pointer hover:bg-school-ink/10 transition-all text-center">
                     {uploadingPath === `${section}-${item.id}-${field}` ? 'Uploading...' : 'Browse & Upload'}
                     <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, field as string, section)} disabled={!!uploadingPath} />
                   </label>
                   {(field.toLowerCase().includes('url') || field.toLowerCase().includes('image')) && item[field] && !item[field].endsWith('.pdf') && (
-                    <div className="w-12 h-12 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-lg overflow-hidden border border-school-ink/10 bg-school-ink/5 flex items-center justify-center">
                       <img src={item[field]} className="w-full h-full object-cover" />
                     </div>
                   )}
@@ -139,7 +141,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
               <select 
                 value={item[field] ?? 'Faculty'} 
                 onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
-                className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
+                className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
               >
                 <option value="Management">Management</option>
                 <option value="Faculty">Faculty</option>
@@ -149,7 +151,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
               <select 
                 value={item[field] || ''} 
                 onChange={(e) => handleUpdate(item.id, field as string, e.target.value || '', section)} 
-                className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
+                className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
               >
                 <option value="">None (Top Level)</option>
                 {data.menu.filter(m => !m.parent_id && m.id !== item.id).map(m => (
@@ -160,7 +162,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
               <select 
                 value={item[field] || 'new'} 
                 onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
-                className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
+                className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
               >
                 <option value="new">New</option>
                 <option value="read">Read</option>
@@ -168,11 +170,15 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
               </select>
             ) : (
               <div className="space-y-2">
-                <input value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-slate-50 border-none rounded-xl p-3 text-xs text-school-navy font-medium focus:ring-1 focus:ring-school-gold transition-all" />
-                {(field === 'href' || (section === 'fees' && field === 'grade') || (section === 'notices' && field === 'title')) && (
+                <input value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all" />
+                {(field === 'href' || field === 'label' || field === 'title' || (section === 'fees' && field === 'grade') || (section === 'notices' && field === 'title')) && (
                   <label className="block text-center px-4 py-2 bg-school-gold/10 text-school-gold rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
-                     {uploadingPath === `${section}-${item.id}-attachmentUrl` ? 'Uploading...' : (section === 'fees' ? 'Upload Fee PDF' : section === 'notices' ? 'Upload Notice PDF/Image' : 'Upload Document')}
-                     <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, (section === 'fees' || section === 'notices') ? 'attachmentUrl' : (field as string), section)} disabled={!!uploadingPath} />
+                     {uploadingPath === `${section}-${item.id}-attachmentUrl` ? 'Uploading...' : (section === 'fees' ? 'Upload Fee PDF' : section === 'notices' ? 'Upload Notice PDF/Image' : 'Upload Attachment')}
+                     <input type="file" className="hidden" onChange={(e) => {
+                       const targetField = (['notices', 'fees', 'events', 'achievements', 'links'].includes(section)) ? 'attachmentUrl' : 
+                                           (section === 'menu' ? 'href' : field);
+                       handleFileUpload(e, item.id, targetField, section);
+                     }} disabled={!!uploadingPath} />
                   </label>
                 )}
               </div>
@@ -180,7 +186,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
           </div>
         ))}
       </div>
-      <button onClick={() => setItemToDelete(item.id)} className="p-4 rounded-2xl bg-red-50 text-red-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-100">
+      <button onClick={() => setItemToDelete(item.id)} className="p-4 rounded-2xl bg-red-400/10 text-red-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-400/20">
         <Trash2 size={20} />
       </button>
     </motion.div>
@@ -189,21 +195,67 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   const globalResults = getGlobalSearchResults();
 
   const handleUpdate = (id: string, field: string, value: any, section: keyof AppData) => {
-    const updated = data[section].map((item: any) =>
+    // Optimization: Create a copy of the entire data object to avoid staleness in debounced saves
+    let currentData = { ...data };
+
+    if (section === 'settings') {
+      const updatedSettings = { ...data.settings, [field]: value };
+      currentData.settings = updatedSettings;
+      setData(currentData);
+      
+      const timerId = `save-settings`;
+      if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+      (window as any)[timerId] = setTimeout(async () => {
+        setSavePending(true);
+        try {
+          await firebaseService.saveItem('settings', updatedSettings);
+          showToast(`Settings (${field}) updated in Firebase`);
+        } catch (err: any) {
+          showToast('Settings sync failed', 'error');
+        } finally {
+          setSavePending(false);
+        }
+      }, 1000);
+      return;
+    }
+
+    if (section === 'content') {
+      const updatedContent = { ...data.content, [field]: value };
+      currentData.content = updatedContent;
+      setData(currentData);
+      
+      const timerId = `save-content`;
+      if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+      (window as any)[timerId] = setTimeout(async () => {
+        setSavePending(true);
+        try {
+          await firebaseService.saveItem('content', updatedContent);
+          showToast('Content narrative synced');
+        } catch (err: any) {
+          showToast('Content sync failed', 'error');
+        } finally {
+          setSavePending(false);
+        }
+      }, 1000);
+      return;
+    }
+
+    const updated = data[section] as any[];
+    const newItems = updated.map((item: any) =>
       item.id === id ? { ...item, [field]: value } : item
     );
-    setData({ ...data, [section]: updated });
+    setData({ ...data, [section]: newItems });
     
     // Auto-save logic with debounce
     const timerId = `save-${section as string}-${id}`;
     if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
     (window as any)[timerId] = setTimeout(async () => {
-      const item = updated.find((i: any) => i.id === id);
+      const item = newItems.find((i: any) => i.id === id);
       if (item) {
         setSavePending(true);
         try {
           await firebaseService.saveItem(section, item);
-          showToast('Changes synced to cloud');
+          showToast(`Synced ${section} to Firebase`);
         } catch (err: any) {
           console.error('Sync failed:', err);
           const msg = err.message.startsWith('{') ? JSON.parse(err.message).error : err.message;
@@ -218,7 +270,10 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   const handleBulkUpdate = async () => {
     if (!bulkEditField || selectedIds.size === 0) return;
 
-    const updatedSection = data[activeSection].map((item: any) => 
+    const current = data[activeSection];
+    if (!Array.isArray(current)) return;
+    
+    const updatedSection = current.map((item: any) => 
       selectedIds.has(item.id) ? { ...item, [bulkEditField]: bulkEditValue } : item
     );
 
@@ -253,10 +308,13 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       }
       
       showToast(`Successfully deleted from ${activeSection as string}`);
-      setData({ 
-        ...data, 
-        [activeSection]: data[activeSection].filter((i: any) => !idList.includes(i.id)) 
-      });
+      const current = data[activeSection];
+      if (Array.isArray(current)) {
+        setData({ 
+          ...data, 
+          [activeSection]: current.filter((i: any) => !idList.includes(i.id)) 
+        });
+      }
       setItemToDelete(null);
       setSelectedIds(new Set());
     } catch (err: any) {
@@ -299,15 +357,18 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     } else if (tableStr === 'links') {
       newItem.title = 'New Link';
       newItem.url = '#';
+      newItem.attachmentUrl = '';
     } else if (tableStr === 'events') {
       newItem.title = 'New School Event';
       newItem.date = new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
       newItem.time = '10:00 AM - 12:00 PM';
       newItem.location = 'St. Xavier\'s Jaipur Main Campus';
+      newItem.attachmentUrl = '';
     } else if (tableStr === 'achievements') {
       newItem.title = 'Achievement Title';
       newItem.year = '2026';
       newItem.description = 'Success story detail...';
+      newItem.attachmentUrl = '';
     } else if (tableStr === 'studentHonors') {
       newItem.name = 'New Honor Student';
       newItem.category = 'Category (e.g. JEE Mains)';
@@ -337,7 +398,10 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     setSavePending(true);
     try {
       await firebaseService.saveItem(activeSection, newItem);
-      setData({ ...data, [activeSection]: [newItem, ...data[activeSection]] });
+      const current = data[activeSection];
+      if (Array.isArray(current)) {
+        setData({ ...data, [activeSection]: [newItem, ...current] });
+      }
       showToast('Item added and synced to cloud');
     } catch (err: any) {
       const msg = err.message.startsWith('{') ? JSON.parse(err.message).error : err.message;
@@ -369,11 +433,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     setUploadingPath(`${section}-${id}-${field}`);
     
     // Determine folder based on section
-    const folder = section === 'fees' ? 'fees' : 
-                   section === 'notices' ? 'notices' : 
-                   section === 'staff' ? 'staff' : 
-                   section === 'gallery' ? 'gallery' : 
-                   section === 'carousel' ? 'carousel' : 'misc';
+    const folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors'].includes(section as string)) ? section : 'misc';
 
     try {
       // 1. Try Firebase Storage first
@@ -401,30 +461,32 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
         body: formData
       });
       
-      if (res.ok) {
-        const text = await res.text();
-        try {
-          const result = JSON.parse(text);
-          console.log(`[Upload] Local Success: ${result.url}`);
-          handleUpdate(id, field, result.url, section);
-          showToast('Media uploaded to local server (Cloud Sync Pending)', 'success');
-        } catch (parseErr) {
-          console.error(`[Upload] Failed to parse local success response as JSON. Body starts with: ${text.substring(0, 100)}`);
-          throw new Error('Server returned invalid response format');
+        if (res.ok) {
+          const text = await res.text();
+          try {
+            const result = JSON.parse(text);
+            console.log(`[Upload] Local Success: ${result.url}`);
+            handleUpdate(id, field, result.url, section);
+            showToast('Media uploaded to local server (Cloud Sync Pending)', 'success');
+          } catch (parseErr) {
+            console.error(`[Upload] Failed to parse local success response as JSON. Status: ${res.status}. Body: ${text.substring(0, 100)}...`);
+            showToast('Server returned invalid data format. Check server logs.', 'error');
+            throw new Error('Server returned invalid response format');
+          }
+        } else {
+          const statusText = res.statusText;
+          const status = res.status;
+          const text = await res.text();
+          let errorMsg = `Server error (${status}: ${statusText})`;
+          try {
+            const errorData = JSON.parse(text);
+            errorMsg = errorData.error || errorMsg;
+          } catch (e) {
+            console.warn(`[Upload] Non-OK response (${status}) was not JSON. Body start: ${text.substring(0, 50)}`);
+          }
+          console.error(`[Upload] Local Failed: ${errorMsg}`);
+          showToast(`Upload failed: ${errorMsg}`, 'error');
         }
-      } else {
-        let errorMsg = 'Server error';
-        const text = await res.text();
-        try {
-          const errorData = JSON.parse(text);
-          errorMsg = errorData.error || errorMsg;
-        } catch (e) {
-          errorMsg = `${res.status} ${res.statusText}`;
-          console.warn(`[Upload] Non-OK response was not JSON: ${text.substring(0, 100)}`);
-        }
-        console.error(`[Upload] Local Failed: ${errorMsg}`);
-        showToast(`Upload failed: ${errorMsg}`, 'error');
-      }
     } catch (err) {
       console.error('[Upload] Process error:', err);
       showToast('Network error during upload', 'error');
@@ -436,62 +498,39 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   const uploadPendingItem = async (pendingItem: PendingGalleryItem) => {
     setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'uploading', progress: 10 } : p));
     
-    const formData = new FormData();
-    formData.append('file', pendingItem.file); // Use 'file' to match /api/upload expectations
-
     try {
       // 1. Try Firebase Storage
       try {
+        console.log(`[Staging] Uploading ${pendingItem.file.name} to Firebase Storage...`);
         const firebaseUrl = await storageService.uploadFile(pendingItem.file, 'gallery');
         setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: firebaseUrl } : p));
-        
-        const newItem = { id: pendingItem.id, url: firebaseUrl, caption: pendingItem.caption };
-        setData({ ...data, gallery: [newItem, ...(data.gallery || [])] });
-        await firebaseService.saveItem('gallery', newItem);
-        showToast('Gallery image synced to cloud', 'success');
         return;
-      } catch (fbErr) {
-        console.warn('Firebase Storage gallery upload failed, falling back to local:', fbErr);
+      } catch (fbErr: any) {
+        console.warn('[Staging] Firebase Storage failed, falling back to local:', fbErr);
       }
 
       // 2. Fallback to local
-      const res = await fetch('/api/upload', { // Use /api/upload instead of /api/gallery/upload
+      const formData = new FormData();
+      formData.append('file', pendingItem.file);
+      
+      const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
       
       if (!res.ok) {
-        const text = await res.text();
-        let errorMessage = 'Upload failed';
-        try {
-          const errorData = JSON.parse(text);
-          errorMessage = errorData.error || errorMessage;
-        } catch (e) {
-          // Fallback if not JSON
-          errorMessage = `Error ${res.status}: ${res.statusText}`;
-          console.warn(`[Upload] Gallery upload failed with non-JSON response: ${text.substring(0, 100)}`);
-        }
-        throw new Error(errorMessage);
+        throw new Error(`Server Error: ${res.status}`);
       }
 
-      const text = await res.text();
-      try {
-        const result = JSON.parse(text);
-        if (result.url) {
-          setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: result.url } : p));
-          const newItem = { id: pendingItem.id, url: result.url, caption: pendingItem.caption || '' };
-          setData(prev => ({ ...prev, gallery: [newItem, ...(prev.gallery || [])] }));
-          await firebaseService.saveItem('gallery', newItem);
-        } else {
-          throw new Error('No URL returned');
-        }
-      } catch (parseErr) {
-        console.error(`[Upload] Failed to parse gallery success response as JSON: ${text.substring(0, 100)}`);
-        throw new Error('Server returned invalid response format');
+      const result = await res.json();
+      if (result.url) {
+        setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: result.url } : p));
+      } else {
+        throw new Error('No URL returned from server');
       }
     } catch (err: any) {
       console.error('Individual upload failed:', err);
-      setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'error', progress: 0, caption: err.message } : p));
+      setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'error', progress: 0, caption: err.message || 'Upload failed' } : p));
     }
   };
 
@@ -568,7 +607,9 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     { id: 'studentHonors', label: 'Honors', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'faqs', label: 'FAQs', icon: <MessageSquare size={18} className="text-school-gold" /> },
     { id: 'messages', label: 'Inquiries', icon: <Mail size={18} className="text-school-accent" /> },
-    { id: 'menu', label: 'Menu', icon: <Menu size={18} /> }
+    { id: 'menu', label: 'Menu', icon: <Menu size={18} /> },
+    { id: 'content', label: 'Site Content', icon: <LayoutGrid size={18} className="text-school-neon" /> },
+    { id: 'settings', label: 'Global Settings', icon: <Settings size={18} className="text-school-gold" /> }
   ];
 
   if (authLoading) return (
@@ -601,42 +642,42 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
               <div className="w-16 h-16 bg-school-gold rounded-2xl flex items-center justify-center text-school-navy font-black text-3xl shadow-2xl group-hover:scale-110 transition-transform">X</div>
               <div className="text-left">
                 <h1 className="font-serif text-3xl font-black text-white leading-none tracking-tight">ST. XAVIER'S</h1>
-                <p className="text-[10px] uppercase tracking-[0.4em] font-black text-white/40">Admin Gateway</p>
+                <p className="text-[10px] uppercase tracking-[0.4em] font-black text-white/60">Admin Gateway</p>
               </div>
             </Link>
           </div>
 
-          <div className="glass-dark border border-white/10 p-12 rounded-[40px] shadow-2xl space-y-8">
+          <div className="bg-slate-900/80 backdrop-blur-3xl border border-white/10 p-12 rounded-[40px] shadow-2xl space-y-8">
             <div className="space-y-4 text-center">
               <div className="w-20 h-20 bg-school-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Key className="text-school-gold" size={32} />
               </div>
               <h2 className="text-2xl font-serif font-black text-white italic tracking-tight">Authorized Access Only</h2>
-              <p className="text-white/40 text-sm font-light leading-relaxed">
+              <p className="text-white/60 text-sm font-light leading-relaxed">
                 This portal is reserved for school administrators. Please use your credentials to manage the portal.
               </p>
             </div>
 
             <form onSubmit={handleLegacyLogin} className="space-y-6">
                <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Username</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/60 ml-1">Username</label>
                 <input 
                   type="text" 
                   value={loginUsername}
                   onChange={(e) => setLoginUsername(e.target.value)}
                   placeholder="Enter admin ID"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-school-gold/50 transition-all font-medium"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-school-gold/50 transition-all font-medium"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Password</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/60 ml-1">Password</label>
                 <input 
                   type="password" 
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-school-gold/50 transition-all font-medium"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-school-gold/50 transition-all font-medium"
                   required
                 />
               </div>
@@ -654,7 +695,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
               </button>
             </form>
             
-            <Link to="/" className="block text-center text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-white transition-colors">
+            <Link to="/" className="block text-center text-[10px] font-black uppercase tracking-[0.3em] text-white/60 hover:text-white transition-colors">
               Return to Public Portal
             </Link>
           </div>
@@ -664,7 +705,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   }
 
   return (
-    <div className="min-h-screen bg-[#F0F2F5] flex font-sans relative pt-10 md:pt-0">
+    <div className="min-h-screen bg-school-paper flex font-sans relative pt-10 md:pt-0">
       <AnimatePresence>
         {isLegacyAuthenticated && (
           <motion.div 
@@ -691,7 +732,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       </AnimatePresence>
 
       <aside className={`w-80 bg-school-navy text-white flex flex-col fixed h-full z-50 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="p-8 pb-12">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 pb-12 whitespace-nowrap">
           <div className="flex items-center justify-between mb-12">
             <Link to="/" className="flex items-center gap-3 group">
               <div className="w-10 h-10 bg-school-gold rounded-lg flex items-center justify-center text-school-navy font-black text-xl group-hover:scale-110 transition-transform">X</div>
@@ -729,12 +770,12 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
 
       <main className="flex-1 md:ml-80 p-6 md:p-12 min-w-0">
         {/* Mobile Header Toggle */}
-        <div className="md:hidden flex items-center justify-between mb-8 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+        <div className="md:hidden flex items-center justify-between mb-8 bg-school-paper p-4 rounded-2xl shadow-sm border border-school-ink/10">
            <div className="flex items-center gap-3">
              <div className="w-8 h-8 bg-school-gold rounded-lg flex items-center justify-center text-school-navy font-black text-sm">X</div>
-             <span className="font-serif font-black text-school-navy">Console</span>
+             <span className="font-serif font-black text-school-ink">Console</span>
            </div>
-           <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-school-navy hover:bg-slate-50 rounded-xl transition-colors">
+           <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-school-ink hover:bg-school-ink/5 rounded-xl transition-colors">
               <Menu size={24} />
            </button>
         </div>
@@ -752,11 +793,18 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
         <header className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-12 mb-16">
           <div className="flex-1 space-y-6">
             <div className="flex flex-col md:flex-row md:items-center gap-6">
-               <h1 className="text-3xl md:text-5xl font-serif font-black text-school-navy tracking-tight capitalize">
-                 {searchQuery ? 'Search Results' : `Manage ${activeSection}`}
-               </h1>
+               <div className="flex items-center gap-4">
+                 <h1 className="text-3xl md:text-5xl font-serif font-black text-school-navy tracking-tight capitalize">
+                   {searchQuery ? 'Search Results' : `Manage ${activeSection}`}
+                 </h1>
+                 {!searchQuery && (
+                   <span className="px-3 py-1 bg-school-ink/10 text-school-ink/40 rounded-lg text-[8px] font-black uppercase tracking-widest self-center md:self-end mb-2">
+                     Firebase Collection: {activeSection}
+                   </span>
+                 )}
+               </div>
                <div className="relative group flex-1 max-w-md">
-                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-school-gold transition-colors">
+                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-school-ink/40 group-focus-within:text-school-gold transition-colors">
                    <Search size={18} strokeWidth={2.5} />
                  </div>
                  <input 
@@ -764,12 +812,12 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                    placeholder="Search all content..." 
                    value={searchQuery}
                    onChange={(e) => setSearchQuery(e.target.value)}
-                   className="w-full bg-slate-100 border-none rounded-2xl py-4 pl-12 pr-4 text-xs font-black uppercase tracking-widest text-school-navy placeholder:text-slate-400 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                   className="w-full bg-school-ink/5 border-none rounded-2xl py-4 pl-12 pr-4 text-xs font-black uppercase tracking-widest text-school-ink placeholder:text-school-ink/30 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
                  />
                  {searchQuery && (
                    <button 
                      onClick={() => setSearchQuery('')}
-                     className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-red-400 transition-colors"
+                     className="absolute inset-y-0 right-4 flex items-center text-school-ink/40 hover:text-red-400 transition-colors"
                    >
                      <X size={16} strokeWidth={3} />
                    </button>
@@ -780,36 +828,42 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
               {searchQuery ? `Showing matches for "${searchQuery}" across all categories.` : `Comprehensive CRUD control for ${activeSection} on the main portal.`}
             </p>
           </div>
+        {!searchQuery && activeSection !== 'settings' && activeSection !== 'content' && (
           <div className="flex flex-wrap gap-4 shrink-0">
-            {!searchQuery && (
+            {savePending && (
+              <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} onClick={handleSaveAll} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-emerald-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">
+                <Check size={16} /> Save
+              </motion.button>
+            )}
+            {selectedIds.size > 0 && (
               <>
-                {savePending && (
-                  <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} onClick={handleSaveAll} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-emerald-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">
-                    <Check size={16} /> Save
-                  </motion.button>
-                )}
-                {selectedIds.size > 0 && (
-                  <>
-                    <motion.button initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={() => setIsBulkEditing(!isBulkEditing)} className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 ${isBulkEditing ? 'bg-school-navy text-white' : 'glass-dark text-white'} rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none`}>
-                       <Settings size={16} /> {isBulkEditing ? 'Cancel' : 'Bulk'}
-                    </motion.button>
-                    <motion.button initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={() => setItemToDelete(Array.from(selectedIds))} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-red-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-red-600 transition-all outline-none">
-                      <Trash2 size={16} /> Delete ({selectedIds.size})
-                    </motion.button>
-                  </>
-                )}
-                {activeSection === 'gallery' && (
-                  <label className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 glass-dark text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none cursor-pointer">
-                    <ImageIcon size={16} /> {isUploading ? '...' : 'Upload'}
-                    <input type="file" multiple className="hidden" accept="image/*" onChange={handleBatchUpload} disabled={isUploading} />
-                  </label>
-                )}
-                <button onClick={handleAdd} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none whitespace-nowrap">
-                  <Plus size={16} /> New Item
-                </button>
+                <motion.button initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={() => setIsBulkEditing(!isBulkEditing)} className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 ${isBulkEditing ? 'bg-school-navy text-white' : 'glass-dark text-white'} rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none`}>
+                   <Settings size={16} /> {isBulkEditing ? 'Cancel' : 'Bulk'}
+                </motion.button>
+                <motion.button initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={() => setItemToDelete(Array.from(selectedIds))} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-red-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-red-600 transition-all outline-none">
+                  <Trash2 size={16} /> Delete ({selectedIds.size})
+                </motion.button>
               </>
             )}
+            {activeSection === 'gallery' && (
+              <label className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-school-navy text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none cursor-pointer">
+                <ImageIcon size={16} /> 
+                {pendingGalleryItems.some(p => p.status === 'uploading') ? 'Uploading...' : 'Browse & Upload Images'}
+                <input 
+                  type="file" 
+                  multiple 
+                  className="hidden" 
+                  accept="image/*" 
+                  onChange={handleBatchUpload} 
+                  onClick={(e: any) => (e.target.value = null)}
+                />
+              </label>
+            )}
+            <button onClick={handleAdd} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none whitespace-nowrap">
+              <Plus size={16} /> New Item
+            </button>
           </div>
+        )}
         </header>
 
         <AnimatePresence>
@@ -820,11 +874,11 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                    <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-3">Field to Update</p>
                    <select 
                      value={bulkEditField} 
-                     onChange={(e) => setBulkEditField(e.target.value)}
+                     onChange={(e: any) => setBulkEditField(e.target.value)}
                      className="w-full bg-white/10 border border-white/10 rounded-xl p-4 text-sm text-white focus:ring-1 focus:ring-school-gold outline-none"
                    >
                      <option value="">Select Field...</option>
-                     {data[activeSection][0] && Object.keys(data[activeSection][0]).filter(k => k !== 'id' && k !== 'image' && k !== 'url').map(k => (
+                     {activeSection !== 'settings' && Array.isArray(data[activeSection]) && (data[activeSection] as any[])[0] && Object.keys((data[activeSection] as any[])[0]).filter((k: string) => k !== 'id' && k !== 'image' && k !== 'url').map((k: string) => (
                        <option key={k} value={k} className="text-school-navy text-sm font-medium">{k}</option>
                      ))}
                    </select>
@@ -940,19 +994,189 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
           )}
         </AnimatePresence>
 
-        {data[activeSection].length > 0 && (
+        {activeSection !== 'settings' && Array.isArray(data[activeSection]) && data[activeSection].length > 0 && (
           <div className="mb-6 flex items-center gap-4 px-4">
-            <button onClick={toggleSelectAll} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-school-navy/40 hover:text-school-navy transition-colors">
-              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${selectedIds.size === data[activeSection].length ? 'bg-school-gold border-school-gold text-school-navy' : 'border-slate-300'}`}>
-                {selectedIds.size === data[activeSection].length && <Check size={12} strokeWidth={4} />}
+            <button onClick={toggleSelectAll} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-school-ink/40 hover:text-school-ink transition-colors">
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${selectedIds.size === (data[activeSection] as any[]).length ? 'bg-school-gold border-school-gold text-school-navy' : 'border-school-ink/20'}`}>
+                {selectedIds.size === (data[activeSection] as any[]).length && <Check size={12} strokeWidth={4} />}
               </div>
-              {selectedIds.size === data[activeSection].length ? 'Deselect All' : 'Select All'}
+              {selectedIds.size === (data[activeSection] as any[]).length ? 'Deselect All' : 'Select All'}
             </button>
           </div>
         )}
 
         <div className="grid gap-12">
-          {searchQuery ? (
+          {activeSection === 'settings' ? (
+            <div className="bg-school-paper p-10 rounded-[40px] shadow-2xl border border-school-ink/10 space-y-12">
+               <div>
+                 <h2 className="text-3xl font-serif font-black text-school-navy italic tracking-tight mb-4">Global Site Settings</h2>
+                 <p className="text-sm text-school-navy/60 leading-relaxed font-light">Site-wide configurations, contact information, and main branding assets.</p>
+               </div>
+               
+               <div className="grid md:grid-cols-2 gap-12">
+                  <div className="space-y-6">
+                     <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Site Name</label>
+                     <input 
+                       value={data.settings.siteName}
+                       onChange={(e) => handleUpdate('global', 'siteName', e.target.value, 'settings')}
+                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                     />
+                  </div>
+                  <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Site Logo URL</label>
+                        <label className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
+                          {uploadingPath === 'settings-global-siteLogo' ? 'Uploading...' : 'Upload Logo'}
+                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'global', 'siteLogo', 'settings')} disabled={!!uploadingPath} />
+                        </label>
+                      </div>
+                      <input 
+                       value={data.settings.siteLogo}
+                       onChange={(e) => handleUpdate('global', 'siteLogo', e.target.value, 'settings')}
+                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                     />
+                  </div>
+               </div>
+
+               <div className="grid md:grid-cols-3 gap-12 pt-12 border-t border-school-ink/5">
+                  <div className="space-y-6">
+                     <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Contact Email</label>
+                     <input 
+                       value={data.settings.contactEmail}
+                       onChange={(e) => handleUpdate('global', 'contactEmail', e.target.value, 'settings')}
+                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                     />
+                  </div>
+                  <div className="space-y-6">
+                     <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Contact Phone</label>
+                     <input 
+                       value={data.settings.contactPhone}
+                       onChange={(e) => handleUpdate('global', 'contactPhone', e.target.value, 'settings')}
+                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                     />
+                  </div>
+                  <div className="space-y-6">
+                     <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Contact Address</label>
+                     <textarea 
+                       value={data.settings.contactAddress}
+                       onChange={(e) => handleUpdate('global', 'contactAddress', e.target.value, 'settings')}
+                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all h-24 resize-none"
+                     />
+                  </div>
+               </div>
+
+               <div className="pt-12 border-t border-school-ink/5">
+                 <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight mb-8">Application Module</h2>
+                 <div className="grid md:grid-cols-2 gap-12">
+                    <div className="space-y-6">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Module Status</label>
+                       <div className="flex items-center gap-4">
+                          <button 
+                            onClick={() => handleUpdate('global', 'applyNowEnabled', !data.settings.applyNowEnabled, 'settings')}
+                            className={`w-20 h-10 rounded-full relative transition-all ${data.settings.applyNowEnabled ? 'bg-emerald-500' : 'bg-school-ink/10'}`}
+                          >
+                             <motion.div 
+                               animate={{ x: data.settings.applyNowEnabled ? 44 : 4 }}
+                               className="w-8 h-8 rounded-full bg-white shadow-lg absolute top-1 left-0"
+                             />
+                          </button>
+                          <span className="text-xs font-black text-school-ink uppercase tracking-widest">
+                            {data.settings.applyNowEnabled ? 'Enabled' : 'Disabled'}
+                          </span>
+                       </div>
+                    </div>
+
+                    <div className="space-y-6">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Action Label</label>
+                       <input 
+                         value={data.settings.applyNowLabel}
+                         onChange={(e) => handleUpdate('global', 'applyNowLabel', e.target.value, 'settings')}
+                         className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                       />
+                    </div>
+                 </div>
+
+                 <div className="space-y-6 mt-12">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Document Link (PDF)</label>
+                      <label className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
+                        {uploadingPath === 'settings-global-applyNowUrl' ? 'Uploading...' : 'Update PDF'}
+                        <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleFileUpload(e, 'global', 'applyNowUrl', 'settings')} disabled={!!uploadingPath} />
+                      </label>
+                    </div>
+                    <input 
+                      value={data.settings.applyNowUrl}
+                      onChange={(e) => handleUpdate('global', 'applyNowUrl', e.target.value, 'settings')}
+                      className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                    />
+                 </div>
+               </div>
+            </div>
+          ) : activeSection === 'content' ? (
+            <div className="space-y-12">
+              <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4">Site Narrative & Labels</h2>
+                  <p className="text-sm text-white/40 leading-relaxed font-light max-w-xl">Modify all headings, descriptions, and labels used throughout the website sections.</p>
+                </div>
+                <button 
+                  onClick={() => {
+                    const key = prompt('Enter new content key (camelCase recommended):');
+                    if (key) handleUpdate('global', key, 'New Content', 'content');
+                  }}
+                  className="px-8 py-4 bg-school-neon text-school-ink rounded-full text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
+                >
+                  Add New Key
+                </button>
+              </div>
+              <div className="grid gap-6">
+                {Object.keys(data.content).sort().map((key) => (
+                  <div key={key} className="bg-school-paper p-8 rounded-3xl border border-school-ink/10 shadow-sm group">
+                    <div className="flex flex-col md:flex-row gap-8 items-start">
+                       <div className="w-full md:w-64 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-school-accent">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
+                            {/* Option to delete custom keys? Optional but good for flexibility */}
+                            {['heroTitle1', 'heroTitle2', 'heroBadge'].indexOf(key) === -1 && (
+                              <button 
+                                onClick={() => {
+                                  if (confirm(`Delete content key "${key}"?`)) {
+                                    const newContent = { ...data.content };
+                                    delete newContent[key];
+                                    setData({ ...data, content: newContent });
+                                    firebaseService.saveItem('content', { id: 'global', ...newContent }).catch(() => {});
+                                  }
+                                }}
+                                className="text-red-500 opacity-0 group-hover:opacity-50 hover:opacity-100 transition-all text-[8px] font-black uppercase tracking-widest"
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </div>
+                          <p className="text-[9px] font-bold text-school-ink/30 uppercase tracking-widest">Key: {key}</p>
+                       </div>
+                       <div className="flex-1 w-full">
+                          {data.content[key].length > 100 ? (
+                            <textarea 
+                              value={data.content[key]}
+                              onChange={(e) => handleUpdate('global', key, e.target.value, 'content')}
+                              className="w-full bg-school-ink/5 border-none rounded-2xl p-6 text-sm font-medium text-school-ink focus:ring-2 focus:ring-school-gold/20 outline-none transition-all h-32 resize-none"
+                            />
+                          ) : (
+                            <input 
+                              type="text"
+                              value={data.content[key]}
+                              onChange={(e) => handleUpdate('global', key, e.target.value, 'content')}
+                              className="w-full bg-school-ink/5 border-none rounded-2xl p-6 text-sm font-black text-school-ink focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                            />
+                          )}
+                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : searchQuery ? (
             globalResults.length > 0 ? (
               globalResults.map(({ section, items }) => (
                 <div key={section} className="space-y-6">
@@ -960,9 +1184,9 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                     <div className="w-10 h-10 bg-school-gold/10 rounded-xl flex items-center justify-center text-school-gold">
                       <LayoutGrid size={20} />
                     </div>
-                    <h2 className="text-xl font-black text-school-navy uppercase tracking-widest">{section}</h2>
-                    <div className="h-px flex-1 bg-slate-100" />
-                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{items.length} Matches</span>
+                    <h2 className="text-xl font-black text-school-ink uppercase tracking-widest">{section}</h2>
+                    <div className="h-px flex-1 bg-school-ink/5" />
+                    <span className="text-[10px] font-black text-school-ink/30 uppercase tracking-widest">{items.length} Matches</span>
                   </div>
                   <div className="grid gap-6">
                     {items.map(item => renderItemCard(item, section))}
@@ -971,15 +1195,15 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
               ))
             ) : (
               <div className="flex flex-col items-center justify-center py-24 text-center">
-                <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mb-6">
+                <div className="w-20 h-20 bg-school-ink/5 rounded-full flex items-center justify-center text-school-ink/20 mb-6">
                    <Search size={40} />
                 </div>
-                <h3 className="text-xl font-black text-school-navy mb-2 uppercase tracking-widest">No Results Found</h3>
-                <p className="text-sm text-school-navy/30 max-w-xs mx-auto">We couldn't find any items matching "{searchQuery}" in any of your tables.</p>
+                <h3 className="text-xl font-black text-school-ink mb-2 uppercase tracking-widest">No Results Found</h3>
+                <p className="text-sm text-school-ink/30 max-w-xs mx-auto">We couldn't find any items matching "{searchQuery}" in any of your tables.</p>
               </div>
             )
           ) : (
-            data[activeSection].map((item: any) => renderItemCard(item, activeSection))
+            Array.isArray(data[activeSection]) && (data[activeSection] as any[]).map((item: any) => renderItemCard(item, activeSection))
           )}
         </div>
       </main>
@@ -990,18 +1214,18 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setItemToDelete(null)} className="absolute inset-0 bg-school-navy/60 backdrop-blur-md" />
             <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="relative w-full max-w-md glass-surface rounded-[32px] p-10 overflow-hidden shadow-2xl">
               <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-6"><Trash2 size={32} /></div>
-                <h3 className="text-3xl font-serif font-black text-school-navy mb-4">
+                <div className="w-16 h-16 bg-red-400/10 text-red-500 rounded-2xl flex items-center justify-center mb-6"><Trash2 size={32} /></div>
+                <h3 className="text-3xl font-serif font-black text-school-ink mb-4">
                   {Array.isArray(itemToDelete) ? 'Bulk Deletion' : 'Confirm Deletion'}
                 </h3>
-                <p className="text-sm text-school-navy/50 font-light mb-10 leading-relaxed">
+                <p className="text-sm text-school-ink/50 font-light mb-10 leading-relaxed">
                   {Array.isArray(itemToDelete) 
                     ? `You are about to permanently remove ${itemToDelete.length} items from ${activeSection}.` 
                     : `Are you sure you want to remove this item from ${activeSection}?`}
                   <br />This action is irreversible.
                 </p>
                 <div className="flex gap-4 w-full">
-                  <button onClick={() => setItemToDelete(null)} className="flex-1 py-4 glass-surface rounded-xl text-[10px] font-black uppercase tracking-widest text-school-navy">Cancel</button>
+                  <button onClick={() => setItemToDelete(null)} className="flex-1 py-4 glass-surface rounded-xl text-[10px] font-black uppercase tracking-widest text-school-ink">Cancel</button>
                   <button onClick={() => handleRemove(itemToDelete)} className="flex-1 py-4 bg-red-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl">
                     {Array.isArray(itemToDelete) ? `Delete ${itemToDelete.length} Items` : 'Delete Item'}
                   </button>

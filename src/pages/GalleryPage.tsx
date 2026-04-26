@@ -15,7 +15,7 @@ const GalleryPage = ({ data }: { data: AppData }) => {
         <meta name="description" content="Explore the visual legacy of St. Xavier's Jaipur through our curated photo gallery capturing moments of academic and cultural excellence." />
       </Helmet>
 
-      <section className="pb-40 bg-slate-50 min-h-screen">
+      <section className="pb-40 bg-school-paper min-h-screen">
         {/* Decorative background mark */}
         <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
           <Camera size={400} />
@@ -29,11 +29,11 @@ const GalleryPage = ({ data }: { data: AppData }) => {
            >
               <div className="inline-flex items-center gap-3 px-6 py-2 bg-school-gold/10 rounded-full border border-school-gold/20 mb-8">
                 <ImageIcon className="text-school-gold" size={16} />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-school-navy/60">Institutional Archives</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-school-ink/60">Institutional Archives</span>
               </div>
-              <h2 className="text-6xl md:text-8xl font-serif font-black text-school-navy mb-8 tracking-tighter uppercase italic leading-none">Visual <span className="text-school-gold">Chronicles.</span></h2>
+              <h2 className="text-6xl md:text-8xl font-serif font-black text-school-ink mb-8 tracking-tighter uppercase italic leading-none">Visual <span className="text-school-gold">Chronicles.</span></h2>
               <div className="w-24 h-1 bg-school-gold rounded-full mb-8"></div>
-              <p className="text-xl text-school-navy/40 font-light max-w-2xl mx-auto italic">Capturing the soul of St. Xavier's through moments of growth, celebration, and academic pursuit.</p>
+              <p className="text-xl text-school-ink/40 font-light max-w-2xl mx-auto italic">Capturing the soul of St. Xavier's through moments of growth, celebration, and academic pursuit.</p>
            </motion.div>
         </div>
 
@@ -48,7 +48,7 @@ const GalleryPage = ({ data }: { data: AppData }) => {
               onClick={() => setSelectedImage(item)}
               className="group cursor-pointer"
             >
-              <div className="aspect-[4/5] rounded-[48px] overflow-hidden relative shadow-[0_20px_50px_rgba(0,33,71,0.15)] bg-white border-[12px] border-white transition-transform duration-500 hover:-translate-y-4">
+              <div className="aspect-[4/5] rounded-[48px] overflow-hidden relative shadow-[0_20px_50px_rgba(0,33,71,0.15)] bg-school-paper border-[12px] border-school-paper transition-transform duration-500 hover:-translate-y-4">
                 <img 
                   src={item.url} 
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 

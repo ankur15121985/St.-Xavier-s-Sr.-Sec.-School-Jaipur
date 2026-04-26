@@ -32,7 +32,7 @@ const GoverningMembersPage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="pt-32 bg-school-paper min-h-screen">
         {/* Header Section */}
         <section className="py-20 bg-school-navy relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
@@ -55,8 +55,8 @@ const GoverningMembersPage = ({ data }: { data: AppData }) => {
           {/* Management Collective */}
           <div className="mb-24">
             <div className="flex items-center gap-6 mb-12">
-              <h2 className="text-3xl font-serif font-black text-school-navy underline decoration-school-gold decoration-4 underline-offset-8">Institutional Management</h2>
-              <div className="flex-1 h-px bg-school-navy/10"></div>
+              <h2 className="text-3xl font-serif font-black text-school-ink underline decoration-school-gold decoration-4 underline-offset-8">Institutional Management</h2>
+              <div className="flex-1 h-px bg-school-ink/10"></div>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {members.filter(m => m.type === 'Management').map((member, idx) => (
@@ -66,15 +66,15 @@ const GoverningMembersPage = ({ data }: { data: AppData }) => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
-                  className="glass-surface p-8 rounded-[40px] border border-white shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group"
+                  className="glass-surface p-8 rounded-[40px] border border-school-ink/10 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group"
                 >
                   <div className="w-16 h-16 bg-school-navy rounded-2xl flex items-center justify-center text-school-gold mb-8 group-hover:scale-110 transition-transform">
                     <span className="font-serif font-black text-2xl italic">M</span>
                   </div>
-                  <h3 className="text-lg font-serif font-black text-school-navy mb-2 line-clamp-2 leading-tight h-12 uppercase">{member.name}</h3>
+                  <h3 className="text-lg font-serif font-black text-school-ink mb-2 line-clamp-2 leading-tight h-12 uppercase">{member.name}</h3>
                   <p className="text-[10px] font-black uppercase tracking-widest text-school-gold mb-4">{member.role}</p>
-                  <div className="pt-4 border-t border-slate-100">
-                    <p className="text-xs text-school-navy/50 font-medium leading-relaxed">{member.organization}</p>
+                  <div className="pt-4 border-t border-school-ink/10">
+                    <p className="text-xs text-school-ink/50 font-medium leading-relaxed">{member.organization}</p>
                   </div>
                 </motion.div>
               ))}
@@ -84,8 +84,8 @@ const GoverningMembersPage = ({ data }: { data: AppData }) => {
           {/* Representatives Council */}
           <div>
             <div className="flex items-center gap-6 mb-12">
-              <h2 className="text-3xl font-serif font-black text-school-navy underline decoration-school-gold decoration-4 underline-offset-8">Strategic Representatives</h2>
-              <div className="flex-1 h-px bg-school-navy/10"></div>
+              <h2 className="text-3xl font-serif font-black text-school-ink underline decoration-school-gold decoration-4 underline-offset-8">Strategic Representatives</h2>
+              <div className="flex-1 h-px bg-school-ink/10"></div>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {members.filter(m => m.type === 'Representative').map((member, idx) => (
@@ -95,13 +95,13 @@ const GoverningMembersPage = ({ data }: { data: AppData }) => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.05 }}
-                  className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group"
+                  className="bg-school-paper p-8 rounded-[40px] border border-school-ink/10 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group"
                 >
                   <div className="inline-block px-4 py-1.5 bg-school-gold/10 rounded-full text-[9px] font-black uppercase tracking-widest text-school-gold mb-6">{member.role}</div>
-                  <h3 className="text-lg font-serif font-black text-school-navy mb-4 group-hover:text-school-gold transition-colors">{member.name}</h3>
-                  <div className="pt-4 border-t border-slate-100">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-school-navy/30 mb-1">Affiliation</p>
-                    <p className="text-xs text-school-navy/60 font-light italic">{member.organization}</p>
+                  <h3 className="text-lg font-serif font-black text-school-ink mb-4 group-hover:text-school-gold transition-colors">{member.name}</h3>
+                  <div className="pt-4 border-t border-school-ink/10">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 mb-1">Affiliation</p>
+                    <p className="text-xs text-school-ink/60 font-light italic">{member.organization}</p>
                   </div>
                 </motion.div>
               ))}

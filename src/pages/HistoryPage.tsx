@@ -30,9 +30,9 @@ const HistoryPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Content Section - Glass Theme */}
-        <section className="py-20 md:py-40 bg-white/30 backdrop-blur-3xl relative z-10 -mt-12 md:-mt-20 rounded-t-[40px] md:rounded-t-[100px] shadow-2xl border-t border-white/40">
+        <section className="py-20 md:py-40 bg-school-paper relative z-10 -mt-12 md:-mt-20 rounded-t-[40px] md:rounded-t-[100px] shadow-2xl border-t border-school-ink/10">
           <div className="max-w-4xl mx-auto px-6 lg:px-12">
-            <div className="space-y-16 text-xl text-school-ink opacity-70 leading-relaxed font-medium text-justify">
+            <div className="space-y-16 text-xl text-school-ink/70 leading-relaxed font-medium text-justify">
               <motion.p 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -46,16 +46,16 @@ const HistoryPage = ({ data }: { data: AppData }) => {
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="prose prose-slate max-w-none space-y-8 text-justify"
+                className="prose prose-slate dark:prose-invert max-w-none space-y-8 text-justify"
               >
                 <p>
                   The legendary institution in its 68 years of glorious existence has nurtured many- be it the younger ones of royals or the striving commoners. The sylvan 21 acres housing the stately three storied structure has showered love on generations and the Alumni of this prestigious institution stand as the bastions of the shimmering heritage and the historical Gold and Blue legacy.
                 </p>
 
-                <div className="bg-white/20 p-12 rounded-[40px] border border-white/30 italic font-serif text-xl relative backdrop-blur-md">
+                <div className="bg-school-paper/50 p-12 rounded-[40px] border border-school-ink/10 italic font-serif text-xl relative backdrop-blur-md">
                    <span className="absolute -top-6 -left-2 text-8xl text-school-gold opacity-20">"</span>
                    'ROME NE S'EST FAITE EN UN JOUR' the celebrated 11th century French Proverb is brought alive as we trace the journey of the institution, the untiring efforts of our revered luminaries and their never ending quest for excellence.
-                   <p className="mt-6 text-sm font-sans font-black uppercase tracking-widest not-italic text-school-navy/40">— The Jesuit Foundation</p>
+                   <p className="mt-6 text-sm font-sans font-black uppercase tracking-widest not-italic text-school-ink/40">— The Jesuit Foundation</p>
                 </div>
 
                 <p>

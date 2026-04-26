@@ -51,7 +51,7 @@ const ScholarshipPage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="pt-32 bg-school-paper min-h-screen">
         {/* Banner Section */}
         <section className="py-20 bg-school-navy relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
@@ -75,13 +75,13 @@ const ScholarshipPage = ({ data }: { data: AppData }) => {
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="glass-surface bg-white p-10 rounded-[48px] border border-white shadow-xl flex flex-col gap-6"
+              className="glass-surface bg-school-paper p-10 rounded-[48px] border border-school-ink/10 shadow-xl flex flex-col gap-6"
             >
               <div className="w-12 h-12 bg-school-gold/10 rounded-2xl flex items-center justify-center text-school-gold">
                 <GraduationCap size={24} />
               </div>
-              <h2 className="text-2xl font-serif font-black text-school-navy italic">General Provisions</h2>
-              <div className="space-y-4 text-school-navy/70 font-light leading-relaxed">
+              <h2 className="text-2xl font-serif font-black text-school-ink italic">General Provisions</h2>
+              <div className="space-y-4 text-school-ink/70 font-light leading-relaxed">
                 <p>
                   The School provides scholarships to the socially and economically disadvantaged students selected from the Balwadi run by the school.
                 </p>
@@ -95,23 +95,23 @@ const ScholarshipPage = ({ data }: { data: AppData }) => {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="glass-surface bg-white p-10 rounded-[48px] border border-white shadow-xl flex flex-col gap-6"
+              className="glass-surface bg-school-paper p-10 rounded-[48px] border border-school-ink/10 shadow-xl flex flex-col gap-6"
             >
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-school-navy">
+              <div className="w-12 h-12 bg-blue-50/10 rounded-2xl flex items-center justify-center text-school-ink">
                 <Clock size={24} />
               </div>
-              <h2 className="text-2xl font-serif font-black text-school-navy italic">Terms and Deadlines</h2>
-              <div className="space-y-4 text-school-navy/70 font-light leading-relaxed">
+              <h2 className="text-2xl font-serif font-black text-school-ink italic">Terms and Deadlines</h2>
+              <div className="space-y-4 text-school-ink/70 font-light leading-relaxed">
                 <p>
                   All concessions and scholarships cease at the end of each academic year. Grant or renewal is subject to satisfactory progress and good conduct.
                 </p>
-                <div className="bg-red-50 p-4 rounded-2xl flex items-start gap-4 text-red-900 border border-red-100">
+                <div className="bg-red-50/10 p-4 rounded-2xl flex items-start gap-4 text-red-600 border border-red-100/10">
                   <AlertCircle size={20} className="shrink-0 mt-1" />
                   <p className="text-sm font-medium italic">
                     A student who does not secure at least 50 per cent marks or fails in a term, forfeits his/her concession/scholarship.
                   </p>
                 </div>
-                <p className="font-bold text-school-navy">
+                <p className="font-bold text-school-ink">
                   Deadline: All applications (including renewals) must be made before 15 April.
                 </p>
               </div>
@@ -122,8 +122,8 @@ const ScholarshipPage = ({ data }: { data: AppData }) => {
         {/* Scholarships List */}
         <section className="py-16 max-w-7xl mx-auto px-6 lg:px-12">
           <div className="mb-12">
-            <h2 className="text-4xl font-serif font-black text-school-navy italic tracking-tight mb-4">Instituted Scholarships</h2>
-            <p className="text-school-navy/50 font-light italic">By our generous parents and well-wishers</p>
+            <h2 className="text-4xl font-serif font-black text-school-ink italic tracking-tight mb-4">Instituted Scholarships</h2>
+            <p className="text-school-ink/50 font-light italic">By our generous parents and well-wishers</p>
             <div className="w-24 h-1 bg-school-gold mt-6 rounded-full"></div>
           </div>
 
@@ -135,9 +135,9 @@ const ScholarshipPage = ({ data }: { data: AppData }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: (idx % 10) * 0.05 }}
-                className="p-8 bg-white border border-slate-100 rounded-[32px] hover:shadow-lg transition-all group"
+                className="p-8 bg-school-paper border border-school-ink/5 rounded-[32px] hover:shadow-lg transition-all group"
               >
-                <p className="text-sm text-school-navy/70 leading-relaxed font-light group-hover:text-school-navy transition-colors">
+                <p className="text-sm text-school-ink/70 leading-relaxed font-light group-hover:text-school-ink transition-colors">
                   {s}
                 </p>
               </motion.div>

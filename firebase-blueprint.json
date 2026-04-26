@@ -56,7 +56,8 @@
       "type": "object",
       "properties": {
         "title": { "type": "string" },
-        "url": { "type": "string" }
+        "url": { "type": "string" },
+        "attachmentUrl": { "type": "string" }
       },
       "required": ["title", "url"]
     },
@@ -68,7 +69,8 @@
         "title": { "type": "string" },
         "date": { "type": "string" },
         "time": { "type": "string" },
-        "location": { "type": "string" }
+        "location": { "type": "string" },
+        "attachmentUrl": { "type": "string" }
       },
       "required": ["title", "date"]
     },
@@ -79,7 +81,8 @@
       "properties": {
         "title": { "type": "string" },
         "year": { "type": "string" },
-        "description": { "type": "string" }
+        "description": { "type": "string" },
+        "attachmentUrl": { "type": "string" }
       },
       "required": ["title", "year"]
     },

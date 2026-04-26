@@ -5,6 +5,16 @@ html {
   scroll-behavior: smooth;
 }
 
+:root {
+  --school-ink: #000000;
+  --school-paper: #ffffff;
+}
+
+.dark {
+  --school-ink: #f1f5f9; /* slate-100 */
+  --school-paper: #020617; /* dark navy */
+}
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Cormorant Garamond", serif;
@@ -12,8 +22,8 @@ html {
   
   --color-school-navy: #1a1b4b;
   --color-school-gold: #FF0092; /* Radiant Pink */
-  --color-school-paper: #ffffff;
-  --color-school-ink: #000000;
+  --color-school-paper: var(--school-paper);
+  --color-school-ink: var(--school-ink);
   --color-school-accent: #7A3DFC; /* Vibrant Purple */
   --color-school-neon: #C7F212; /* Neon Green */
   --color-school-bronze: #F8F9FA;
@@ -21,29 +31,34 @@ html {
   --animate-spin-slow: spin 20s linear infinite;
   --animate-float: float 8s ease-in-out infinite;
   --animate-blob: blob 10s infinite;
+  --animate-marquee: marquee 60s linear infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 @layer base {
   body {
-    @apply font-sans antialiased text-school-ink overflow-x-hidden;
+    @apply font-sans antialiased text-school-ink overflow-x-hidden transition-colors duration-500;
     background: 
       radial-gradient(at 0% 0%, rgba(122, 61, 252, 0.25) 0px, transparent 50%),
       radial-gradient(at 100% 0%, rgba(255, 0, 146, 0.2) 0px, transparent 50%),
       radial-gradient(at 100% 100%, rgba(199, 242, 18, 0.15) 0px, transparent 50%),
       radial-gradient(at 0% 100%, rgba(122, 61, 252, 0.1) 0px, transparent 50%),
       radial-gradient(at 50% 50%, rgba(255, 0, 146, 0.05) 0px, transparent 50%),
-      #fcfaff;
+      var(--school-paper);
     background-attachment: fixed;
   }
 
   .dark body {
-    @apply text-slate-200;
     background: 
       radial-gradient(at 0% 0%, rgba(122, 61, 252, 0.15) 0px, transparent 50%),
       radial-gradient(at 100% 0%, rgba(255, 0, 146, 0.1) 0px, transparent 50%),
       radial-gradient(at 100% 100%, rgba(199, 242, 18, 0.05) 0px, transparent 50%),
       radial-gradient(at 0% 100%, rgba(122, 61, 252, 0.05) 0px, transparent 50%),
-      #020617;
+      var(--school-paper);
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -58,19 +73,19 @@ html {
 
 /* Zenda-Inspired Modern Surface */
 .glass-surface {
-  @apply bg-white/80 backdrop-blur-2xl border border-white/20 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)];
+  @apply bg-school-paper/80 backdrop-blur-2xl border border-school-ink/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)];
 }
 
 .glass-nav {
-  @apply bg-white/90 backdrop-blur-xl border-b border-gray-100;
+  @apply bg-school-paper/90 backdrop-blur-xl border-b border-school-ink/10;
 }
 
 .glass-dark {
-  @apply bg-school-navy/95 backdrop-blur-3xl border border-white/10 shadow-2xl;
+  @apply bg-school-paper/95 backdrop-blur-3xl border border-school-ink/10 shadow-2xl;
 }
 
 .glass-card {
-  @apply bg-white border border-gray-100 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-500 rounded-[40px];
+  @apply bg-school-paper border border-school-ink/10 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-500 rounded-[40px];
 }
 
 /* Immersive Decorative Elements */
@@ -94,39 +109,20 @@ html {
 }
 
 /* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
 }
-::-webkit-scrollbar-track {
-  @apply bg-white;
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }
-::-webkit-scrollbar-thumb {
-  @apply bg-gray-200 border-4 border-white rounded-full hover:bg-school-accent transition-colors;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
 }
-
-.glow-text {
-  text-shadow: 0 0 30px rgba(226, 180, 80, 0.3);
-}
-
-.side-rail-text {
-  writing-mode: vertical-rl;
-  @apply rotate-180 uppercase tracking-[0.6em] text-[10px] font-bold text-school-gold/40;
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
-.mask-fade-bottom {
-  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(1deg); }
-}
-
-.animate-float {
-  animation: var(--animate-float);
-}
-
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -134,5 +130,5 @@ html {
   @apply bg-school-paper;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-school-gold/50 rounded-full hover:bg-school-gold transition-colors;
+  @apply bg-school-gold/50 rounded-full border-2 border-school-paper hover:bg-school-gold transition-colors;
 }

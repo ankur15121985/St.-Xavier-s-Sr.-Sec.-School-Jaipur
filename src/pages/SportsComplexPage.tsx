@@ -24,7 +24,7 @@ const SportsComplexPage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="pt-32 bg-school-paper min-h-screen">
         {/* Hero Section */}
         <section className="py-20 bg-school-navy relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
@@ -49,23 +49,23 @@ const SportsComplexPage = ({ data }: { data: AppData }) => {
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="glass-surface bg-white p-12 md:p-16 rounded-[64px] border border-white shadow-2xl space-y-12"
+              className="glass-surface bg-school-paper p-12 md:p-16 rounded-[64px] border border-school-ink/10 shadow-2xl space-y-12"
             >
               <div className="flex items-center gap-6">
                 <div className="w-16 h-16 bg-school-gold/10 rounded-3xl flex items-center justify-center text-school-gold shadow-lg">
                   <Trophy size={32} />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-serif font-black text-school-navy italic uppercase tracking-tight">Complex Regulations</h2>
-                  <p className="text-[10px] uppercase font-black tracking-widest text-school-navy/30">Standard Operating Procedures</p>
+                  <h2 className="text-3xl font-serif font-black text-school-ink italic uppercase tracking-tight">Complex Regulations</h2>
+                  <p className="text-[10px] uppercase font-black tracking-widest text-school-ink/30">Standard Operating Procedures</p>
                 </div>
               </div>
 
               <div className="grid gap-6 text-justify">
                  {complexRules.map((rule, idx) => (
                   <div key={idx} className="flex gap-4 group">
-                    <div className="mt-1 text-school-navy/40 group-hover:text-school-gold transition-colors">{rule.icon}</div>
-                    <p className="text-sm text-school-navy/70 leading-relaxed font-light">{rule.text}</p>
+                    <div className="mt-1 text-school-ink/40 group-hover:text-school-gold transition-colors">{rule.icon}</div>
+                    <p className="text-sm text-school-ink/70 leading-relaxed font-light">{rule.text}</p>
                   </div>
                 ))}
               </div>
@@ -126,27 +126,27 @@ const SportsComplexPage = ({ data }: { data: AppData }) => {
              <div className="w-20 h-20 bg-school-navy rounded-full flex items-center justify-center text-school-gold mx-auto shadow-2xl">
                 <ShieldCheck size={40} />
              </div>
-             <blockquote className="text-2xl md:text-3xl font-serif font-black text-school-navy italic leading-tight">
+             <blockquote className="text-2xl md:text-3xl font-serif font-black text-school-ink italic leading-tight">
                "All are expected to behave in a responsible manner. Indiscipline of any form will not be tolerated."
              </blockquote>
              <div className="w-24 h-1 bg-school-gold mx-auto"></div>
-             <p className="text-xs font-black uppercase tracking-[0.4em] text-school-navy/30">Sports Complex Administration</p>
+             <p className="text-xs font-black uppercase tracking-[0.4em] text-school-ink/30">Sports Complex Administration</p>
            </motion.div>
         </section>
 
         {/* Image Grid Placeholder */}
-        <section className="py-24 bg-white border-t border-slate-100">
+        <section className="py-24 border-t border-school-ink/10">
            <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="aspect-square bg-slate-100 rounded-[32px] overflow-hidden group">
+              <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group">
                  <img src="https://picsum.photos/seed/sports1/600/600" alt="Sports Action" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
               </div>
-              <div className="aspect-square bg-slate-100 rounded-[32px] overflow-hidden group md:mt-12">
+              <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group md:mt-12">
                  <img src="https://picsum.photos/seed/sports2/600/600" alt="Swimming Pool" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
               </div>
-              <div className="aspect-square bg-slate-100 rounded-[32px] overflow-hidden group">
+              <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group">
                  <img src="https://picsum.photos/seed/sports3/600/600" alt="Track" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
               </div>
-              <div className="aspect-square bg-slate-100 rounded-[32px] overflow-hidden group md:mt-12">
+              <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group md:mt-12">
                  <img src="https://picsum.photos/seed/sports4/600/600" alt="Indoor Courts" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
               </div>
            </div>

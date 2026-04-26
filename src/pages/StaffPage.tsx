@@ -9,9 +9,9 @@ const StaffPage = ({ data }: { data: AppData }) => {
     <div className="mb-24 last:mb-0">
       <div className="flex items-center gap-6 mb-12">
         <h4 className="text-3xl font-sans font-black text-school-ink capitalize italic">{title}</h4>
-        <div className="flex-1 h-px bg-white/20"></div>
+        <div className="flex-1 h-px bg-school-ink/10"></div>
       </div>
-      <div className="overflow-x-auto rounded-[32px] border border-white/40 shadow-2xl backdrop-blur-3xl bg-white/20">
+      <div className="overflow-x-auto rounded-[32px] border border-school-ink/20 shadow-2xl backdrop-blur-3xl bg-school-paper/20">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-school-accent/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-[0.2em]">
@@ -23,16 +23,16 @@ const StaffPage = ({ data }: { data: AppData }) => {
           </thead>
           <tbody className="text-school-ink text-sm">
             {members.map((s, i) => (
-              <tr key={s.id} className="hover:bg-white/30 transition-colors border-b border-white/10 last:border-none group">
+              <tr key={s.id} className="hover:bg-school-paper/30 transition-colors border-b border-school-ink/10 last:border-none group">
                 <td className="p-8 font-black text-school-accent text-xs">{i + 1}</td>
                 <td className="p-8">
                   <div className="flex items-center gap-4">
                     {s.image ? (
-                      <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/40 shadow-sm">
+                      <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-school-ink/10 shadow-sm">
                         <img src={s.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
                       </div>
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-school-paper/30 flex items-center justify-center shrink-0">
                         <Users2 size={16} className="text-school-ink/30" />
                       </div>
                     )}
@@ -40,7 +40,7 @@ const StaffPage = ({ data }: { data: AppData }) => {
                   </div>
                 </td>
                 <td className="p-8">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-school-accent bg-white/40 px-3 py-1 rounded-full border border-white/20">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-school-accent bg-school-paper/40 px-3 py-1 rounded-full border border-school-ink/10">
                     {s.role}
                   </span>
                 </td>
@@ -68,13 +68,13 @@ const StaffPage = ({ data }: { data: AppData }) => {
           <div className="mb-32">
             <div className="flex items-center gap-6 mb-16">
               <h3 className="text-5xl font-sans font-black text-school-ink tracking-tighter capitalize italic">Archive. <span className="not-italic text-school-accent">Management</span></h3>
-              <div className="flex-1 h-2 bg-white/20 rounded-full"></div>
+              <div className="flex-1 h-2 bg-school-ink/10 rounded-full"></div>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
               {data.staff.filter(s => s.type === 'Management').map((s, i) => (
                 <PerspectiveCard key={s.id} delay={i * 0.1}>
-                  <div className="bg-white/40 backdrop-blur-3xl p-10 rounded-[40px] flex flex-col h-full group border border-white/60 shadow-xl hover:shadow-2xl transition-all duration-500">
-                    <div className="w-full h-64 rounded-[32px] mb-8 shadow-xl overflow-hidden bg-white/30 relative group-hover:-translate-y-2 transition-transform duration-500">
+                  <div className="bg-school-paper/40 backdrop-blur-3xl p-10 rounded-[40px] flex flex-col h-full group border border-school-ink/10 shadow-xl hover:shadow-2xl transition-all duration-500">
+                    <div className="w-full h-64 rounded-[32px] mb-8 shadow-xl overflow-hidden bg-school-paper/30 relative group-hover:-translate-y-2 transition-transform duration-500">
                       <img src={s.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={s.name} referrerPolicy="no-referrer" />
                       <div className="absolute top-6 right-6 px-4 py-2 bg-school-accent text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-sm">
                         Management
@@ -93,15 +93,15 @@ const StaffPage = ({ data }: { data: AppData }) => {
           <div className="mb-32">
             <div className="flex items-center gap-6 mb-16">
               <h3 className="text-4xl font-sans font-black text-school-ink tracking-tighter capitalize italic">Administration</h3>
-              <div className="flex-1 h-px bg-white/20"></div>
+              <div className="flex-1 h-px bg-school-ink/10"></div>
             </div>
             
             {/* Senior Administration / Coordinators */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 mb-24">
               {data.staff.filter(s => s.type === 'Administration' && s.role.includes('COORDINATOR')).map((s, i) => (
                 <PerspectiveCard key={s.id} delay={i * 0.1}>
-                  <div className="bg-white/40 backdrop-blur-3xl p-10 rounded-[40px] flex flex-col h-full group border border-white/60 shadow-xl hover:shadow-2xl transition-all duration-500">
-                    <div className="w-full h-64 rounded-[32px] mb-8 shadow-xl overflow-hidden bg-white/30 relative group-hover:-translate-y-2 transition-transform duration-500">
+                  <div className="bg-school-paper/40 backdrop-blur-3xl p-10 rounded-[40px] flex flex-col h-full group border border-school-ink/10 shadow-xl hover:shadow-2xl transition-all duration-500">
+                    <div className="w-full h-64 rounded-[32px] mb-8 shadow-xl overflow-hidden bg-school-paper/30 relative group-hover:-translate-y-2 transition-transform duration-500">
                       <img src={s.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={s.name} referrerPolicy="no-referrer" />
                     </div>
                     <h4 className="text-xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors break-words italic">{s.name}</h4>
@@ -120,7 +120,7 @@ const StaffPage = ({ data }: { data: AppData }) => {
           <div className="mb-32">
             <div className="flex items-center gap-6 mb-16">
               <h3 className="text-4xl font-sans font-black text-school-ink tracking-tighter capitalize italic">Teaching Faculty</h3>
-              <div className="flex-1 h-px bg-white/20"></div>
+              <div className="flex-1 h-px bg-school-ink/10"></div>
             </div>
             
             {renderTable(data.staff.filter(s => s.type === 'Faculty' && s.role === 'PGT'), 'Post Graduate Teachers (PGT)')}

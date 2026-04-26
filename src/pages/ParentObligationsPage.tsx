@@ -102,7 +102,7 @@ const ParentObligationsPage = ({ data }: { data: AppData }) => {
         <meta name="keywords" content="parents obligations, school guidelines jaipur, St. Xavier's parents, PTM jaipur, school diary rules" />
       </Helmet>
 
-      <div className="pt-32 bg-slate-50 min-h-screen">
+      <div className="pt-32 bg-school-paper min-h-screen">
         {/* Header Section */}
         <section className="py-24 bg-school-navy relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
@@ -136,17 +136,17 @@ const ParentObligationsPage = ({ data }: { data: AppData }) => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-10 hover:shadow-xl transition-all group"
+                className="bg-school-paper rounded-[40px] border border-school-ink/10 shadow-sm p-10 hover:shadow-xl transition-all group"
               >
                 <div className="flex items-center gap-5 mb-8">
-                  <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-school-navy group-hover:text-white transition-colors duration-500">
+                  <div className="w-14 h-14 bg-school-paper/50 rounded-2xl flex items-center justify-center group-hover:bg-school-navy group-hover:text-white transition-colors duration-500">
                     {group.icon}
                   </div>
                   <h3 className="text-2xl font-serif font-black text-school-navy italic uppercase tracking-tight">{group.title}</h3>
                 </div>
                 <ul className="space-y-4">
                   {group.items.map((item, i) => (
-                    <li key={i} className="flex gap-4 text-slate-600 group/item">
+                    <li key={i} className="flex gap-4 text-school-ink/60 group/item">
                       <CheckCircle2 size={18} className="text-school-gold shrink-0 mt-1 opacity-40 group-hover/item:opacity-100 transition-opacity" />
                       <span className="text-sm font-medium leading-relaxed">{item}</span>
                     </li>
@@ -158,26 +158,26 @@ const ParentObligationsPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Expectation Tables */}
-        <section className="py-24 bg-white border-y border-slate-100">
+        <section className="py-24 bg-school-paper border-y border-school-ink/10">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-serif font-black text-school-navy italic uppercase tracking-tight">Expectations & Standards</h2>
-              <p className="text-slate-400 text-xs font-black uppercase tracking-[0.3em] mt-4">The Partnership Framework</p>
+              <h2 className="text-4xl font-serif font-black text-school-ink italic uppercase tracking-tight">Expectations & Standards</h2>
+              <p className="text-school-ink/40 text-xs font-black uppercase tracking-[0.3em] mt-4">The Partnership Framework</p>
             </div>
 
             <div className="space-y-8">
               {expectations.map((table, idx) => (
-                <div key={table.category} className="overflow-hidden rounded-[32px] border border-slate-100 shadow-sm">
+                <div key={table.category} className="overflow-hidden rounded-[32px] border border-school-ink/10 shadow-sm">
                   <div className="bg-school-navy p-6 flex items-center justify-between">
                     <h3 className="text-white font-serif font-bold italic tracking-wide">{table.category}</h3>
                     <Users className="text-school-gold/50" size={20} />
                   </div>
-                  <div className="p-8 bg-slate-50/50">
+                  <div className="p-8 bg-school-paper/50">
                     <div className="grid md:grid-cols-2 gap-6">
                       {table.items.map((text, i) => (
-                        <div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 flex gap-4">
+                        <div key={i} className="bg-school-paper p-6 rounded-2xl border border-school-ink/10 flex gap-4">
                           <span className="text-school-gold font-serif font-black italic">0{i+1}.</span>
-                          <p className="text-sm text-slate-600 leading-relaxed font-medium">{text}</p>
+                          <p className="text-sm text-school-ink/60 leading-relaxed font-medium">{text}</p>
                         </div>
                       ))}
                     </div>
@@ -189,7 +189,7 @@ const ParentObligationsPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Class XII Specific & Recommendations */}
-        <section className="py-24 bg-slate-50">
+        <section className="py-24 bg-school-paper">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className="grid lg:grid-cols-3 gap-8">
               {/* Class XII Alert */}
@@ -208,21 +208,21 @@ const ParentObligationsPage = ({ data }: { data: AppData }) => {
               </div>
 
               {/* General Recommendations */}
-              <div className="lg:col-span-2 bg-white rounded-[40px] p-12 border border-slate-100 relative overflow-hidden">
+              <div className="lg:col-span-2 bg-school-paper rounded-[40px] p-12 border border-school-ink/10 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8">
-                  <StickyNote className="text-slate-100" size={120} />
+                  <StickyNote className="text-school-ink/5 opacity-40 shrink-0" size={120} />
                 </div>
-                <h3 className="text-3xl font-serif font-black text-school-navy italic uppercase mb-10 relative z-10">Institutional Recommendations</h3>
+                <h3 className="text-3xl font-serif font-black text-school-ink italic uppercase mb-10 relative z-10">Institutional Recommendations</h3>
                 <div className="grid md:grid-cols-2 gap-x-12 gap-y-8 relative z-10 text-justify">
                   <div className="space-y-4">
-                    <p className="text-sm font-bold text-school-navy underline decoration-school-gold decoration-2 underline-offset-4 mb-4 text-left">Academic Hygiene</p>
-                    <p className="text-sm text-slate-500 leading-relaxed">Remain regularly in touch with day-to-day studies and keep contact with the school.</p>
-                    <p className="text-sm text-slate-500 leading-relaxed italic">Private tuitions are strongly discouraged; foster independent working habits.</p>
+                    <p className="text-sm font-bold text-school-ink underline decoration-school-gold decoration-2 underline-offset-4 mb-4 text-left">Academic Hygiene</p>
+                    <p className="text-sm text-school-ink/60 leading-relaxed">Remain regularly in touch with day-to-day studies and keep contact with the school.</p>
+                    <p className="text-sm text-school-ink/60 leading-relaxed italic">Private tuitions are strongly discouraged; foster independent working habits.</p>
                   </div>
                   <div className="space-y-4">
-                    <p className="text-sm font-bold text-school-navy underline decoration-school-gold decoration-2 underline-offset-4 mb-4 text-left">Official Conduct</p>
-                    <p className="text-sm text-slate-500 leading-relaxed">Always state full name, registration number, class, and roll number in official correspondence.</p>
-                    <p className="text-sm text-slate-500 leading-relaxed">Ensure bags are packed according to the timetable every day to avoid over-loading.</p>
+                    <p className="text-sm font-bold text-school-ink underline decoration-school-gold decoration-2 underline-offset-4 mb-4 text-left">Official Conduct</p>
+                    <p className="text-sm text-school-ink/60 leading-relaxed">Always state full name, registration number, class, and roll number in official correspondence.</p>
+                    <p className="text-sm text-school-ink/60 leading-relaxed">Ensure bags are packed according to the timetable every day to avoid over-loading.</p>
                   </div>
                 </div>
               </div>
@@ -232,12 +232,12 @@ const ParentObligationsPage = ({ data }: { data: AppData }) => {
 
         {/* Disclaimer/Footer Note */}
         <section className="py-24 text-center max-w-4xl mx-auto px-6">
-          <div className="p-12 glass-surface rounded-[48px] border border-slate-200">
+          <div className="p-12 glass-surface rounded-[48px] border border-school-ink/10">
             <Info className="mx-auto text-school-gold mb-6" size={40} />
-            <p className="text-xl font-serif font-bold text-school-navy italic leading-relaxed mb-4">
+            <p className="text-xl font-serif font-bold text-school-ink italic leading-relaxed mb-4">
               "Respect for person, property and environment should be inculcated in children."
             </p>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-school-navy/30">St. Xavier's Secondary School, Jaipur</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-school-ink/30">St. Xavier's Secondary School, Jaipur</p>
           </div>
         </section>
       </div>

@@ -38,7 +38,7 @@ const SchoolCalendar = ({ events }: SchoolCalendarProps) => {
     return (
       <div className="flex items-center justify-between px-8 py-6 bg-school-navy text-white rounded-t-[40px]">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
+          <div className="p-3 bg-school-paper/10 rounded-2xl backdrop-blur-md">
             <CalendarIcon className="text-school-gold" size={24} />
           </div>
           <div>
@@ -69,9 +69,9 @@ const SchoolCalendar = ({ events }: SchoolCalendarProps) => {
   const renderDays = () => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     return (
-      <div className="grid grid-cols-7 border-b border-school-navy/5 bg-slate-50/50">
+      <div className="grid grid-cols-7 border-b border-school-ink/10 bg-school-ink/5">
         {days.map((day, idx) => (
-          <div key={idx} className="py-4 text-center text-[10px] font-black uppercase tracking-widest text-school-navy/40">
+          <div key={idx} className="py-4 text-center text-[10px] font-black uppercase tracking-widest text-school-ink/40">
             {day}
           </div>
         ))}
@@ -103,14 +103,14 @@ const SchoolCalendar = ({ events }: SchoolCalendarProps) => {
         days.push(
           <div
             key={day.toString()}
-            className={`relative h-24 md:h-32 border-r border-b border-school-navy/5 group cursor-pointer transition-all duration-500 overflow-hidden
-              ${!isCurrentMonth ? 'bg-slate-50/20 opacity-30 cursor-default grayscale' : 'bg-white hover:bg-slate-50'}
+            className={`relative h-24 md:h-32 border-r border-b border-school-ink/10 group cursor-pointer transition-all duration-500 overflow-hidden
+              ${!isCurrentMonth ? 'bg-school-ink/5 opacity-30 cursor-default grayscale' : 'bg-school-paper hover:bg-school-ink/5'}
               ${isSelected ? 'z-10 ring-2 ring-school-gold ring-inset shadow-xl' : ''}
             `}
             onClick={() => isCurrentMonth && setSelectedDate(cloneDay)}
           >
             <div className={`absolute top-4 left-4 text-sm font-black transition-all duration-500 
-              ${isSelected ? 'text-school-gold scale-125' : isToday ? 'text-school-navy flex items-center gap-2' : 'text-school-navy/30 group-hover:text-school-navy'}
+              ${isSelected ? 'text-school-gold scale-125' : isToday ? 'text-school-ink flex items-center gap-2' : 'text-school-ink/30 group-hover:text-school-ink'}
             `}>
               {formattedDate}
               {isToday && <span className="w-1.5 h-1.5 rounded-full bg-school-gold animate-pulse"></span>}
@@ -127,7 +127,7 @@ const SchoolCalendar = ({ events }: SchoolCalendarProps) => {
             {hasEvents && isCurrentMonth && (
               <div className="mt-12 px-4 space-y-1">
                 {dayEvents.slice(0, 2).map((e, idx) => (
-                  <div key={e.id} className="text-[9px] font-bold text-school-navy truncate bg-slate-100 p-1 rounded border-l-2 border-school-gold">
+                  <div key={e.id} className="text-[9px] font-bold text-school-ink truncate bg-school-ink/5 p-1 rounded border-l-2 border-school-gold">
                     {e.title}
                   </div>
                 ))}
@@ -175,7 +175,7 @@ const SchoolCalendar = ({ events }: SchoolCalendarProps) => {
 
   return (
     <div className="max-w-7xl mx-auto px-6 lg:px-12">
-      <div className="bg-white rounded-[40px] shadow-2xl border border-school-navy/5 overflow-hidden">
+      <div className="bg-school-paper rounded-[40px] shadow-2xl border border-school-ink/10 overflow-hidden text-school-ink">
         {renderHeader()}
         {renderDays()}
         {renderCells()}
@@ -192,13 +192,13 @@ const SchoolCalendar = ({ events }: SchoolCalendarProps) => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-school-gold mb-2 block">Events for</span>
-                <h3 className="text-4xl md:text-5xl font-serif font-black text-school-navy italic">
+                <h3 className="text-4xl md:text-5xl font-serif font-black text-school-ink italic">
                   {format(selectedDate, 'do MMMM, yyyy')}
                 </h3>
               </div>
               <button 
                 onClick={() => setSelectedDate(null)}
-                className="text-xs font-black uppercase tracking-widest text-school-navy/40 hover:text-school-gold transition-colors"
+                className="text-xs font-black uppercase tracking-widest text-school-ink/40 hover:text-school-gold transition-colors"
               >
                 Close Details
               </button>
@@ -219,15 +219,15 @@ const SchoolCalendar = ({ events }: SchoolCalendarProps) => {
                         <Clock className="text-school-gold" size={24} />
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-2xl font-serif font-black text-school-navy mb-4 group-hover:text-school-gold transition-colors">
+                        <h4 className="text-2xl font-serif font-black text-school-ink mb-4 group-hover:text-school-gold transition-colors">
                           {event.title}
                         </h4>
                         <div className="space-y-3 mb-8">
-                          <div className="flex items-center gap-3 text-school-navy/60 text-sm font-medium">
+                          <div className="flex items-center gap-3 text-school-ink/60 text-sm font-medium">
                             <Clock size={16} className="text-school-gold" />
                             <span>{event.time}</span>
                           </div>
-                          <div className="flex items-center gap-3 text-school-navy/60 text-sm font-medium">
+                          <div className="flex items-center gap-3 text-school-ink/60 text-sm font-medium">
                             <MapPin size={16} className="text-school-gold" />
                             <span>{event.location}</span>
                           </div>
@@ -246,11 +246,11 @@ const SchoolCalendar = ({ events }: SchoolCalendarProps) => {
               </div>
             ) : (
               <div className="py-20 text-center">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-50 border border-school-navy/5 mb-6">
-                  <CalendarIcon className="text-school-navy/20" size={32} />
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-school-ink/5 border border-school-ink/10 mb-6">
+                  <CalendarIcon className="text-school-ink/20" size={32} />
                 </div>
-                <h4 className="text-xl font-serif font-bold text-school-navy/40">No events scheduled for this day.</h4>
-                <p className="text-sm text-school-navy/20 mt-2">Check other dates or return to the main calendar.</p>
+                <h4 className="text-xl font-serif font-bold text-school-ink/40">No events scheduled for this day.</h4>
+                <p className="text-sm text-school-ink/20 mt-2">Check other dates or return to the main calendar.</p>
               </div>
             )}
           </motion.div>

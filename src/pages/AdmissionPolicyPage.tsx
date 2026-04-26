@@ -9,7 +9,7 @@ const AdmissionPolicyPage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
-      <div className="bg-slate-50 min-h-screen">
+      <div className="bg-school-paper min-h-screen">
         {/* Banner Section */}
         <section className="py-20 bg-school-navy relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
@@ -32,7 +32,7 @@ const AdmissionPolicyPage = ({ data }: { data: AppData }) => {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="glass-surface bg-white p-12 md:p-20 rounded-[64px] border border-white shadow-2xl space-y-16"
+            className="glass-surface bg-school-paper p-12 md:p-20 rounded-[64px] border border-school-ink/10 shadow-2xl space-y-16"
           >
             {/* Withdrawal Section */}
             <div className="space-y-8">
@@ -40,24 +40,24 @@ const AdmissionPolicyPage = ({ data }: { data: AppData }) => {
                 <div className="w-12 h-12 bg-school-gold/10 rounded-2xl flex items-center justify-center text-school-gold">
                   <FileText size={24} />
                 </div>
-                <h2 className="text-4xl font-serif font-black text-school-navy italic tracking-tight uppercase">Withdrawal</h2>
+                <h2 className="text-4xl font-serif font-black text-school-ink italic tracking-tight uppercase">Withdrawal</h2>
               </div>
               
-              <div className="space-y-6 text-lg text-school-navy/80 leading-relaxed font-light text-justify">
+              <div className="space-y-6 text-lg text-school-ink/80 leading-relaxed font-light text-justify">
                 <p>
                   Any intended withdrawal of a student from the school must be communicated to the Principal in writing at least one calendar month (30 days) in advance; otherwise one month's fee will be charged. Those who withdraw from the school in April or May must pay fee up to June inclusive.
                 </p>
                 <p>
                   The School reserves the right to ask the parents to withdraw their child if his/her progress in studies is unsatisfactory, conduct harmful to other students, fee is not paid on time or if there are other reasons which, in the opinion of the school authorities, render his/her continuation in the school undesirable. 
                 </p>
-                <div className="bg-slate-50 p-10 rounded-[32px] border border-slate-100 italic text-justify">
+                <div className="bg-school-paper/50 p-10 rounded-[32px] border border-school-ink/10 italic text-justify">
                   Honesty, cleanliness of person and dress, good manners and loyalty are expected of each student and anyone not conforming to the School's ideals in these matters may be asked to leave. Immorality, grave insubordination, contempt of authority or wilful damage to property are always reasons for dismissal.
                 </div>
               </div>
             </div>
 
             {/* Action Section */}
-            <div className="pt-12 border-t border-slate-100 flex flex-col items-center gap-8">
+            <div id="prospectus" className="pt-12 border-t border-school-ink/10 flex flex-col items-center gap-8">
               <a 
                 href={prospectusLink}
                 target="_blank"
@@ -67,7 +67,7 @@ const AdmissionPolicyPage = ({ data }: { data: AppData }) => {
                 <Download size={18} className="group-hover:translate-y-1 transition-transform" />
                 View Prospectus
               </a>
-              <p className="text-xs text-school-navy/40 font-black uppercase tracking-widest text-center">Digital Admission Portal 2026-27</p>
+              <p className="text-xs text-school-ink/40 font-black uppercase tracking-widest text-center">Digital Admission Portal 2026-27</p>
             </div>
           </motion.div>
         </section>

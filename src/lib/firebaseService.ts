@@ -22,7 +22,7 @@ export const firebaseService = {
       try {
         const collections: (keyof AppData)[] = [
           'notices', 'staff', 'gallery', 'fees', 'links', 
-          'events', 'achievements', 'studentHonors', 'menu', 'carousel'
+          'events', 'achievements', 'studentHonors', 'menu', 'carousel', 'settings', 'content'
         ];
         
         const results: Partial<AppData> = {};
@@ -30,7 +30,15 @@ export const firebaseService = {
         await Promise.all(collections.map(async (colName) => {
           const q = query(collection(db, colName));
           const snapshot = await getDocs(q);
-          results[colName] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any;
+          const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          
+          if (colName === 'settings' || colName === 'content') {
+            if (docs.length > 0) {
+              results[colName] = docs[0] as any;
+            }
+          } else {
+            results[colName] = docs as any;
+          }
         }));
         
         return results;
@@ -85,10 +93,14 @@ export const firebaseService = {
     try {
       const collections = Object.keys(data) as (keyof AppData)[];
       for (const section of collections) {
-        const items = data[section];
-        if (!Array.isArray(items)) continue;
-        for (const item of items) {
-          await this.saveItem(section, item);
+        const value = data[section];
+        if (Array.isArray(value)) {
+          for (const item of value) {
+            await this.saveItem(section, item);
+          }
+        } else if (value && typeof value === 'object') {
+          // Handle single objects like 'settings'
+          await this.saveItem(section, value);
         }
       }
     } catch (error) {
