@@ -101,79 +101,8 @@ const HomePage = ({ data }: { data: AppData }) => {
         </div>
       </section>
 
-      {/* Immersive Wero-Style Hero Section - Background Transparent */}
-      <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden px-6 py-12 md:py-20 bg-transparent">
-        {/* Large Decorative Background Text for Mobile/Desktop */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 pointer-events-none select-none overflow-hidden lg:hidden">
-          <h2 className="text-[60vw] font-black text-school-accent opacity-[0.02] -rotate-12 translate-x-[-10%] translate-y-[20%] whitespace-nowrap">
-            2026-27
-          </h2>
-        </div>
-        
-        <div className="max-w-7xl mx-auto relative z-10 w-full">
-          <div className="flex flex-col items-center text-center space-y-8 md:space-y-12">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8 }}
-              className="px-4 py-1.5 md:px-6 md:py-2 bg-school-paper/80 dark:bg-school-paper/30 backdrop-blur-md rounded-full border border-school-ink/10 shadow-sm"
-            >
-              <span className="text-[10px] md:text-[14px] font-bold text-school-accent uppercase tracking-widest">
-                {data.content?.heroBadge || 'A Legacy of Jesuit Excellence'}
-              </span>
-            </motion.div>
-
-            <motion.h2
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[18vw] md:text-[8rem] font-sans font-black leading-[0.9] tracking-tighter text-school-ink"
-            >
-              {data.content?.heroTitle1 || 'Beyond'} <br />
-              <span className="text-school-accent">{data.content?.heroTitle2 || 'Imagination.'}</span>
-            </motion.h2>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.2 }}
-              className="text-lg md:text-3xl text-school-ink/60 font-medium max-w-3xl leading-snug px-4 text-justify md:text-center"
-            >
-              {data.content?.heroDescription || 'Step into a world where tradition meets innovation. Empowering leaders since 1941.'}
-            </motion.p>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.4 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6"
-            >
-              {data.settings?.applyNowEnabled && (
-                <a 
-                  href={data.settings.applyNowUrl || '#'} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-8 md:px-14 py-4 md:py-6 bg-school-accent text-white rounded-full text-lg md:text-xl font-black shadow-[0_20px_40px_rgba(122,61,252,0.3)] hover:scale-105 active:scale-95 transition-all text-center"
-                >
-                  {data.settings.applyNowLabel || 'Join the Legacy'}
-                </a>
-              )}
-              <button 
-                onClick={() => {
-                  const campusSection = document.getElementById('campus-3d');
-                  campusSection?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="w-full sm:w-auto px-8 md:px-14 py-4 md:py-6 bg-school-neon text-school-ink rounded-full text-lg md:text-xl font-black shadow-[0_20px_40px_rgba(199,242,18,0.2)] hover:scale-105 active:scale-95 transition-all"
-              >
-                {data.content?.exploreButton || 'Explore Campus'}
-              </button>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
       {/* About St. Xavier's School - Introduction Section */}
-      <section id="about-section" className="py-24 bg-white dark:bg-transparent relative overflow-hidden">
+      <section id="about-section" className="py-12 bg-white dark:bg-transparent relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-20 items-center">
             <motion.div

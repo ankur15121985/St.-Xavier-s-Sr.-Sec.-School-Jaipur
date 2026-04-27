@@ -468,6 +468,14 @@ const syncFeesIfNeeded = () => {
             const insert = db.prepare(`INSERT INTO fees (id, category, particulars, amount, quarterly, remarks, order_index, attachmentUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`);
             defaultFees.forEach(f => insert.run(f.id, f.category, f.particulars, f.amount, f.quarterly, f.remarks, f.order_index, f.attachmentUrl));
         }
+
+        // Seed TC for testing if empty
+        const tcCountRes = db.prepare("SELECT COUNT(*) as count FROM transfer_certificates").get() as any;
+        if ((tcCountRes?.count || 0) === 0) {
+            console.log("[MIGRATION] Seeding test Transfer Certificate...");
+            db.prepare("INSERT INTO transfer_certificates (id, admission_number, dob, student_name, attachmentUrl) VALUES (?, ?, ?, ?, ?)")
+              .run('test-tc-1', 'TC01', '2026-04-27', 'TEST STUDENT', 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf');
+        }
     } catch (err) {
         console.error("[MIGRATION ERROR] Fees sync failed:", err);
     }
@@ -818,7 +826,7 @@ app.post('/api/save', (req, res) => {
 app.delete('/api/delete', (req, res) => {
   try {
     const { table, id, ids } = req.body;
-    const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors'];
+    const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'transfer_certificates', 'faqs', 'messages'];
     
     if (!whitelist.includes(table)) {
       return res.status(400).json({ error: 'Invalid table name' });
@@ -851,14 +859,18 @@ app.get('/api/tc', (req, res) => {
 
 app.post('/api/tc/search', express.json(), (req, res) => {
   const { admissionNumber, dob } = req.body;
+  console.log(`[TC SEARCH] Query: ${admissionNumber}, DOB: ${dob}`);
   try {
     const tc = db.prepare("SELECT * FROM transfer_certificates WHERE admission_number = ? AND dob = ?").get(admissionNumber, dob) as any;
     if (tc) {
+      console.log(`[TC SEARCH] Match found for ${admissionNumber}`);
       res.json(tc);
     } else {
+      console.warn(`[TC SEARCH] No match for ${admissionNumber} with DOB ${dob}`);
       res.status(404).json({ error: 'Certificate not found. Please verify details.' });
     }
-  } catch (err) {
+  } catch (err: any) {
+    console.error(`[TC SEARCH ERROR]`, err.message);
     res.status(500).json({ error: 'Search failed' });
   }
 });

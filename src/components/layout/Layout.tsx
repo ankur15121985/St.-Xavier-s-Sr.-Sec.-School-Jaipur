@@ -47,11 +47,11 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
   }, []);
 
   // Determine navbar text color based on scroll and theme
-  const isLightNav = isScrolled || navbarTheme === 'light';
-  const navTextColor = isLightNav ? 'text-school-navy' : 'text-white';
-  const navSubTextColor = isLightNav ? 'text-school-navy/40' : 'text-white/40';
-  const navLinkColor = isLightNav ? 'text-school-navy/70' : 'text-white/70';
-  const logoInvert = isLightNav ? '' : 'invert';
+  const isLightNav = true; // Always use light nav (black text) as requested
+  const navTextColor = 'text-school-navy';
+  const navSubTextColor = 'text-school-navy/40';
+  const navLinkColor = 'text-school-navy/70';
+  const logoInvert = '';
 
   // Transform flat menu data into hierarchical structure
   const navLinks = React.useMemo<NavLink[]>(() => {
@@ -79,43 +79,39 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
   return (
     <div className="min-h-screen bg-transparent selection:bg-school-accent selection:text-white overflow-x-hidden dark:text-slate-200">
       {/* Multi-Level Header Section */}
-      <header className="w-full relative z-[60]">
-        {/* Top Utility Bar (Semi-transparent accent) */}
-        <div className="bg-school-accent/80 backdrop-blur-md py-2 md:py-3">
+      <header className="w-full relative z-[60] bg-white shadow-sm border-b border-school-ink/5">
+        {/* Top Utility Bar */}
+        <div className="py-1 border-b border-school-ink/10">
           <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex items-center justify-between">
             <div className="flex items-center gap-4 md:gap-6">
               <div className="hidden sm:flex gap-4">
-                <a href="https://www.facebook.com/stxaviersjaipur/" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors"><Facebook size={12} fill="currentColor" /></a>
-                <a href="https://www.instagram.com/xaviers_jaipur/" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors"><Instagram size={12} /></a>
-                <a href="https://www.youtube.com/@st.xaviersc-schemejaipur2421" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors"><Youtube size={12} fill="currentColor" /></a>
+                <a href="https://www.facebook.com/stxaviersjaipur/" target="_blank" rel="noopener noreferrer" className="text-school-navy/60 hover:text-school-accent transition-colors"><Facebook size={12} fill="currentColor" /></a>
+                <a href="https://www.instagram.com/xaviers_jaipur/" target="_blank" rel="noopener noreferrer" className="text-school-navy/60 hover:text-school-accent transition-colors"><Instagram size={12} /></a>
+                <a href="https://www.youtube.com/@st.xaviersc-schemejaipur2421" target="_blank" rel="noopener noreferrer" className="text-school-navy/60 hover:text-school-accent transition-colors"><Youtube size={12} fill="currentColor" /></a>
               </div>
-              <div className="hidden lg:flex items-center gap-2 text-white text-[12px] font-bold">
-                <Phone size={14} className="text-school-neon" />
+              <div className="hidden lg:flex items-center gap-2 text-school-navy text-[12px] font-bold">
+                <Phone size={14} className="text-school-accent" />
                 <span>{data.settings?.contactPhone || '0141-2372336'}</span>
               </div>
             </div>
             <div className="flex items-center gap-4 md:gap-6">
               <button 
                 onClick={() => setIsDark(!isDark)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all active:scale-95"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-school-navy/60 hover:text-school-accent hover:bg-school-accent/5 transition-all active:scale-95"
                 title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               >
                 {isDark ? <Sun size={14} /> : <Moon size={14} />}
               </button>
-              <Link to="/studybase-app" className="bg-school-neon text-school-ink px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-[11px] font-black flex items-center gap-2 hover:scale-105 transition-all shadow-md">
-                <ArrowDown size={14} className="animate-bounce shrink-0" />
-                App
-              </Link>
-              <div className="flex gap-4 md:gap-6 text-white text-[10px] md:text-[12px] font-bold uppercase tracking-wider">
-                <Link to="/admin" className="hover:text-school-neon transition-colors">Login</Link>
-                <Link to="/contact" className="hover:text-school-neon transition-colors hidden sm:block">Contact</Link>
+              <div className="flex gap-4 md:gap-6 text-school-navy text-[10px] md:text-[12px] font-bold uppercase tracking-wider">
+                <Link to="/admin" className="hover:text-school-accent transition-colors">Login</Link>
+                <Link to="/contact" className="hover:text-school-accent transition-colors hidden sm:block">Contact</Link>
               </div>
             </div>
           </div>
         </div>
 
         {/* Priority Links Ticker */}
-        <div className="bg-school-accent/10 py-1 overflow-hidden relative border-y border-school-accent/5">
+        <div className="py-1 overflow-hidden relative border-b border-school-ink/5 bg-school-paper/50">
           <div className="flex whitespace-nowrap animate-marquee py-1">
              {[...Array(4)].map((_, i) => (
                 <div key={i} className="flex items-center gap-12 px-6">
@@ -125,8 +121,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       href={link.url} 
                       className="flex items-center gap-3 group"
                     >
-                      <span className="w-1.5 h-1.5 bg-school-gold rounded-full animate-pulse group-hover:scale-150 transition-transform" />
-                      <span className="text-[9px] font-black uppercase tracking-widest text-school-navy/60 group-hover:text-school-accent transition-colors">
+                      <span className="w-1.5 h-1.5 bg-school-accent rounded-full animate-pulse group-hover:scale-150 transition-transform" />
+                      <span className="text-[9px] font-black uppercase tracking-widest text-school-navy group-hover:text-school-accent transition-colors">
                         {link.title}
                       </span>
                     </a>
@@ -134,16 +130,13 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 </div>
              ))}
           </div>
-          {/* Edge Fades */}
-          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-school-paper/50 to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-school-paper/50 to-transparent z-10 pointer-events-none" />
         </div>
 
-        {/* Main Branding Section - Blended White - Sticky on Mobile only when scrolled */}
-        <div className={`bg-school-paper/40 backdrop-blur-xl py-4 md:py-8 border-b border-white/20 dark:border-white/5 transition-all duration-300 ${isScrolled ? 'fixed lg:relative top-0 inset-x-0 !py-3' : 'relative'}`}>
+        {/* Main Branding Section - White Background */}
+        <div className={`py-1 transition-all duration-300 ${isScrolled ? 'fixed lg:relative top-0 inset-x-0 !py-1 bg-white group border-b border-school-ink/10 shadow-xl' : 'relative'}`}>
           <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex items-center justify-between">
             <div className="flex items-center gap-4 md:gap-6">
-              <Link to="/" className="w-14 h-14 md:w-24 md:h-24 shrink-0 transition-transform hover:scale-110">
+              <Link to="/" className="w-10 h-10 md:w-14 md:h-14 shrink-0 transition-transform hover:scale-110">
                 <img 
                   src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} 
                   alt={data.settings?.siteName || "St. Xavier's Logo"} 
@@ -151,15 +144,15 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 />
               </Link>
               <div className="flex flex-col">
-                <h1 className="text-xl md:text-5xl font-black text-school-ink dark:text-white tracking-tighter leading-none">
+                <h1 className="text-xl md:text-2xl font-black text-school-navy drop-shadow-sm tracking-tighter leading-none">
                   {data.settings?.siteName?.split(',')[0]?.split('Sec.')[0] || "St. Xavier's"} <br className="md:hidden" />
                   <span className="text-school-accent italic">
                     {data.settings?.siteName?.includes('Jaipur') ? 'Jaipur' : ''}
                   </span>
                 </h1>
-                <div className="hidden md:flex items-center gap-3 mt-3">
-                  <span className="w-1.5 h-1.5 bg-school-gold rounded-full" />
-                  <p className="text-school-ink/50 dark:text-school-paper/50 text-[11px] md:text-sm font-medium">
+                <div className="hidden md:flex items-center gap-3 mt-2">
+                  <span className="w-1.5 h-1.5 bg-school-accent rounded-full animate-pulse" />
+                  <p className="text-school-navy/60 text-[11px] md:text-xs font-medium tracking-wide">
                     {data.settings?.contactAddress || 'Bhagwan Das Road, C-Scheme, Jaipur - 302001'}
                   </p>
                 </div>
@@ -174,17 +167,17 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 <Menu size={24} />
               </button>
 
-              <button className="hidden xl:flex p-5 bg-school-bronze text-school-ink rounded-full hover:bg-school-neon transition-all hover:scale-110">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <button className="hidden xl:flex p-4 bg-school-ink/5 text-school-navy rounded-full hover:bg-school-accent hover:text-white transition-all hover:scale-110 border border-school-ink/10">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Menu Bar (Sticky) - Glass Theme - Desktop Only */}
-      <nav className={`w-full z-50 hidden lg:block transition-all duration-500 ${isScrolled ? 'fixed top-0 bg-school-paper shadow-[0_15px_60px_-15px_rgba(0,0,0,0.1)] border-b border-school-ink/5 dark:border-school-paper/5' : 'relative bg-school-paper/20 backdrop-blur-sm border-b border-white/10 dark:border-white/5'}`}>
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex items-center justify-between h-20 md:h-24">
+      {/* Main Menu Bar (Sticky) - White/Light - Desktop Only */}
+      <nav className={`w-full z-50 hidden lg:block transition-all duration-500 ${isScrolled ? 'fixed top-0 bg-white shadow-[0_15px_60px_-15px_rgba(0,0,0,0.1)] border-b border-school-ink/5' : 'relative bg-white border-b border-school-ink/5'}`}>
+        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex items-center justify-between h-12 md:h-14">
           <div className="flex items-center gap-12">
             {/* Small Logo for Scrolled State */}
             <AnimatePresence>
@@ -195,18 +188,18 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   exit={{ opacity: 0, x: -20 }}
                   className="flex items-center gap-4"
                 >
-                  <Link to="/" className="w-12 h-12">
+                  <Link to="/" className="w-10 h-10">
                     <img 
                       src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} 
                       alt="Logo" 
-                      className={`w-full h-full object-contain ${isDark ? 'invert' : ''}`}
+                      className="w-full h-full object-contain"
                     />
                   </Link>
                   <div className="flex flex-col">
-                    <span className="text-xs font-black text-school-ink dark:text-white leading-none">
+                    <span className="text-[10px] font-black text-school-navy dark:text-white leading-none">
                       {data.settings?.siteName?.split(',')[0]?.split('Sec.')[0]?.toUpperCase() || "ST. XAVIER'S"}
                     </span>
-                    <span className="text-[10px] text-school-accent italic font-serif">
+                    <span className="text-[8px] text-school-accent italic font-serif">
                       {data.settings?.siteName?.includes('Jaipur') ? 'Jaipur' : ''}
                     </span>
                   </div>
@@ -215,30 +208,30 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             </AnimatePresence>
 
             {/* Main Navigation (Desktop) */}
-            <div className="hidden xl:flex items-center gap-12">
+            <div className="hidden xl:flex items-center gap-10">
             {navLinks.map(l => (
               <div key={l.label} className="relative group flex items-center h-full">
                 {l.subLinks ? (
                   <>
                     <button 
                       onMouseEnter={() => setActiveDropdown(l.label)}
-                      className={`text-[13px] font-black uppercase tracking-widest flex items-center gap-2 transition-all ${activeDropdown === l.label ? 'text-school-accent scale-105' : 'text-school-ink/60 hover:text-school-ink'}`}
+                      className={`text-[12px] font-black uppercase tracking-widest flex items-center gap-2 transition-all ${activeDropdown === l.label ? 'text-school-accent scale-105' : 'text-school-navy/60 hover:text-school-navy'}`}
                     >
                       {l.label}
-                      <ArrowDown size={14} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180 text-school-accent' : 'opacity-20 group-hover:opacity-100'}`} />
+                      <ArrowDown size={12} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180 opacity-100' : 'opacity-20 group-hover:opacity-100'}`} />
                     </button>
                     
                     <AnimatePresence>
                       {activeDropdown === l.label && (
                         <motion.div 
-                          initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                          initial={{ opacity: 0, y: 20, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 20, scale: 0.9 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           onMouseLeave={() => setActiveDropdown(null)}
-                          className="absolute top-full -left-12 pt-4 w-[360px]"
+                          className="absolute top-full -left-12 pt-4 w-[320px]"
                         >
-                          <div className="bg-school-paper rounded-[40px] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.2)] border border-school-ink/5 dark:border-school-paper/10 p-6">
-                            <div className="grid gap-2">
+                          <div className="bg-white rounded-[32px] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.2)] border border-school-ink/5 dark:border-school-paper/10 p-5">
+                            <div className="grid gap-1">
                               {l.subLinks.map(sl => (
                                 <DesktopSubNavLink 
                                   key={sl.label} 
@@ -255,7 +248,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 ) : (
                   <Link 
                     to={l.href} 
-                    className={`text-[13px] font-black uppercase tracking-widest transition-all hover:scale-105 ${location.pathname === l.href ? 'text-school-accent' : 'text-school-ink/60 hover:text-school-ink'}`}
+                    className={`text-[12px] font-black uppercase tracking-widest transition-all hover:scale-105 ${location.pathname === l.href ? 'text-school-accent' : 'text-school-navy/60 hover:text-school-navy'}`}
                   >
                     {l.label}
                   </Link>
@@ -266,11 +259,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         </div>
 
           {/* Action Area */}
-          <div className="flex items-center gap-8">
-            <Link to="/studybase-app" className="hidden lg:flex items-center gap-3 text-school-ink font-black text-xs uppercase tracking-widest bg-school-neon px-10 py-4 rounded-full hover:bg-school-accent hover:text-white transition-all shadow-xl active:scale-95">
-              Secure Fees
-              <ArrowRight size={16} />
-            </Link>
+          <div className="flex items-center gap-6">
+            {/* Secure Fees button removed as requested */}
           </div>
         </div>
       </nav>

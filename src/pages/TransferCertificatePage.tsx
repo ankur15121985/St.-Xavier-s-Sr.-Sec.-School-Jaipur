@@ -33,11 +33,12 @@ const TransferCertificatePage = ({ data }: { data: AppData }) => {
         const result = await res.json();
         setSearchResult(result);
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({ error: 'Communication error with registry.' }));
         setError(err.error || 'No record found.');
       }
-    } catch (err) {
-      setError('Connection failed. Please try again later.');
+    } catch (err: any) {
+      console.error('TC Search Error:', err);
+      setError(`Connection failed: ${err.message || 'Please try again later'}`);
     } finally {
       setLoading(false);
     }
@@ -113,6 +114,12 @@ const TransferCertificatePage = ({ data }: { data: AppData }) => {
                       className="w-full bg-school-ink/5 border-none rounded-2xl p-5 text-school-navy font-bold focus:ring-2 focus:ring-school-gold transition-all outline-none"
                     />
                   </div>
+                </div>
+
+                <div className="px-6 py-3 bg-school-gold/10 rounded-2xl border border-school-gold/20">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-school-navy/60 text-center">
+                    Test Record: <span className="text-school-gold">TC01</span> & <span className="text-school-gold">27-04-2026</span>
+                  </p>
                 </div>
 
                 <AnimatePresence mode="wait">

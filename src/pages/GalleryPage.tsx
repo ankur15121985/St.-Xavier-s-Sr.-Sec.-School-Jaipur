@@ -3,11 +3,12 @@ import { AppData } from '../types';
 import Layout from '../components/layout/Layout';
 import { motion, AnimatePresence } from 'motion/react';
 import { Helmet } from 'react-helmet-async';
-import { Maximize2, X, Camera, Calendar, Image as ImageIcon } from 'lucide-react';
+import { Maximize2, X, Camera, Calendar, Image as ImageIcon, ChevronDown } from 'lucide-react';
 
 const GalleryPage = ({ data }: { data: AppData }) => {
   const [selectedImage, setSelectedImage] = useState<typeof data.gallery[0] | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('All');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const groupedGallery = data.gallery.reduce((acc, item) => {
     const session = item.session || 'Institutional Archives';
@@ -53,21 +54,59 @@ const GalleryPage = ({ data }: { data: AppData }) => {
               <div className="w-24 h-1 bg-school-gold rounded-full mb-8"></div>
               <p className="text-xl text-school-ink/40 font-light max-w-2xl mx-auto italic mb-12">Capturing the soul of St. Xavier's through moments of growth, celebration, and academic pursuit.</p>
 
-              {/* Filter Tabs */}
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                {['All', ...allAvailableSessions].map((filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => setActiveFilter(filter)}
-                    className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                      activeFilter === filter 
-                        ? 'bg-school-navy text-white shadow-xl scale-105' 
-                        : 'bg-white text-school-navy/40 hover:bg-school-gold/10 hover:text-school-navy'
-                    }`}
-                  >
-                    {filter}
-                  </button>
-                ))}
+              {/* Session Selector Dropdown */}
+              <div className="relative inline-block w-full max-w-xs group">
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="w-full flex items-center justify-between px-8 py-4 bg-white dark:bg-school-navy rounded-[24px] border border-school-navy/5 dark:border-white/10 shadow-xl group/btn hover:border-school-gold/30 transition-all"
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="text-[8px] font-black uppercase tracking-widest text-school-gold mb-1">Academic Session</span>
+                    <span className="text-[13px] font-bold text-school-navy dark:text-white uppercase tracking-tight">{activeFilter}</span>
+                  </div>
+                  <ChevronDown 
+                    size={20} 
+                    className={`text-school-gold transition-transform duration-500 ${isDropdownOpen ? 'rotate-180' : ''}`} 
+                  />
+                </button>
+
+                <AnimatePresence>
+                  {isDropdownOpen && (
+                    <>
+                      {/* Backdrop for mobile to close when clicking outside */}
+                      <div 
+                        className="fixed inset-0 z-40 lg:hidden"
+                        onClick={() => setIsDropdownOpen(false)}
+                      />
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                        className="absolute top-full left-0 right-0 mt-4 bg-white dark:bg-school-navy rounded-[32px] shadow-[0_30px_60px_-15px_rgba(0,33,71,0.3)] border border-school-navy/5 dark:border-white/10 p-4 z-50 overflow-hidden"
+                      >
+                        <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                          {['All', ...allAvailableSessions].map((filter) => (
+                            <button
+                              key={filter}
+                              onClick={() => {
+                                setActiveFilter(filter);
+                                setIsDropdownOpen(false);
+                              }}
+                              className={`w-full text-left px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all mb-1 last:mb-0 flex items-center justify-between group/item ${
+                                activeFilter === filter 
+                                  ? 'bg-school-navy text-school-gold dark:bg-white/10 scale-[1.02]' 
+                                  : 'text-school-navy/40 dark:text-white/40 hover:bg-school-gold/5 hover:text-school-navy dark:hover:text-white'
+                              }`}
+                            >
+                              {filter}
+                              {activeFilter === filter && <div className="w-1.5 h-1.5 bg-school-gold rounded-full animate-pulse" />}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
               </div>
            </motion.div>
         </div>
