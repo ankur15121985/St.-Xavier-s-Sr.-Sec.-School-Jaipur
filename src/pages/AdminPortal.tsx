@@ -171,7 +171,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
             ) : (
               <div className="space-y-2">
                 <input value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all" />
-                {(field === 'href' || field === 'label' || field === 'title' || (section === 'fees' && field === 'grade') || (section === 'notices' && field === 'title')) && (
+                {(field === 'href' || field === 'label' || field === 'title' || (section === 'fees' && field === 'particulars') || (section === 'notices' && field === 'title')) && (
                   <div className="flex flex-col gap-2">
                     <label className="block text-center px-4 py-2 bg-school-gold/10 text-school-gold rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
                        {uploadingPath === `${section}-${item.id}-attachmentUrl` ? 'Uploading...' : (section === 'fees' ? 'Upload Fee PDF' : section === 'notices' ? 'Upload Notice PDF/Image' : 'Upload Attachment')}
@@ -348,10 +348,12 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       newItem.category = 'Circular';
       newItem.attachmentUrl = '';
     } else if (tableStr === 'fees') {
-      newItem.grade = 'New Grade';
-      newItem.admissionFee = '₹0';
-      newItem.tuition_fees = '₹0';
-      newItem.quarterly = '₹0';
+      newItem.category = 'School Fee';
+      newItem.particulars = 'Std. I to VII';
+      newItem.amount = '0';
+      newItem.quarterly = '0';
+      newItem.remarks = '';
+      newItem.order_index = (data.fees?.length || 0);
       newItem.attachmentUrl = '';
     } else if (tableStr === 'staff') {
       newItem.name = 'New Staff Member';

@@ -56,10 +56,12 @@ db.exec(`
 db.exec(`
   CREATE TABLE IF NOT EXISTS fees (
     id TEXT PRIMARY KEY,
-    grade TEXT NOT NULL,
-    admissionFee TEXT NOT NULL,
-    tuition_fees TEXT NOT NULL,
+    category TEXT NOT NULL,
+    particulars TEXT NOT NULL,
+    amount TEXT NOT NULL,
     quarterly TEXT NOT NULL,
+    remarks TEXT,
+    order_index INTEGER NOT NULL,
     attachmentUrl TEXT
   )
 `);
@@ -345,11 +347,18 @@ tablesToSeed.forEach(table => {
             ];
         } else if (table === 'fees') {
             defaultData = [
-                { id: '1', grade: 'LKG - Prep', admissionFee: '₹40,000', tuition_fees: '₹4,500', quarterly: '₹13,500' },
-                { id: '2', grade: 'I - V', admissionFee: '₹40,000', tuition_fees: '₹5,200', quarterly: '₹15,600' },
-                { id: '3', grade: 'VI - VIII', admissionFee: '₹45,000', tuition_fees: '₹5,800', quarterly: '₹17,400' },
-                { id: '4', grade: 'IX - X', admissionFee: '₹50,000', tuition_fees: '₹6,400', quarterly: '₹19,200' },
-                { id: '5', grade: 'XI - XII', admissionFee: '₹55,000', tuition_fees: '₹7,200', quarterly: '₹21,600' }
+                // School Fee
+                { id: 'f1', category: 'School Fee', particulars: 'School fee (std. I to VII)', amount: '95900', quarterly: '23975', remarks: '', order_index: 0 },
+                { id: 'f2', category: 'School Fee', particulars: 'School fee (std. VIII)', amount: '87600', quarterly: '21900', remarks: '', order_index: 1 },
+                { id: 'f3', category: 'School Fee', particulars: 'School fee (std. IX & X)', amount: '88000', quarterly: '22000', remarks: '', order_index: 2 },
+                { id: 'f4', category: 'School Fee', particulars: 'School fee (std. XI & XII)', amount: '100400', quarterly: '25100', remarks: '', order_index: 3 },
+                // Annual Fee
+                { id: 'f5', category: 'Annual Fee', particulars: 'Annual fee (std. I to X)', amount: '8700', quarterly: '2175', remarks: 'Charged in 4 Quarters', order_index: 4 },
+                { id: 'f6', category: 'Annual Fee', particulars: 'Annual fee (std. XI)', amount: '11800', quarterly: '2950', remarks: 'Charged in 4 Quarters', order_index: 5 },
+                { id: 'f7', category: 'Annual Fee', particulars: 'Annual fee (std. XII)', amount: '13000', quarterly: '3250', remarks: 'Charged in 4 Quarters', order_index: 6 },
+                // Admission Fee
+                { id: 'f8', category: 'Admission Fee', particulars: 'Admission fee (std. I)', amount: '33200', quarterly: '0', remarks: 'Charged at the time of admission', order_index: 7 },
+                { id: 'f9', category: 'Admission Fee', particulars: 'Admission fee (std. II to XII)', amount: '43500', quarterly: '0', remarks: 'Charged at the time of admission', order_index: 8 },
             ];
         } else if (table === 'links') {
             defaultData = [
@@ -399,7 +408,32 @@ const addColumnIfMissing = (table: string, column: string, type: string) => {
   }
 };
 
+addColumnIfMissing('fees', 'category', 'TEXT');
+addColumnIfMissing('fees', 'particulars', 'TEXT');
+addColumnIfMissing('fees', 'amount', 'TEXT');
+addColumnIfMissing('fees', 'remarks', 'TEXT');
+addColumnIfMissing('fees', 'order_index', 'INTEGER');
 addColumnIfMissing('fees', 'attachmentUrl', 'TEXT');
+
+// Forced Data Sync for Fees (New Schema)
+const checkFees = db.prepare("SELECT category FROM fees LIMIT 1").get() as any;
+if (!checkFees || checkFees.category === null) {
+    console.log("[MIGRATION] detected old or empty fees structure. Refreshing with 2025-26 data...");
+    db.prepare("DELETE FROM fees").run();
+    const defaultFees = [
+        { id: 'f1', category: 'School Fee', particulars: 'School fee (std. I to VII)', amount: '95900', quarterly: '23975', remarks: '', order_index: 0 },
+        { id: 'f2', category: 'School Fee', particulars: 'School fee (std. VIII)', amount: '87600', quarterly: '21900', remarks: '', order_index: 1 },
+        { id: 'f3', category: 'School Fee', particulars: 'School fee (std. IX & X)', amount: '88000', quarterly: '22000', remarks: '', order_index: 2 },
+        { id: 'f4', category: 'School Fee', particulars: 'School fee (std. XI & XII)', amount: '100400', quarterly: '25100', remarks: '', order_index: 3 },
+        { id: 'f5', category: 'Annual Fee', particulars: 'Annual fee (std. I to X)', amount: '8700', quarterly: '2175', remarks: 'Charged in 4 Quarters', order_index: 4 },
+        { id: 'f6', category: 'Annual Fee', particulars: 'Annual fee (std. XI)', amount: '11800', quarterly: '2950', remarks: 'Charged in 4 Quarters', order_index: 5 },
+        { id: 'f7', category: 'Annual Fee', particulars: 'Annual fee (std. XII)', amount: '13000', quarterly: '3250', remarks: 'Charged in 4 Quarters', order_index: 6 },
+        { id: 'f8', category: 'Admission Fee', particulars: 'Admission fee (std. I)', amount: '33200', quarterly: '0', remarks: 'Charged once', order_index: 7 },
+        { id: 'f9', category: 'Admission Fee', particulars: 'Admission fee (std. II to XII)', amount: '43500', quarterly: '0', remarks: 'Charged once', order_index: 8 },
+    ];
+    const insert = db.prepare(`INSERT INTO fees (id, category, particulars, amount, quarterly, remarks, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`);
+    defaultFees.forEach(f => insert.run(f.id, f.category, f.particulars, f.amount, f.quarterly, f.remarks, f.order_index));
+}
 addColumnIfMissing('notices', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('links', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('events', 'attachmentUrl', 'TEXT');
@@ -661,7 +695,7 @@ const SCHEMA: { [key: string]: string[] } = {
   carousel: ['id', 'url', 'caption'],
   notices: ['id', 'title', 'content', 'date', 'category', 'link', 'attachmentUrl'],
   staff: ['id', 'name', 'role', 'bio', 'image', 'type'],
-  fees: ['id', 'grade', 'admissionFee', 'tuition_fees', 'quarterly', 'attachmentUrl'],
+  fees: ['id', 'category', 'particulars', 'amount', 'quarterly', 'remarks', 'order_index', 'attachmentUrl'],
   links: ['id', 'title', 'url', 'attachmentUrl'],
   events: ['id', 'title', 'date', 'time', 'location', 'attachmentUrl'],
   achievements: ['id', 'title', 'year', 'description', 'attachmentUrl'],
