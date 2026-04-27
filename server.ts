@@ -415,25 +415,77 @@ addColumnIfMissing('fees', 'order_index', 'INTEGER');
 addColumnIfMissing('fees', 'attachmentUrl', 'TEXT');
 
 // Forced Data Sync for Fees (New Schema)
-const checkFees = db.prepare("SELECT amount FROM fees LIMIT 1").get() as any;
-if (!checkFees || checkFees.amount === null || isNaN(Number(checkFees.amount))) {
-    console.log("[MIGRATION] detected old or empty fees structure. Refreshing with 2025-26 data...");
-    db.prepare("DELETE FROM fees").run();
-    db.prepare("DELETE FROM menu WHERE id = '2-6'").run(); // Cleanup duplicate from DB
-    const defaultFees = [
-        { id: 'f1', category: 'School Fee', particulars: 'School fee (std. I to VII)', amount: '95900', quarterly: '23975', remarks: '', order_index: 0 },
-        { id: 'f2', category: 'School Fee', particulars: 'School fee (std. VIII)', amount: '87600', quarterly: '21900', remarks: '', order_index: 1 },
-        { id: 'f3', category: 'School Fee', particulars: 'School fee (std. IX & X)', amount: '88000', quarterly: '22000', remarks: '', order_index: 2 },
-        { id: 'f4', category: 'School Fee', particulars: 'School fee (std. XI & XII)', amount: '100400', quarterly: '25100', remarks: '', order_index: 3 },
-        { id: 'f5', category: 'Annual Fee', particulars: 'Annual fee (std. I to X)', amount: '8700', quarterly: '2175', remarks: 'Charged in 4 Quarters', order_index: 4 },
-        { id: 'f6', category: 'Annual Fee', particulars: 'Annual fee (std. XI)', amount: '11800', quarterly: '2950', remarks: 'Charged in 4 Quarters', order_index: 5 },
-        { id: 'f7', category: 'Annual Fee', particulars: 'Annual fee (std. XII)', amount: '13000', quarterly: '3250', remarks: 'Charged in 4 Quarters', order_index: 6 },
-        { id: 'f8', category: 'Admission Fee', particulars: 'Admission fee (std. I)', amount: '33200', quarterly: '0', remarks: 'Charged once', order_index: 7 },
-        { id: 'f9', category: 'Admission Fee', particulars: 'Admission fee (std. II to XII)', amount: '43500', quarterly: '0', remarks: 'Charged once', order_index: 8 },
-    ];
-    const insert = db.prepare(`INSERT INTO fees (id, category, particulars, amount, quarterly, remarks, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`);
-    defaultFees.forEach(f => insert.run(f.id, f.category, f.particulars, f.amount, f.quarterly, f.remarks, f.order_index));
-}
+const syncFeesIfNeeded = () => {
+    try {
+        const tableInfo = db.pragma("table_info(fees)") as any[];
+        const hasGrade = tableInfo.some(c => c.name === 'grade');
+        const countRes = db.prepare("SELECT COUNT(*) as count FROM fees").get() as any;
+        const count = countRes?.count || 0;
+
+        if (hasGrade || count < 5) {
+            console.log("[MIGRATION] Old schema detected or empty table. Wiping and reseeding fees...");
+            if (hasGrade) {
+                db.exec("DROP TABLE IF EXISTS fees");
+                db.exec(`
+                  CREATE TABLE fees (
+                    id TEXT PRIMARY KEY,
+                    category TEXT NOT NULL,
+                    particulars TEXT NOT NULL,
+                    amount TEXT NOT NULL,
+                    quarterly TEXT NOT NULL,
+                    remarks TEXT,
+                    order_index INTEGER NOT NULL,
+                    attachmentUrl TEXT
+                  )
+                `);
+            } else {
+                db.prepare("DELETE FROM fees").run();
+            }
+
+            const defaultFees = [
+                { id: 'f1', category: 'School Fee', particulars: 'School fee (std. I to VII)', amount: '95900', quarterly: '23975', remarks: '', order_index: 0, attachmentUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf' },
+                { id: 'f2', category: 'School Fee', particulars: 'School fee (std. VIII)', amount: '87600', quarterly: '21900', remarks: '', order_index: 1, attachmentUrl: '' },
+                { id: 'f3', category: 'School Fee', particulars: 'School fee (std. IX & X)', amount: '88000', quarterly: '22000', remarks: '', order_index: 2, attachmentUrl: '' },
+                { id: 'f4', category: 'School Fee', particulars: 'School fee (std. XI & XII)', amount: '100400', quarterly: '25100', remarks: '', order_index: 3, attachmentUrl: '' },
+                { id: 'f5', category: 'Annual Fee', particulars: 'Annual fee (std. I to X)', amount: '8700', quarterly: '2175', remarks: 'Charged in 4 Quarters', order_index: 4, attachmentUrl: '' },
+                { id: 'f6', category: 'Annual Fee', particulars: 'Annual fee (std. XI)', amount: '11800', quarterly: '2950', remarks: 'Charged in 4 Quarters', order_index: 5, attachmentUrl: '' },
+                { id: 'f7', category: 'Annual Fee', particulars: 'Annual fee (std. XII)', amount: '13000', quarterly: '3250', remarks: 'Charged in 4 Quarters', order_index: 6, attachmentUrl: '' },
+                { id: 'f8', category: 'Admission Fee', particulars: 'Admission fee (std. I)', amount: '33200', quarterly: '0', remarks: 'Charged at the time of admission', order_index: 7, attachmentUrl: '' },
+                { id: 'f9', category: 'Admission Fee', particulars: 'Admission fee (std. II to XII)', amount: '43500', quarterly: '0', remarks: 'Charged at the time of admission', order_index: 8, attachmentUrl: '' },
+            ];
+            const insert = db.prepare(`INSERT INTO fees (id, category, particulars, amount, quarterly, remarks, order_index, attachmentUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`);
+            defaultFees.forEach(f => insert.run(f.id, f.category, f.particulars, f.amount, f.quarterly, f.remarks, f.order_index, f.attachmentUrl));
+        }
+    } catch (err) {
+        console.error("[MIGRATION ERROR] Fees sync failed:", err);
+    }
+};
+
+syncFeesIfNeeded();
+
+// Aggressive Menu Cleanup
+const cleanMenu = () => {
+    try {
+        db.prepare("DELETE FROM menu WHERE label LIKE 'Other Association%'").run();
+        db.prepare("DELETE FROM menu WHERE label LIKE 'Other %' AND href LIKE '%school-info%'").run();
+        db.prepare("DELETE FROM menu WHERE id = '2-6'").run();
+        
+        // Final De-dupe
+        const items = db.prepare("SELECT * FROM menu").all() as any[];
+        const seen = new Set();
+        items.forEach(item => {
+            const key = `${item.label}-${item.parent_id}`;
+            if (seen.has(key)) {
+                db.prepare("DELETE FROM menu WHERE id = ?").run(item.id);
+            } else {
+                seen.add(key);
+            }
+        });
+    } catch (err) {
+        console.error("[CLEANUP ERROR] Menu cleanup failed:", err);
+    }
+};
+cleanMenu();
 addColumnIfMissing('notices', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('links', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('events', 'attachmentUrl', 'TEXT');

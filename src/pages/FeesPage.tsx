@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AppData } from '../types';
 import Layout from '../components/layout/Layout';
 import { motion, AnimatePresence } from 'motion/react';
-import { CreditCard, ChevronDown, ChevronUp, Info, ShieldCheck, FileText } from 'lucide-react';
+import { CreditCard, ChevronDown, ChevronUp, Info, ShieldCheck, FileText, Maximize2 } from 'lucide-react';
 import PdfViewer from '../components/PdfViewer';
 
 const FeesPage = ({ data }: { data: AppData }) => {
@@ -75,22 +75,59 @@ const FeesPage = ({ data }: { data: AppData }) => {
 
         <div className="max-w-5xl mx-auto px-6">
           <TableHeader 
-            title="School Fees" 
+            title="Managing Committee Approved School Fee Structure" 
             columns={['Particulars', 'Total School Fee', 'Quarterly School Fee']} 
             data={schoolFees}
           />
           
           <TableHeader 
-            title="Annual Fees" 
+            title="Annual Fees (Charged in 4 Quarters)" 
             columns={['Particulars', 'Total Annual Fee', 'Quarterly Annual Fee']} 
             data={annualFees}
           />
           
           <TableHeader 
-            title="Admission Fees" 
+            title="At the time of Admission (Only once from new students)" 
             columns={['Particulars', 'Amount', 'Remarks']} 
             data={admissionFees}
           />
+
+          {/* Integrated PDF Viewer Section */}
+          {(data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl) && (
+            <div className="mt-24 mb-16">
+              <div className="flex items-center gap-6 mb-12 group cursor-default">
+                <div className="h-[2px] bg-school-gold/30 flex-1 group-hover:bg-school-gold transition-colors"></div>
+                <h3 className="text-3xl font-serif font-black text-school-navy italic tracking-tight">Official Fee Documentation</h3>
+                <div className="h-[2px] bg-school-gold/30 flex-1 group-hover:bg-school-gold transition-colors"></div>
+              </div>
+              
+              <div className="aspect-[16/10] w-full bg-school-navy rounded-[40px] overflow-hidden shadow-2xl border border-school-ink/10 relative group">
+                <iframe 
+                  src={`${data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl}#toolbar=0`} 
+                  className="w-full h-full border-none bg-white"
+                  title="Integrated Fee PDF"
+                />
+                <button 
+                  onClick={() => setActivePdf(data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl)}
+                  className="absolute top-6 right-6 p-4 bg-school-gold text-school-navy rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95"
+                >
+                  <Maximize2 size={24} />
+                </button>
+              </div>
+              <div className="mt-6 flex justify-between items-center px-4">
+                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-school-ink/30 italic">Synchronized with Institutional Registry</p>
+                 <a 
+                   href={data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl} 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   className="text-[10px] font-black uppercase tracking-widest text-school-gold hover:text-school-navy transition-colors flex items-center gap-2"
+                 >
+                   <FileText size={14} />
+                   Open in New Tab
+                 </a>
+              </div>
+            </div>
+          )}
 
           <div className="mt-20 p-12 glass-surface rounded-[40px] flex flex-col md:flex-row items-center gap-12 border border-school-ink/5 bg-white/50 backdrop-blur-xl">
             <div className="w-20 h-20 rounded-3xl bg-school-gold text-school-navy flex items-center justify-center shrink-0 shadow-xl">
@@ -101,15 +138,6 @@ const FeesPage = ({ data }: { data: AppData }) => {
               <p className="text-school-ink/50 text-sm leading-relaxed max-w-2xl">Securely manage payments through our synchronized digital infrastructure. We support all major transaction protocols.</p>
             </div>
             <div className="flex gap-4">
-              {data.fees.find(f => f.attachmentUrl)?.attachmentUrl && (
-                <button 
-                  onClick={() => setActivePdf(data.fees.find(f => f.attachmentUrl)!.attachmentUrl!)}
-                  className="px-8 py-4 bg-school-gold/10 text-school-gold border border-school-gold/20 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-school-gold hover:text-school-navy transition-all flex items-center gap-3"
-                >
-                  <FileText size={16} />
-                  View full PDF
-                </button>
-              )}
               <button className="px-10 py-5 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl active:scale-95">
                 Proceed to Payment
               </button>
