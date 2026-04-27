@@ -56,13 +56,20 @@ export const firebaseService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ table: section, item })
       });
-      if (!res.ok) throw new Error('Local server save failed');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `Local server save failed with status ${res.status}`);
+      }
 
-      // 2. Try to sync to Firebase in background (best effort)
+      // 2. Try to sync to Firebase
       const { id, ...data } = item;
-      setDoc(doc(db, section, id), data).catch(err => {
-        console.warn('Cloud sync (Firebase) failed in background:', err.message);
-      });
+      try {
+        await setDoc(doc(db, section, id), data);
+        console.log(`[Cloud Sync] Item ${id} synced to ${section}`);
+      } catch (fbErr: any) {
+        console.warn('[Cloud Sync Warning] Failed to update Firebase. Changes are local only.', fbErr.message);
+        // We don't throw here to allow local operation, but we could notify the user
+      }
     } catch (error) {
       console.error('Save failed:', error);
       throw error;

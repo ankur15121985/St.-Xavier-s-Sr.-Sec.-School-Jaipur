@@ -172,14 +172,24 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
               <div className="space-y-2">
                 <input value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all" />
                 {(field === 'href' || field === 'label' || field === 'title' || (section === 'fees' && field === 'grade') || (section === 'notices' && field === 'title')) && (
-                  <label className="block text-center px-4 py-2 bg-school-gold/10 text-school-gold rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
-                     {uploadingPath === `${section}-${item.id}-attachmentUrl` ? 'Uploading...' : (section === 'fees' ? 'Upload Fee PDF' : section === 'notices' ? 'Upload Notice PDF/Image' : 'Upload Attachment')}
-                     <input type="file" className="hidden" onChange={(e) => {
-                       const targetField = (['notices', 'fees', 'events', 'achievements', 'links'].includes(section)) ? 'attachmentUrl' : 
-                                           (section === 'menu' ? 'href' : field);
-                       handleFileUpload(e, item.id, targetField, section);
-                     }} disabled={!!uploadingPath} />
-                  </label>
+                  <div className="flex flex-col gap-2">
+                    <label className="block text-center px-4 py-2 bg-school-gold/10 text-school-gold rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
+                       {uploadingPath === `${section}-${item.id}-attachmentUrl` ? 'Uploading...' : (section === 'fees' ? 'Upload Fee PDF' : section === 'notices' ? 'Upload Notice PDF/Image' : 'Upload Attachment')}
+                       <input type="file" className="hidden" onChange={(e) => {
+                         const targetField = (['notices', 'fees', 'events', 'achievements', 'links'].includes(section)) ? 'attachmentUrl' : 
+                                             (section === 'menu' ? 'href' : field);
+                         handleFileUpload(e, item.id, targetField, section);
+                       }} disabled={!!uploadingPath} />
+                    </label>
+                    {item.attachmentUrl && ['notices', 'fees', 'events', 'achievements', 'links'].includes(section as string) && (
+                      <button 
+                        onClick={() => handleUpdate(item.id, 'attachmentUrl', '', section)}
+                        className="block text-center px-4 py-2 bg-red-400/10 text-red-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-400/20 transition-all"
+                      >
+                        Remove PDF/Attachment
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             )}
@@ -429,6 +439,9 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Reset input value so same file can be selected again
+    e.target.value = '';
+
     console.log(`[Upload] Starting upload for ${section}/${id}/${field} - File: ${file.name} (${file.size} bytes)`);
     setUploadingPath(`${section}-${id}-${field}`);
     
@@ -438,17 +451,15 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     try {
       // 1. Try Firebase Storage first
       try {
-        console.log(`[Upload] Attempting Firebase Storage upload to ${folder}...`);
+        console.log(`[Upload] Attempting Firebase Storage upload to ${folder}/${file.name}...`);
         const firebaseUrl = await storageService.uploadFile(file, folder);
         console.log(`[Upload] Firebase Success: ${firebaseUrl}`);
         handleUpdate(id, field, firebaseUrl, section);
-        showToast('Media uploaded to Firebase Storage', 'success');
+        showToast('Media uploaded & synced to Cloud', 'success');
+        setUploadingPath(null);
         return; // Success
       } catch (fbErr: any) {
-        console.warn('[Upload] Firebase Storage upload failed:', fbErr.message || fbErr);
-        if (fbErr.code === 'storage/unauthorized') {
-          showToast('Firebase Access Denied. Check Auth.', 'error');
-        }
+        console.warn('[Upload] Firebase Storage upload skipped/failed:', fbErr.message || fbErr);
       }
 
       // 2. Fallback to local server
@@ -461,33 +472,22 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
         body: formData
       });
       
-        if (res.ok) {
-          const text = await res.text();
-          try {
-            const result = JSON.parse(text);
-            console.log(`[Upload] Local Success: ${result.url}`);
-            handleUpdate(id, field, result.url, section);
-            showToast('Media uploaded to local server (Cloud Sync Pending)', 'success');
-          } catch (parseErr) {
-            console.error(`[Upload] Failed to parse local success response as JSON. Status: ${res.status}. Body: ${text.substring(0, 100)}...`);
-            showToast('Server returned invalid data format. Check server logs.', 'error');
-            throw new Error('Server returned invalid response format');
-          }
-        } else {
-          const statusText = res.statusText;
-          const status = res.status;
-          const text = await res.text();
-          let errorMsg = `Server error (${status}: ${statusText})`;
-          try {
-            const errorData = JSON.parse(text);
-            errorMsg = errorData.error || errorMsg;
-          } catch (e) {
-            console.warn(`[Upload] Non-OK response (${status}) was not JSON. Body start: ${text.substring(0, 50)}`);
-          }
-          console.error(`[Upload] Local Failed: ${errorMsg}`);
-          showToast(`Upload failed: ${errorMsg}`, 'error');
-        }
-    } catch (err) {
+      if (res.ok) {
+        const result = await res.json();
+        console.log(`[Upload] Local Success: ${result.url}`);
+        handleUpdate(id, field, result.url, section);
+        showToast('Media saved locally. Login with Google for Cloud Sync.', 'success');
+      } else {
+        const text = await res.text();
+        let errorMsg = `Server error (${res.status})`;
+        try {
+          const errorData = JSON.parse(text);
+          errorMsg = errorData.error || errorMsg;
+        } catch (e) {}
+        console.error(`[Upload] Local Failed: ${errorMsg}`);
+        showToast(`Upload failed: ${errorMsg}`, 'error');
+      }
+    } catch (err: any) {
       console.error('[Upload] Process error:', err);
       showToast('Network error during upload', 'error');
     } finally {
@@ -758,6 +758,20 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
           </div>
         </div>
         <div className="mt-auto p-8 border-t border-white/5 space-y-4">
+           {(!user || !isAdmin) ? (
+             <button 
+               onClick={() => login()} 
+               className="w-full py-4 px-6 bg-white/5 hover:bg-white/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all border border-white/10"
+             >
+               <Key size={14} className="text-school-gold" />
+               Log in with Google to Sync Cloud
+             </button>
+           ) : (
+             <div className="px-6 py-4 bg-school-gold/10 border border-school-gold/20 rounded-xl flex items-center gap-3">
+               <div className="w-2 h-2 bg-school-gold rounded-full animate-pulse" />
+               <p className="text-[9px] font-black uppercase tracking-widest text-school-gold">Cloud Sync Active: {user.email}</p>
+             </div>
+           )}
            {savePending && (
               <div className="px-6 py-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
                 <p className="text-[9px] font-black uppercase tracking-widest text-emerald-500 mb-1">Unsaved Changes</p>

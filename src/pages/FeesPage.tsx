@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { AppData } from '../types';
 import Layout from '../components/layout/Layout';
 import { motion, AnimatePresence } from 'motion/react';
-import { CreditCard, ChevronDown, ChevronUp, Info, ShieldCheck } from 'lucide-react';
+import { CreditCard, ChevronDown, ChevronUp, Info, ShieldCheck, FileText } from 'lucide-react';
+import PdfViewer from '../components/PdfViewer';
 
 const FeesPage = ({ data }: { data: AppData }) => {
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
+  const [activePdf, setActivePdf] = useState<string | null>(null);
 
   const toggleRow = (id: string) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -118,14 +120,16 @@ const FeesPage = ({ data }: { data: AppData }) => {
                                     <p className="text-xs font-light text-white/70 leading-relaxed">Fees are payable in four quarterly installments. Concessions are available for full annual payment.</p>
                                     
                                     {f.attachmentUrl && (
-                                      <a 
-                                        href={f.attachmentUrl} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
+                                      <button 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setActivePdf(f.attachmentUrl || '');
+                                        }}
                                         className="inline-flex items-center gap-3 px-6 py-3 bg-school-gold text-school-navy rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl"
                                       >
+                                        <FileText size={14} />
                                         Official PDF Structure
-                                      </a>
+                                      </button>
                                     )}
 
                                     <div className="flex items-center gap-4 pt-4 border-t border-white/10">
@@ -161,6 +165,13 @@ const FeesPage = ({ data }: { data: AppData }) => {
             </button>
           </div>
         </div>
+
+        <PdfViewer 
+          url={activePdf || ''} 
+          isOpen={!!activePdf} 
+          onClose={() => setActivePdf(null)}
+          title={`Fee Structure: ${data.fees.find(f => f.attachmentUrl === activePdf)?.grade || 'Document'}`}
+        />
       </section>
     </Layout>
   );

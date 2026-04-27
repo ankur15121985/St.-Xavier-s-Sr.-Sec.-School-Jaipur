@@ -401,6 +401,9 @@ const addColumnIfMissing = (table: string, column: string, type: string) => {
 
 addColumnIfMissing('fees', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('notices', 'attachmentUrl', 'TEXT');
+addColumnIfMissing('links', 'attachmentUrl', 'TEXT');
+addColumnIfMissing('events', 'attachmentUrl', 'TEXT');
+addColumnIfMissing('achievements', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('settings', 'siteName', 'TEXT');
 addColumnIfMissing('settings', 'siteLogo', 'TEXT');
 addColumnIfMissing('settings', 'contactEmail', 'TEXT');
@@ -659,9 +662,9 @@ const SCHEMA: { [key: string]: string[] } = {
   notices: ['id', 'title', 'content', 'date', 'category', 'link', 'attachmentUrl'],
   staff: ['id', 'name', 'role', 'bio', 'image', 'type'],
   fees: ['id', 'grade', 'admissionFee', 'tuition_fees', 'quarterly', 'attachmentUrl'],
-  links: ['id', 'title', 'url'],
-  events: ['id', 'title', 'date', 'time', 'location'],
-  achievements: ['id', 'title', 'year', 'description'],
+  links: ['id', 'title', 'url', 'attachmentUrl'],
+  events: ['id', 'title', 'date', 'time', 'location', 'attachmentUrl'],
+  achievements: ['id', 'title', 'year', 'description', 'attachmentUrl'],
   menu: ['id', 'label', 'href', 'parent_id', 'order_index'],
   studentHonors: ['id', 'name', 'category', 'result', 'subtext', 'image', 'order_index'],
   faqs: ['id', 'question', 'answer', 'category', 'order_index'],
