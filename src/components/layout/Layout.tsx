@@ -115,8 +115,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         </div>
 
         {/* Priority Links Ticker */}
-        <div className="bg-school-ink dark:bg-black py-2 overflow-hidden border-y border-white/5 relative">
-          <div className="flex whitespace-nowrap animate-marquee">
+        <div className="bg-school-accent/10 py-1 overflow-hidden relative border-y border-school-accent/5">
+          <div className="flex whitespace-nowrap animate-marquee py-1">
              {[...Array(4)].map((_, i) => (
                 <div key={i} className="flex items-center gap-12 px-6">
                   {data.links?.filter(l => l.isPriority).map(link => (
@@ -125,8 +125,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       href={link.url} 
                       className="flex items-center gap-3 group"
                     >
-                      <span className="w-2 h-2 bg-school-gold rounded-full animate-pulse group-hover:scale-150 transition-transform" />
-                      <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-white/80 group-hover:text-school-neon transition-colors">
+                      <span className="w-1.5 h-1.5 bg-school-gold rounded-full animate-pulse group-hover:scale-150 transition-transform" />
+                      <span className="text-[9px] font-black uppercase tracking-widest text-school-navy/60 group-hover:text-school-accent transition-colors">
                         {link.title}
                       </span>
                     </a>
@@ -135,8 +135,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
              ))}
           </div>
           {/* Edge Fades */}
-          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-school-ink dark:from-black to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-school-ink dark:from-black to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-school-paper/50 to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-school-paper/50 to-transparent z-10 pointer-events-none" />
         </div>
 
         {/* Main Branding Section - Blended White - Sticky on Mobile only when scrolled */}

@@ -41,6 +41,7 @@ import CareersPage from './pages/CareersPage';
 import NoticeBoardPage from './pages/NoticeBoardPage';
 import ContactPage from './pages/ContactPage';
 import AdminPortal from './pages/AdminPortal';
+import TransferCertificatePage from './pages/TransferCertificatePage';
 
 const PageTransition = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -285,7 +286,7 @@ const DEFAULT_DATA: AppData = {
     { id: '9', label: 'More', href: '#', parent_id: null, order_index: 8 },
     { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
     { id: '9-3', label: 'Mandatory disclosure', href: '#', parent_id: '9', order_index: 1 },
-    { id: '9-4', label: 'Transfer Certificate', href: '#', parent_id: '9', order_index: 2 },
+    { id: '9-4', label: 'Transfer Certificate', href: '/transfer-certificate', parent_id: '9', order_index: 2 },
     { id: '10', label: 'Contact', href: '/contact', parent_id: null, order_index: 9 },
   ],
   carousel: [
@@ -299,6 +300,7 @@ const DEFAULT_DATA: AppData = {
   ],
   messages: [],
   settings: {
+    id: 'global',
     applyNowEnabled: true,
     applyNowUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
     applyNowLabel: 'Apply 2026-27',
@@ -502,6 +504,7 @@ export default function App() {
                 <Route path="/parent-obligations" element={<PageTransition><ParentObligationsPage data={data} /></PageTransition>} />
                 <Route path="/careers" element={<PageTransition><CareersPage data={data} /></PageTransition>} />
                 <Route path="/notice-board" element={<PageTransition><NoticeBoardPage data={data} /></PageTransition>} />
+                <Route path="/transfer-certificate" element={<PageTransition><TransferCertificatePage data={data} /></PageTransition>} />
                 <Route path="/contact" element={<PageTransition><ContactPage data={data} /></PageTransition>} />
                 <Route path="/admin" element={<PageTransition><AdminPortal data={data} setData={setData} /></PageTransition>} />
               </Routes>

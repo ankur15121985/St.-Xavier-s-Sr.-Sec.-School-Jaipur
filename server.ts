@@ -417,6 +417,18 @@ addColumnIfMissing('fees', 'attachmentUrl', 'TEXT');
 // Forced Data Sync for Fees (New Schema)
 const syncFeesIfNeeded = () => {
     try {
+        // Transfer Certificates Table
+        db.exec(`
+          CREATE TABLE IF NOT EXISTS transfer_certificates (
+            id TEXT PRIMARY KEY,
+            admission_number TEXT NOT NULL UNIQUE,
+            dob TEXT NOT NULL,
+            student_name TEXT NOT NULL,
+            attachmentUrl TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          )
+        `);
+        
         const tableInfo = db.pragma("table_info(fees)") as any[];
         const hasGrade = tableInfo.some(c => c.name === 'grade');
         const countRes = db.prepare("SELECT COUNT(*) as count FROM fees").get() as any;
@@ -470,6 +482,9 @@ const cleanMenu = () => {
         db.prepare("DELETE FROM menu WHERE label LIKE 'Other %' AND href LIKE '%school-info%'").run();
         db.prepare("DELETE FROM menu WHERE id = '2-6'").run();
         
+        // Update TC link if it exists
+        db.prepare("UPDATE menu SET href = '/transfer-certificate' WHERE label = 'Transfer Certificate'").run();
+
         // Final De-dupe
         const items = db.prepare("SELECT * FROM menu").all() as any[];
         const seen = new Set();
@@ -495,6 +510,8 @@ addColumnIfMissing('settings', 'siteLogo', 'TEXT');
 addColumnIfMissing('settings', 'contactEmail', 'TEXT');
 addColumnIfMissing('settings', 'contactPhone', 'TEXT');
 addColumnIfMissing('settings', 'contactAddress', 'TEXT');
+addColumnIfMissing('settings', 'feesPdfUrl', 'TEXT');
+addColumnIfMissing('gallery', 'session', 'TEXT');
 
 // Diagnostic: Check fees table columns
 const columns = db.pragma('table_info(fees)');
@@ -745,6 +762,7 @@ app.post('/api/gallery/upload-multiple', upload.array('images', 10), (req, res) 
 const SCHEMA: { [key: string]: string[] } = {
   gallery: ['id', 'url', 'caption'],
   carousel: ['id', 'url', 'caption'],
+  transfer_certificates: ['id', 'admission_number', 'dob', 'student_name', 'attachmentUrl', 'created_at'],
   notices: ['id', 'title', 'content', 'date', 'category', 'link', 'attachmentUrl'],
   staff: ['id', 'name', 'role', 'bio', 'image', 'type'],
   fees: ['id', 'category', 'particulars', 'amount', 'quarterly', 'remarks', 'order_index', 'attachmentUrl'],
@@ -818,6 +836,51 @@ app.delete('/api/delete', (req, res) => {
   } catch (err: any) {
     console.error(`!!!! SQL Delete Error !!!!:`, err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// API Endpoints for Transfer Certificates
+app.get('/api/tc', (req, res) => {
+  try {
+    const list = db.prepare("SELECT * FROM transfer_certificates ORDER BY created_at DESC").all();
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch certificates' });
+  }
+});
+
+app.post('/api/tc/search', express.json(), (req, res) => {
+  const { admissionNumber, dob } = req.body;
+  try {
+    const tc = db.prepare("SELECT * FROM transfer_certificates WHERE admission_number = ? AND dob = ?").get(admissionNumber, dob) as any;
+    if (tc) {
+      res.json(tc);
+    } else {
+      res.status(404).json({ error: 'Certificate not found. Please verify details.' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Search failed' });
+  }
+});
+
+app.post('/api/tc', express.json(), (req, res) => {
+  const { admission_number, dob, student_name, attachmentUrl } = req.body;
+  const id = Math.random().toString(36).substr(2, 9);
+  try {
+    db.prepare("INSERT INTO transfer_certificates (id, admission_number, dob, student_name, attachmentUrl) VALUES (?, ?, ?, ?, ?)")
+      .run(id, admission_number, dob, student_name, attachmentUrl);
+    res.json({ id, admission_number, dob, student_name, attachmentUrl });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to upload certificate' });
+  }
+});
+
+app.delete('/api/tc/:id', (req, res) => {
+  try {
+    db.prepare("DELETE FROM transfer_certificates WHERE id = ?").run(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete' });
   }
 });
 

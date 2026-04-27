@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
   Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus,
-  Search, LayoutGrid, AlertCircle, MessageSquare, Mail
+  Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2
 } from 'lucide-react';
 import { AppData } from '../types';
 import { useFirebase } from '../components/FirebaseProvider';
@@ -18,6 +18,7 @@ interface PendingGalleryItem {
   progress: number;
   url?: string;
   caption: string;
+  session?: string;
   status: 'pending' | 'uploading' | 'completed' | 'error';
 }
 
@@ -42,6 +43,23 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   const [showLegacyForm, setShowLegacyForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (activeSection === 'transfer_certificates' && isLegacyAuthenticated) {
+      const fetchTCs = async () => {
+        try {
+          const res = await fetch('/api/tc');
+          if (res.ok) {
+            const tcs = await res.json();
+            setData({ ...data, transfer_certificates: tcs });
+          }
+        } catch (err) {
+          console.error('Failed to fetch TCs:', err);
+        }
+      };
+      fetchTCs();
+    }
+  }, [activeSection, isLegacyAuthenticated]);
 
   const handleLegacyLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,7 +134,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.keys({
           ...item,
-          ...( ['notices', 'fees', 'links', 'events', 'achievements'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
+          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
         }).filter(k => k !== 'id').map(field => (
           <div key={field} className="space-y-2">
             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30">{field as string}</label>
@@ -174,9 +192,9 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                 {(field === 'href' || field === 'label' || field === 'title' || (section === 'fees' && field === 'particulars') || (section === 'notices' && field === 'title')) && (
                   <div className="flex flex-col gap-2">
                     <label className="block text-center px-4 py-2 bg-school-gold/10 text-school-gold rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
-                       {uploadingPath === `${section}-${item.id}-attachmentUrl` ? 'Uploading...' : (section === 'fees' ? 'Upload Fee PDF' : section === 'notices' ? 'Upload Notice PDF/Image' : 'Upload Attachment')}
+                       {uploadingPath === `${section}-${item.id}-attachmentUrl` ? 'Uploading...' : (section === 'fees' ? 'Upload Fee PDF' : section === 'notices' ? 'Upload Notice PDF/Image' : section === 'transfer_certificates' ? 'Upload TC PDF' : 'Upload Attachment')}
                        <input type="file" className="hidden" onChange={(e) => {
-                         const targetField = (['notices', 'fees', 'events', 'achievements', 'links'].includes(section)) ? 'attachmentUrl' : 
+                         const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates'].includes(section)) ? 'attachmentUrl' : 
                                              (section === 'menu' ? 'href' : field);
                          handleFileUpload(e, item.id, targetField, section);
                        }} disabled={!!uploadingPath} />
@@ -366,6 +384,9 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
         ? 'https://picsum.photos/seed/new_gallery/1200/800' 
         : 'https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600';
       newItem.caption = tableStr === 'gallery' ? 'Gallery Image Caption' : 'Carousel Slide Title';
+      if (tableStr === 'gallery') {
+        newItem.session = '2024-25';
+      }
     } else if (tableStr === 'links') {
       newItem.title = 'New Link';
       newItem.url = '#';
@@ -405,6 +426,11 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       newItem.message = 'Inquiry content...';
       newItem.timestamp = new Date().toISOString();
       newItem.status = 'new';
+    } else if (tableStr === 'transfer_certificates') {
+      newItem.admission_number = 'TC' + Date.now().toString().slice(-6);
+      newItem.dob = new Date().toISOString().split('T')[0];
+      newItem.student_name = 'Student Name';
+      newItem.attachmentUrl = '';
     }
 
     setSavePending(true);
@@ -578,7 +604,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       const newEntries = finishedItems.map(p => ({
         id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
         url: p.url!,
-        caption: p.caption || 'Gallery Image'
+        caption: p.caption || 'Gallery Image',
+        session: p.session || ''
       }));
 
       // Map over and save to DB
@@ -608,6 +635,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     { id: 'achievements', label: 'Success', icon: <Award size={18} /> },
     { id: 'studentHonors', label: 'Honors', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'faqs', label: 'FAQs', icon: <MessageSquare size={18} className="text-school-gold" /> },
+    { id: 'transfer_certificates', label: 'TC Records', icon: <FileText size={18} className="text-school-accent" /> },
     { id: 'messages', label: 'Inquiries', icon: <Mail size={18} className="text-school-accent" /> },
     { id: 'menu', label: 'Menu', icon: <Menu size={18} /> },
     { id: 'content', label: 'Site Content', icon: <LayoutGrid size={18} className="text-school-neon" /> },
@@ -997,6 +1025,21 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                         />
                       </div>
 
+                      <div className="mt-4">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-white/30 mb-2 px-1">Session / Year (e.g. 2024-25)</p>
+                        <input 
+                          type="text"
+                          placeholder="e.g. 2024-25"
+                          value={item.session || ''}
+                          onChange={(e) => {
+                             const updatedItems = pendingGalleryItems.map(p => p.id === item.id ? { ...p, session: e.target.value } : p);
+                             setPendingGalleryItems(updatedItems);
+                          }}
+                          disabled={item.status !== 'completed'}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder:text-white/20 focus:ring-1 focus:ring-school-gold outline-none transition-all disabled:opacity-30"
+                        />
+                      </div>
+
                       {item.status === 'error' && (
                         <div className="mt-4 flex items-center gap-2 text-[10px] text-red-400 font-medium bg-red-400/10 p-3 rounded-xl">
                           <AlertCircle size={14} /> {item.caption || 'Failed to upload. Please try again.'}
@@ -1022,6 +1065,51 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
         )}
 
         <div className="grid gap-12">
+          {activeSection === 'fees' && (
+            <div className="mb-12 bg-school-navy p-10 rounded-[40px] shadow-2xl border border-white/5 space-y-8">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                <div className="flex-1">
+                  <h3 className="text-2xl font-serif font-black text-white italic tracking-tight mb-2 flex items-center gap-3">
+                    <FileText size={24} className="text-school-gold" />
+                    Institutional Fee Documentation
+                  </h3>
+                  <p className="text-white/40 text-xs font-light max-w-lg">This PDF serves as the official blueprint displayed on the public Fees page. Managing committee approved documents should be uploaded here.</p>
+                </div>
+                <div className="flex flex-wrap gap-4">
+                  <label className="px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap">
+                    {uploadingPath === 'settings-global-feesPdfUrl' ? 'Uploading...' : 'Upload Official PDF'}
+                    <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleFileUpload(e, 'global', 'feesPdfUrl', 'settings')} disabled={!!uploadingPath} />
+                  </label>
+                  {data.settings.feesPdfUrl && (
+                    <a 
+                      href={data.settings.feesPdfUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-8 py-4 bg-white/10 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-white/20 transition-all border border-white/10"
+                    >
+                      View Live Link
+                    </a>
+                  )}
+                </div>
+              </div>
+              
+              {data.settings.feesPdfUrl && (
+                <div className="aspect-[16/6] w-full bg-white rounded-3xl overflow-hidden shadow-inner border border-white/10 relative group bg-school-paper">
+                  <iframe 
+                    src={`${data.settings.feesPdfUrl}#toolbar=0`}
+                    className="w-full h-full border-none"
+                    title="Fee Documentation Preview"
+                  />
+                  <div className="absolute inset-0 bg-school-navy/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                    <div className="flex flex-col items-center gap-4">
+                       <Maximize2 size={32} className="text-school-gold" />
+                       <p className="text-[10px] font-black uppercase tracking-widest text-white">Live PDF Preview Mode</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           {activeSection === 'settings' ? (
             <div className="bg-school-paper p-10 rounded-[40px] shadow-2xl border border-school-ink/10 space-y-12">
                <div>
@@ -1082,6 +1170,22 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                </div>
 
                <div className="pt-12 border-t border-school-ink/5">
+                <div className="space-y-6 pt-12 border-t border-school-ink/5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Fees Structure PDF URL</label>
+                      <label className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
+                        {uploadingPath === 'settings-global-feesPdfUrl' ? 'Uploading...' : 'Upload Fee PDF'}
+                        <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleFileUpload(e, 'global', 'feesPdfUrl', 'settings')} disabled={!!uploadingPath} />
+                      </label>
+                    </div>
+                    <input 
+                      value={data.settings.feesPdfUrl || ''}
+                      onChange={(e) => handleUpdate('global', 'feesPdfUrl', e.target.value, 'settings')}
+                      className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                      placeholder="Public URL to the fee structure PDF"
+                    />
+                </div>
+
                  <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight mb-8">Application Module</h2>
                  <div className="grid md:grid-cols-2 gap-12">
                     <div className="space-y-6">

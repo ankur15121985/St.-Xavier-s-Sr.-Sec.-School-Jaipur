@@ -7,6 +7,24 @@ import { Maximize2, X, Camera, Calendar, Image as ImageIcon } from 'lucide-react
 
 const GalleryPage = ({ data }: { data: AppData }) => {
   const [selectedImage, setSelectedImage] = useState<typeof data.gallery[0] | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string>('All');
+
+  const groupedGallery = data.gallery.reduce((acc, item) => {
+    const session = item.session || 'Institutional Archives';
+    if (!acc[session]) acc[session] = [];
+    acc[session].push(item);
+    return acc;
+  }, {} as Record<string, typeof data.gallery>);
+
+  const allAvailableSessions = Object.keys(groupedGallery).sort((a, b) => {
+    if (a === 'Institutional Archives') return 1;
+    if (b === 'Institutional Archives') return -1;
+    return b.localeCompare(a);
+  });
+
+  const displaySessions = activeFilter === 'All' 
+    ? allAvailableSessions 
+    : [activeFilter];
 
   return (
     <Layout data={data}>
@@ -25,7 +43,7 @@ const GalleryPage = ({ data }: { data: AppData }) => {
            <motion.div
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
-             className="flex flex-col items-center text-center"
+             className="flex flex-col items-center text-center pt-24"
            >
               <div className="inline-flex items-center gap-3 px-6 py-2 bg-school-gold/10 rounded-full border border-school-gold/20 mb-8">
                 <ImageIcon className="text-school-gold" size={16} />
@@ -33,44 +51,73 @@ const GalleryPage = ({ data }: { data: AppData }) => {
               </div>
               <h2 className="text-6xl md:text-8xl font-serif font-black text-school-ink mb-8 tracking-tighter uppercase italic leading-none">Visual <span className="text-school-gold">Chronicles.</span></h2>
               <div className="w-24 h-1 bg-school-gold rounded-full mb-8"></div>
-              <p className="text-xl text-school-ink/40 font-light max-w-2xl mx-auto italic">Capturing the soul of St. Xavier's through moments of growth, celebration, and academic pursuit.</p>
+              <p className="text-xl text-school-ink/40 font-light max-w-2xl mx-auto italic mb-12">Capturing the soul of St. Xavier's through moments of growth, celebration, and academic pursuit.</p>
+
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                {['All', ...allAvailableSessions].map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setActiveFilter(filter)}
+                    className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                      activeFilter === filter 
+                        ? 'bg-school-navy text-white shadow-xl scale-105' 
+                        : 'bg-white text-school-navy/40 hover:bg-school-gold/10 hover:text-school-navy'
+                    }`}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
            </motion.div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 grid md:grid-cols-2 lg:grid-cols-3 gap-12">
-          {data.gallery.map((item, i) => (
-            <motion.div 
-              key={item.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
-              onClick={() => setSelectedImage(item)}
-              className="group cursor-pointer"
-            >
-              <div className="aspect-[4/5] rounded-[48px] overflow-hidden relative shadow-[0_20px_50px_rgba(0,33,71,0.15)] bg-school-paper border-[12px] border-school-paper transition-transform duration-500 hover:-translate-y-4">
-                <img 
-                  src={item.url} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                  alt={item.caption}
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-school-navy/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-xl border border-white/30 flex items-center justify-center text-white">
-                    <Maximize2 size={24} />
+        {displaySessions.map((session) => (
+          <div key={session} className="mb-32">
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-16">
+              <div className="flex items-center gap-6">
+                <div className="h-[1px] bg-school-ink/10 flex-1"></div>
+                <h3 className="text-4xl font-serif font-black text-school-navy italic tracking-tight">{session}</h3>
+                <div className="h-[1px] bg-school-ink/10 flex-1"></div>
+              </div>
+            </div>
+            
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+              {groupedGallery[session].map((item, i) => (
+                <motion.div 
+                  key={item.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                  onClick={() => setSelectedImage(item)}
+                  className="group cursor-pointer"
+                >
+                  <div className="aspect-[4/5] rounded-[48px] overflow-hidden relative shadow-[0_20px_50px_rgba(0,33,71,0.15)] bg-school-paper border-[12px] border-school-paper transition-transform duration-500 hover:-translate-y-4">
+                    <img 
+                      src={item.url} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                      alt={item.caption}
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-school-navy/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-xl border border-white/30 flex items-center justify-center text-white">
+                        <Maximize2 size={24} />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="mt-8 px-6 text-center">
-                <h4 className="text-xl font-serif font-bold text-school-navy italic tracking-tight mb-2 group-hover:text-school-gold transition-colors">{item.caption}</h4>
-                <div className="flex items-center justify-center gap-2 opacity-30 text-[9px] font-black uppercase tracking-widest">
-                  <Calendar size={10} />
-                  <span>St. Xavier's Archives • 2026</span>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                  <div className="mt-8 px-6 text-center">
+                    <h4 className="text-xl font-serif font-bold text-school-navy italic tracking-tight mb-2 group-hover:text-school-gold transition-colors">{item.caption}</h4>
+                    <div className="flex items-center justify-center gap-2 opacity-30 text-[9px] font-black uppercase tracking-widest">
+                      <Calendar size={10} />
+                      <span>{session === 'Institutional Archives' ? "St. Xavier's Archives" : `Session ${session}`}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        ))}
 
         {/* Lightbox */}
         <AnimatePresence>

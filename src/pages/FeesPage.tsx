@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AppData } from '../types';
 import Layout from '../components/layout/Layout';
 import { motion, AnimatePresence } from 'motion/react';
-import { CreditCard, ChevronDown, ChevronUp, Info, ShieldCheck, FileText, Maximize2 } from 'lucide-react';
+import { CreditCard, ChevronDown, ChevronUp, Info, ShieldCheck, FileText, Maximize2, Download } from 'lucide-react';
 import PdfViewer from '../components/PdfViewer';
 
 const FeesPage = ({ data }: { data: AppData }) => {
@@ -39,7 +39,20 @@ const FeesPage = ({ data }: { data: AppData }) => {
                 <tr key={f.id} className="border-b border-school-ink/5 hover:bg-school-gold/[0.03] transition-all last:border-none group/row">
                   <td className="p-8 first:pl-10">
                     <div className="flex flex-col">
-                      <span className="font-bold text-base text-school-navy group-hover/row:text-school-gold transition-colors">{f.particulars}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-base text-school-navy group-hover/row:text-school-gold transition-colors">{f.particulars}</span>
+                        {f.attachmentUrl && (
+                          <a 
+                            href={f.attachmentUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center p-2 bg-school-gold/10 text-school-gold rounded-lg hover:bg-school-gold hover:text-school-navy transition-all shadow-sm"
+                            title="Download Fee Structure"
+                          >
+                            <Download size={14} />
+                          </a>
+                        )}
+                      </div>
                       {f.remarks && <span className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 mt-1">{f.remarks}</span>}
                     </div>
                   </td>
@@ -93,7 +106,7 @@ const FeesPage = ({ data }: { data: AppData }) => {
           />
 
           {/* Integrated PDF Viewer Section */}
-          {(data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl) && (
+          {(data.settings.feesPdfUrl || data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl) && (
             <div className="mt-24 mb-16">
               <div className="flex items-center gap-6 mb-12 group cursor-default">
                 <div className="h-[2px] bg-school-gold/30 flex-1 group-hover:bg-school-gold transition-colors"></div>
@@ -103,12 +116,12 @@ const FeesPage = ({ data }: { data: AppData }) => {
               
               <div className="aspect-[16/10] w-full bg-school-navy rounded-[40px] overflow-hidden shadow-2xl border border-school-ink/10 relative group">
                 <iframe 
-                  src={`${data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl}#toolbar=0`} 
+                   src={`${data.settings.feesPdfUrl || data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl}#toolbar=0`} 
                   className="w-full h-full border-none bg-white"
                   title="Integrated Fee PDF"
                 />
                 <button 
-                  onClick={() => setActivePdf(data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl)}
+                  onClick={() => setActivePdf(data.settings.feesPdfUrl || data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl)}
                   className="absolute top-6 right-6 p-4 bg-school-gold text-school-navy rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95"
                 >
                   <Maximize2 size={24} />
@@ -117,7 +130,7 @@ const FeesPage = ({ data }: { data: AppData }) => {
               <div className="mt-6 flex justify-between items-center px-4">
                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-school-ink/30 italic">Synchronized with Institutional Registry</p>
                  <a 
-                   href={data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl} 
+                   href={data.settings.feesPdfUrl || data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl} 
                    target="_blank" 
                    rel="noopener noreferrer"
                    className="text-[10px] font-black uppercase tracking-widest text-school-gold hover:text-school-navy transition-colors flex items-center gap-2"
