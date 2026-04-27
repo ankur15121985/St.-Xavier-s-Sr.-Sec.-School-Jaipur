@@ -213,11 +213,15 @@ const DEFAULT_DATA: AppData = {
     { id: '12', url: 'https://picsum.photos/seed/x_debate/1200/800', caption: 'Inter-School Debating Championship' }
   ],
   fees: [
-    { id: '1', grade: 'LKG - Prep', admissionFee: '₹40,000', tuition_fees: '₹4,500', quarterly: '₹13,500' },
-    { id: '2', grade: 'I - V', admissionFee: '₹40,000', tuition_fees: '₹5,200', quarterly: '₹15,600' },
-    { id: '3', grade: 'VI - VIII', admissionFee: '₹45,000', tuition_fees: '₹5,800', quarterly: '₹17,400' },
-    { id: '4', grade: 'IX - X', admissionFee: '₹50,000', tuition_fees: '₹6,400', quarterly: '₹19,200' },
-    { id: '5', grade: 'XI - XII', admissionFee: '₹55,000', tuition_fees: '₹7,200', quarterly: '₹21,600' }
+    { id: 'f1', category: 'School Fee', particulars: 'School fee (std. I to VII)', amount: '95900', quarterly: '23975', remarks: '', order_index: 0 },
+    { id: 'f2', category: 'School Fee', particulars: 'School fee (std. VIII)', amount: '87600', quarterly: '21900', remarks: '', order_index: 1 },
+    { id: 'f3', category: 'School Fee', particulars: 'School fee (std. IX & X)', amount: '88000', quarterly: '22000', remarks: '', order_index: 2 },
+    { id: 'f4', category: 'School Fee', particulars: 'School fee (std. XI & XII)', amount: '100400', quarterly: '25100', remarks: '', order_index: 3 },
+    { id: 'f5', category: 'Annual Fee', particulars: 'Annual fee (std. I to X)', amount: '8700', quarterly: '2175', remarks: 'Charged in 4 Quarters', order_index: 4 },
+    { id: 'f6', category: 'Annual Fee', particulars: 'Annual fee (std. XI)', amount: '11800', quarterly: '2950', remarks: 'Charged in 4 Quarters', order_index: 5 },
+    { id: 'f7', category: 'Annual Fee', particulars: 'Annual fee (std. XII)', amount: '13000', quarterly: '3250', remarks: 'Charged in 4 Quarters', order_index: 6 },
+    { id: 'f8', category: 'Admission Fee', particulars: 'Admission fee (std. I)', amount: '33200', quarterly: '0', remarks: 'Charged once', order_index: 7 },
+    { id: 'f9', category: 'Admission Fee', particulars: 'Admission fee (std. II to XII)', amount: '43500', quarterly: '0', remarks: 'Charged once', order_index: 8 },
   ],
   links: [
     { id: '1', title: 'Schedule for PT1 (2026-27)', url: '#', isPriority: true, icon: 'Calendar' },
@@ -254,7 +258,6 @@ const DEFAULT_DATA: AppData = {
     { id: '2-3', label: 'Our Patron', href: '/founder-patron#patron', parent_id: '2', order_index: 2 },
     { id: '2-4', label: 'School Governing Members', href: '/governing-members', parent_id: '2', order_index: 3 },
     { id: '2-5', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 4 },
-    { id: '2-6', label: 'Other Association & Committee', href: '/school-info', parent_id: '2', order_index: 5 },
     { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
     { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
     { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
@@ -296,7 +299,6 @@ const DEFAULT_DATA: AppData = {
   ],
   messages: [],
   settings: {
-    id: 'global',
     applyNowEnabled: true,
     applyNowUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
     applyNowLabel: 'Apply 2026-27',

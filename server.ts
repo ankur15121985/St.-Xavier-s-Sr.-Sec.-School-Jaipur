@@ -272,7 +272,6 @@ if ((menuCountResult?.count || 0) === 0) {
         { id: '2-3', label: 'Our Patron', href: '/founder-patron#patron', parent_id: '2', order_index: 2 },
         { id: '2-4', label: 'School Governing Members', href: '/governing-members', parent_id: '2', order_index: 3 },
         { id: '2-5', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 4 },
-        { id: '2-6', label: 'Other Association & Committee', href: '/school-info', parent_id: '2', order_index: 5 },
         { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
         { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
         { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
@@ -416,10 +415,11 @@ addColumnIfMissing('fees', 'order_index', 'INTEGER');
 addColumnIfMissing('fees', 'attachmentUrl', 'TEXT');
 
 // Forced Data Sync for Fees (New Schema)
-const checkFees = db.prepare("SELECT category FROM fees LIMIT 1").get() as any;
-if (!checkFees || checkFees.category === null) {
+const checkFees = db.prepare("SELECT amount FROM fees LIMIT 1").get() as any;
+if (!checkFees || checkFees.amount === null || isNaN(Number(checkFees.amount))) {
     console.log("[MIGRATION] detected old or empty fees structure. Refreshing with 2025-26 data...");
     db.prepare("DELETE FROM fees").run();
+    db.prepare("DELETE FROM menu WHERE id = '2-6'").run(); // Cleanup duplicate from DB
     const defaultFees = [
         { id: 'f1', category: 'School Fee', particulars: 'School fee (std. I to VII)', amount: '95900', quarterly: '23975', remarks: '', order_index: 0 },
         { id: 'f2', category: 'School Fee', particulars: 'School fee (std. VIII)', amount: '87600', quarterly: '21900', remarks: '', order_index: 1 },
