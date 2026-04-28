@@ -528,7 +528,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
       if (item) {
         const label = (item.label || '').toUpperCase();
         if (label.includes('POSH')) folder = 'POSH';
-        else if (label.includes('GRIEVANCE CELL')) folder = 'GrievanceCell';
+        else if (label.includes('GRIEVANCE CELL') || label.includes('INTERNAL GRIEVANCE')) folder = 'IGC';
         else if (label.includes('POCSO')) folder = 'POCSO';
         else if (label.includes('SLFC')) folder = 'SLFC';
         else if (label.includes('PTA')) folder = 'PTA';
