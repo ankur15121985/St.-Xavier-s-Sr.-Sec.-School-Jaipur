@@ -299,6 +299,18 @@ const DEFAULT_DATA: AppData = {
     { id: 'f2', question: 'Is there a transport facility?', answer: 'Yes, the school provides bus facilities covering most major parts of Jaipur city.', category: 'General', order_index: 1 }
   ],
   messages: [],
+  popups: [
+    {
+      id: 'p1',
+      title: 'Welcome to St. Xavier\'s',
+      type: 'text',
+      content: 'Welcome to St. Xavier\'s, C-scheme. Admissions for the academic session 2026-27 are now open. Please visit the admission portal for details.',
+      buttonText: 'Admission Portal',
+      buttonLink: '/studybase-app',
+      isActive: true,
+      order_index: 0
+    }
+  ],
   settings: {
     id: 'global',
     applyNowEnabled: true,

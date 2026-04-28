@@ -26,6 +26,16 @@ export interface StudentHonor { id: string; name: string; category: string; resu
 export interface MenuItem { id: string; label: string; href: string; parent_id?: string | null; order_index: number; }
 export interface FAQ { id: string; question: string; answer: string; category?: string; order_index: number; }
 export interface ContactMessage { id: string; name: string; email: string; subject?: string; message: string; timestamp: string; status: 'new' | 'read' | 'replied'; }
+export interface AnnouncementPopup {
+  id: string;
+  title: string;
+  type: 'text' | 'image' | 'pdf';
+  content: string;
+  buttonText?: string;
+  buttonLink?: string;
+  isActive: boolean;
+  order_index: number;
+}
 
 export interface AppSettings {
   id: string;
@@ -56,6 +66,7 @@ export interface AppData {
   faqs: FAQ[];
   transfer_certificates?: TransferCertificate[];
   messages: ContactMessage[];
+  popups: AnnouncementPopup[];
   settings: AppSettings;
   content: Record<string, string>;
 }

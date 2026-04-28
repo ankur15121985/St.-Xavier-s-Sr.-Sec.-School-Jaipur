@@ -40,6 +40,7 @@ import { AppData } from '../types';
 
 import { Carousel } from '../components/ui/Carousel';
 import { HonorsSlider } from '../components/ui/HonorsSlider';
+import { AnnouncementModal } from '../components/ui/AnnouncementModal';
 
 const HomePage = ({ data }: { data: AppData }) => {
   const carouselImages = data.carousel && data.carousel.length > 0 
@@ -92,7 +93,7 @@ const HomePage = ({ data }: { data: AppData }) => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="w-full h-[50vh] md:h-[70vh] overflow-hidden relative shadow-2xl"
+        className="w-full h-[calc(100vh-120px)] md:h-[calc(100vh-180px)] overflow-hidden relative shadow-2xl"
       >
         <Carousel images={carouselImages} />
       </motion.section>
@@ -136,8 +137,8 @@ const HomePage = ({ data }: { data: AppData }) => {
             >
               <div className="h-full w-full rounded-[40px] overflow-hidden border border-black/5 shadow-xl">
                 <img 
-                  src="https://picsum.photos/seed/xavier_about/1000/1000" 
-                  alt="School Campus" 
+                  src="https://lh3.googleusercontent.com/d/1ZfP3k6bFiwdZdEe3CI_U6KhBkAEaybUs" 
+                  alt="About St. Xavier’s School" 
                   className="w-full h-full object-cover" 
                 />
               </div>
@@ -523,6 +524,8 @@ const HomePage = ({ data }: { data: AppData }) => {
       <div className="bg-transparent pb-32">
         <HonorsSlider honors={data.studentHonors} />
       </div>
+
+      <AnnouncementModal popups={data.popups || []} />
     </Layout>
   );
 };

@@ -146,6 +146,19 @@ db.exec(`
 `);
 
 db.exec(`
+  CREATE TABLE IF NOT EXISTS popups (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    type TEXT NOT NULL,
+    content TEXT NOT NULL,
+    buttonText TEXT,
+    buttonLink TEXT,
+    isActive INTEGER NOT NULL,
+    order_index INTEGER NOT NULL
+  )
+`);
+
+db.exec(`
   CREATE TABLE IF NOT EXISTS settings (
     id TEXT PRIMARY KEY,
     applyNowEnabled INTEGER NOT NULL,
@@ -277,11 +290,10 @@ if ((menuCountResult?.count || 0) === 0) {
         { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
         { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: '3', order_index: 2 },
         { id: '3-4', label: 'Studybase Mobile App', href: '/studybase-app', parent_id: '3', order_index: 3 },
-        { id: '3-5', label: 'Prospectus', href: '/admission-policy#prospectus', parent_id: '3', order_index: 4 },
         { id: '4', label: 'Academics', href: '#', parent_id: null, order_index: 3 },
         { id: '4-1', label: 'Jesuit Education Objectives', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
         { id: '4-2', label: 'Examinations & Premotions', href: '#', parent_id: '4', order_index: 1 },
-        { id: '4-3', label: 'rules & Discipline', href: '#', parent_id: '4', order_index: 2 },
+        { id: '4-3', label: 'Rules & Discipline', href: '#', parent_id: '4', order_index: 2 },
         { id: '5', label: 'Activities', href: '#', parent_id: null, order_index: 4 },
         { id: '5-1', label: 'Co-Curricular Activities', href: '/co-curricular', parent_id: '5', order_index: 0 },
         { id: '5-2', label: 'Fr. Batson Sports Complex', href: '/sports-complex', parent_id: '5', order_index: 1 },
@@ -708,10 +720,14 @@ const upload = multer({
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};
-    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content'];
+    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups'];
 
     tables.forEach(table => {
-      data[table] = db.prepare(`SELECT * FROM "${table}"`).all();
+      let rows = db.prepare(`SELECT * FROM "${table}"`).all();
+      if (table === 'popups') {
+        rows = (rows as any[]).map(r => ({ ...r, isActive: Boolean(r.isActive) }));
+      }
+      data[table] = rows;
     });
 
     const settings = db.prepare(`SELECT * FROM settings WHERE id = 'global'`).get() as any;
@@ -781,6 +797,7 @@ const SCHEMA: { [key: string]: string[] } = {
   studentHonors: ['id', 'name', 'category', 'result', 'subtext', 'image', 'order_index'],
   faqs: ['id', 'question', 'answer', 'category', 'order_index'],
   messages: ['id', 'name', 'email', 'subject', 'message', 'timestamp', 'status'],
+  popups: ['id', 'title', 'type', 'content', 'buttonText', 'buttonLink', 'isActive', 'order_index'],
   settings: ['id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 'contactEmail', 'contactPhone', 'contactAddress'],
   content: ['id', 'heroTitle1', 'heroTitle2', 'heroBadge', 'heroDescription', 'carouselBranding', 'aboutBadge', 'aboutTitle1', 'aboutTitle2', 'aboutDescription', 'mottoTitle', 'mottoDescription', 'historyButton', 'principalBadge', 'principalTitle1', 'principalTitle2', 'principalTitle3', 'principalQuote', 'principalButton', 'oeuvreTitle1', 'oeuvreTitle2', 'oeuvreDescription', 'regencyBadge', 'regencyTitle1', 'regencyTitle2', 'nodesTitle1', 'nodesTitle2', 'nodesDescription', 'helpdeskLabel', 'wiredTitle', 'wiredBadge', 'exploreButton', 'footerDescription']
 };
@@ -826,7 +843,7 @@ app.post('/api/save', (req, res) => {
 app.delete('/api/delete', (req, res) => {
   try {
     const { table, id, ids } = req.body;
-    const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'transfer_certificates', 'faqs', 'messages'];
+    const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'transfer_certificates', 'faqs', 'messages', 'popups'];
     
     if (!whitelist.includes(table)) {
       return res.status(400).json({ error: 'Invalid table name' });

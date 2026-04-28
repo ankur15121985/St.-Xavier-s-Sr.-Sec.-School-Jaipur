@@ -33,7 +33,8 @@
       "type": "object",
       "properties": {
         "url": { "type": "string" },
-        "caption": { "type": "string" }
+        "caption": { "type": "string" },
+        "session": { "type": "string" }
       },
       "required": ["url"]
     },
@@ -42,13 +43,15 @@
       "description": "Academic fee details by grade",
       "type": "object",
       "properties": {
-        "grade": { "type": "string" },
-        "admissionFee": { "type": "string" },
-        "tuition_fees": { "type": "string" },
+        "category": { "type": "string" },
+        "particulars": { "type": "string" },
+        "amount": { "type": "string" },
         "quarterly": { "type": "string" },
+        "remarks": { "type": "string" },
+        "order_index": { "type": "number" },
         "attachmentUrl": { "type": "string" }
       },
-      "required": ["grade"]
+      "required": ["category", "particulars", "amount"]
     },
     "QuickLink": {
       "title": "Quick Link",
@@ -57,6 +60,8 @@
       "properties": {
         "title": { "type": "string" },
         "url": { "type": "string" },
+        "isPriority": { "type": "boolean" },
+        "icon": { "type": "string" },
         "attachmentUrl": { "type": "string" }
       },
       "required": ["title", "url"]
@@ -145,6 +150,51 @@
         "status": { "type": "string", "enum": ["new", "read", "replied"] }
       },
       "required": ["name", "email", "message"]
+    },
+    "AnnouncementPopup": {
+      "title": "Announcement Popup",
+      "description": "Configurable modal popups for announcements",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "type": { "type": "string", "enum": ["text", "image", "pdf"] },
+        "content": { "type": "string" },
+        "buttonText": { "type": "string" },
+        "buttonLink": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "order_index": { "type": "number" }
+      },
+      "required": ["title", "type", "content", "isActive"]
+    },
+    "TransferCertificate": {
+      "title": "Transfer Certificate",
+      "description": "Digital student exit records",
+      "type": "object",
+      "properties": {
+        "admission_number": { "type": "string" },
+        "dob": { "type": "string" },
+        "student_name": { "type": "string" },
+        "attachmentUrl": { "type": "string" },
+        "created_at": { "type": "string" }
+      },
+      "required": ["admission_number", "dob", "student_name", "attachmentUrl"]
+    },
+    "AppSettings": {
+      "title": "App Settings",
+      "description": "Global application configuration",
+      "type": "object",
+      "properties": {
+        "applyNowEnabled": { "type": "boolean" },
+        "applyNowUrl": { "type": "string" },
+        "applyNowLabel": { "type": "string" },
+        "siteName": { "type": "string" },
+        "siteLogo": { "type": "string" },
+        "contactEmail": { "type": "string" },
+        "contactPhone": { "type": "string" },
+        "contactAddress": { "type": "string" },
+        "popupEnabled": { "type": "boolean" },
+        "popupMessage": { "type": "string" }
+      }
     }
   },
   "firestore": {
@@ -160,6 +210,10 @@
     "menu": { "schema": "MenuItem", "description": "Collection of navigation menu items" },
     "admins": { "schema": "Admin", "description": "Authorized administrators" },
     "faqs": { "schema": "Question", "description": "Frequently Asked Questions" },
-    "messages": { "schema": "Message", "description": "Contact form submissions" }
+    "messages": { "schema": "Message", "description": "Contact form submissions" },
+    "popups": { "schema": "AnnouncementPopup", "description": "Announcement popups" },
+    "transfer_certificates": { "schema": "TransferCertificate", "description": "Digital TCs" },
+    "settings": { "schema": "AppSettings", "description": "Global settings document" },
+    "content": { "schema": "object", "description": "Key-value pairs for static content" }
   }
 }

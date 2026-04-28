@@ -22,26 +22,21 @@ const TransferCertificatePage = ({ data }: { data: AppData }) => {
     setError(null);
     setSearchResult(null);
 
-    try {
-      const res = await fetch('/api/tc/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ admissionNumber, dob }),
-      });
+    // Simulate network delay for UX
+    await new Promise(resolve => setTimeout(resolve, 800));
 
-      if (res.ok) {
-        const result = await res.json();
-        setSearchResult(result);
-      } else {
-        const err = await res.json().catch(() => ({ error: 'Communication error with registry.' }));
-        setError(err.error || 'No record found.');
-      }
-    } catch (err: any) {
-      console.error('TC Search Error:', err);
-      setError(`Connection failed: ${err.message || 'Please try again later'}`);
-    } finally {
-      setLoading(false);
+    const tcs = data.transfer_certificates || [];
+    const found = tcs.find(tc => 
+      tc.admission_number.toLowerCase() === admissionNumber.toLowerCase() && 
+      tc.dob === dob
+    );
+
+    if (found) {
+      setSearchResult(found);
+    } else {
+      setError('No record found in the institutional registry.');
     }
+    setLoading(false);
   };
 
   return (

@@ -15,12 +15,8 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isEmailVerified() {
-      return isSignedIn() && request.auth.token.email_verified == true;
-    }
-
     function isAdmin() {
-      // Allow if document exists OR if it's the verified bootstrap email
+      // Allow if document exists OR if it's the verified primary user email
       return isSignedIn() && (
         exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
         request.auth.token.email == "ankur15121985@gmail.com"
@@ -40,113 +36,42 @@ service cloud.firestore {
     }
 
     // -------------------------------------------------------------------------
-    // 1. Admins Collection (Private)
+    // 1. Admins Collection
     // -------------------------------------------------------------------------
     match /admins/{adminId} {
-      allow read, write: if isAdmin();
-      // Bootstrap: Allow initial admin setup if no admins exist (Dangerous, use sparingly)
-      // For AI Studio, we'll assume the primary user is authorized via syncing in code.
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
 
     // -------------------------------------------------------------------------
-    // 2. Public Read-Only Collections
+    // 2. Collections
     // -------------------------------------------------------------------------
     
-    // Helper to generic validate admin writes
+    // Generic helper for admin write access
     function canWritePublic() {
       return isAdmin();
     }
 
-    match /notices/{noticeId} {
-      allow read: if true;
-      allow create: if canWritePublic() && isValidNotice(incoming());
-      allow update: if canWritePublic() && isValidNotice(incoming());
-      allow delete: if canWritePublic();
-    }
-
-    match /staff/{staffId} {
-      allow read: if true;
-      allow create: if canWritePublic() && isValidStaff(incoming());
-      allow update: if canWritePublic() && isValidStaff(incoming());
-      allow delete: if canWritePublic();
-    }
-
-    match /gallery/{itemId} {
-      allow read: if true;
-      allow create, update: if canWritePublic();
-      allow delete: if canWritePublic();
-    }
-
-    match /carousel/{itemId} {
-      allow read: if true;
-      allow create, update, delete: if canWritePublic();
-    }
-
-    match /fees/{feeId} {
-      allow read: if true;
-      allow create, update, delete: if canWritePublic();
-    }
-
-    match /links/{linkId} {
-      allow read: if true;
-      allow create, update, delete: if canWritePublic();
-    }
-
-    match /events/{eventId} {
-      allow read: if true;
-      allow create, update, delete: if canWritePublic();
-    }
-
-    match /achievements/{id} {
-      allow read: if true;
-      allow create, update, delete: if canWritePublic();
-    }
-
-    match /studentHonors/{id} {
-      allow read: if true;
-      allow create, update, delete: if canWritePublic();
-    }
-
-    match /menu/{itemId} {
-      allow read: if true;
-      allow create, update, delete: if canWritePublic();
-    }
-
-    match /faqs/{id} {
-      allow read: if true;
-      allow create, update, delete: if canWritePublic();
-    }
-
-    match /settings/{id} {
-      allow read: if true;
-      allow create, update, delete: if canWritePublic();
-    }
-
-    match /content/{id} {
-      allow read: if true;
-      allow create, update, delete: if canWritePublic();
-    }
-
+    // Rule for most public read, admin write collections
+    match /notices/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /staff/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /gallery/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /carousel/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /fees/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /links/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /events/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /achievements/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /studentHonors/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /menu/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /faqs/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /settings/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /content/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /popups/{id} { allow read: if true; allow write: if canWritePublic(); }
+    match /transfer_certificates/{id} { allow read: if true; allow write: if canWritePublic(); }
+    
     match /messages/{id} {
       allow create: if true; // Public can send messages
       allow read, update, delete: if isAdmin();
-    }
-
-    // -------------------------------------------------------------------------
-    // Validation Schemas
-    // -------------------------------------------------------------------------
-    function isValidNotice(data) {
-      return data.keys().hasAll(['title', 'date', 'category'])
-        && data.title is string && data.title.size() > 0 && data.title.size() <= 200
-        && data.date is string
-        && data.category is string;
-    }
-
-    function isValidStaff(data) {
-      return data.keys().hasAll(['name', 'role', 'type'])
-        && data.name is string && data.name.size() > 0
-        && data.role is string
-        && data.type in ['Management', 'Faculty', 'Administration'];
     }
   }
 }

@@ -13,37 +13,48 @@ import { AppData, Notice, StaffMember, GalleryItem, FeeStructure, QuickLink, Eve
 
 export const firebaseService = {
   async fetchAllData(): Promise<Partial<AppData>> {
+    const collections: (keyof AppData)[] = [
+      'notices', 'staff', 'gallery', 'fees', 'links', 
+      'events', 'achievements', 'studentHonors', 'menu', 'carousel', 'settings', 'content', 'popups', 'transfer_certificates', 'messages'
+    ];
+
     try {
-      const res = await fetch('/api/data');
-      if (!res.ok) throw new Error('Failed to fetch from server');
-      return await res.json();
-    } catch (error) {
-      console.error('Local data fetch failed, trying Firebase:', error);
-      try {
-        const collections: (keyof AppData)[] = [
-          'notices', 'staff', 'gallery', 'fees', 'links', 
-          'events', 'achievements', 'studentHonors', 'menu', 'carousel', 'settings', 'content'
-        ];
+      // 1. Try Firebase first
+      const results: Partial<AppData> = {};
+      
+      await Promise.all(collections.map(async (colName) => {
+        const q = query(collection(db, colName));
+        const snapshot = await getDocs(q);
+        const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-        const results: Partial<AppData> = {};
-        
-        await Promise.all(collections.map(async (colName) => {
-          const q = query(collection(db, colName));
-          const snapshot = await getDocs(q);
-          const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          
-          if (colName === 'settings' || colName === 'content') {
-            if (docs.length > 0) {
-              results[colName] = docs[0] as any;
-            }
-          } else {
-            results[colName] = docs as any;
+        if (colName === 'settings' || colName === 'content') {
+          if (docs.length > 0) {
+            results[colName] = docs[0] as any;
           }
-        }));
-        
-        return results;
-      } catch (fbError) {
-        handleFirestoreError(fbError, 'list', 'multiple-collections');
+        } else {
+          results[colName] = docs as any;
+        }
+      }));
+      
+      // If we got NO data from Firebase (completely empty), we might want to check local
+      const hasAnyData = Object.values(results).some(val => 
+        (Array.isArray(val) && val.length > 0) || (val && typeof val === 'object' && Object.keys(val).length > 0)
+      );
+
+      if (!hasAnyData) {
+        throw new Error('Firebase returned no data, falling back to local');
+      }
+
+      return results;
+    } catch (fbError) {
+      console.warn('Firebase fetch failed or empty, trying local server:', fbError);
+      try {
+        const res = await fetch('/api/data');
+        if (!res.ok) throw new Error('Failed to fetch from local server');
+        return await res.json();
+      } catch (localError) {
+        console.error('All data sources failed:', localError);
+        return {};
       }
     }
   },

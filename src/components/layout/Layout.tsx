@@ -485,7 +485,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 <h4 className="text-sm font-bold text-school-accent uppercase tracking-widest">Explore</h4>
                 <ul className="space-y-4">
                   {navLinks.map(l => (
-                    <li key={l.label}>
+                    <li key={l.id}>
                       <Link to={l.href} className="text-white/40 hover:text-white transition-colors">
                         {l.label}
                       </Link>
@@ -623,7 +623,7 @@ const DesktopSubNavLink = ({ link, onClose }: { link: NavLink; onClose: () => vo
                 <div className="grid gap-1">
                   {link.subLinks.map(sl => (
                     <Link 
-                      key={sl.label} 
+                      key={sl.id} 
                       to={sl.href} 
                       onClick={onClose}
                       className="flex items-center justify-between px-5 py-3 rounded-2xl hover:bg-school-ink/5 dark:hover:bg-school-paper/5 text-school-ink dark:text-white font-bold text-sm transition-all"
@@ -674,7 +674,7 @@ const MobileNavLink = ({ link, onClose, depth = 0, isDark }: { link: NavLink; on
               className={`flex flex-col gap-4 overflow-hidden ${depth === 0 ? 'pl-4 border-l-2 border-school-ink/5 dark:border-school-paper/10' : 'pl-6 border-l border-school-ink/5 dark:border-school-paper/10'}`}
             >
               {link.subLinks.map(sl => (
-                <MobileNavLink key={sl.label} link={sl} onClose={onClose} depth={depth + 1} isDark={isDark} />
+                <MobileNavLink key={sl.id} link={sl} onClose={onClose} depth={depth + 1} isDark={isDark} />
               ))}
             </motion.div>
           )}

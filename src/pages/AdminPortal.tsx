@@ -45,20 +45,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (activeSection === 'transfer_certificates' && isLegacyAuthenticated) {
-      const fetchTCs = async () => {
-        try {
-          const res = await fetch('/api/tc');
-          if (res.ok) {
-            const tcs = await res.json();
-            setData({ ...data, transfer_certificates: tcs });
-          }
-        } catch (err) {
-          console.error('Failed to fetch TCs:', err);
-        }
-      };
-      fetchTCs();
-    }
+    // No longer fetching from local API, relying on Firebase/Global Data
   }, [activeSection, isLegacyAuthenticated]);
 
   const handleLegacyLogin = (e: React.FormEvent) => {
@@ -155,16 +142,33 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                   )}
                 </div>
               </div>
-            ) : field === 'type' && section === 'staff' ? (
+            ) : field === 'type' && (section === 'staff' || section === 'popups') ? (
               <select 
-                value={item[field] ?? 'Faculty'} 
+                value={item[field] ?? (section === 'staff' ? 'Faculty' : 'text')} 
                 onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
                 className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
               >
-                <option value="Management">Management</option>
-                <option value="Faculty">Faculty</option>
-                <option value="Administration">Administration</option>
+                {section === 'staff' ? (
+                  <>
+                    <option value="Management">Management</option>
+                    <option value="Faculty">Faculty</option>
+                    <option value="Administration">Administration</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="text">Text Message</option>
+                    <option value="image">Image Popup</option>
+                    <option value="pdf">PDF Download/View</option>
+                  </>
+                )}
               </select>
+            ) : field === 'isActive' ? (
+              <button 
+                onClick={() => handleUpdate(item.id, field as string, !item[field], section)}
+                className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${item[field] ? 'bg-green-500/10 text-green-500 hover:bg-green-500/20' : 'bg-red-500/10 text-red-500 hover:bg-red-500/20'}`}
+              >
+                {item[field] ? 'Active / Enabled' : 'Inactive / Disabled'}
+              </button>
             ) : field === 'parent_id' && section === 'menu' ? (
               <select 
                 value={item[field] || ''} 
@@ -199,7 +203,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                          handleFileUpload(e, item.id, targetField, section);
                        }} disabled={!!uploadingPath} />
                     </label>
-                    {item.attachmentUrl && ['notices', 'fees', 'events', 'achievements', 'links'].includes(section as string) && (
+                    {item.attachmentUrl && ['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates'].includes(section as string) && (
                       <button 
                         onClick={() => handleUpdate(item.id, 'attachmentUrl', '', section)}
                         className="block text-center px-4 py-2 bg-red-400/10 text-red-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-400/20 transition-all"
@@ -426,6 +430,14 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       newItem.message = 'Inquiry content...';
       newItem.timestamp = new Date().toISOString();
       newItem.status = 'new';
+    } else if (tableStr === 'popups') {
+      newItem.title = 'New Announcement';
+      newItem.type = 'text';
+      newItem.content = 'Enter announcement details here...';
+      newItem.buttonText = '';
+      newItem.buttonLink = '';
+      newItem.isActive = true;
+      newItem.order_index = (data.popups?.length || 0);
     } else if (tableStr === 'transfer_certificates') {
       newItem.admission_number = 'TC' + Date.now().toString().slice(-6);
       newItem.dob = new Date().toISOString().split('T')[0];
@@ -474,7 +486,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     setUploadingPath(`${section}-${id}-${field}`);
     
     // Determine folder based on section
-    const folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors'].includes(section as string)) ? section : 'misc';
+    const folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups'].includes(section as string)) ? section : 'misc';
 
     try {
       // 1. Try Firebase Storage first
@@ -626,6 +638,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
 
   const sections = [
     { id: 'notices', label: 'Notices', icon: <Bell size={18} /> },
+    { id: 'popups', label: 'Popups', icon: <Maximize2 size={18} className="text-school-accent" /> },
     { id: 'events', label: 'Events', icon: <Calendar size={18} /> },
     { id: 'staff', label: 'Faculty', icon: <Users2 size={18} /> },
     { id: 'carousel', label: 'Carousel', icon: <ImagePlus size={18} className="text-school-accent" /> },
