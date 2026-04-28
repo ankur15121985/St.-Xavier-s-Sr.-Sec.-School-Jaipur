@@ -19,7 +19,9 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('[Auth] Setting up onAuthStateChanged listener...');
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log('[Auth] State changed. User:', user?.email || 'Logged out');
       setUser(user);
       try {
         if (user) {
@@ -57,8 +59,26 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const login = async () => {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    console.log('[Auth] Attempting login with Google...');
+    try {
+      const provider = new GoogleAuthProvider();
+      // Set custom parameters if needed
+      provider.setCustomParameters({ prompt: 'select_account' });
+      
+      const result = await signInWithPopup(auth, provider);
+      console.log('[Auth] Login successful:', result.user.email);
+    } catch (error: any) {
+      console.error('[Auth] Login failed:', error);
+      // In some iframe environments, popups can be blocked or have issues.
+      if (error.code === 'auth/popup-blocked') {
+        console.warn('[Auth] Popup was blocked by the browser.');
+        alert('Please allow popups for this site to sign in with Google.');
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        console.warn('[Auth] Multiple popup requests or cancelled.');
+      } else {
+        alert(`Login Error: ${error.message}`);
+      }
+    }
   };
 
   const logout = async () => {

@@ -6,39 +6,30 @@ import './index.css';
 const container = document.getElementById('root');
 if (!container) throw new Error('Failed to find root element');
 
-/**
- * Robust React 18/19 Root Management
- * 
- * In development environments (like AI Studio or during HMR), this script may re-run.
- * We store the 'root' object in multiple locations to ensure we only ever call 
- * createRoot(container) exactly once for the lifetime of the DOM node.
- */
-function getExistingRoot(): Root | undefined {
-  return (container as any)._reactRoot || (window as any)._reactRoot || ((import.meta as any).hot?.data?.root);
-}
+const GLOBAL_ROOT_ID = '_reactRoot_v1';
 
-let root = getExistingRoot();
+// Aggressive root retrieval
+let root = (container as any)[GLOBAL_ROOT_ID] || (window as any)[GLOBAL_ROOT_ID];
 
 if (!root) {
+  console.log('[Main] Creating new React root');
   try {
     root = createRoot(container);
-    
-    // Persist the root reference across module re-executions
-    (container as any)._reactRoot = root;
-    (window as any)._reactRoot = root;
-    if ((import.meta as any).hot) {
-      (import.meta as any).hot.data.root = root;
-    }
+    (container as any)[GLOBAL_ROOT_ID] = root;
+    (window as any)[GLOBAL_ROOT_ID] = root;
   } catch (err) {
-    console.warn('[React] createRoot warning/error caught:', err);
-    // In rare cases where getting the root fails but React knows it's there
+    console.error('[Main] Failed to create root:', err);
   }
+} else {
+  console.log('[Main] Using existing React root');
 }
 
-if (root) {
+if (root && typeof root.render === 'function') {
   root.render(
     <StrictMode>
       <App />
     </StrictMode>,
   );
+} else {
+  console.error('[Main] Root object is invalid or render function missing', root);
 }

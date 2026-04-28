@@ -854,9 +854,15 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
           </div>
         </div>
         <div className="mt-auto p-8 border-t border-white/5 space-y-4">
+           <div className="text-[8px] text-white/30 uppercase tracking-widest mb-2 px-2">
+             Debug: {authLoading ? 'Loading Auth...' : user ? `User: ${user.email} (Admin: ${isAdmin ? 'Yes' : 'No'})` : 'Not Authenticated'}
+           </div>
            {(!user || !isAdmin) ? (
              <button 
-               onClick={() => login()} 
+               onClick={() => {
+                 console.log('[AdminPortal] Login button clicked');
+                 login();
+               }} 
                className="w-full py-4 px-6 bg-white/5 hover:bg-white/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all border border-white/10"
              >
                <Key size={14} className="text-school-gold" />
