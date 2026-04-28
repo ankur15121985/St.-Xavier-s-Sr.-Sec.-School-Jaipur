@@ -113,7 +113,8 @@
         "label": { "type": "string" },
         "href": { "type": "string" },
         "parent_id": { "type": "string" },
-        "order_index": { "type": "number" }
+        "order_index": { "type": "number" },
+        "attachmentUrl": { "type": "string" }
       },
       "required": ["label", "href", "order_index"]
     },

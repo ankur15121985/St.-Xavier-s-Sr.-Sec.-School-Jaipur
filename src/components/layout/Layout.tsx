@@ -70,7 +70,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           return {
             id: m.id,
             label: m.label,
-            href: m.href,
+            href: m.attachmentUrl || m.href,
             subLinks: subLinks.length > 0 ? subLinks : undefined
           };
         });

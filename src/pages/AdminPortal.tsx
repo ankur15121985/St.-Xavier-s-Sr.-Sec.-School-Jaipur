@@ -121,7 +121,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.keys({
           ...item,
-          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
+          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'menu'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
         }).filter(k => k !== 'id').map(field => (
           <div key={field} className="space-y-2">
             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30">{field as string}</label>
@@ -176,8 +176,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                 className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
               >
                 <option value="">None (Top Level)</option>
-                {data.menu.filter(m => !m.parent_id && m.id !== item.id).map(m => (
-                  <option key={m.id} value={m.id}>{m.label}</option>
+                {data.menu.filter(m => m.id !== item.id).map(m => (
+                  <option key={m.id} value={m.id}>{m.label} {m.parent_id ? `(under ${data.menu.find(p => p.id === m.parent_id)?.label})` : ''}</option>
                 ))}
               </select>
             ) : field === 'status' && section === 'messages' ? (
@@ -203,7 +203,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                          handleFileUpload(e, item.id, targetField, section);
                        }} disabled={!!uploadingPath} />
                     </label>
-                    {item.attachmentUrl && ['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates'].includes(section as string) && (
+                    {item.attachmentUrl && ['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'menu'].includes(section as string) && (
                       <button 
                         onClick={() => handleUpdate(item.id, 'attachmentUrl', '', section)}
                         className="block text-center px-4 py-2 bg-red-400/10 text-red-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-400/20 transition-all"
@@ -486,7 +486,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     setUploadingPath(`${section}-${id}-${field}`);
     
     // Determine folder based on section
-    const folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups'].includes(section as string)) ? section : 'misc';
+    const folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups', 'menu'].includes(section as string)) ? section : 'misc';
 
     try {
       // 1. Try Firebase Storage first
