@@ -102,18 +102,18 @@ export const Carousel = ({ images, autoPlayInterval = 5000 }: CarouselProps) => 
       </AnimatePresence>
 
       {/* Navigation Buttons */}
-      <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 flex justify-between z-10 pointer-events-none">
+      <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 flex justify-between z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           onClick={prevStep}
-          className="w-14 h-14 bg-school-paper/80 backdrop-blur-xl text-school-ink rounded-2xl flex items-center justify-center hover:bg-school-paper hover:scale-110 transition-all active:scale-95 pointer-events-auto shadow-2xl"
+          className="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/40 transition-all pointer-events-auto"
         >
-          <ChevronLeft size={24} />
+          <ChevronLeft size={20} />
         </button>
         <button
           onClick={nextStep}
-          className="w-14 h-14 bg-school-paper/80 backdrop-blur-xl text-school-ink rounded-2xl flex items-center justify-center hover:bg-school-paper hover:scale-110 transition-all active:scale-95 pointer-events-auto shadow-2xl"
+          className="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/40 transition-all pointer-events-auto"
         >
-          <ChevronRight size={24} />
+          <ChevronRight size={20} />
         </button>
       </div>
 

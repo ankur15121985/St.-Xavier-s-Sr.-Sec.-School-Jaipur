@@ -41,24 +41,11 @@ html {
 
 @layer base {
   body {
-    @apply font-sans antialiased text-school-ink overflow-x-hidden transition-colors duration-500;
-    background: 
-      radial-gradient(at 0% 0%, rgba(122, 61, 252, 0.25) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(255, 0, 146, 0.2) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(199, 242, 18, 0.15) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(122, 61, 252, 0.1) 0px, transparent 50%),
-      radial-gradient(at 50% 50%, rgba(255, 0, 146, 0.05) 0px, transparent 50%),
-      var(--school-paper);
-    background-attachment: fixed;
+    @apply font-sans antialiased text-school-ink overflow-x-hidden transition-colors duration-500 bg-school-paper;
   }
 
   .dark body {
-    background: 
-      radial-gradient(at 0% 0%, rgba(122, 61, 252, 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(255, 0, 146, 0.1) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(199, 242, 18, 0.05) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(122, 61, 252, 0.05) 0px, transparent 50%),
-      var(--school-paper);
+    @apply bg-slate-950;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -130,5 +117,5 @@ html {
   @apply bg-school-paper;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-school-gold/50 rounded-full border-2 border-school-paper hover:bg-school-gold transition-colors;
+  @apply bg-slate-200 dark:bg-slate-800 rounded-full border-2 border-transparent hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors;
 }

@@ -1230,6 +1230,35 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
                     />
                  </div>
+                  <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight mb-8 mt-16 pt-16 border-t border-school-ink/5">Institutional Popup Notice</h2>
+                  <div className="grid md:grid-cols-2 gap-12">
+                    <div className="space-y-6">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Popup Visibility</label>
+                      <div className="flex items-center gap-4">
+                        <button 
+                          onClick={() => handleUpdate('global', 'popupEnabled', !data.settings.popupEnabled, 'settings')}
+                          className={`w-20 h-10 rounded-full relative transition-all ${data.settings.popupEnabled ? 'bg-school-accent' : 'bg-school-ink/10'}`}
+                        >
+                          <motion.div 
+                            animate={{ x: data.settings.popupEnabled ? 44 : 4 }}
+                            className="w-8 h-8 rounded-full bg-white shadow-lg absolute top-1 left-0"
+                          />
+                        </button>
+                        <span className="text-xs font-black text-school-ink uppercase tracking-widest">
+                          {data.settings.popupEnabled ? 'Enabled' : 'Disabled'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-6">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Message Content</label>
+                      <textarea 
+                        value={data.settings.popupMessage || ''}
+                        onChange={(e) => handleUpdate('global', 'popupMessage', e.target.value, 'settings')}
+                        placeholder="Enter the message that will pop up for all visitors..."
+                        className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all h-32 resize-none"
+                      />
+                    </div>
+                  </div>
                </div>
             </div>
           ) : activeSection === 'content' ? (

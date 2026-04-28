@@ -34,39 +34,30 @@ const GalleryPage = ({ data }: { data: AppData }) => {
         <meta name="description" content="Explore the visual legacy of St. Xavier's Jaipur through our curated photo gallery capturing moments of academic and cultural excellence." />
       </Helmet>
 
-      <section className="pb-40 bg-school-paper min-h-screen">
-        {/* Decorative background mark */}
-        <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
-          <Camera size={400} />
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-24 relative z-10">
+      <section className="pb-40 bg-white dark:bg-slate-950 min-h-screen">
+        <div className="max-w-7xl mx-auto px-6 mb-24 relative z-10 pt-24 text-center">
            <motion.div
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
-             className="flex flex-col items-center text-center pt-24"
+             className="space-y-6"
            >
-              <div className="inline-flex items-center gap-3 px-6 py-2 bg-school-gold/10 rounded-full border border-school-gold/20 mb-8">
-                <ImageIcon className="text-school-gold" size={16} />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-school-ink/60">Institutional Archives</span>
-              </div>
-              <h2 className="text-6xl md:text-8xl font-serif font-black text-school-ink mb-8 tracking-tighter uppercase italic leading-none">Visual <span className="text-school-gold">Chronicles.</span></h2>
-              <div className="w-24 h-1 bg-school-gold rounded-full mb-8"></div>
-              <p className="text-xl text-school-ink/40 font-light max-w-2xl mx-auto italic mb-12">Capturing the soul of St. Xavier's through moments of growth, celebration, and academic pursuit.</p>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-school-accent">Institution Archives</span>
+              <h2 className="text-5xl md:text-7xl font-bold text-school-navy dark:text-white tracking-tight leading-tight">Visual <span className="text-school-accent">Narratives.</span></h2>
+              <p className="text-lg text-slate-500 font-medium max-w-2xl mx-auto">Capturing the soul of St. Xavier's through moments of growth, celebration, and academic pursuit.</p>
 
               {/* Session Selector Dropdown */}
-              <div className="relative inline-block w-full max-w-xs group">
+              <div className="relative inline-block w-full max-w-xs pt-8">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="w-full flex items-center justify-between px-8 py-4 bg-white dark:bg-school-navy rounded-[24px] border border-school-navy/5 dark:border-white/10 shadow-xl group/btn hover:border-school-gold/30 transition-all"
+                  className="w-full flex items-center justify-between px-8 py-4 bg-white dark:bg-slate-900 rounded-3xl border border-black/5 dark:border-white/10 shadow-sm hover:border-school-accent transition-all"
                 >
                   <div className="flex flex-col items-start">
-                    <span className="text-[8px] font-black uppercase tracking-widest text-school-gold mb-1">Academic Session</span>
-                    <span className="text-[13px] font-bold text-school-navy dark:text-white uppercase tracking-tight">{activeFilter}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-school-accent mb-1">Academic Session</span>
+                    <span className="text-lg font-bold text-school-navy dark:text-white leading-none">{activeFilter}</span>
                   </div>
                   <ChevronDown 
                     size={20} 
-                    className={`text-school-gold transition-transform duration-500 ${isDropdownOpen ? 'rotate-180' : ''}`} 
+                    className={`text-school-accent transition-transform duration-500 ${isDropdownOpen ? 'rotate-180' : ''}`} 
                   />
                 </button>
 
@@ -82,7 +73,7 @@ const GalleryPage = ({ data }: { data: AppData }) => {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 5, scale: 0.95 }}
-                        className="absolute top-full left-0 right-0 mt-4 bg-white dark:bg-school-navy rounded-[32px] shadow-[0_30px_60px_-15px_rgba(0,33,71,0.3)] border border-school-navy/5 dark:border-white/10 p-4 z-50 overflow-hidden"
+                        className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-black/5 dark:border-white/10 p-4 z-50 overflow-hidden"
                       >
                         <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
                           {['All', ...allAvailableSessions].map((filter) => (
@@ -92,14 +83,13 @@ const GalleryPage = ({ data }: { data: AppData }) => {
                                 setActiveFilter(filter);
                                 setIsDropdownOpen(false);
                               }}
-                              className={`w-full text-left px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all mb-1 last:mb-0 flex items-center justify-between group/item ${
+                              className={`w-full text-left px-6 py-3 rounded-2xl text-sm font-bold transition-all mb-1 last:mb-0 flex items-center justify-between group/item ${
                                 activeFilter === filter 
-                                  ? 'bg-school-navy text-school-gold dark:bg-white/10 scale-[1.02]' 
-                                  : 'text-school-navy/40 dark:text-white/40 hover:bg-school-gold/5 hover:text-school-navy dark:hover:text-white'
+                                  ? 'bg-school-navy text-white' 
+                                  : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-school-navy'
                               }`}
                             >
                               {filter}
-                              {activeFilter === filter && <div className="w-1.5 h-1.5 bg-school-gold rounded-full animate-pulse" />}
                             </button>
                           ))}
                         </div>
@@ -112,44 +102,31 @@ const GalleryPage = ({ data }: { data: AppData }) => {
         </div>
 
         {displaySessions.map((session) => (
-          <div key={session} className="mb-32">
-            <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-16">
+          <div key={session} className="mb-24">
+            <div className="max-w-7xl mx-auto px-6 mb-12">
               <div className="flex items-center gap-6">
-                <div className="h-[1px] bg-school-ink/10 flex-1"></div>
-                <h3 className="text-4xl font-serif font-black text-school-navy italic tracking-tight">{session}</h3>
-                <div className="h-[1px] bg-school-ink/10 flex-1"></div>
+                <h3 className="text-2xl font-bold text-school-navy dark:text-white tracking-tight">{session}</h3>
+                <div className="h-[1px] bg-black/5 dark:bg-white/5 flex-1"></div>
               </div>
             </div>
             
-            <div className="max-w-7xl mx-auto px-6 lg:px-12 grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+            <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {groupedGallery[session].map((item, i) => (
                 <motion.div 
                   key={item.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
+                  whileHover={{ y: -5 }}
                   onClick={() => setSelectedImage(item)}
                   className="group cursor-pointer"
                 >
-                  <div className="aspect-[4/5] rounded-[48px] overflow-hidden relative shadow-[0_20px_50px_rgba(0,33,71,0.15)] bg-school-paper border-[12px] border-school-paper transition-transform duration-500 hover:-translate-y-4">
+                  <div className="aspect-[4/5] rounded-3xl overflow-hidden relative bg-slate-100 dark:bg-slate-800 border border-black/5 dark:border-white/5">
                     <img 
                       src={item.url} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
                       alt={item.caption}
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 bg-school-navy/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                      <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-xl border border-white/30 flex items-center justify-center text-white">
-                        <Maximize2 size={24} />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-8 px-6 text-center">
-                    <h4 className="text-xl font-serif font-bold text-school-navy italic tracking-tight mb-2 group-hover:text-school-gold transition-colors">{item.caption}</h4>
-                    <div className="flex items-center justify-center gap-2 opacity-30 text-[9px] font-black uppercase tracking-widest">
-                      <Calendar size={10} />
-                      <span>{session === 'Institutional Archives' ? "St. Xavier's Archives" : `Session ${session}`}</span>
+                    <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                      <p className="text-white font-bold text-sm tracking-tight">{item.caption}</p>
                     </div>
                   </div>
                 </motion.div>

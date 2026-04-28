@@ -38,6 +38,8 @@ export interface AppSettings {
   contactPhone: string;
   contactAddress: string;
   feesPdfUrl?: string;
+  popupMessage?: string;
+  popupEnabled?: boolean;
 }
 
 export interface AppData {

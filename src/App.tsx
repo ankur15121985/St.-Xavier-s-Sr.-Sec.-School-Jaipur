@@ -230,7 +230,6 @@ const DEFAULT_DATA: AppData = {
     { id: '3', title: 'Class Timetable 6 to 12', url: '#', isPriority: true, icon: 'Calendar' },
     { id: '4', title: 'Admission Notice for Std. 1', url: '#', isPriority: true, icon: 'Bell' },
     { id: '5', title: 'Booklet for Session 2025-26', url: '#', isPriority: true, icon: 'FileText' },
-    { id: '6', title: 'Admission Prospectus', url: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf', icon: 'FileText' },
     { id: 'app-1', title: 'Apply Now 2026-27', url: '#', icon: 'Send' },
     { id: '7', title: 'Parent Portal', url: '/studybase-app', icon: 'Layout' },
     { id: '8', title: 'XAOSA Alumni', url: '#', icon: 'Users' },
@@ -254,21 +253,22 @@ const DEFAULT_DATA: AppData = {
   menu: [
     { id: '1', label: 'Home', href: '/', parent_id: null, order_index: 0 },
     { id: '2', label: 'About Us', href: '#', parent_id: null, order_index: 1 },
-    { id: '2-1', label: 'Historical view of the school', href: '/history', parent_id: '2', order_index: 0 },
-    { id: '2-2', label: 'our Founder', href: '/founder-patron#founder', parent_id: '2', order_index: 1 },
-    { id: '2-3', label: 'Our Patron', href: '/founder-patron#patron', parent_id: '2', order_index: 2 },
-    { id: '2-4', label: 'School Governing Members', href: '/governing-members', parent_id: '2', order_index: 3 },
-    { id: '2-5', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 4 },
+    { id: '2-5', label: 'Our Founder', href: '/founder-patron#founder', parent_id: '2', order_index: 0 },
+    { id: '2-1', label: 'School History', href: '/history#school', parent_id: '2', order_index: 1 },
+    { id: '2-2', label: 'Former Principals', href: '/history#principal', parent_id: '2', order_index: 2 },
+    { id: '2-3', label: 'Former Rectors', href: '/history#rector', parent_id: '2', order_index: 3 },
+    { id: '2-4', label: 'Former Managers', href: '/history#manager', parent_id: '2', order_index: 4 },
+    { id: '2-7', label: 'School Governing Members', href: '/governing-members', parent_id: '2', order_index: 5 },
+    { id: '2-8', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 6 },
     { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
     { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
     { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
     { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: '3', order_index: 2 },
     { id: '3-4', label: 'Studybase Mobile App', href: '/studybase-app', parent_id: '3', order_index: 3 },
-    { id: '3-5', label: 'Prospectus', href: '/admission-policy#prospectus', parent_id: '3', order_index: 4 },
     { id: '4', label: 'Academics', href: '#', parent_id: null, order_index: 3 },
     { id: '4-1', label: 'Jesuit Education Objectives', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
     { id: '4-2', label: 'Examinations & Premotions', href: '#', parent_id: '4', order_index: 1 },
-    { id: '4-3', label: 'rules & Discipline', href: '#', parent_id: '4', order_index: 2 },
+    { id: '4-3', label: 'Rules & Discipline', href: '#', parent_id: '4', order_index: 2 },
     { id: '5', label: 'Activities', href: '#', parent_id: null, order_index: 4 },
     { id: '5-1', label: 'Co-Curricular Activities', href: '/co-curricular', parent_id: '5', order_index: 0 },
     { id: '5-2', label: 'Fr. Batson Sports Complex', href: '/sports-complex', parent_id: '5', order_index: 1 },
@@ -304,11 +304,13 @@ const DEFAULT_DATA: AppData = {
     applyNowEnabled: true,
     applyNowUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
     applyNowLabel: 'Apply 2026-27',
-    siteName: "St. Xavier's Sr. Sec. School, Jaipur",
+    siteName: "St. Xavier's, C-scheme",
     siteLogo: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
     contactEmail: 'xaviersjaipur@gmail.com',
     contactPhone: '0141-2372336, 2362436',
-    contactAddress: 'Bhagwan Das Road, C-Scheme, Jaipur - 302001, Rajasthan, India'
+    contactAddress: 'Bhagwan Das Road, C-Scheme, Jaipur - 302001, Rajasthan, India',
+    popupEnabled: true,
+    popupMessage: 'Welcome to St. Xavier\'s, C-scheme. Admissions for the academic session 2026-27 are now open. Please visit the admission portal for details.'
   },
   content: {
     id: 'global',
@@ -375,12 +377,27 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
                     // Filter out deprecated or duplicate menu items
                     val = (val as any[]).filter(m => 
                       m.label !== 'Staff Directory' && 
-                      m.id !== '2-7' &&
-                      m.label !== 'School ANthem'
+                      m.label !== 'Our Patron' && 
+                      m.label !== 'School ANthem' &&
+                      m.label !== 'Tenders' &&
+                      m.label !== 'Fee Payment' &&
+                      m.label !== 'Prospectus' &&
+                      m.label !== 'rules & Disciplin' &&
+                      m.label !== 'Rules & Disciplin'
                     );
                     
+                    // Deduplicate by label to prevent key collisions even if IDs differ
+                    const seenLabels = new Set();
+                    val = (val as any[]).filter(m => {
+                      if (seenLabels.has(m.label)) return false;
+                      seenLabels.add(m.label);
+                      return true;
+                    });
+
                     const fetchedIds = new Set((val as any[]).map(m => m.id));
-                    const missing = DEFAULT_DATA.menu.filter(m => !fetchedIds.has(m.id));
+                    const missing = DEFAULT_DATA.menu.filter(m => {
+                      return !fetchedIds.has(m.id) && !seenLabels.has(m.label);
+                    });
                     merged[k] = [...(val as any[]), ...missing] as any;
                   } else {
                     merged[k] = val as any;

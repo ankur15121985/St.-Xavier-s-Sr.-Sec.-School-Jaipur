@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, Phone, Mail, MapPin, Key, Settings, ArrowRight, ChevronRight, Users2, ImageIcon, ExternalLink, Facebook, Instagram, Youtube, ArrowUp, ArrowDown, MessageSquare, Sun, Moon } from 'lucide-react';
 import { AppData, QuickLink } from '../../types';
 
+import ScrollButtons from '../ui/ScrollButtons';
+import PopupMessage from '../ui/PopupMessage';
+
 interface LayoutProps {
   children: React.ReactNode;
   data: AppData;
@@ -11,6 +14,7 @@ interface LayoutProps {
 }
 
 interface NavLink {
+  id: string;
   label: string;
   href: string;
   subLinks?: NavLink[];
@@ -64,6 +68,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         .map(m => {
           const subLinks = buildTree(m.id);
           return {
+            id: m.id,
             label: m.label,
             href: m.href,
             subLinks: subLinks.length > 0 ? subLinks : undefined
@@ -76,194 +81,334 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
+  const isHome = location.pathname === '/';
+
   return (
-    <div className="min-h-screen bg-transparent selection:bg-school-accent selection:text-white overflow-x-hidden dark:text-slate-200">
-      {/* Multi-Level Header Section */}
-      <header className="w-full relative z-[60] bg-white shadow-sm border-b border-school-ink/5">
-        {/* Top Utility Bar */}
-        <div className="py-1 border-b border-school-ink/10">
-          <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex items-center justify-between">
-            <div className="flex items-center gap-4 md:gap-6">
-              <div className="hidden sm:flex gap-4">
-                <a href="https://www.facebook.com/stxaviersjaipur/" target="_blank" rel="noopener noreferrer" className="text-school-navy/60 hover:text-school-accent transition-colors"><Facebook size={12} fill="currentColor" /></a>
-                <a href="https://www.instagram.com/xaviers_jaipur/" target="_blank" rel="noopener noreferrer" className="text-school-navy/60 hover:text-school-accent transition-colors"><Instagram size={12} /></a>
-                <a href="https://www.youtube.com/@st.xaviersc-schemejaipur2421" target="_blank" rel="noopener noreferrer" className="text-school-navy/60 hover:text-school-accent transition-colors"><Youtube size={12} fill="currentColor" /></a>
+    <div className="min-h-screen selection:bg-school-accent selection:text-white overflow-x-hidden dark:text-slate-200" style={{ 
+      backgroundColor: isDark ? '#020617' : '#fcfbf7', // Unified Refined off-white
+      position: 'relative'
+    }}>
+      {/* Admin Institutional Popup - High level */}
+      {data.settings && <PopupMessage settings={data.settings} />}
+
+      {/* Large Single Cross Watermark - Positioned on the left across whole page */}
+      <div 
+        className="fixed inset-0 z-0 pointer-events-none opacity-[0.06] dark:opacity-[0.1] flex justify-start pl-4 md:pl-16"
+      >
+        <div 
+          className="h-full w-64 md:w-[800px] bg-no-repeat pt-32"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M46 2h8v96h-8z M10 25h80v6H10z' fill='${isDark ? '%23ffffff' : '%23002147'}'/%3E%3C/svg%3E")`,
+            backgroundPosition: 'center 80px', 
+            backgroundSize: '100% auto', 
+          }}
+        />
+      </div>
+
+      {!isHome ? (
+        /* Subpage Header - Institutional Style */
+        <div className="relative">
+          {/* Top Info Bar */}
+          <div className="bg-school-navy text-white py-2 relative z-[120]">
+            <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
+              <div className="flex items-center gap-6">
+                <span className="flex items-center gap-2"><Phone size={12} /> {data.settings?.contactPhone}</span>
+                <span className="flex items-center gap-2 max-md:hidden"><Mail size={12} /> {data.settings?.contactEmail}</span>
               </div>
-              <div className="hidden lg:flex items-center gap-2 text-school-navy text-[12px] font-bold">
-                <Phone size={14} className="text-school-accent" />
-                <span>{data.settings?.contactPhone || '0141-2372336'}</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 md:gap-6">
-              <button 
-                onClick={() => setIsDark(!isDark)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-school-navy/60 hover:text-school-accent hover:bg-school-accent/5 transition-all active:scale-95"
-                title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              >
-                {isDark ? <Sun size={14} /> : <Moon size={14} />}
-              </button>
-              <div className="flex gap-4 md:gap-6 text-school-navy text-[10px] md:text-[12px] font-bold uppercase tracking-wider">
-                <Link to="/admin" className="hover:text-school-accent transition-colors">Login</Link>
-                <Link to="/contact" className="hover:text-school-accent transition-colors hidden sm:block">Contact</Link>
+              <div className="flex items-center gap-4">
+                <Link to="/contact" className="hover:text-school-accent transition-colors">Career</Link>
+                <div className="w-[1px] h-3 bg-white/20 mx-2" />
+                <button onClick={() => setIsDark(!isDark)} className="flex items-center gap-1 hover:text-school-accent transition-colors">
+                  {isDark ? <Sun size={12} /> : <Moon size={12} />} Mode
+                </button>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Priority Links Ticker */}
-        <div className="py-1 overflow-hidden relative border-b border-school-ink/5 bg-school-paper/50">
-          <div className="flex whitespace-nowrap animate-marquee py-1">
-             {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex items-center gap-12 px-6">
-                  {data.links?.filter(l => l.isPriority).map(link => (
-                    <a 
-                      key={link.id} 
-                      href={link.url} 
-                      className="flex items-center gap-3 group"
-                    >
-                      <span className="w-1.5 h-1.5 bg-school-accent rounded-full animate-pulse group-hover:scale-150 transition-transform" />
-                      <span className="text-[9px] font-black uppercase tracking-widest text-school-navy group-hover:text-school-accent transition-colors">
-                        {link.title}
-                      </span>
-                    </a>
-                  ))}
-                </div>
-             ))}
-          </div>
-        </div>
-
-        {/* Main Branding Section - White Background */}
-        <div className={`py-1 transition-all duration-300 ${isScrolled ? 'fixed lg:relative top-0 inset-x-0 !py-1 bg-white group border-b border-school-ink/10 shadow-xl' : 'relative'}`}>
-          <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex items-center justify-between">
-            <div className="flex items-center gap-4 md:gap-6">
-              <Link to="/" className="w-10 h-10 md:w-14 md:h-14 shrink-0 transition-transform hover:scale-110">
-                <img 
-                  src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} 
-                  alt={data.settings?.siteName || "St. Xavier's Logo"} 
-                  className="w-full h-full object-contain"
-                />
-              </Link>
-              <div className="flex flex-col">
-                <h1 className="text-xl md:text-2xl font-black text-school-navy drop-shadow-sm tracking-tighter leading-none">
-                  {data.settings?.siteName?.split(',')[0]?.split('Sec.')[0] || "St. Xavier's"} <br className="md:hidden" />
-                  <span className="text-school-accent italic">
-                    {data.settings?.siteName?.includes('Jaipur') ? 'Jaipur' : ''}
-                  </span>
-                </h1>
-                <div className="hidden md:flex items-center gap-3 mt-2">
-                  <span className="w-1.5 h-1.5 bg-school-accent rounded-full animate-pulse" />
-                  <p className="text-school-navy/60 text-[11px] md:text-xs font-medium tracking-wide">
-                    {data.settings?.contactAddress || 'Bhagwan Das Road, C-Scheme, Jaipur - 302001'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 md:gap-6">
-              <button 
-                onClick={() => setIsNavOpen(true)}
-                className="lg:hidden w-12 h-12 bg-school-accent rounded-full flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform"
-              >
-                <Menu size={24} />
-              </button>
-
-              <button className="hidden xl:flex p-4 bg-school-ink/5 text-school-navy rounded-full hover:bg-school-accent hover:text-white transition-all hover:scale-110 border border-school-ink/10">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Menu Bar (Sticky) - White/Light - Desktop Only */}
-      <nav className={`w-full z-50 hidden lg:block transition-all duration-500 ${isScrolled ? 'fixed top-0 bg-white shadow-[0_15px_60px_-15px_rgba(0,0,0,0.1)] border-b border-school-ink/5' : 'relative bg-white border-b border-school-ink/5'}`}>
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex items-center justify-between h-12 md:h-14">
-          <div className="flex items-center gap-12">
-            {/* Small Logo for Scrolled State */}
-            <AnimatePresence>
-              {isScrolled && (
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="flex items-center gap-4"
-                >
-                  <Link to="/" className="w-10 h-10">
+          {/* Unified Sticky Header for Subpages */}
+          <header className={`z-[110] transition-all duration-500 bg-white dark:bg-slate-950 border-b border-black/5 ${isScrolled ? 'fixed top-0 inset-x-0 shadow-lg' : 'relative'}`}>
+            {/* Row 1: Logo Section */}
+            <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
+              <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
+                <Link to="/" className="flex items-center gap-4 group">
+                  <div className={`transition-all duration-500 shrink-0 ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-20 h-20 md:w-[100px] md:h-[100px]'}`}>
                     <img 
-                      src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} 
+                      src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
                       alt="Logo" 
                       className="w-full h-full object-contain"
                     />
-                  </Link>
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-black text-school-navy dark:text-white leading-none">
-                      {data.settings?.siteName?.split(',')[0]?.split('Sec.')[0]?.toUpperCase() || "ST. XAVIER'S"}
-                    </span>
-                    <span className="text-[8px] text-school-accent italic font-serif">
-                      {data.settings?.siteName?.includes('Jaipur') ? 'Jaipur' : ''}
-                    </span>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  <div className="flex flex-col justify-center">
+                    <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight whitespace-nowrap transition-all duration-500 ${isScrolled ? 'text-lg md:text-xl' : 'text-2xl md:text-[42px]'}`}>
+                      St. Xavier's Sr. Sec. School
+                    </h1>
+                    {!isScrolled && (
+                      <p className="text-[13px] md:text-[17px] font-sans font-medium text-[#333] dark:text-slate-400 mt-1 leading-tight whitespace-nowrap">
+                        Bhagwan Das Road, C-Scheme, Jaipur - 302001 &nbsp;|&nbsp; CBSE Affiliation No.: 1730003
+                      </p>
+                    )}
+                  </div>
+                </Link>
+                
+                <div className="hidden lg:flex items-center gap-6">
+                   {!isScrolled && (
+                     <div className="text-right">
+                        <p className="text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-widest leading-none">Established</p>
+                        <p className="text-3xl font-black text-school-navy dark:text-school-accent italic opacity-20">1941</p>
+                     </div>
+                   )}
+                   <Link to="/admin" className={`flex items-center gap-2 bg-school-navy text-white rounded-full uppercase tracking-widest font-black shadow-lg hover:scale-105 transition-all ${isScrolled ? 'px-4 py-2 text-[9px]' : 'px-6 py-2.5 text-[11px]'}`}>
+                     <Key size={isScrolled ? 12 : 14} /> Admin Login
+                   </Link>
+                </div>
 
-            {/* Main Navigation (Desktop) */}
-            <div className="hidden xl:flex items-center gap-10">
-            {navLinks.map(l => (
-              <div key={l.label} className="relative group flex items-center h-full">
-                {l.subLinks ? (
-                  <>
-                    <button 
-                      onMouseEnter={() => setActiveDropdown(l.label)}
-                      className={`text-[12px] font-black uppercase tracking-widest flex items-center gap-2 transition-all ${activeDropdown === l.label ? 'text-school-accent scale-105' : 'text-school-navy/60 hover:text-school-navy'}`}
-                    >
-                      {l.label}
-                      <ArrowDown size={12} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180 opacity-100' : 'opacity-20 group-hover:opacity-100'}`} />
-                    </button>
-                    
-                    <AnimatePresence>
-                      {activeDropdown === l.label && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          onMouseLeave={() => setActiveDropdown(null)}
-                          className="absolute top-full -left-12 pt-4 w-[320px]"
-                        >
-                          <div className="bg-white rounded-[32px] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.2)] border border-school-ink/5 dark:border-school-paper/10 p-5">
-                            <div className="grid gap-1">
-                              {l.subLinks.map(sl => (
-                                <DesktopSubNavLink 
-                                  key={sl.label} 
-                                  link={sl} 
-                                  onClose={() => setActiveDropdown(null)} 
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </>
-                ) : (
-                  <Link 
-                    to={l.href} 
-                    className={`text-[12px] font-black uppercase tracking-widest transition-all hover:scale-105 ${location.pathname === l.href ? 'text-school-accent' : 'text-school-navy/60 hover:text-school-navy'}`}
-                  >
-                    {l.label}
-                  </Link>
-                )}
+                <div className="lg:hidden flex items-center gap-4">
+                  <button onClick={() => setIsNavOpen(true)} className="p-2 bg-slate-100 rounded-lg">
+                    <Menu size={24} />
+                  </button>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-          {/* Action Area */}
-          <div className="flex items-center gap-6">
-            {/* Secure Fees button removed as requested */}
+            {/* Row 2: Nav Bar */}
+            <div className={`bg-white dark:bg-slate-900 transition-all duration-500 ${isScrolled ? 'py-0' : 'py-0'}`}>
+              <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center">
+                <nav className="flex-1 hidden lg:flex items-center gap-1">
+                  {navLinks.map(l => (
+                    <div 
+                      key={l.id} 
+                      className="relative"
+                      onMouseEnter={() => setActiveDropdown(l.label)}
+                      onMouseLeave={() => setActiveDropdown(null)}
+                    >
+                      {l.subLinks ? (
+                        <>
+                          <button 
+                            className={`px-5 py-4 text-[12px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all border-b-2 border-transparent hover:text-school-accent ${activeDropdown === l.label ? 'text-school-accent border-school-accent bg-slate-50 dark:bg-slate-800' : 'text-school-navy dark:text-white'}`}
+                          >
+                            {l.label}
+                            <ArrowDown size={10} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180' : 'opacity-40'}`} />
+                          </button>
+                          <AnimatePresence>
+                            {activeDropdown === l.label && (
+                              <motion.div 
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 5 }}
+                                className="absolute top-full left-0 w-64 pt-0 z-[120] shadow-2xl"
+                              >
+                                <div className="bg-white dark:bg-slate-900 border border-black/5 p-2 rounded-b-xl overflow-hidden shadow-2xl">
+                                  {l.subLinks.map(sl => (
+                                    <div key={sl.id} className="relative group/subItem">
+                                      {sl.subLinks ? (
+                                        <div className="px-4 py-3">
+                                          {sl.href !== '#' ? (
+                                            <Link 
+                                              to={sl.href}
+                                              onClick={() => setActiveDropdown(null)}
+                                              className="text-[10px] font-black text-school-accent uppercase tracking-widest mb-2 px-1 block hover:opacity-70 transition-opacity"
+                                            >
+                                              {sl.label}
+                                            </Link>
+                                          ) : (
+                                            <p className="text-[10px] font-black text-school-accent uppercase tracking-widest mb-2 px-1">{sl.label}</p>
+                                          )}
+                                          <div className="grid gap-1">
+                                            {sl.subLinks.map(nsl => (
+                                              <Link 
+                                                key={nsl.id}
+                                                to={nsl.href}
+                                                onClick={() => setActiveDropdown(null)}
+                                                className="block px-3 py-2 text-xs font-bold text-slate-500 hover:text-school-navy hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all"
+                                              >
+                                                {nsl.label}
+                                              </Link>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <Link 
+                                          to={sl.href}
+                                          onClick={() => setActiveDropdown(null)}
+                                          className="block px-4 py-3 text-xs font-bold text-slate-500 hover:text-school-navy hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all"
+                                        >
+                                          {sl.label}
+                                        </Link>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </>
+                      ) : (
+                        <Link 
+                          to={l.href}
+                          className={`px-5 py-4 text-[12px] font-bold uppercase tracking-wider transition-all border-b-2 border-transparent hover:text-school-accent ${location.pathname === l.href ? 'text-school-accent border-school-accent' : 'text-school-navy dark:text-white'}`}
+                        >
+                          {l.label}
+                        </Link>
+                      )}
+                    </div>
+                  ))}
+                </nav>
+
+                <div className="ml-auto hidden lg:flex items-center gap-4">
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Spacer if sticky */}
+          {isScrolled && <div className="h-40" />} 
+
+          {/* Breadcrumbs Section */}
+          <div className="bg-slate-50 dark:bg-slate-900 border-b border-black/5 py-4">
+             <div className="max-w-[1440px] mx-auto px-4 lg:px-8">
+                <nav className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                   <Link to="/" className="hover:text-school-accent transition-colors">Home</Link>
+                   {location.pathname.split('/').filter(x => x).map((path, i, arr) => (
+                      <React.Fragment key={path}>
+                         <ChevronRight size={10} className="text-slate-300" />
+                         <span className={i === arr.length - 1 ? "text-school-navy dark:text-white" : "hover:text-school-accent transition-colors"}>
+                            {path.replace(/-/g, ' ')}
+                         </span>
+                      </React.Fragment>
+                   ))}
+                </nav>
+             </div>
           </div>
         </div>
-      </nav>
+      ) : (
+        /* Original Home Header */
+        <header className={`fixed top-0 inset-x-0 z-[100] transition-all duration-500 ${isScrolled ? 'bg-white shadow-lg' : 'bg-white shadow-sm'}`}>
+          {/* Row 1: Brand & Actions */}
+          <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
+            <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
+              {/* Brand Area - Left Defined */}
+              <div className="flex items-center gap-4 transition-all">
+                <Link to="/" className={`shrink-0 transition-all duration-500 ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-12 h-12 md:w-[80px] md:h-[80px]'}`}>
+                  <img 
+                    src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
+                    alt="Logo" 
+                    className="w-full h-full object-contain"
+                  />
+                </Link>
+                <div className="flex flex-col">
+                  <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight whitespace-nowrap transition-all duration-500 ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-[32px]'}`}>
+                    St. Xavier's Sr. Sec. School
+                  </span>
+                  {!isScrolled && (
+                    <span className="text-[10px] md:text-[14px] font-sans font-medium text-slate-500 dark:text-slate-400 leading-tight whitespace-nowrap mt-1">
+                      Bhagwan Das Road, C-Scheme, Jaipur &nbsp;|&nbsp; CBSE Affiliation No.: 1730003
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setIsDark(!isDark)}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95`}
+                >
+                  {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
+                <Link 
+                  to="/admin" 
+                  className="hidden lg:flex items-center gap-2 px-6 py-2.5 bg-school-navy text-white rounded-full text-[11px] uppercase tracking-widest font-black shadow-lg hover:scale-105 active:scale-95 transition-all"
+                >
+                  <Key size={14} /> Admin Login
+                </Link>
+                <button 
+                  onClick={() => setIsNavOpen(true)}
+                  className="lg:hidden w-10 h-10 flex items-center justify-center"
+                >
+                  <Menu size={24} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 2: Navigation Bar */}
+          <div className={`bg-white dark:bg-slate-900/50 backdrop-blur-md transition-all duration-500 ${isScrolled ? 'py-1' : 'py-0'}`}>
+            <div className="max-w-[1440px] mx-auto px-4 lg:px-8">
+              <nav className="hidden lg:flex items-center gap-8">
+                {navLinks.map(l => (
+                  <div key={l.id} className="relative group">
+                    {l.subLinks ? (
+                      <>
+                        <button 
+                          onMouseEnter={() => setActiveDropdown(l.label)}
+                          className={`py-4 text-[13px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent ${activeDropdown === l.label ? 'text-school-accent border-school-accent' : ''}`}
+                        >
+                          {l.label}
+                          <ArrowDown size={10} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180' : 'opacity-40'}`} />
+                        </button>
+                        <AnimatePresence>
+                          {activeDropdown === l.label && (
+                            <motion.div 
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 5 }}
+                              onMouseLeave={() => setActiveDropdown(null)}
+                              className="absolute top-full left-0 pt-0 w-64 z-[110]"
+                            >
+                              <div className="bg-white dark:bg-slate-900 rounded-b-2xl shadow-2xl border border-black/5 p-2 overflow-hidden mt-0">
+                                <div className="grid gap-1">
+                                  {l.subLinks.map(sl => (
+                                    <div key={sl.id} className="relative">
+                                      {sl.subLinks ? (
+                                        <div className="px-4 py-3">
+                                          <p className="text-[10px] font-black text-school-accent uppercase tracking-widest mb-2">{sl.label}</p>
+                                          <div className="grid gap-1">
+                                            {sl.subLinks.map(nsl => (
+                                              <Link 
+                                                key={nsl.id}
+                                                to={nsl.href}
+                                                onClick={() => setActiveDropdown(null)}
+                                                className="block px-3 py-2 text-xs font-bold text-slate-500 hover:text-school-navy hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all"
+                                              >
+                                                {nsl.label}
+                                              </Link>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <Link 
+                                          to={sl.href}
+                                          onClick={() => setActiveDropdown(null)}
+                                          className="block px-4 py-3 text-xs font-bold text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+                                        >
+                                          {sl.label}
+                                        </Link>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </>
+                    ) : (
+                      <Link 
+                        to={l.href}
+                        className={`py-4 text-[13px] font-black uppercase tracking-wider transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent ${location.pathname === l.href ? 'text-school-accent border-school-accent' : ''}`}
+                      >
+                        {l.label}
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </nav>
+            </div>
+          </div>
+        </header>
+
+      )}
+
 
       {/* Magical Mobile Nav */}
       <AnimatePresence>
@@ -290,12 +435,12 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             <div className="flex-1 overflow-y-auto p-6 pb-20">
               <div className="grid gap-8">
                 {navLinks.map(l => (
-                  <MobileNavLink key={l.label} link={l} onClose={() => setIsNavOpen(false)} isDark={isDark} />
+                  <MobileNavLink key={l.id} link={l} onClose={() => setIsNavOpen(false)} isDark={isDark} />
                 ))}
                 
                 {/* Mobile Bottom Links */}
                 <div className="pt-8 border-t border-school-ink/5 dark:border-school-paper/10 grid gap-4">
-                   <Link to="/admin" onClick={() => setIsNavOpen(false)} className="text-lg font-bold text-school-ink/60 hover:text-school-ink italic underline decoration-school-accent underline-offset-4">Staff Login</Link>
+                   <Link to="/admin" onClick={() => setIsNavOpen(false)} className="text-lg font-bold text-school-ink/60 hover:text-school-ink italic underline decoration-school-accent underline-offset-4">Admin Login</Link>
                    <Link to="/contact" onClick={() => setIsNavOpen(false)} className="text-lg font-bold text-school-ink/60 hover:text-school-ink italic underline decoration-school-accent underline-offset-4">Connect With Us</Link>
                 </div>
               </div>
@@ -308,85 +453,70 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         {children}
       </main>
 
-      <footer className="bg-slate-950/90 dark:bg-[#010414] backdrop-blur-3xl text-white pt-40 pb-20 relative overflow-hidden mt-20 rounded-t-[100px]">
-        {/* Dynamic Abstract Shapes in Footer - Multi tone */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-school-accent/40 blur-[150px] rounded-full -translate-y-1/2" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-school-gold/40 blur-[150px] rounded-full translate-y-1/2" />
-        <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] bg-school-neon/10 blur-[200px] rounded-full -translate-x-1/2 -translate-y-1/2" />
-
+      <footer className="bg-slate-950 text-white pt-32 pb-16 relative overflow-hidden mt-32">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-12 gap-24 border-b border-white/10 pb-24">
-            <div className="lg:col-span-5 space-y-12">
+          <div className="grid lg:grid-cols-12 gap-16 border-b border-white/5 pb-20">
+            <div className="lg:col-span-4 space-y-10">
               <div className="space-y-6">
-                <div className="flex items-center gap-6">
-                   <div className="w-20 h-20 bg-white p-4 rounded-[32px] hover:rotate-6 transition-transform">
-                     <img src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} alt="Xavier's Logo" className="w-full h-full object-contain" />
-                   </div>
-                   <h3 className="text-4xl font-black tracking-tighter leading-none italic">
-                     {data.settings?.siteName?.split(',')[0]?.split('Sec.')[0]?.toUpperCase() || "ST. XAVIER'S"} <br />
-                     <span className="text-school-neon not-italic">
-                       {data.settings?.siteName?.includes('Jaipur') ? 'JAIPUR.' : ''}
-                     </span>
-                   </h3>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white p-2 rounded-xl">
+                    <img src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} alt="Logo" className="w-full h-full object-contain" />
+                  </div>
+                  <h3 className="text-2xl font-bold tracking-tight">
+                    {data.settings?.siteName?.split(',')[0]}
+                  </h3>
                 </div>
-                <p className="text-2xl text-white/50 font-medium leading-relaxed max-w-md">
-                  {data.content?.footerDescription || 'Pioneering Jesuit excellence since 1941. Shaping the leaders of tomorrow with soul, heart, and mind.'}
+                <p className="text-lg text-white/40 font-medium leading-relaxed">
+                  {data.content?.footerDescription || 'Pioneering Jesuit excellence since 1941.'}
                 </p>
               </div>
               
-              <div className="flex gap-4">
-                {[
-                  { Icon: Facebook, href: 'https://www.facebook.com/stxaviersjaipur/' },
-                  { Icon: Instagram, href: 'https://www.instagram.com/xaviers_jaipur/' },
-                  { Icon: Youtube, href: 'https://www.youtube.com/@st.xaviersc-schemejaipur2421' }
-                ].map(({ Icon, href }, i) => (
-                  <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="w-16 h-16 bg-white/5 rounded-[24px] flex items-center justify-center hover:bg-school-accent transition-all hover:scale-110">
-                    <Icon size={24} />
+              <div className="flex gap-3">
+                {[Facebook, Instagram, Youtube].map((Icon, i) => (
+                  <a key={i} href="#" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center hover:bg-school-accent transition-all">
+                    <Icon size={20} />
                   </a>
                 ))}
               </div>
             </div>
 
-            <div className="lg:col-span-7 grid sm:grid-cols-2 gap-16">
-              <div className="space-y-10">
-                <h4 className="text-lg font-black text-school-neon uppercase tracking-widest">Navigation</h4>
-                <ul className="grid gap-6">
+            <div className="lg:col-span-8 grid sm:grid-cols-3 gap-12">
+              <div className="space-y-8">
+                <h4 className="text-sm font-bold text-school-accent uppercase tracking-widest">Explore</h4>
+                <ul className="space-y-4">
                   {navLinks.map(l => (
-                    <li key={l.label} className="text-xl font-bold text-white/40 hover:text-white transition-colors">
-                      <Link to={l.href}>{l.label}</Link>
+                    <li key={l.label}>
+                      <Link to={l.href} className="text-white/40 hover:text-white transition-colors">
+                        {l.label}
+                      </Link>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="space-y-10">
-                <h4 className="text-lg font-black text-school-neon uppercase tracking-widest">Contact</h4>
-                <div className="space-y-8">
-                  <p className="flex items-start gap-4 text-xl font-medium text-white/50 leading-snug">
-                    <MapPin size={24} className="text-school-neon shrink-0 mt-1" />
+              <div className="space-y-8 lg:col-span-2">
+                <h4 className="text-sm font-bold text-school-accent uppercase tracking-widest">Connect</h4>
+                <div className="space-y-6">
+                  <p className="text-lg font-medium text-white/50 leading-relaxed max-w-sm">
                     {data.settings?.contactAddress || 'Bhagwan Das Road, C-Scheme, Jaipur, Rajasthan 302001'}
                   </p>
-                  <p className="flex items-center gap-4 text-xl font-medium text-white/50">
-                    <Phone size={24} className="text-school-neon shrink-0" />
+                  <p className="text-lg font-bold text-white">
                     {data.settings?.contactPhone || '0141-2372336'}
                   </p>
-                  <Link to="/contact" className="inline-flex items-center gap-4 px-10 py-4 bg-white/5 hover:bg-white/10 rounded-full text-sm font-black uppercase tracking-widest transition-all">
-                    Get in touch <ArrowRight size={16} />
-                  </Link>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="pt-16 flex flex-col md:flex-row justify-between items-center gap-8 text-white/20 text-sm font-black tracking-widest uppercase">
-            <p>© 2026 {data.settings?.siteName || "St. Xavier's School Jaipur"}. All rights reserved.</p>
-            <div className="flex gap-12">
+          <div className="pt-12 flex flex-col md:flex-row justify-between items-center gap-6 text-white/20 text-xs font-semibold tracking-wider uppercase">
+            <p>© 2026 {data.settings?.siteName}.</p>
+            <div className="flex gap-8">
               <span className="hover:text-white transition-colors cursor-pointer">Privacy</span>
               <span className="hover:text-white transition-colors cursor-pointer">Terms</span>
-              <span className="hover:text-white transition-colors cursor-pointer">CBSE Disclosure</span>
             </div>
           </div>
         </div>
       </footer>
+
 
       {/* Floating CTA - Ultra Modern & Responsive */}
       <AnimatePresence>
@@ -412,6 +542,9 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
 
       {/* Modern AI/Help Chat Bubble */}
       <ChatBubble />
+
+      {/* Floating Scroll Controls */}
+      <ScrollButtons />
     </div>
   );
 };
@@ -560,7 +693,6 @@ const MobileNavLink = ({ link, onClose, depth = 0, isDark }: { link: NavLink; on
     </Link>
   ) : (
                 <Link 
-                  key={link.label} 
                   to={link.href} 
                   onClick={onClose} 
                   className="text-xl font-bold text-school-ink hover:text-school-accent transition-colors flex items-center justify-between group"

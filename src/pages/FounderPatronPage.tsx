@@ -31,49 +31,101 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Content Section */}
-        <section className="py-16 md:py-24 bg-school-paper relative z-10 -mt-12 md:-mt-20 rounded-t-[40px] md:rounded-t-[64px] shadow-2xl">
+        <section className="py-16 md:py-32 bg-school-paper relative z-10 -mt-12 md:-mt-20 rounded-t-[40px] md:rounded-t-[80px] shadow-2xl">
           <div className="max-w-6xl mx-auto px-6 lg:px-12">
             
-            {/* Saint Francis Xavier Section (Our Patron) */}
-            <div id="patron" className="grid lg:grid-cols-12 gap-16 items-start mb-32">
+            {/* Saint Ignatius of Loyola Section (Our Founder) - TOP SECTION per historical precedence and user request */}
+            <div id="founder" className="grid lg:grid-cols-12 gap-16 items-start mb-40">
               <motion.div 
-                initial={{ opacity: 0, x: -30 }}
+                initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
+                transition={{ duration: 1 }}
                 className="lg:col-span-5 relative"
               >
-                <div className="aspect-[3/4] rounded-[40px] overflow-hidden shadow-2xl border-8 border-school-paper group">
+                <div className="aspect-[3/4] rounded-[40px] overflow-hidden shadow-2xl border-8 border-white group">
                    <img 
-                      src="https://picsum.photos/seed/st_francis_xavier/600/800" 
+                      src="https://lh3.googleusercontent.com/d/1_fVSqtrpLiaw29uhOj6qdzp_1CZNBPaL" 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                      alt="Saint Ignatius of Loyola"
+                      referrerPolicy="no-referrer"
+                   />
+                   <div className="absolute inset-0 bg-gradient-to-t from-school-navy/90 via-transparent to-transparent flex items-end p-10">
+                      <p className="text-white text-2xl font-serif font-black italic">St. Ignatius of Loyola</p>
+                   </div>
+                </div>
+                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-school-accent rounded-3xl -z-10 shadow-xl opacity-20"></div>
+              </motion.div>
+
+              <motion.div 
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1 }}
+                className="lg:col-span-7 space-y-8"
+              >
+                <div className="space-y-4">
+                  <h2 className="text-school-accent font-black uppercase text-sm tracking-[0.3em]">Our Founder</h2>
+                  <h3 className="text-5xl md:text-7xl font-serif font-black text-school-navy tracking-tight">The Visionary.</h3>
+                </div>
+
+                <div className="space-y-6 text-[17px] text-slate-600 leading-relaxed font-medium text-justify">
+                   <p>
+                    St. Ignatius grew up in Spain and lived a rather plush life. He frequented the court and developed a taste for that life style, especially the ladies. Ignatius was involved with gambling and was a very confrontational man. After some legal issues in his youth he found himself at age 30 in the Spanish army defending the Spanish town of Pamplona against the French. During this battle, his commander wanted to retreat because they were outnumbered, but Ignatius convinced the commander to stay out of honor. During this battle a cannon ball struck Ignatius' legs. The French soldiers, impressed with his courage, carried him back to his home rather than into prison. In the hospital, Ignatius needed to have his leg re-broke without anesthesia. Due to an infection the doctors told him to prepare for death. On the feast day of Saints Peter and Paul, Ignatius miraculously got better. The leg healed in such a way as to cause a big bump which prevented him from wearing the long fitted boots that Spanish soldiers wore. So he told the doctors to fix it, all without anesthesia. In the end, the operation didn't fully work since Ignatius always walked with a limp.
+                  </p>
+                  <p>
+                    During the long recovery Ignatius asked for some romance novels to pass the time. All the hospital had were books on the life of Christ and the saints. Desperate from boredom, Ignatius began to read them. As he read the saints he saw their lives more and more worth imitating. However, he continued his daydreams of fame, wealth and the fantasies of winning the love of a certain noble lady of the court. However, Ignatius discovered an insight that would mark his life and the history of Christianity. When he would read and imagine Christ's life and the saints' lives he felt a deep peace, joy and an increase of love and confidence in God. When he would think about the fantasy life with women and riches and honors he was filled with uncertainty, doubt, fear and no real awareness of God. From here he began to develop what is called "The Rules for the Discernment of Spirits." He ended up writing down basic rules to help a person sift through the different moods and movements within one's heart to see which ones were from God and to embrace these thoughts and these desires and to discern which thoughts and desires were from the enemy and to reject those. These rules came from Ignatius paying attention to his own heart's movements during his time in the hospital. Eventually, Ignatius gave up his old pursuits and left the hospital a new man. He decided to travel to Jerusalem to walk in the same places of our Lord. Although Ignatius now wanted to serve the Lord, he was not yet a saint. During his trip he met a foreign man. They were both riding on mules and they began discussing the truths of the faith. The man told Ignatius that he didn't believe in Mary's perpetual virginity. Ignatius was enraged, and as the man rode off down one path Ignatius wanted to kill this man to honor our Lady. Ignatius decided at the fork in the road, he would let his mule decide. If it went down the same path as the man he would kill him, if not he would go on peacefully. The mule went down the other path and Ignatius went on with his journey. As the years went on, Ignatius got ordained, began a religious order known as Society of Jesus (Jesuits) and worked diligently in Rome for the sake of his order throughout the world. He died due to stomach complications, most likely because of his extreme fasts. His order continues and runs several universities throughout North America.
+                  </p>
+                  <p>
+                    St. Ignatius is a model of passion for us. So many world religions involve the removal of desires or emotions and the ignoring of personal experience. It's easy to fall into this trap by thinking that spirituality is about getting rid of the bodily dimension of our existence. But for St. Ignatius and the Catholic tradition God took on human nature in Jesus and by doing so affirmed all that is authentically human. In fact, throughout the gospels Jesus invites us to tell him our desires: "What are you seeking?" (Jn 1:38), "What do you want me to do for you?" (Mk 10:51), "Do you want to be well?" (Jn 5:6). So with the help of St. Ignatius, let us tell God what we desire for Him to do for us. It doesn't need to be "religious" just honest.
+                  </p>
+                  <p className="font-bold italic text-school-navy text-xl border-t border-slate-100 pt-6">St. Ignatius, pray for us.</p>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Saint Francis Xavier Section (Our Patron) */}
+            <div id="patron" className="grid lg:grid-cols-12 gap-16 items-start pt-32 border-t border-slate-100">
+              <motion.div 
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1 }}
+                className="lg:order-2 lg:col-span-5 relative"
+              >
+                <div className="aspect-[3/4] rounded-[40px] overflow-hidden shadow-2xl border-8 border-white group">
+                   <img 
+                      src="https://lh3.googleusercontent.com/d/1QJu1tiy6y9B4qPETLffI6X_FjvcnjQo_" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                       alt="Saint Francis Xavier"
                       referrerPolicy="no-referrer"
                    />
-                   <div className="absolute inset-0 bg-gradient-to-t from-school-navy/80 to-transparent flex items-bottom p-10">
-                      <p className="text-white text-2xl font-serif font-black italic mt-auto">Saint Francis Xavier</p>
+                   <div className="absolute inset-0 bg-gradient-to-t from-school-navy/90 via-transparent to-transparent flex items-end p-10">
+                      <p className="text-white text-2xl font-serif font-black italic">Saint Francis Xavier</p>
                    </div>
                 </div>
-                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-school-gold rounded-3xl -z-10 shadow-xl flex items-center justify-center text-school-navy font-serif font-black text-4xl italic">X</div>
+                <div className="absolute -top-6 -left-6 w-32 h-32 bg-school-gold rounded-3xl -z-10 shadow-xl opacity-20"></div>
               </motion.div>
 
               <motion.div 
-                initial={{ opacity: 0, x: 30 }}
+                initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="lg:col-span-7 space-y-8"
+                transition={{ duration: 1 }}
+                className="lg:order-1 lg:col-span-7 space-y-8"
               >
                 <div className="space-y-4">
                   <h2 className="text-school-gold font-black uppercase text-sm tracking-[0.3em]">Our Patron</h2>
-                  <h3 className="text-5xl font-serif font-black text-school-ink tracking-tight">The Apostle of the Indies</h3>
+                  <h3 className="text-5xl md:text-7xl font-serif font-black text-school-navy tracking-tight">Our Patron.</h3>
                 </div>
 
-                <div className="bg-school-paper/50 p-10 rounded-[32px] border border-school-ink/10 italic font-medium text-xl text-school-ink leading-relaxed relative text-justify">
+                <div className="bg-slate-50 p-10 rounded-[40px] border border-slate-100 italic font-medium text-xl text-school-navy leading-relaxed relative text-justify shadow-inner">
                    <span className="absolute -top-6 -left-2 text-7xl text-school-gold opacity-30">"</span>
                    Jesus asked, "What profit would there be for one to gain the whole world and forfeit his soul?" (Matthew 16:26a).
-                   <p className="mt-4 text-[10px] font-sans font-black uppercase tracking-widest not-italic text-school-ink/40 text-left">— Reflection of Francis Xavier</p>
+                   <p className="mt-4 text-[10px] font-sans font-black uppercase tracking-widest not-italic text-slate-400 text-left">— The call to Francis Xavier</p>
                 </div>
 
-                <div className="space-y-6 text-lg text-school-ink/70 leading-relaxed font-light text-justify">
+                <div className="space-y-6 text-[17px] text-slate-600 leading-relaxed font-medium text-justify">
                    <p>
                     These words were repeated to a young teacher of philosophy who had a highly promising career in academics, with success and a life of prestige and honor before him. Francis Xavier, 24 at the time, and living and teaching in Paris, did not heed these words at once. They came from a good friend, Ignatius of Loyola (July 31), whose tireless persuasion finally won the young man to Christ. 
                   </p>
@@ -91,42 +143,6 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
                   </p>
                 </div>
               </motion.div>
-            </div>
-
-            {/* Saint Ignatius of Loyola Section (Our Founder) */}
-            <div id="founder" className="pt-24 border-t border-school-ink/10 flex flex-col items-center">
-               <motion.div 
-                 initial={{ opacity: 0, y: 30 }}
-                 whileInView={{ opacity: 1, y: 0 }}
-                 viewport={{ once: true }}
-                 className="text-center max-w-3xl mb-16"
-               >
-                  <h4 className="text-school-gold font-black uppercase text-sm tracking-[0.3em] mb-4">Our Founder</h4>
-                  <h3 className="text-6xl font-serif font-black text-school-ink tracking-tight mb-8">Saint Ignatius of Loyola</h3>
-                  <p className="text-xl text-school-ink/60 font-light leading-relaxed">
-                    The visionary who transformed a soldier's ambition into a worldwide mission for the "Greater Glory of God" (Ad Maiorem Dei Gloriam).
-                  </p>
-               </motion.div>
-
-               <div className="grid md:grid-cols-3 gap-12 text-center">
-                  {[
-                    { title: 'The Vision', desc: 'A nobleman and soldier who, after being wounded in battle, dedicated his life to spiritual transformation.' },
-                    { title: 'The Society', desc: 'Established the Society of Jesus in 1540 with a focus on education, mission, and the Spiritual Exercises.' },
-                    { title: 'Legacy', desc: 'His educational philosophy continues to shape world-class leaders across the Jesuit global network.' }
-                  ].map((feat, i) => (
-                    <motion.div 
-                      key={feat.title}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.1 }}
-                      className="p-10 glass-surface rounded-[40px] border border-school-ink/10 shadow-sm"
-                    >
-                      <h5 className="text-xl font-serif font-black text-school-ink mb-4">{feat.title}</h5>
-                      <p className="text-sm text-school-ink/50 leading-relaxed font-light">{feat.desc}</p>
-                    </motion.div>
-                  ))}
-               </div>
             </div>
 
           </div>

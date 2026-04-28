@@ -10,8 +10,13 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
       <div className="pt-32 bg-school-paper min-h-screen">
         {/* Hero Section */}
         <section className="py-20 bg-school-navy relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent"></div>
+          <div className="absolute inset-0">
+            <img 
+              src="https://lh3.googleusercontent.com/d/1t9vcyHXbu3KjpG-YClHk1BNsT_Rk9qZz" 
+              className="w-full h-full object-cover opacity-30 grayscale brightness-50" 
+              alt="Jesuit Education"
+            />
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-school-navy/80 via-school-navy/40 to-school-navy/90"></div>
           </div>
           <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center relative z-10">
             <motion.div
