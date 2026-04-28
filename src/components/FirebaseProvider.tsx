@@ -73,8 +73,9 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (error.code === 'auth/popup-blocked') {
         console.warn('[Auth] Popup was blocked by the browser.');
         alert('Please allow popups for this site to sign in with Google.');
-      } else if (error.code === 'auth/cancelled-popup-request') {
-        console.warn('[Auth] Multiple popup requests or cancelled.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        console.error('[Auth] Domain not authorized in Firebase Console.');
+        alert(`Login Error: This domain is not authorized in the Firebase Console. \n\nPlease add ${window.location.hostname} to "Authorized domains" in your Firebase Authentication settings.`);
       } else {
         alert(`Login Error: ${error.message}`);
       }
