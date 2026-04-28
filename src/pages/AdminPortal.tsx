@@ -546,7 +546,11 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
         setUploadingPath(null);
         return; // Success
       } catch (fbErr: any) {
-        console.warn('[Upload] Firebase Storage upload skipped/failed:', fbErr.message || fbErr);
+        console.warn('[Upload] Firebase Storage upload failed:', fbErr.message || fbErr);
+        // If it's a permission error, inform the user they need to check rules
+        if (fbErr.code?.includes('permission-denied')) {
+          console.error('[Upload] Permission Denied in Firebase Storage. Rules likely block this domain.');
+        }
       }
 
       // 2. Fallback to local server
@@ -554,31 +558,35 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
       const formData = new FormData();
       formData.append('file', file);
       
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (res.ok) {
-        const text = await res.text();
-        try {
-          const result = JSON.parse(text);
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (res.ok) {
+          const result = await res.json();
           console.log(`[Upload] Local Success: ${result.url}`);
           handleUpdate(id, field, result.url, section);
           showToast('Media saved locally. Login with Google for Cloud Sync.', 'success');
-        } catch (parseErr) {
-          console.error(`[Upload] Local Success but failed to parse JSON: ${text.slice(0, 100)}`);
-          showToast('Server returned invalid response. Check network tab for details.', 'error');
+        } else {
+          const text = await res.text();
+          let errorMsg = `Server returned ${res.status}`;
+          try {
+            const errorData = JSON.parse(text);
+            errorMsg = errorData.error || errorMsg;
+          } catch (e) {
+            // If it's HTML, it might be Vercel's 404 page
+            if (text.includes('<!DOCTYPE html>')) {
+              errorMsg = `Backend not reachable (404). Are you testing on Vercel? Local upload requires the Express backend to be running. Please use the AI Studio preview link.`;
+            }
+          }
+          console.error(`[Upload] Local Failed: ${errorMsg}`);
+          showToast(`Upload failed: ${errorMsg}`, 'error');
         }
-      } else {
-        const text = await res.text();
-        let errorMsg = `Server error (${res.status})`;
-        try {
-          const errorData = JSON.parse(text);
-          errorMsg = errorData.error || errorMsg;
-        } catch (e) {}
-        console.error(`[Upload] Local Failed: ${errorMsg}`);
-        showToast(`Upload failed: ${errorMsg}`, 'error');
+      } catch (fetchErr: any) {
+        console.error('[Upload] Local Network Error:', fetchErr);
+        showToast(`Local upload failed: Backend server not reachable.`, 'error');
       }
     } catch (err: any) {
       console.error('[Upload] Process error:', err);

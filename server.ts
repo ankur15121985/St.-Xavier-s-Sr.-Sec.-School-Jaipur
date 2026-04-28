@@ -42,17 +42,22 @@ app.use((req, res, next) => {
 });
 
 app.post(['/api/upload', '/api/upload/'], (req, res) => {
+  console.log(`[SERVER] /api/upload hit. Field: file`);
   upload.single('file')(req, res, (err) => {
     if (err) {
       console.error(`[UPLOAD ERROR] Multer error:`, err);
-      return res.status(400).json({ error: err.message });
+      return res.status(400).json({ error: `Multer Error: ${err.message}` });
     }
     if (!req.file) {
       console.warn(`[UPLOAD WARNING] No file attached to 'file' field`);
-      return res.status(400).json({ error: 'No file uploaded' });
+      return res.status(400).json({ error: 'No file uploaded (field "file" required)' });
     }
     console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename} to ${uploadDir}`);
-    res.json({ url: `/uploads/${req.file.filename}` });
+    res.json({ 
+      success: true,
+      url: `/uploads/${req.file.filename}`,
+      filename: req.file.filename
+    });
   });
 });
 
@@ -618,7 +623,15 @@ addColumnIfMissing('gallery', 'session', 'TEXT');
 
 // Diagnostic: Check fees table columns
 const columns = db.pragma('table_info(fees)');
-console.log("[DIAG] FEES SCHEMA:", (columns as any[]).map(r => r.name).join(', '));
+console.log("[DIAG] FEES SCHEMA:", (columns as any[]).map((r: any) => r.name).join(', '));
+
+app.get('/api/status', (req, res) => {
+  res.json({ 
+    status: 'online', 
+    timestamp: new Date().toISOString(),
+    uploadDirExists: fs.existsSync(uploadDir)
+  });
+});
 
 // Mandatory Staff Reseed to match user request
 const targetStaff = [
