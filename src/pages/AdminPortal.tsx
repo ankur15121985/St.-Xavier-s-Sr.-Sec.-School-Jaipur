@@ -198,8 +198,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                     <label className="block text-center px-4 py-2 bg-school-gold/10 text-school-gold rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
                        {uploadingPath === `${section}-${item.id}-attachmentUrl` ? 'Uploading...' : (section === 'fees' ? 'Upload Fee PDF' : section === 'notices' ? 'Upload Notice PDF/Image' : section === 'transfer_certificates' ? 'Upload TC PDF' : 'Upload Attachment')}
                        <input type="file" className="hidden" onChange={(e) => {
-                         const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates'].includes(section)) ? 'attachmentUrl' : 
-                                             (section === 'menu' ? 'href' : field);
+                         const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'menu'].includes(section)) ? 'attachmentUrl' : 
+                                             field;
                          handleFileUpload(e, item.id, targetField, section);
                        }} disabled={!!uploadingPath} />
                     </label>
@@ -486,7 +486,21 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     setUploadingPath(`${section}-${id}-${field}`);
     
     // Determine folder based on section
-    const folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups', 'menu'].includes(section as string)) ? section : 'misc';
+    let folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups', 'menu'].includes(section as string)) ? (section as string) : 'misc';
+
+    // Specialized folder routing for new committees in Menu
+    if (section === 'menu') {
+      const items = data[section] as any[];
+      const item = items.find(i => i.id === id);
+      if (item) {
+        const label = item.label;
+        if (label.includes('(POSH)')) folder = 'POSH';
+        else if (label.includes('Internal Grievance Cell')) folder = 'GrievanceCell';
+        else if (label.includes('POCSO Committee')) folder = 'POCSO';
+        else if (label.includes('(SLFC)')) folder = 'SLFC';
+        else if (label.includes('(PTA)')) folder = 'PTA';
+      }
+    }
 
     try {
       // 1. Try Firebase Storage first
