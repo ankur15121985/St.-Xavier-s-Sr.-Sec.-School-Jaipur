@@ -17,6 +17,65 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
+// Setup Multer for Image Uploads early to avoid route order issues
+const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
+});
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB
+});
+
+// Upload Routes (Defined BEFORE Vite/SPA fallback)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/upload')) {
+    console.log(`[SERVER] Incoming ${req.method} ${req.path} - Content-Type: ${req.headers['content-type']}`);
+  }
+  next();
+});
+
+app.post(['/api/upload', '/api/upload/'], (req, res) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      console.error(`[UPLOAD ERROR] Multer error:`, err);
+      return res.status(400).json({ error: err.message });
+    }
+    if (!req.file) {
+      console.warn(`[UPLOAD WARNING] No file attached to 'file' field`);
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename} to ${uploadDir}`);
+    res.json({ url: `/uploads/${req.file.filename}` });
+  });
+});
+
+app.post('/api/gallery/upload', (req, res) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: 'No image file uploaded' });
+    res.json({ url: `/uploads/${req.file.filename}` });
+  });
+});
+
+app.post('/api/gallery/upload-multiple', (req, res) => {
+  upload.array('images', 10)(req, res, (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    const files = req.files as Express.Multer.File[];
+    if (!files || files.length === 0) return res.status(400).json({ error: 'No images uploaded' });
+    res.json({ urls: files.map(file => `/uploads/${file.filename}`) });
+  });
+});
+
+app.use('/uploads', express.static(uploadDir));
+app.use('/public/uploads', express.static(uploadDir));
+
 // Setup Database
 const dbPath = path.join(__dirname, 'database.sqlite');
 const db = new Database(dbPath);
@@ -70,7 +129,8 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS links (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
-    url TEXT NOT NULL
+    url TEXT NOT NULL,
+    attachmentUrl TEXT
   )
 `);
 
@@ -80,7 +140,8 @@ db.exec(`
     title TEXT NOT NULL,
     date TEXT NOT NULL,
     time TEXT NOT NULL,
-    location TEXT NOT NULL
+    location TEXT NOT NULL,
+    attachmentUrl TEXT
   )
 `);
 
@@ -90,7 +151,8 @@ db.exec(`
     label TEXT NOT NULL,
     href TEXT NOT NULL,
     parent_id TEXT,
-    order_index INTEGER NOT NULL
+    order_index INTEGER NOT NULL,
+    attachmentUrl TEXT
   )
 `);
 
@@ -102,7 +164,8 @@ db.exec(`
     result TEXT NOT NULL,
     subtext TEXT NOT NULL,
     image TEXT NOT NULL,
-    order_index INTEGER NOT NULL
+    order_index INTEGER NOT NULL,
+    attachmentUrl TEXT
   )
 `);
 
@@ -111,7 +174,8 @@ db.exec(`
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     year TEXT NOT NULL,
-    description TEXT NOT NULL
+    description TEXT NOT NULL,
+    attachmentUrl TEXT
   )
 `);
 
@@ -209,6 +273,19 @@ db.exec(`
     footerDescription TEXT
   )
 `);
+
+// Migration to add attachmentUrl to existing tables if missing
+const tablesToUpdate = ['links', 'events', 'achievements', 'menu', 'studentHonors'];
+tablesToUpdate.forEach(table => {
+  try {
+    db.prepare(`ALTER TABLE ${table} ADD COLUMN attachmentUrl TEXT`).run();
+    console.log(`[MIGRATION] Added attachmentUrl column to ${table}`);
+  } catch (err: any) {
+    if (!err.message.includes('duplicate column name')) {
+      console.warn(`[MIGRATION] Status for ${table}: ${err.message}`);
+    }
+  }
+});
 
 // Seed Default Settings if empty
 const settingsCountResult = db.prepare("SELECT COUNT(*) as count FROM settings").get() as any;
@@ -681,47 +758,6 @@ const targetStaff = [
     transaction(targetStaff);
   }
 
-// Setup Multer for Image Uploads
-const uploadDir = path.resolve(__dirname, 'public', 'uploads');
-console.log(`[STORAGE] Target upload directory: ${uploadDir}`);
-
-const ensureDirectoryExists = (dir: string) => {
-  const parent = path.dirname(dir);
-  if (!fs.existsSync(parent)) {
-    ensureDirectoryExists(parent);
-  }
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-    console.log(`[STORAGE] Created directory: ${dir}`);
-  }
-};
-
-try {
-  ensureDirectoryExists(uploadDir);
-} catch (err) {
-  console.error(`[STORAGE ERROR] Failed to prepare upload directory:`, err);
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Ensure it exists right before saving too, just in case
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `${uniqueSuffix}${ext}`);
-  }
-});
-
-const upload = multer({ 
-  storage: storage,
-  limits: { fileSize: 20 * 1024 * 1024 } // 20MB limit
-});
-
 // API Routes
 app.get('/api/data', (req, res) => {
   try {
@@ -751,44 +787,6 @@ app.get('/api/data', (req, res) => {
   }
 });
 
-app.use('/uploads', express.static(uploadDir));
-app.use('/public/uploads', express.static(uploadDir));
-
-app.post('/api/upload', (req, res, next) => {
-  console.log(`[SERVER] Incoming /api/upload request. Size: ${req.headers['content-length']} bytes`);
-  next();
-}, upload.single('file'), (req, res) => {
-  if (!req.file) {
-    console.warn(`[UPLOAD WARNING] No file attached to 'file' field or filter rejected it`);
-    return res.status(400).json({ error: 'No file uploaded or invalid field name' });
-  }
-
-  console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename} (${req.file.size} bytes)`);
-  const fileUrl = `/uploads/${req.file.filename}`;
-  res.json({ url: fileUrl });
-});
-
-app.post('/api/gallery/upload', upload.single('image'), (req, res) => {
-  if (!req.file) {
-    console.warn(`[GALLERY WARNING] No file attached to 'image' field`);
-    return res.status(400).json({ error: 'No image file uploaded' });
-  }
-
-  console.log(`[GALLERY SUCCESS] Saved: ${req.file.filename}`);
-  const imageUrl = `/uploads/${req.file.filename}`;
-  res.json({ url: imageUrl });
-});
-
-app.post('/api/gallery/upload-multiple', upload.array('images', 10), (req, res) => {
-  const files = req.files as Express.Multer.File[];
-  if (!files || files.length === 0) {
-    return res.status(400).json({ error: 'No images uploaded' });
-  }
-
-  const urls = files.map(file => `/uploads/${file.filename}`);
-  res.json({ urls });
-});
-
 const SCHEMA: { [key: string]: string[] } = {
   gallery: ['id', 'url', 'caption'],
   carousel: ['id', 'url', 'caption'],
@@ -799,8 +797,8 @@ const SCHEMA: { [key: string]: string[] } = {
   links: ['id', 'title', 'url', 'attachmentUrl'],
   events: ['id', 'title', 'date', 'time', 'location', 'attachmentUrl'],
   achievements: ['id', 'title', 'year', 'description', 'attachmentUrl'],
-  menu: ['id', 'label', 'href', 'parent_id', 'order_index'],
-  studentHonors: ['id', 'name', 'category', 'result', 'subtext', 'image', 'order_index'],
+  menu: ['id', 'label', 'href', 'parent_id', 'order_index', 'attachmentUrl'],
+  studentHonors: ['id', 'name', 'category', 'result', 'subtext', 'image', 'order_index', 'attachmentUrl'],
   faqs: ['id', 'question', 'answer', 'category', 'order_index'],
   messages: ['id', 'name', 'email', 'subject', 'message', 'timestamp', 'status'],
   popups: ['id', 'title', 'type', 'content', 'buttonText', 'buttonLink', 'isActive', 'order_index'],
@@ -925,6 +923,15 @@ app.all('/api/*', (req, res) => {
   res.status(404).json({ error: `API route not found: ${req.method} ${req.url}` });
 });
 
+// Global Error Handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(`[SERVER ERROR]`, err);
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ error: `Upload error: ${err.message}` });
+  }
+  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
+});
+
 // Vite Integration
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
@@ -934,21 +941,12 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(__dirname, 'dist');
+    const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
-
-  // Global Error Handler
-  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error(`[SERVER ERROR]`, err);
-    if (err instanceof multer.MulterError) {
-      return res.status(400).json({ error: `Upload error: ${err.message}` });
-    }
-    res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
-  });
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);

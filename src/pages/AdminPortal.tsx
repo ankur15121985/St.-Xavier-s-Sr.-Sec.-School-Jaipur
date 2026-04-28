@@ -119,10 +119,18 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
         <button onClick={() => setItemToDelete(item.id)} className="md:hidden p-3 rounded-xl bg-red-50 text-red-400"><Trash2 size={18} /></button>
       </div>
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-        {Object.keys({
+        {Object.entries({
           ...item,
           ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'menu'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
-        }).filter(k => k !== 'id').map(field => (
+        }).filter(([k]) => {
+          if (k === 'id') return false;
+          const handledAtBottom = 
+            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'menu'].includes(section) && k === 'attachmentUrl') ||
+            (['staff', 'studentHonors'].includes(section) && k === 'image') ||
+            (['gallery', 'carousel'].includes(section) && k === 'url') ||
+            (['popups'].includes(section) && k === 'image');
+          return !handledAtBottom;
+        }).map(([field, value]) => (
           <div key={field} className="space-y-2">
             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30">{field as string}</label>
             {field === 'bio' || field === 'description' || field === 'content' ? (
@@ -130,19 +138,14 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
             ) : (field.toLowerCase().includes('url') || field.toLowerCase().includes('image') || field.toLowerCase().includes('link') || field.toLowerCase().includes('file') || field.toLowerCase().includes('pdf') || field.toLowerCase().includes('attachment') || field === 'href' || field === 'src') ? (
               <div className="space-y-4">
                 <input value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all" />
-                <div className="flex items-center gap-4">
-                  <label className="flex-1 px-4 py-3 bg-school-ink/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-school-ink cursor-pointer hover:bg-school-ink/10 transition-all text-center">
-                    {uploadingPath === `${section}-${item.id}-${field}` ? 'Uploading...' : 'Browse & Upload'}
-                    <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, field as string, section)} disabled={!!uploadingPath} />
-                  </label>
-                  {(field.toLowerCase().includes('url') || field.toLowerCase().includes('image')) && item[field] && !item[field].endsWith('.pdf') && (
-                    <div className="w-12 h-12 rounded-lg overflow-hidden border border-school-ink/10 bg-school-ink/5 flex items-center justify-center">
-                      <img src={item[field]} className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                </div>
+                {(field.toLowerCase().includes('url') || field.toLowerCase().includes('image')) && item[field] && !item[field].endsWith('.pdf') && (
+                  <div className="w-16 h-16 rounded-xl overflow-hidden border border-school-ink/10 bg-school-ink/5 flex items-center justify-center">
+                    <img src={item[field]} className="w-full h-full object-cover" />
+                  </div>
+                )}
               </div>
-            ) : field === 'type' && (section === 'staff' || section === 'popups') ? (
+            ) : 
+field === 'type' && (section === 'staff' || section === 'popups') ? (
               <select 
                 value={item[field] ?? (section === 'staff' ? 'Faculty' : 'text')} 
                 onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
@@ -193,30 +196,60 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
             ) : (
               <div className="space-y-2">
                 <input value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all" />
-                {(field === 'href' || field === 'label' || field === 'title' || (section === 'fees' && field === 'particulars') || (section === 'notices' && field === 'title')) && (
-                  <div className="flex flex-col gap-2">
-                    <label className="block text-center px-4 py-2 bg-school-gold/10 text-school-gold rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
-                       {uploadingPath === `${section}-${item.id}-attachmentUrl` ? 'Uploading...' : (section === 'fees' ? 'Upload Fee PDF' : section === 'notices' ? 'Upload Notice PDF/Image' : section === 'transfer_certificates' ? 'Upload TC PDF' : 'Upload Attachment')}
-                       <input type="file" className="hidden" onChange={(e) => {
-                         const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'menu'].includes(section)) ? 'attachmentUrl' : 
-                                             field;
-                         handleFileUpload(e, item.id, targetField, section);
-                       }} disabled={!!uploadingPath} />
-                    </label>
-                    {item.attachmentUrl && ['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'menu'].includes(section as string) && (
-                      <button 
-                        onClick={() => handleUpdate(item.id, 'attachmentUrl', '', section)}
-                        className="block text-center px-4 py-2 bg-red-400/10 text-red-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-400/20 transition-all"
-                      >
-                        Remove PDF/Attachment
-                      </button>
-                    )}
-                  </div>
-                )}
               </div>
             )}
           </div>
         ))}
+        
+        {/* Consolidated Primary Action Button */}
+        {(() => {
+          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'menu'].includes(section)) ? 'attachmentUrl' : 
+                              (['staff', 'gallery', 'carousel', 'studentHonors', 'popups'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
+                              'attachmentUrl';
+          const isUploading = uploadingPath === `${section}-${item.id}-${targetField}`;
+          const currentVal = item[targetField];
+          const isPDF = currentVal && typeof currentVal === 'string' && currentVal.toLowerCase().endsWith('.pdf');
+          const isImage = currentVal && typeof currentVal === 'string' && (currentVal.match(/\.(jpg|jpeg|png|gif|webp)$/i) || currentVal.includes('lh3.googleusercontent.com'));
+          
+          return (
+            <div className="mt-4 pt-4 border-t border-school-ink/5 w-full col-span-full flex flex-col gap-4">
+              {currentVal && (
+                <div className="flex items-center gap-4 p-4 bg-school-ink/5 rounded-2xl border border-school-ink/5">
+                  {isImage ? (
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-white shrink-0 shadow-sm">
+                      <img src={currentVal} className="w-full h-full object-cover" />
+                    </div>
+                  ) : isPDF ? (
+                    <div className="w-12 h-12 rounded-lg bg-red-400/10 flex items-center justify-center text-red-400 shrink-0">
+                      <FileText size={20} />
+                    </div>
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg bg-school-gold/10 flex items-center justify-center text-school-gold shrink-0">
+                      <LinkIcon size={20} />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0 px-2">
+                    <p className="text-[8px] font-black uppercase tracking-widest text-school-ink/30 mb-0.5">Current {targetField}</p>
+                    <p className="text-[10px] font-medium text-school-ink truncate">{currentVal.split('/').pop()}</p>
+                  </div>
+                  <button 
+                    onClick={() => handleUpdate(item.id, targetField as string, '', section)}
+                    className="p-2 text-school-ink/20 hover:text-red-400 transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <label className="flex-1 block text-center px-6 py-4 bg-school-gold text-school-navy rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/90 transition-all shadow-lg shadow-school-gold/20 active:scale-95">
+                   {isUploading ? 'Finalizing Sync...' : (section === 'menu' ? 'Upload Committee PDF/Document' : section === 'fees' ? 'Upload Fee Schedule' : section === 'staff' ? 'Update Photo' : `Upload to ${section.toUpperCase()}`)}
+                   <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, targetField, section)} disabled={!!uploadingPath} />
+                </label>
+              </div>
+            </div>
+          );
+        })()}
       </div>
       <button onClick={() => setItemToDelete(item.id)} className="p-4 rounded-2xl bg-red-400/10 text-red-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-400/20">
         <Trash2 size={20} />
@@ -488,17 +521,17 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     // Determine folder based on section
     let folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups', 'menu'].includes(section as string)) ? (section as string) : 'misc';
 
-    // Specialized folder routing for new committees in Menu
+// Specialized folder routing for new committees in Menu
     if (section === 'menu') {
       const items = data[section] as any[];
       const item = items.find(i => i.id === id);
       if (item) {
-        const label = item.label;
-        if (label.includes('(POSH)')) folder = 'POSH';
-        else if (label.includes('Internal Grievance Cell')) folder = 'GrievanceCell';
-        else if (label.includes('POCSO Committee')) folder = 'POCSO';
-        else if (label.includes('(SLFC)')) folder = 'SLFC';
-        else if (label.includes('(PTA)')) folder = 'PTA';
+        const label = (item.label || '').toUpperCase();
+        if (label.includes('POSH')) folder = 'POSH';
+        else if (label.includes('GRIEVANCE CELL')) folder = 'GrievanceCell';
+        else if (label.includes('POCSO')) folder = 'POCSO';
+        else if (label.includes('SLFC')) folder = 'SLFC';
+        else if (label.includes('PTA')) folder = 'PTA';
       }
     }
 
@@ -527,10 +560,16 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       });
       
       if (res.ok) {
-        const result = await res.json();
-        console.log(`[Upload] Local Success: ${result.url}`);
-        handleUpdate(id, field, result.url, section);
-        showToast('Media saved locally. Login with Google for Cloud Sync.', 'success');
+        const text = await res.text();
+        try {
+          const result = JSON.parse(text);
+          console.log(`[Upload] Local Success: ${result.url}`);
+          handleUpdate(id, field, result.url, section);
+          showToast('Media saved locally. Login with Google for Cloud Sync.', 'success');
+        } catch (parseErr) {
+          console.error(`[Upload] Local Success but failed to parse JSON: ${text.slice(0, 100)}`);
+          showToast('Server returned invalid response. Check network tab for details.', 'error');
+        }
       } else {
         const text = await res.text();
         let errorMsg = `Server error (${res.status})`;

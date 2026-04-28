@@ -22,7 +22,7 @@ export interface TransferCertificate {
   attachmentUrl: string;
   created_at?: string;
 }
-export interface StudentHonor { id: string; name: string; category: string; result: string; subtext: string; image: string; order_index: number; }
+export interface StudentHonor { id: string; name: string; category: string; result: string; subtext: string; image: string; order_index: number; attachmentUrl?: string; }
 export interface MenuItem { id: string; label: string; href: string; parent_id?: string | null; order_index: number; attachmentUrl?: string; }
 export interface FAQ { id: string; question: string; answer: string; category?: string; order_index: number; }
 export interface ContactMessage { id: string; name: string; email: string; subject?: string; message: string; timestamp: string; status: 'new' | 'read' | 'replied'; }
