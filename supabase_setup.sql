@@ -20,23 +20,26 @@ CREATE TABLE IF NOT EXISTS staff (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     role TEXT,
-    bio TEXT,
+    bio TEXT DEFAULT '',
     image TEXT,
-    type TEXT
+    type TEXT,
+    "attachmentUrl" TEXT
 );
 
 CREATE TABLE IF NOT EXISTS gallery (
     id TEXT PRIMARY KEY,
     url TEXT,
     caption TEXT,
-    session TEXT
+    session TEXT,
+    "attachmentUrl" TEXT
 );
 
 CREATE TABLE IF NOT EXISTS carousel (
     id TEXT PRIMARY KEY,
     url TEXT,
     caption TEXT,
-    session TEXT
+    session TEXT,
+    "attachmentUrl" TEXT
 );
 
 CREATE TABLE IF NOT EXISTS fees (
@@ -110,7 +113,8 @@ CREATE TABLE IF NOT EXISTS faqs (
     question TEXT,
     answer TEXT,
     category TEXT,
-    order_index INTEGER DEFAULT 0
+    order_index INTEGER DEFAULT 0,
+    "attachmentUrl" TEXT
 );
 
 CREATE TABLE IF NOT EXISTS messages (
@@ -120,7 +124,8 @@ CREATE TABLE IF NOT EXISTS messages (
     subject TEXT,
     message TEXT,
     timestamp TEXT,
-    status TEXT DEFAULT 'new'
+    status TEXT DEFAULT 'new',
+    "attachmentUrl" TEXT
 );
 
 CREATE TABLE IF NOT EXISTS popups (
@@ -131,7 +136,8 @@ CREATE TABLE IF NOT EXISTS popups (
     "buttonText" TEXT,
     "buttonLink" TEXT,
     "isActive" BOOLEAN DEFAULT false,
-    order_index INTEGER DEFAULT 0
+    order_index INTEGER DEFAULT 0,
+    "attachmentUrl" TEXT
 );
 
 CREATE TABLE IF NOT EXISTS settings (

@@ -49,76 +49,16 @@ app.get('/api/routes', (req, res) => {
   res.json(routes);
 });
 
-app.post(['/api/migrate-to-supabase', '/api/migrate-to-supabase/'], async (req, res) => {
-  const { url, key } = req.body;
-  console.log(`[MIGRATION INITIATED] Supabase Target: ${url}`);
-  
-  if (!url || !key) {
-    return res.status(400).json({ error: 'Supabase URL and Anon Key are required.' });
-  }
+// Constants
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
+const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseServer = (SUPABASE_URL && SUPABASE_KEY) ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-  // Increase timeout
-  req.setTimeout(600000); // 10 minutes
-
-  try {
-    const supabaseServer = createClient(url, key);
-    const tables = [
-      'gallery', 'notices', 'staff', 'fees', 'links', 'events', 
-      'menu', 'studentHonors', 'achievements', 'carousel', 
-      'faqs', 'messages', 'popups', 'settings', 'transfer_certificates'
-    ];
-
-    const results: Record<string, any> = {};
-
-    for (const table of tables) {
-      console.log(`[MIGRATION] Processing table: ${table}...`);
-      const data = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
-      
-      if (data.length === 0) {
-        results[table] = 'Empty';
-        continue;
-      }
-
-      // Supabase uses BOOLEAN for some fields that SQLite uses 0/1 for
-      const sanitizedData = data.map(item => {
-        const newItem = { ...item };
-        if (table === 'popups' && 'isActive' in newItem) newItem.isActive = !!newItem.isActive;
-        if (table === 'settings' && 'applyNowEnabled' in newItem) newItem.applyNowEnabled = !!newItem.applyNowEnabled;
-        return newItem;
-      });
-
-      const { error } = await supabaseServer.from(table).upsert(sanitizedData);
-      if (error) {
-        let msg = `Supabase Error ${table}: ${error.message}`;
-        if (error.message.toLowerCase().includes('uuid')) {
-          msg += ". Your Supabase IDs are UUID but should be TEXT. Please run Section 3 of 'supabase_setup.sql'.";
-        } else if (error.message.toLowerCase().includes('column') || error.message.toLowerCase().includes('relation')) {
-          msg += ". Your Supabase schema is missing tables or columns. Please run 'supabase_setup.sql' to fix your database schema.";
-        }
-        throw new Error(msg);
-      }
-      results[table] = `Upserted ${data.length} rows`;
-    }
-
-    // Handle 'content' separately
-    console.log(`[MIGRATION] Migrating content table...`);
-    const contentRow = db.prepare(`SELECT * FROM content LIMIT 1`).get() as any;
-    if (contentRow) {
-      const contentUpserts = Object.entries(contentRow)
-        .filter(([key]) => key !== 'id')
-        .map(([key, value]) => ({ id: 'global', key, value: String(value) }));
-      
-      const { error } = await supabaseServer.from('content').upsert(contentUpserts);
-      if (error) throw new Error(`Supabase Error content: ${error.message}`);
-      results['content'] = `Upserted ${contentUpserts.length} key-value pairs`;
-    }
-
-    res.json({ success: true, message: 'Migration completed', details: results });
-  } catch (err: any) {
-    console.error(`[MIGRATION ERROR]`, err);
-    res.status(500).json({ error: err.message });
-  }
-});
+if (supabaseServer) {
+  console.log('[SUPABASE] Server-side client initialized.');
+} else {
+  console.warn('[SUPABASE] Server-side client missing credentials.');
+}
 
 // Setup Multer for Image Uploads early to avoid route order issues
 const uploadDir = path.join(process.cwd(), 'public', 'uploads');
@@ -127,7 +67,15 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
+  destination: (req, file, cb) => {
+    // Determine subdirectory from query param or body
+    const section = req.query.section || req.body.section || '';
+    const dest = section ? path.join(uploadDir, String(section)) : uploadDir;
+    if (!fs.existsSync(dest)) {
+      fs.mkdirSync(dest, { recursive: true });
+    }
+    cb(null, dest);
+  },
   filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
 });
 
@@ -145,7 +93,9 @@ app.use((req, res, next) => {
 });
 
 app.post(['/api/upload', '/api/upload/'], (req, res) => {
-  console.log(`[SERVER] /api/upload hit. Field: file. Method: ${req.method}. URL: ${req.url}`);
+  const section = req.query.section || req.body.section || '';
+  console.log(`[SERVER] /api/upload hit. Field: file. Section: ${section}`);
+  
   upload.single('file')(req, res, (err) => {
     if (err) {
       console.error(`[UPLOAD ERROR] Multer error:`, err);
@@ -155,10 +105,13 @@ app.post(['/api/upload', '/api/upload/'], (req, res) => {
       console.warn(`[UPLOAD WARNING] No file attached to 'file' field`);
       return res.status(400).json({ error: 'No file uploaded (use "file" field)' });
     }
-    console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename}`);
+    
+    const relativePath = section ? `${section}/${req.file.filename}` : req.file.filename;
+    console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename} in ${section || 'root'}`);
+    
     res.json({ 
       success: true,
-      url: `/uploads/${req.file.filename}`,
+      url: `/uploads/${relativePath}`,
       filename: req.file.filename
     });
   });
@@ -382,13 +335,13 @@ db.exec(`
 `);
 
 // Migration to add attachmentUrl to existing tables if missing
-const tablesToUpdate = ['links', 'events', 'achievements', 'menu', 'studentHonors'];
+const tablesToUpdate = ['links', 'events', 'achievements', 'menu', 'studentHonors', 'staff', 'gallery', 'carousel', 'faqs', 'messages', 'popups', 'notices'];
 tablesToUpdate.forEach(table => {
   try {
-    db.prepare(`ALTER TABLE ${table} ADD COLUMN attachmentUrl TEXT`).run();
+    db.prepare(`ALTER TABLE "${table}" ADD COLUMN attachmentUrl TEXT`).run();
     console.log(`[MIGRATION] Added attachmentUrl column to ${table}`);
   } catch (err: any) {
-    if (!err.message.includes('duplicate column name')) {
+    if (!err.message.toLowerCase().includes('duplicate column name')) {
       console.warn(`[MIGRATION] Status for ${table}: ${err.message}`);
     }
   }
@@ -933,26 +886,26 @@ app.get('/api/data', (req, res) => {
   }
 });
 
-const SCHEMA: { [key: string]: string[] } = {
-  gallery: ['id', 'url', 'caption'],
-  carousel: ['id', 'url', 'caption'],
-  transfer_certificates: ['id', 'admission_number', 'dob', 'student_name', 'attachmentUrl', 'created_at'],
+const SCHEMA: Record<string, string[]> = {
   notices: ['id', 'title', 'content', 'date', 'category', 'link', 'attachmentUrl'],
-  staff: ['id', 'name', 'role', 'bio', 'image', 'type'],
+  staff: ['id', 'name', 'role', 'bio', 'image', 'type', 'attachmentUrl'],
+  gallery: ['id', 'url', 'caption', 'session', 'attachmentUrl'],
+  carousel: ['id', 'url', 'caption', 'session', 'attachmentUrl'],
   fees: ['id', 'category', 'particulars', 'amount', 'quarterly', 'remarks', 'order_index', 'attachmentUrl'],
-  links: ['id', 'title', 'url', 'attachmentUrl'],
+  links: ['id', 'title', 'url', 'isPriority', 'icon', 'attachmentUrl'],
   events: ['id', 'title', 'date', 'time', 'location', 'attachmentUrl'],
   achievements: ['id', 'title', 'year', 'description', 'attachmentUrl'],
-  menu: ['id', 'label', 'href', 'parent_id', 'order_index', 'attachmentUrl'],
+  transfer_certificates: ['id', 'admission_number', 'dob', 'student_name', 'attachmentUrl'],
   studentHonors: ['id', 'name', 'category', 'result', 'subtext', 'image', 'order_index', 'attachmentUrl'],
-  faqs: ['id', 'question', 'answer', 'category', 'order_index'],
-  messages: ['id', 'name', 'email', 'subject', 'message', 'timestamp', 'status'],
-  popups: ['id', 'title', 'type', 'content', 'buttonText', 'buttonLink', 'isActive', 'order_index'],
-  settings: ['id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 'contactEmail', 'contactPhone', 'contactAddress'],
-  content: ['id', 'heroTitle1', 'heroTitle2', 'heroBadge', 'heroDescription', 'carouselBranding', 'aboutBadge', 'aboutTitle1', 'aboutTitle2', 'aboutDescription', 'mottoTitle', 'mottoDescription', 'historyButton', 'principalBadge', 'principalTitle1', 'principalTitle2', 'principalTitle3', 'principalQuote', 'principalButton', 'oeuvreTitle1', 'oeuvreTitle2', 'oeuvreDescription', 'regencyBadge', 'regencyTitle1', 'regencyTitle2', 'nodesTitle1', 'nodesTitle2', 'nodesDescription', 'helpdeskLabel', 'wiredTitle', 'wiredBadge', 'exploreButton', 'footerDescription']
+  menu: ['id', 'label', 'href', 'parent_id', 'order_index', 'attachmentUrl'],
+  faqs: ['id', 'question', 'answer', 'category', 'order_index', 'attachmentUrl'],
+  messages: ['id', 'name', 'email', 'subject', 'message', 'timestamp', 'status', 'attachmentUrl'],
+  popups: ['id', 'title', 'type', 'content', 'buttonText', 'buttonLink', 'isActive', 'order_index', 'attachmentUrl'],
+  settings: ['id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 'contactEmail', 'contactPhone', 'contactAddress', 'currentSession', 'feesPdfUrl', 'popupMessage', 'popupEnabled'],
+  content: ['id', 'key', 'value']
 };
 
-app.post('/api/save', (req, res) => {
+app.post('/api/save', async (req, res) => {
   try {
     const { table, item } = req.body;
     const whitelist = Object.keys(SCHEMA);
@@ -961,7 +914,6 @@ app.post('/api/save', (req, res) => {
       return res.status(400).json({ error: 'Invalid table name' });
     }
 
-    // Filter item keys to match schema and prevent SQL errors
     const allowedFields = SCHEMA[table];
     const fields = Object.keys(item).filter(k => allowedFields.includes(k));
     
@@ -969,6 +921,30 @@ app.post('/api/save', (req, res) => {
       return res.status(400).json({ error: 'No valid fields to save' });
     }
 
+    console.log(`[SYNC INITIATED] Table: ${table}, ID: ${item.id}`);
+
+    // 1. Sync to Supabase if client is ready
+    if (supabaseServer) {
+        try {
+            const sanitizedForSupabase = { ...item };
+            // Ensure booleans for PG
+            if (table === 'popups' && 'isActive' in sanitizedForSupabase) sanitizedForSupabase.isActive = !!sanitizedForSupabase.isActive;
+            if (table === 'settings' && 'applyNowEnabled' in sanitizedForSupabase) sanitizedForSupabase.applyNowEnabled = !!sanitizedForSupabase.applyNowEnabled;
+            if (table === 'settings' && 'popupEnabled' in sanitizedForSupabase) sanitizedForSupabase.popupEnabled = !!sanitizedForSupabase.popupEnabled;
+
+            if (table === 'content') {
+              const { error } = await supabaseServer.from('content').upsert({ id: item.id || 'global', key: item.key, value: item.value });
+              if (error) console.error('[SUPABASE SYNC ERROR] Content:', error.message);
+            } else {
+              const { error } = await supabaseServer.from(table).upsert(sanitizedForSupabase);
+              if (error) console.error(`[SUPABASE SYNC ERROR] ${table}:`, error.message);
+            }
+        } catch (e: any) {
+            console.warn('[SUPABASE SYNC EXCEPTION]', e.message);
+        }
+    }
+
+    // 2. Local SQLite Sync
     const placeholders = fields.map(() => '?').join(',');
     const values = fields.map(f => {
       const val = item[f];
@@ -976,13 +952,10 @@ app.post('/api/save', (req, res) => {
       return val;
     });
 
-    // Use double quotes for column names to avoid issues with reserved words
     const query = `INSERT OR REPLACE INTO "${table}" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`;
-    
-    console.log(`[SQL EXEC] Table: ${table}, Keys: ${fields.join(',')}`);
-    
     db.prepare(query).run(values);
-    console.log(`[SQL SUCCESS] ${table} item ${item.id} persisted.`);
+    
+    console.log(`[SQL SUCCESS] Local ${table} item persisted.`);
     res.json({ success: true });
   } catch (err: any) {
     console.error(`[SQL ERROR] SAVE FAILED:`, err.message);
@@ -990,26 +963,36 @@ app.post('/api/save', (req, res) => {
   }
 });
 
-app.post('/api/delete', (req, res) => {
+app.post('/api/delete', async (req, res) => {
   try {
     const { table, id, ids } = req.body;
-    console.log(`[SQL DELETE REQUEST] Table: "${table}", ID: ${id || 'none'}, IDs: ${Array.isArray(ids) ? ids.length : 'none'}`);
-    const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'transfer_certificates', 'faqs', 'messages', 'popups'];
+    const whitelist = Object.keys(SCHEMA);
     
     if (!whitelist.includes(table)) {
-      console.warn(`[SQL DELETE DENIED] Invalid table: "${table}"`);
       return res.status(400).json({ error: `Invalid table: ${table}` });
     }
 
-    if (!id && (!ids || !Array.isArray(ids) || ids.length === 0)) {
-      return res.status(400).json({ error: 'No ID or IDs provided for deletion' });
+    console.log(`[DELETE INITIATED] Table: ${table}, ID: ${id || 'bulk'}`);
+
+    // 1. Sync Delete to Supabase
+    if (supabaseServer) {
+        try {
+            if (ids && Array.isArray(ids)) {
+                const { error } = await supabaseServer.from(table).delete().in('id', ids);
+                if (error) console.error(`[SUPABASE DELETE ERROR] ${table} bulk:`, error.message);
+            } else if (id) {
+                const { error } = await supabaseServer.from(table).delete().eq('id', id);
+                if (error) console.error(`[SUPABASE DELETE ERROR] ${table} single:`, error.message);
+            }
+        } catch (e: any) {
+            console.warn('[SUPABASE DELETE EXCEPTION]', e.message);
+        }
     }
 
+    // 2. Local SQLite Delete
     let result;
     if (ids && Array.isArray(ids)) {
-      if (ids.length === 0) {
-        return res.json({ success: true, changes: 0 });
-      }
+      if (ids.length === 0) return res.json({ success: true, changes: 0 });
       const placeholders = ids.map(() => '?').join(',');
       const stmt = db.prepare(`DELETE FROM "${table}" WHERE id IN (${placeholders})`);
       result = stmt.run(ids);
@@ -1018,10 +1001,10 @@ app.post('/api/delete', (req, res) => {
       result = stmt.run(id);
     }
     
-    console.log(`[SQL DELETE SUCCESS] ${table} deleted ${result.changes} row(s).`);
+    console.log(`[SQL DELETE SUCCESS] Local ${table} removed ${result.changes} rows.`);
     res.json({ success: true, changes: result.changes });
   } catch (err: any) {
-    console.error(`[SQL DELETE ERROR] Table: "${req.body.table}":`, err);
+    console.error(`[SQL DELETE ERROR]`, err.message);
     res.status(500).json({ error: err.message });
   }
 });

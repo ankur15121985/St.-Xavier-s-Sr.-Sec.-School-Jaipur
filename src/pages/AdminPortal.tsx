@@ -51,49 +51,6 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
 
   const [isMigrating, setIsMigrating] = useState(false);
 
-  const handleFullMigration = async () => {
-    if (!window.confirm('This will copy ALL data from the local server to your connected Supabase project. Existing data in Supabase tables with same IDs will be overwritten. Continue?')) {
-      return;
-    }
-    
-    setIsMigrating(true);
-    showToast('Starting full data migration to Supabase...');
-    
-    try {
-      const resp = await fetch('/api/migrate-to-supabase', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: (import.meta as any).env.VITE_SUPABASE_URL,
-          key: (import.meta as any).env.VITE_SUPABASE_ANON_KEY
-        })
-      });
-      
-      const text = await resp.text();
-      if (!resp.ok) {
-        throw new Error(`HTTP ${resp.status}: ${text.slice(0, 100)}`);
-      }
-      
-      let result;
-      try {
-        result = JSON.parse(text);
-      } catch (e) {
-        throw new Error(`Invalid JSON response (Is the server running?): ${text.slice(0, 100)}...`);
-      }
-
-      if (resp.ok && result.success) {
-        showToast('Successfully migrated all data to Supabase!', 'success');
-        console.log('[Migration Details]', result.details);
-      } else {
-        throw new Error(result.error || 'Unknown migration error');
-      }
-    } catch (err: any) {
-      console.error('Migration failed:', err);
-      showToast(`Migration failed: ${err.message}`, 'error');
-    } finally {
-      setIsMigrating(false);
-    }
-  };
 
   const handleUsernameLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -598,51 +555,27 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     }
 
     try {
-      // 1. Try Supabase Storage first
-      try {
-        console.log(`[Upload] Attempting Supabase Storage upload to ${folder}/${file.name}...`);
-        const supabaseUrl = await storageService.uploadFile(file, folder);
-        console.log(`[Upload] Supabase Success: ${supabaseUrl}`);
-        handleUpdate(id, field, supabaseUrl, section);
-        showToast('Media uploaded & synced to Supabase', 'success');
-        setUploadingPath(null);
-        return; // Success
-      } catch (err: any) {
-        console.error('[Upload] Supabase Storage upload failed:', err.message || err);
-        if (err.message?.includes('bucket')) {
-           showToast(`Supabase Error: 'uploads' bucket missing or private.`, 'error');
-        }
-      }
-
-      // 2. Fallback to local server
-      console.log(`[Upload] Falling back to local server upload...`);
+      // Prioritize local server upload so it reflects in the uploads folder
+      console.log(`[Upload] Uploading to local server: ${folder}/${file.name}`);
       const formData = new FormData();
       formData.append('file', file);
       
-      try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        });
+      const res = await fetch(`/api/upload?section=${encodeURIComponent(folder)}`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (res.ok) {
+        const result = await res.json();
+        console.log(`[Upload] Local Success: ${result.url}`);
+        handleUpdate(id, field, result.url, section);
+        showToast('Media saved & synced successfully', 'success');
         
-        if (res.ok) {
-          const result = await res.json();
-          console.log(`[Upload] Local Success: ${result.url}`);
-          handleUpdate(id, field, result.url, section);
-          showToast('Media saved to Local Server', 'success');
-        } else {
-          const text = await res.text();
-          let errorMsg = `Server error ${res.status}`;
-          try {
-            const errorData = JSON.parse(text);
-            errorMsg = errorData.error || errorMsg;
-          } catch (e) {}
-          console.error(`[Upload] Local Failed: ${errorMsg}`);
-          showToast(`Cloud storage failed, and local upload rejected: ${errorMsg}`, 'error');
-        }
-      } catch (fetchErr: any) {
-        console.error('[Upload] Local Network Error:', fetchErr);
-        showToast(`Cloud storage failed, and Local Backend not reachable.`, 'error');
+        // Also try Supabase as a background backup if possible
+        storageService.uploadFile(file, folder).catch(() => {});
+      } else {
+        const text = await res.text();
+        showToast(`Upload failed: ${text.slice(0, 50)}`, 'error');
       }
     } catch (err: any) {
       console.error('[Upload] Process error:', err);
@@ -656,32 +589,22 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'uploading', progress: 10 } : p));
     
     try {
-      // 1. Try Supabase Storage
-      try {
-        console.log(`[Staging] Uploading ${pendingItem.file.name} to Supabase Storage...`);
-        const supabaseUrl = await storageService.uploadFile(pendingItem.file, 'gallery');
-        setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: supabaseUrl } : p));
-        return;
-      } catch (err: any) {
-        console.warn('[Staging] Supabase Storage failed, falling back to local:', err);
-      }
-
-      // 2. Fallback to local
+      // Prioritize local storage
       const formData = new FormData();
       formData.append('file', pendingItem.file);
       
-      const res = await fetch('/api/upload', {
+      const res = await fetch('/api/upload?section=gallery', {
         method: 'POST',
         body: formData,
       });
       
-      if (!res.ok) {
-        throw new Error(`Server Error: ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`Server Error: ${res.status}`);
 
       const result = await res.json();
       if (result.url) {
         setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: result.url } : p));
+        // Background sync to Supabase storage if desired
+        storageService.uploadFile(pendingItem.file, 'gallery').catch(() => {});
       } else {
         throw new Error('No URL returned from server');
       }
@@ -1423,33 +1346,6 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                     </div>
                   </div>
 
-                  <div className="mt-16 pt-16 border-t border-school-ink/10">
-                    <div className="bg-school-accent/5 rounded-3xl p-8 border border-school-accent/10">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-                        <div>
-                          <h3 className="text-xl font-serif font-black text-school-navy mb-2">Supabase Sync Utility</h3>
-                          <p className="text-sm text-school-ink/60 font-light max-w-xl">Push all local database records to your connected Supabase project. If you encounter schema errors (like "column not found"), please run the <strong>supabase_setup.sql</strong> script in your Supabase SQL Editor.</p>
-                        </div>
-                        <button 
-                          onClick={handleFullMigration}
-                          disabled={isMigrating}
-                          className={`px-10 py-5 rounded-full text-xs font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-3 ${isMigrating ? 'bg-school-ink/10 text-school-ink/40 cursor-not-allowed' : 'bg-school-navy text-white hover:bg-school-accent'}`}
-                        >
-                          {isMigrating ? (
-                            <>
-                              <Loader2 size={16} className="animate-spin" />
-                              Syncing...
-                            </>
-                          ) : (
-                            <>
-                              <UploadCloud size={16} />
-                              Sync Data to Supabase
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
           ) : activeSection === 'content' ? (
