@@ -21,9 +21,83 @@ app.use(express.json());
 // Detailed Request Logger for API
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
-    console.log(`[API REQUEST] ${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+    console.log(`[API REQUEST] ${new Date().toISOString()} - ${req.method} ${req.url}`);
   }
   next();
+});
+
+// Diagnostic Ping
+app.get('/api/ping', (req, res) => res.json({ pong: true, time: new Date().toISOString() }));
+
+app.post('/api/migrate-to-supabase', async (req, res) => {
+  const { url, key } = req.body;
+  console.log(`[MIGRATION INITIATED] Supabase Target: ${url}`);
+  
+  if (!url || !key) {
+    return res.status(400).json({ error: 'Supabase URL and Anon Key are required.' });
+  }
+
+  // Increase timeout
+  req.setTimeout(600000); // 10 minutes
+
+  try {
+    const supabaseServer = createClient(url, key);
+    const tables = [
+      'gallery', 'notices', 'staff', 'fees', 'links', 'events', 
+      'menu', 'studentHonors', 'achievements', 'carousel', 
+      'faqs', 'messages', 'popups', 'settings', 'transfer_certificates'
+    ];
+
+    const results: Record<string, any> = {};
+
+    for (const table of tables) {
+      console.log(`[MIGRATION] Processing table: ${table}...`);
+      const data = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
+      
+      if (data.length === 0) {
+        results[table] = 'Empty';
+        continue;
+      }
+
+      // Supabase uses BOOLEAN for some fields that SQLite uses 0/1 for
+      const sanitizedData = data.map(item => {
+        const newItem = { ...item };
+        if (table === 'popups' && 'isActive' in newItem) newItem.isActive = !!newItem.isActive;
+        if (table === 'settings' && 'applyNowEnabled' in newItem) newItem.applyNowEnabled = !!newItem.applyNowEnabled;
+        return newItem;
+      });
+
+      const { error } = await supabaseServer.from(table).upsert(sanitizedData);
+      if (error) {
+        let msg = `Supabase Error ${table}: ${error.message}`;
+        if (error.message.toLowerCase().includes('uuid')) {
+          msg += ". Your Supabase IDs are UUID but should be TEXT. Please run Section 3 of 'supabase_setup.sql'.";
+        } else if (error.message.toLowerCase().includes('column') || error.message.toLowerCase().includes('relation')) {
+          msg += ". Your Supabase schema is missing tables or columns. Please run 'supabase_setup.sql' to fix your database schema.";
+        }
+        throw new Error(msg);
+      }
+      results[table] = `Upserted ${data.length} rows`;
+    }
+
+    // Handle 'content' separately
+    console.log(`[MIGRATION] Migrating content table...`);
+    const contentRow = db.prepare(`SELECT * FROM content LIMIT 1`).get() as any;
+    if (contentRow) {
+      const contentUpserts = Object.entries(contentRow)
+        .filter(([key]) => key !== 'id')
+        .map(([key, value]) => ({ id: 'global', key, value: String(value) }));
+      
+      const { error } = await supabaseServer.from('content').upsert(contentUpserts);
+      if (error) throw new Error(`Supabase Error content: ${error.message}`);
+      results['content'] = `Upserted ${contentUpserts.length} key-value pairs`;
+    }
+
+    res.json({ success: true, message: 'Migration completed', details: results });
+  } catch (err: any) {
+    console.error(`[MIGRATION ERROR]`, err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Setup Multer for Image Uploads early to avoid route order issues
@@ -980,93 +1054,6 @@ app.delete('/api/tc/:id', (req, res) => {
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete' });
-  }
-});
-
-app.post(['/api/migrate-to-supabase', '/api/migrate-to-supabase/'], async (req, res) => {
-  const { url, key } = req.body;
-  console.log(`[MIGRATION INITIATED] Supabase Target: ${url}`);
-  
-  if (!url || !key) {
-    return res.status(400).json({ error: 'Supabase URL and Anon Key are required.' });
-  }
-
-  // Increase timeout for this specific request if possible (express specific)
-  req.setTimeout(300000); // 5 minutes
-
-  try {
-    const supabaseServer = createClient(url, key);
-    const tables = [
-      'gallery', 'notices', 'staff', 'fees', 'links', 'events', 
-      'menu', 'studentHonors', 'achievements', 'carousel', 
-      'faqs', 'messages', 'popups', 'settings', 'transfer_certificates'
-    ];
-
-    const results: Record<string, any> = {};
-
-    for (const table of tables) {
-      console.log(`[MIGRATION] Migrating ${table}...`);
-      const data = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
-      
-      if (data.length === 0) {
-        results[table] = 'Empty';
-        continue;
-      }
-
-      // Supabase uses BOOLEAN for some fields that SQLite uses 0/1 for
-      const sanitizedData = data.map(item => {
-        const newItem = { ...item };
-        if (table === 'popups' && 'isActive' in newItem) newItem.isActive = !!newItem.isActive;
-        if (table === 'settings' && 'applyNowEnabled' in newItem) newItem.applyNowEnabled = !!newItem.applyNowEnabled;
-        return newItem;
-      });
-
-      // Special handling for content which is a key-value row in Supabase but a single row column-based in SQLite
-      if (table === 'settings') {
-        const { data: upsertData, error } = await supabaseServer.from(table).upsert(sanitizedData);
-        if (error) {
-          let msg = `Supabase Error ${table}: ${error.message}`;
-          if (error.message.toLowerCase().includes('uuid')) {
-            msg += ". Your Supabase IDs are UUID but should be TEXT. Please run Section 3 of 'supabase_setup.sql'.";
-          } else if (error.message.toLowerCase().includes('column') || error.message.toLowerCase().includes('relation')) {
-            msg += ". Your Supabase schema is missing tables or columns. Please run 'supabase_setup.sql' to fix your database schema.";
-          }
-          throw new Error(msg);
-        }
-        results[table] = `Upserted ${data.length} rows`;
-      } else {
-        // Bulk upsert
-        const { data: upsertData, error } = await supabaseServer.from(table).upsert(sanitizedData);
-        if (error) {
-          let msg = `Supabase Error ${table}: ${error.message}`;
-          if (error.message.toLowerCase().includes('uuid')) {
-            msg += ". Your Supabase IDs are UUID but should be TEXT. Please run Section 3 of 'supabase_setup.sql'.";
-          } else if (error.message.toLowerCase().includes('column') || error.message.toLowerCase().includes('relation')) {
-            msg += ". Your Supabase schema is missing tables or columns. Please run 'supabase_setup.sql' to fix your database schema.";
-          }
-          throw new Error(msg);
-        }
-        results[table] = `Upserted ${data.length} rows`;
-      }
-    }
-
-    // Handle 'content' separately because it's a key-value store in my proposed Supabase schema
-    console.log(`[MIGRATION] Migrating content table...`);
-    const contentRow = db.prepare(`SELECT * FROM content LIMIT 1`).get() as any;
-    if (contentRow) {
-      const contentUpserts = Object.entries(contentRow)
-        .filter(([key]) => key !== 'id')
-        .map(([key, value]) => ({ id: 'global', key, value: String(value) }));
-      
-      const { error } = await supabaseServer.from('content').upsert(contentUpserts);
-      if (error) throw new Error(`Supabase Error content: ${error.message}`);
-      results['content'] = `Upserted ${contentUpserts.length} key-value pairs`;
-    }
-
-    res.json({ success: true, message: 'Migration completed', details: results });
-  } catch (err: any) {
-    console.error(`[MIGRATION ERROR]`, err);
-    res.status(500).json({ error: err.message });
   }
 });
 
