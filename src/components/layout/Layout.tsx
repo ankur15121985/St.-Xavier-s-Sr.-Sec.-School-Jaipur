@@ -199,43 +199,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                               >
                                 <div className="bg-white dark:bg-slate-900 border border-black/5 p-2 rounded-b-xl overflow-hidden shadow-2xl">
                                   {l.subLinks.map(sl => (
-                                    <div key={sl.id} className="relative group/subItem">
-                                      {sl.subLinks ? (
-                                        <div className="px-4 py-3">
-                                          {sl.href !== '#' ? (
-                                            <Link 
-                                              to={sl.href}
-                                              onClick={() => setActiveDropdown(null)}
-                                              className="text-[10px] font-black text-school-accent uppercase tracking-widest mb-2 px-1 block hover:opacity-70 transition-opacity"
-                                            >
-                                              {sl.label}
-                                            </Link>
-                                          ) : (
-                                            <p className="text-[10px] font-black text-school-accent uppercase tracking-widest mb-2 px-1">{sl.label}</p>
-                                          )}
-                                          <div className="grid gap-1">
-                                            {sl.subLinks.map(nsl => (
-                                              <Link 
-                                                key={nsl.id}
-                                                to={nsl.href}
-                                                onClick={() => setActiveDropdown(null)}
-                                                className="block px-3 py-2 text-xs font-bold text-slate-500 hover:text-school-navy hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all"
-                                              >
-                                                {nsl.label}
-                                              </Link>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      ) : (
-                                        <Link 
-                                          to={sl.href}
-                                          onClick={() => setActiveDropdown(null)}
-                                          className="block px-4 py-3 text-xs font-bold text-slate-500 hover:text-school-navy hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all"
-                                        >
-                                          {sl.label}
-                                        </Link>
-                                      )}
-                                    </div>
+                                    <DropdownItem key={sl.id} sl={sl} onSelect={() => setActiveDropdown(null)} />
                                   ))}
                                 </div>
                               </motion.div>
@@ -336,11 +300,15 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8">
               <nav className="hidden lg:flex items-center gap-8">
                 {navLinks.map(l => (
-                  <div key={l.id} className="relative group">
+                  <div 
+                    key={l.id} 
+                    className="relative group"
+                    onMouseEnter={() => setActiveDropdown(l.label)}
+                    onMouseLeave={() => setActiveDropdown(null)}
+                  >
                     {l.subLinks ? (
                       <>
                         <button 
-                          onMouseEnter={() => setActiveDropdown(l.label)}
                           className={`py-4 text-[13px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent ${activeDropdown === l.label ? 'text-school-accent border-school-accent' : ''}`}
                         >
                           {l.label}
@@ -352,39 +320,12 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                               initial={{ opacity: 0, y: 5 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: 5 }}
-                              onMouseLeave={() => setActiveDropdown(null)}
                               className="absolute top-full left-0 pt-0 w-64 z-[110]"
                             >
                               <div className="bg-white dark:bg-slate-900 rounded-b-2xl shadow-2xl border border-black/5 p-2 overflow-hidden mt-0">
                                 <div className="grid gap-1">
                                   {l.subLinks.map(sl => (
-                                    <div key={sl.id} className="relative">
-                                      {sl.subLinks ? (
-                                        <div className="px-4 py-3">
-                                          <p className="text-[10px] font-black text-school-accent uppercase tracking-widest mb-2">{sl.label}</p>
-                                          <div className="grid gap-1">
-                                            {sl.subLinks.map(nsl => (
-                                              <Link 
-                                                key={nsl.id}
-                                                to={nsl.href}
-                                                onClick={() => setActiveDropdown(null)}
-                                                className="block px-3 py-2 text-xs font-bold text-slate-500 hover:text-school-navy hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all"
-                                              >
-                                                {nsl.label}
-                                              </Link>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      ) : (
-                                        <Link 
-                                          to={sl.href}
-                                          onClick={() => setActiveDropdown(null)}
-                                          className="block px-4 py-3 text-xs font-bold text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
-                                        >
-                                          {sl.label}
-                                        </Link>
-                                      )}
-                                    </div>
+                                    <DropdownItem key={sl.id} sl={sl} onSelect={() => setActiveDropdown(null)} />
                                   ))}
                                 </div>
                               </div>
@@ -599,59 +540,6 @@ const ChatBubble = () => {
     </div>
   );
 };
-
-const DesktopSubNavLink = ({ link, onClose }: { link: NavLink; onClose: () => void }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  if (link.subLinks) {
-    return (
-      <div className="relative group/sub" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
-        <button className={`w-full flex items-center justify-between px-6 py-4 rounded-[24px] transition-all ${isOpen ? 'bg-school-neon text-school-accent' : 'hover:bg-school-ink/5 dark:hover:bg-school-paper/5 text-school-ink dark:text-white'}`}>
-          <span className="text-[15px] font-black text-left leading-tight">{link.label}</span>
-          <ChevronRight size={16} className={`transition-transform ${isOpen ? 'rotate-90' : ''}`} />
-        </button>
-        
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              className="absolute left-full top-0 ml-1 w-[320px] z-[100]"
-            >
-              <div className="bg-school-paper dark:bg-school-navy rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-school-ink/5 dark:border-school-paper/10 p-4">
-                <div className="grid gap-1">
-                  {link.subLinks.map(sl => (
-                    <Link 
-                      key={sl.id} 
-                      to={sl.href} 
-                      onClick={onClose}
-                      className="flex items-center justify-between px-5 py-3 rounded-2xl hover:bg-school-ink/5 dark:hover:bg-school-paper/5 text-school-ink dark:text-white font-bold text-sm transition-all"
-                    >
-                      {sl.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  }
-
-  return (
-    <Link 
-      to={link.href} 
-      onClick={onClose}
-      className="flex items-center justify-between px-6 py-4 rounded-[24px] hover:bg-school-neon group/item dark:hover:text-school-ink transition-all"
-    >
-      <span className="text-[15px] font-black text-school-ink dark:text-white group-hover/item:text-school-accent leading-tight">{link.label}</span>
-      <ArrowRight size={18} className="text-school-accent opacity-0 group-hover/item:opacity-100 transition-all -translate-x-4 group-hover/item:translate-x-0" />
-    </Link>
-  );
-};
-
 const MobileNavLink = ({ link, onClose, depth = 0, isDark }: { link: NavLink; onClose: () => void; depth?: number; isDark?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -699,6 +587,69 @@ const MobileNavLink = ({ link, onClose, depth = 0, isDark }: { link: NavLink; on
                 >
       {link.label}
       <ArrowRight size={20} className="opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all text-school-accent" />
+    </Link>
+  );
+};
+
+const DropdownItem = ({ sl, onSelect }: { sl: NavLink; onSelect: () => void }) => {
+  const [isSubOpen, setIsSubOpen] = useState(false);
+  
+  if (sl.subLinks) {
+    return (
+      <div 
+        className="relative group/subItem"
+        onMouseEnter={() => setIsSubOpen(true)}
+        onMouseLeave={() => setIsSubOpen(false)}
+      >
+        <div className="px-4 py-3 flex items-center justify-between group-hover/subItem:bg-slate-50 dark:group-hover/subItem:bg-slate-800 transition-colors rounded-lg cursor-default">
+          {sl.href !== '#' ? (
+            <Link 
+              to={sl.href}
+              onClick={onSelect}
+              className="text-[10px] font-black text-school-accent uppercase tracking-widest block hover:opacity-70 transition-opacity"
+            >
+              {sl.label}
+            </Link>
+          ) : (
+            <p className="text-[10px] font-black text-school-accent uppercase tracking-widest">{sl.label}</p>
+          )}
+          <ChevronRight size={10} className="text-school-accent opacity-40 group-hover/subItem:opacity-100 transition-all" />
+        </div>
+        
+        <AnimatePresence>
+          {isSubOpen && (
+            <motion.div
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              className="absolute top-0 left-full w-64 pl-1"
+            >
+              <div className="bg-white dark:bg-slate-900 border border-black/5 p-2 rounded-xl shadow-2xl">
+                {sl.subLinks.map(nsl => (
+                  <Link 
+                    key={nsl.id}
+                    to={nsl.href}
+                    onClick={onSelect}
+                    className="block px-3 py-2 text-xs font-bold text-slate-500 hover:text-school-navy hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all"
+                  >
+                    {nsl.label}
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
+  return (
+    <Link 
+      to={sl.href}
+      onClick={onSelect}
+      className="block px-4 py-3 text-xs font-bold text-slate-500 hover:text-school-navy hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all"
+    >
+      {sl.label}
     </Link>
   );
 };

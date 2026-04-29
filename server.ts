@@ -237,7 +237,8 @@ db.exec(`
     siteLogo TEXT,
     contactEmail TEXT,
     contactPhone TEXT,
-    contactAddress TEXT
+    contactAddress TEXT,
+    currentSession TEXT
   )
 `);
 
@@ -296,7 +297,7 @@ tablesToUpdate.forEach(table => {
 const settingsCountResult = db.prepare("SELECT COUNT(*) as count FROM settings").get() as any;
 if ((settingsCountResult?.count || 0) === 0) {
     console.log("Seeding default settings...");
-    db.prepare("INSERT INTO settings (id, applyNowEnabled, applyNowUrl, applyNowLabel, siteName, siteLogo, contactEmail, contactPhone, contactAddress) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").run(
+    db.prepare("INSERT INTO settings (id, applyNowEnabled, applyNowUrl, applyNowLabel, siteName, siteLogo, contactEmail, contactPhone, contactAddress, currentSession) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").run(
       'global',
       1,
       'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
@@ -305,7 +306,8 @@ if ((settingsCountResult?.count || 0) === 0) {
       'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
       'xaviersjaipur@gmail.com',
       '0141-2372336, 2362436',
-      'Bhagwan Das Road, C-Scheme, Jaipur - 302001, Rajasthan, India'
+      'Bhagwan Das Road, C-Scheme, Jaipur - 302001, Rajasthan, India',
+      '2025-26'
     );
 }
 
@@ -363,21 +365,20 @@ if ((menuCountResult?.count || 0) === 0) {
         { id: '1', label: 'Home', href: '/', parent_id: null, order_index: 0 },
         { id: '2', label: 'About Us', href: '#', parent_id: null, order_index: 1 },
         { id: '2-1', label: 'Our Founder & Patron', href: '/founder-patron', parent_id: '2', order_index: 0 },
-        { id: '2-2', label: 'our Founder', href: '/founder-patron#founder', parent_id: '2', order_index: 1 },
         { id: '2-3', label: 'Our Patron', href: '/founder-patron#patron', parent_id: '2', order_index: 2 },
         { id: '2-4', label: 'School Governing Members', href: '/governing-members', parent_id: '2', order_index: 3 },
         { id: '2-5', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 4 },
+        { id: '2-6', label: 'Other Association & Committee', href: '#', parent_id: '2', order_index: 5 },
+        { id: '2-6-1', label: 'Internal Complaints Committee (POSH)', href: '#', parent_id: '2-6', order_index: 0 },
+        { id: '2-6-2', label: 'Internal Grievance Cell', href: '#', parent_id: '2-6', order_index: 1 },
+        { id: '2-6-3', label: 'POCSO Committee', href: '#', parent_id: '2-6', order_index: 2 },
+        { id: '2-6-4', label: 'School Level Fee Committee (SLFC)', href: '#', parent_id: '2-6', order_index: 3 },
+        { id: '2-6-5', label: 'Parent Teacher Association (PTA)', href: '#', parent_id: '2-6', order_index: 4 },
         { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
         { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
         { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
         { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: '3', order_index: 2 },
         { id: '3-4', label: 'Studybase Mobile App', href: '/studybase-app', parent_id: '3', order_index: 3 },
-        { id: '3-5', label: 'Other Association & Committee', href: '#', parent_id: '3', order_index: 4 },
-        { id: '3-5-1', label: 'Internal Complaints Committee (POSH)', href: '#', parent_id: '3-5', order_index: 0 },
-        { id: '3-5-2', label: 'Internal Grievance Cell', href: '#', parent_id: '3-5', order_index: 1 },
-        { id: '3-5-3', label: 'POCSO Committee', href: '#', parent_id: '3-5', order_index: 2 },
-        { id: '3-5-4', label: 'School Level Fee Committee (SLFC)', href: '#', parent_id: '3-5', order_index: 3 },
-        { id: '3-5-5', label: 'Parent Teacher Association (PTA)', href: '#', parent_id: '3-5', order_index: 4 },
         { id: '4', label: 'Academics', href: '#', parent_id: null, order_index: 3 },
         { id: '4-1', label: 'Jesuit Education Objectives', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
         { id: '4-2', label: 'Examinations & Premotions', href: '#', parent_id: '4', order_index: 1 },
@@ -513,6 +514,14 @@ addColumnIfMissing('fees', 'amount', 'TEXT');
 addColumnIfMissing('fees', 'remarks', 'TEXT');
 addColumnIfMissing('fees', 'order_index', 'INTEGER');
 addColumnIfMissing('fees', 'attachmentUrl', 'TEXT');
+addColumnIfMissing('settings', 'currentSession', 'TEXT');
+
+// Migration: Initialize currentSession if null
+try {
+  db.prepare("UPDATE settings SET currentSession = '2025-26' WHERE currentSession IS NULL").run();
+} catch (err) {
+  console.warn("[MIGRATION] currentSession initialization skipped:", err);
+}
 
 // Forced Data Sync for Fees (New Schema)
 const syncFeesIfNeeded = () => {
@@ -586,12 +595,29 @@ syncFeesIfNeeded();
 // Aggressive Menu Cleanup
 const cleanMenu = () => {
     try {
-        db.prepare("DELETE FROM menu WHERE label LIKE 'Other Association%'").run();
         db.prepare("DELETE FROM menu WHERE label LIKE 'Other %' AND href LIKE '%school-info%'").run();
-        db.prepare("DELETE FROM menu WHERE id = '2-6'").run();
         
         // Update TC link if it exists
         db.prepare("UPDATE menu SET href = '/transfer-certificate' WHERE label = 'Transfer Certificate'").run();
+
+        // Forced re-alignment for Association Menu to About Us
+        const associations = [
+            { id: '2-6', label: 'Other Association & Committee', href: '#', parent_id: '2', order_index: 5 },
+            { id: '2-6-1', label: 'Internal Complaints Committee (POSH)', href: '#', parent_id: '2-6', order_index: 0 },
+            { id: '2-6-2', label: 'Internal Grievance Cell', href: '#', parent_id: '2-6', order_index: 1 },
+            { id: '2-6-3', label: 'POCSO Committee', href: '#', parent_id: '2-6', order_index: 2 },
+            { id: '2-6-4', label: 'School Level Fee Committee (SLFC)', href: '#', parent_id: '2-6', order_index: 3 },
+            { id: '2-6-5', label: 'Parent Teacher Association (PTA)', href: '#', parent_id: '2-6', order_index: 4 },
+        ];
+
+        associations.forEach(item => {
+            const exists = db.prepare("SELECT id FROM menu WHERE id = ?").get(item.id);
+            if (!exists) {
+                db.prepare("INSERT INTO menu (id, label, href, parent_id, order_index) VALUES (?, ?, ?, ?, ?)").run(item.id, item.label, item.href, item.parent_id, item.order_index);
+            } else {
+                db.prepare("UPDATE menu SET label = ?, href = ?, parent_id = ?, order_index = ? WHERE id = ?").run(item.label, item.href, item.parent_id, item.order_index, item.id);
+            }
+        });
 
         // Final De-dupe
         const items = db.prepare("SELECT * FROM menu").all() as any[];

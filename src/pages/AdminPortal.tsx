@@ -165,6 +165,16 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                   </>
                 )}
               </select>
+            ) : field === 'category' && section === 'fees' ? (
+              <select 
+                value={item[field] ?? 'School Fee'} 
+                onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
+                className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
+              >
+                <option value="School Fee">School Fee Structure</option>
+                <option value="Annual Fee">Annual Fees (Quarters)</option>
+                <option value="Admission Fee">Admission Fee (One-time)</option>
+              </select>
             ) : field === 'isActive' ? (
               <button 
                 onClick={() => handleUpdate(item.id, field as string, !item[field], section)}
@@ -519,7 +529,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     setUploadingPath(`${section}-${id}-${field}`);
     
     // Determine folder based on section
-    let folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups', 'menu'].includes(section as string)) ? (section as string) : 'misc';
+    let folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups', 'menu', 'content'].includes(section as string)) ? (section as string) : 'misc';
 
 // Specialized folder routing for new committees in Menu
     if (section === 'menu') {
@@ -1310,6 +1320,15 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
                     />
                  </div>
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Current Academic Session</label>
+                    <input 
+                      value={data.settings.currentSession || ''}
+                      onChange={(e) => handleUpdate('global', 'currentSession', e.target.value, 'settings')}
+                      placeholder="e.g. 2025-26"
+                      className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                    />
+                  </div>
                   <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight mb-8 mt-16 pt-16 border-t border-school-ink/5">Institutional Popup Notice</h2>
                   <div className="grid md:grid-cols-2 gap-12">
                     <div className="space-y-6">
@@ -1384,7 +1403,20 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                           </div>
                           <p className="text-[9px] font-bold text-school-ink/30 uppercase tracking-widest">Key: {key}</p>
                        </div>
-                       <div className="flex-1 w-full">
+                       <div className="flex-1 w-full space-y-4">
+                          {(key.toLowerCase().includes('image') || key.toLowerCase().includes('logo') || key.toLowerCase().includes('url')) && (
+                            <div className="flex items-center gap-4">
+                              {data.content[key] && !data.content[key].endsWith('.pdf') && (
+                                <div className="w-16 h-16 rounded-xl overflow-hidden border border-school-ink/10 bg-school-ink/5 flex items-center justify-center">
+                                  <img src={data.content[key]} className="w-full h-full object-cover" />
+                                </div>
+                              )}
+                              <label className="px-6 py-2 bg-school-gold text-school-navy rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-white transition-all shadow-lg active:scale-95">
+                                {uploadingPath === `content-global-${key}` ? 'Uploading...' : 'Update Media'}
+                                <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'global', key, 'content')} disabled={!!uploadingPath} />
+                              </label>
+                            </div>
+                          )}
                           {data.content[key].length > 100 ? (
                             <textarea 
                               value={data.content[key]}

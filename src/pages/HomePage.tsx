@@ -342,13 +342,19 @@ const HomePage = ({ data }: { data: AppData }) => {
                transition={{ duration: 1 }}
                className="relative"
             >
-              <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-xl relative group grayscale hover:grayscale-0 transition-all duration-1000 border border-black/5">
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+                className="aspect-[4/5] rounded-3xl overflow-hidden shadow-xl relative group transition-all duration-1000 border border-black/5"
+              >
                 <img 
-                  src="https://lh3.googleusercontent.com/d/1Jou0otbLF6w1gb7ESnRALHnDbjCEgmxc" 
+                  src={data.content?.principalLeadGraceImage || "https://lh3.googleusercontent.com/d/1Jou0otbLF6w1gb7ESnRALHnDbjCEgmxc"} 
                   className="w-full h-full object-cover" 
-                  alt="Fr. M. Arockiam, SJ"
+                  alt={data.content?.principalTitleLead || "Fr. M. Arockiam, SJ"}
                 />
-              </div>
+              </motion.div>
             </motion.div>
 
             <motion.div 
@@ -479,10 +485,10 @@ const HomePage = ({ data }: { data: AppData }) => {
           >
             <div>
               <h2 className="text-4xl md:text-7xl font-bold text-school-navy dark:text-white tracking-tight">
-                The <span className="text-school-accent">Regency.</span>
+                {data.content?.regencyTitle || 'The Regency.'}
               </h2>
               <p className="text-slate-400 font-medium mt-4 max-w-xl">
-                The governing body and leadership dedicated to the institutional vision and student excellence.
+                {data.content?.regencyDescription || 'The governing body and leadership dedicated to the institutional vision and student excellence.'}
               </p>
             </div>
           </motion.div>

@@ -6,30 +6,23 @@ import './index.css';
 const container = document.getElementById('root');
 if (!container) throw new Error('Failed to find root element');
 
-const GLOBAL_ROOT_ID = '_reactRoot_v1';
+// Robust React 18+ Root Management
+// We store the 'root' object on the container and window to ensure we only call createRoot once.
+const ROOT_KEY = '__REACT_ROOT__';
+let root: Root;
 
-// Aggressive root retrieval
-let root = (container as any)[GLOBAL_ROOT_ID] || (window as any)[GLOBAL_ROOT_ID];
+const existingRoot = (window as any)[ROOT_KEY] || (container as any)[ROOT_KEY];
 
-if (!root) {
-  console.log('[Main] Creating new React root');
-  try {
-    root = createRoot(container);
-    (container as any)[GLOBAL_ROOT_ID] = root;
-    (window as any)[GLOBAL_ROOT_ID] = root;
-  } catch (err) {
-    console.error('[Main] Failed to create root:', err);
-  }
+if (existingRoot && typeof existingRoot.render === 'function') {
+  root = existingRoot;
 } else {
-  console.log('[Main] Using existing React root');
+  root = createRoot(container);
+  (window as any)[ROOT_KEY] = root;
+  (container as any)[ROOT_KEY] = root;
 }
 
-if (root && typeof root.render === 'function') {
-  root.render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  );
-} else {
-  console.error('[Main] Root object is invalid or render function missing', root);
-}
+root.render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);

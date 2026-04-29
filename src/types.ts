@@ -47,6 +47,7 @@ export interface AppSettings {
   contactEmail: string;
   contactPhone: string;
   contactAddress: string;
+  currentSession?: string;
   feesPdfUrl?: string;
   popupMessage?: string;
   popupEnabled?: boolean;

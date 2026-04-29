@@ -80,7 +80,7 @@ const FeesPage = ({ data }: { data: AppData }) => {
       <section className="pt-12 pb-40 bg-school-paper min-h-screen">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center mb-24">
            <div className="inline-flex items-center gap-3 px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[10px] font-black uppercase tracking-widest mb-8">
-             Session 2025-26
+             Session {data.settings.currentSession || '2025-26'}
            </div>
            <h2 className="text-7xl font-serif font-black text-school-ink mb-8">Financial <span className="text-school-gold italic">Blueprints.</span></h2>
            <p className="text-xl text-school-ink/40 font-light max-w-2xl mx-auto">Managing Committee Approved Fee Structure for the current academic session.</p>
@@ -141,21 +141,6 @@ const FeesPage = ({ data }: { data: AppData }) => {
               </div>
             </div>
           )}
-
-          <div className="mt-20 p-12 glass-surface rounded-[40px] flex flex-col md:flex-row items-center gap-12 border border-school-ink/5 bg-white/50 backdrop-blur-xl">
-            <div className="w-20 h-20 rounded-3xl bg-school-gold text-school-navy flex items-center justify-center shrink-0 shadow-xl">
-              <CreditCard size={32} />
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <h4 className="text-2xl font-serif font-black text-school-ink mb-3 group-hover:text-school-gold transition-colors">Digital Fee Portal</h4>
-              <p className="text-school-ink/50 text-sm leading-relaxed max-w-2xl">Securely manage payments through our synchronized digital infrastructure. We support all major transaction protocols.</p>
-            </div>
-            <div className="flex gap-4">
-              <button className="px-10 py-5 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl active:scale-95">
-                Proceed to Payment
-              </button>
-            </div>
-          </div>
         </div>
 
         <PdfViewer 

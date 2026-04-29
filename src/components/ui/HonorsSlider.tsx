@@ -21,9 +21,9 @@ export const HonorsSlider = ({ honors }: HonorsSliderProps) => {
   if (!honors || honors.length === 0) return null;
 
   return (
-    <div className="py-32 bg-white dark:bg-slate-950">
+    <div className="py-20 bg-white dark:bg-slate-950">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="mb-20">
+        <div className="mb-12">
           <h2 className="text-4xl md:text-6xl font-bold text-school-navy dark:text-white tracking-tight">
             Laurel & <span className="text-school-accent">Distinction.</span>
           </h2>
