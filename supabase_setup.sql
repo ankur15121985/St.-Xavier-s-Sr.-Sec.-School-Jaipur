@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS settings (
 CREATE TABLE IF NOT EXISTS content (
     id TEXT PRIMARY KEY,
     key TEXT,
-    content TEXT
+    value TEXT
 );
 
 -- 2. ENABLE PUBLIC ACCESS FOR ALL TABLES
@@ -183,6 +183,13 @@ BEGIN
         
         RAISE NOTICE 'Permissions set for %', t_name;
     END LOOP;
+
+    -- Handle case-sensitive table if it persists
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'studentHonors') THEN
+        ALTER TABLE "studentHonors" ENABLE ROW LEVEL SECURITY;
+        EXECUTE 'DROP POLICY IF EXISTS "Public Full Access" ON "studentHonors"';
+        EXECUTE 'CREATE POLICY "Public Full Access" ON "studentHonors" FOR ALL TO public USING (true) WITH CHECK (true)';
+    END IF;
 END $$;
 
 -- 3. FINAL SCHEMA CACHE RELOAD

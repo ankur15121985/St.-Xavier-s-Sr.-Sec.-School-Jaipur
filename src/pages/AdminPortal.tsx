@@ -69,12 +69,19 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
         })
       });
       
-      const result = await resp.json();
-      if (result.success) {
+      const text = await resp.text();
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Server returned non-JSON response: ${text.slice(0, 100)}...`);
+      }
+
+      if (resp.ok && result.success) {
         showToast('Successfully migrated all data to Supabase!', 'success');
         console.log('[Migration Details]', result.details);
       } else {
-        throw new Error(result.error || 'Migration failed');
+        throw new Error(result.error || 'Unknown migration error');
       }
     } catch (err: any) {
       console.error('Migration failed:', err);
