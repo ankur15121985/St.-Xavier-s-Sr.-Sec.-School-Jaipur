@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
-import { auth, db } from '../lib/firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
+import { User } from '@supabase/supabase-js';
 
 interface FirebaseContextType {
   user: User | null;
@@ -19,71 +18,67 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('[Auth] Setting up onAuthStateChanged listener...');
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log('[Auth] State changed. User:', user?.email || 'Logged out');
-      setUser(user);
+    console.log('[Auth] Setting up Supabase Auth listener...');
+    
+    // Get initial session
+    const checkUser = async () => {
       try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user ?? null;
+        setUser(user);
+        
         if (user) {
-          // Check if user is admin
-          const adminDoc = await getDoc(doc(db, 'admins', user.uid));
-          if (adminDoc.exists()) {
+          // Hardcoded bootstrap admin for now or check a table in Supabase
+          const bootstrapEmail = 'ankur15121985@gmail.com';
+          if (user.email === bootstrapEmail) {
             setIsAdmin(true);
           } else {
-            // Check for bootstrap admin email
-            const bootstrapEmail = 'ankur15121985@gmail.com';
-            if (user.email === bootstrapEmail) {
-              try {
-                await setDoc(doc(db, 'admins', user.uid), { email: user.email });
-                setIsAdmin(true);
-              } catch (writeErr) {
-                console.error("Bootstrap admin write failed:", writeErr);
-                // Still mark as admin in state if rules permit email-based access
-                setIsAdmin(true); 
-              }
-            } else {
-              setIsAdmin(false);
-            }
+            // Optional: check a 'profiles' or 'admins' table in Supabase
+            setIsAdmin(false);
           }
-        } else {
-          setIsAdmin(false);
         }
       } catch (err) {
-        console.error("Auth state check error:", err);
+        console.error('Supabase getSession error:', err);
       } finally {
         setLoading(false);
       }
+    };
+
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const user = session?.user ?? null;
+      setUser(user);
+      if (user) {
+        const bootstrapEmail = 'ankur15121985@gmail.com';
+        setIsAdmin(user.email === bootstrapEmail);
+      } else {
+        setIsAdmin(false);
+      }
+      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async () => {
-    console.log('[Auth] Attempting login with Google...');
+    console.log('[Auth] Attempting login with Supabase Google OAuth...');
     try {
-      const provider = new GoogleAuthProvider();
-      // Set custom parameters if needed
-      provider.setCustomParameters({ prompt: 'select_account' });
-      
-      const result = await signInWithPopup(auth, provider);
-      console.log('[Auth] Login successful:', result.user.email);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) throw error;
     } catch (error: any) {
       console.error('[Auth] Login failed:', error);
-      // In some iframe environments, popups can be blocked or have issues.
-      if (error.code === 'auth/popup-blocked') {
-        console.warn('[Auth] Popup was blocked by the browser.');
-        alert('Please allow popups for this site to sign in with Google.');
-      } else if (error.code === 'auth/unauthorized-domain') {
-        console.error('[Auth] Domain not authorized in Firebase Console.');
-        alert(`Login Error: This domain is not authorized in the Firebase Console. \n\nPlease add ${window.location.hostname} to "Authorized domains" in your Firebase Authentication settings.`);
-      } else {
-        alert(`Login Error: ${error.message}`);
-      }
+      alert(`Login Error: ${error.message}`);
     }
   };
 
   const logout = async () => {
-    await signOut(auth);
+    await supabase.auth.signOut();
   };
 
   return (

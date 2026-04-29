@@ -458,16 +458,23 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
             setData(merged);
           }
         } else if (isAdmin) {
-          console.log('Fresh Firestore detected and user is admin. Starting sequential seeding...');
-          await firebaseService.syncAll(DEFAULT_DATA);
-          const finalData = await firebaseService.fetchAllData();
-          if (finalData) setData({ ...DEFAULT_DATA, ...finalData } as AppData);
+          console.log('Fresh Firestore/Supabase detected and user is admin. Starting seeding in background...');
+          // Seed in background but don't block the UI
+          firebaseService.syncAll(DEFAULT_DATA).then(async () => {
+             console.log('[Seeding] Initial seed completed');
+             const finalData = await firebaseService.fetchAllData();
+             if (finalData) setData({ ...DEFAULT_DATA, ...finalData } as AppData);
+          }).catch(e => console.error('[Seeding] Error:', e));
+          
+          setData(DEFAULT_DATA);
         } else {
           // Keep default data if not admin and DB is empty
-          console.log('Firestore is empty. Log in as admin to sync/seed data.');
+          console.log('DB is empty. Log in as admin to sync/seed data.');
+          setData(DEFAULT_DATA);
         }
       } catch (err) {
-        console.error('Firebase data sync error:', err);
+        console.error('Data sync error:', err);
+        setData(DEFAULT_DATA);
       } finally {
         setLoading(false);
       }

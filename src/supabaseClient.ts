@@ -16,9 +16,14 @@ export async function uploadFile(file: File, folder: string = 'misc'): Promise<s
   const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
   const filePath = `${folder}/${fileName}`;
 
+  console.log(`[Supabase Storage] Attempting upload of ${file.name} to bucket: ${bucket}, path: ${filePath}`);
+  
   const { error: uploadError } = await supabase.storage
     .from(bucket)
-    .upload(filePath, file);
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: true
+    });
 
   if (uploadError) {
     throw uploadError;

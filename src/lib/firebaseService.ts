@@ -11,35 +11,57 @@ export const firebaseService = {
 
       const results: Partial<AppData> = {};
       
-      await Promise.all([
+      const fetchTasks = [
         ...collections.map(async (colName) => {
-          const { data, error } = await supabase.from(colName).select('*');
-          if (error) {
-            console.warn(`Error fetching ${colName}:`, error.message);
+          try {
+            const { data, error } = await supabase.from(colName).select('*');
+            if (error) {
+              console.warn(`[Supabase] Table ${colName} missing or inaccessible:`, error.message);
+              results[colName] = [];
+            } else {
+              results[colName] = data as any;
+            }
+          } catch (e) {
+            console.error(`[Supabase] Fatal error fetching ${colName}:`, e);
             results[colName] = [];
-            return;
           }
-          results[colName] = data as any;
         }),
         // Settings (single row)
         (async () => {
-           const { data, error } = await supabase.from('settings').select('*').limit(1).maybeSingle();
-           if (error) console.warn('Error fetching settings:', error.message);
-           if (data) results.settings = data as any;
+           try {
+             const { data, error } = await supabase.from('settings').select('*').limit(1).maybeSingle();
+             if (error) console.warn('[Supabase] Settings table issue:', error.message);
+             if (data) results.settings = data as any;
+           } catch (e) { console.error('[Supabase] Settings fetch error:', e); }
         })(),
         // Content (key-value)
         (async () => {
-           const { data, error } = await supabase.from('content').select('*');
-           if (error) console.warn('Error fetching content:', error.message);
-           if (data) {
-             const contentObj: Record<string, string> = {};
-             data.forEach(row => contentObj[row.key] = row.value);
-             results.content = contentObj;
-           }
+           try {
+             const { data, error } = await supabase.from('content').select('*');
+             if (error) console.warn('[Supabase] Content table issue:', error.message);
+             if (data) {
+               const contentObj: Record<string, string> = {};
+               data.forEach(row => contentObj[row.key] = row.value);
+               results.content = contentObj as any;
+             }
+           } catch (e) { console.error('[Supabase] Content fetch error:', e); }
         })()
-      ]);
+      ];
 
-      return results;
+      // Concurrent fetch for all tasks
+      try {
+        await Promise.all(fetchTasks);
+      } catch (err) {
+        console.warn('[Supabase] Individual task error, continuing with partial results:', err);
+      }
+
+      // If we got some results, merge them. If it's completely empty, triggered catch fallback.
+      if (Object.keys(results).length > 0) {
+        console.log(`[Supabase] Successfully fetched ${Object.keys(results).length} tables`);
+        return results;
+      }
+      
+      throw new Error('No data received from Supabase');
     } catch (err) {
       console.warn('Supabase fetch failed, falling back to local server:', err);
       try {
@@ -54,36 +76,51 @@ export const firebaseService = {
   },
 
   async saveItem(section: keyof AppData, item: any): Promise<void> {
+    console.log(`[Sync] Saving item to ${section}:`, item.id || 'new');
     try {
       // Primary: Save to Supabase
       try {
+        if (!supabase) throw new Error('Supabase client not initialized');
+        
         if (section === 'content') {
           const contentUpserts = Object.entries(item)
+            .filter(([k]) => k !== 'id')
             .map(([key, value]) => ({ id: 'global', key, value: String(value) }));
-          await supabase.from('content').upsert(contentUpserts);
+          if (contentUpserts.length > 0) {
+            const { error } = await supabase.from('content').upsert(contentUpserts);
+            if (error) throw error;
+          }
         } else {
           // Convert types for Supabase
           const sanitized = { ...item };
+          // Ensure booleans are correct for Postgres
           if (section === 'popups' && 'isActive' in sanitized) sanitized.isActive = !!sanitized.isActive;
           if (section === 'settings' && 'applyNowEnabled' in sanitized) sanitized.applyNowEnabled = !!sanitized.applyNowEnabled;
+          if (section === 'settings' && 'popupEnabled' in sanitized) sanitized.popupEnabled = !!sanitized.popupEnabled;
           
           const { error } = await supabase.from(section).upsert(sanitized);
           if (error) throw error;
         }
-        console.log(`[Supabase Sync] ${section} item synced`);
+        console.log(`[Supabase Sync Success] ${section}/${item.id || 'new'}`);
       } catch (err: any) {
-        console.warn('[Supabase Sync Warning] Failed to update Supabase:', err.message);
+        console.warn(`[Supabase Sync Failure] ${section}:`, err.message || err);
+        // We continue to local fallback
       }
 
       // Secondary: Save to local server (fallback/legacy)
-      await fetch('/api/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ table: section, item })
-      }).catch(e => console.warn('Local save failed:', e));
+      try {
+        const res = await fetch('/api/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ table: section, item })
+        });
+        if (res.ok) console.log(`[Local Sync Success] ${section}`);
+      } catch (e) {
+        // Only log if specifically needed
+      }
 
     } catch (error) {
-      console.error('Save failed:', error);
+      console.error('Final Save Exception:', error);
       throw error;
     }
   },
