@@ -18,6 +18,14 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
+// Detailed Request Logger for API
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    console.log(`[API REQUEST] ${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+  }
+  next();
+});
+
 // Setup Multer for Image Uploads early to avoid route order issues
 const uploadDir = path.join(process.cwd(), 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -43,17 +51,17 @@ app.use((req, res, next) => {
 });
 
 app.post(['/api/upload', '/api/upload/'], (req, res) => {
-  console.log(`[SERVER] /api/upload hit. Field: file`);
+  console.log(`[SERVER] /api/upload hit. Field: file. Method: ${req.method}. URL: ${req.url}`);
   upload.single('file')(req, res, (err) => {
     if (err) {
       console.error(`[UPLOAD ERROR] Multer error:`, err);
-      return res.status(400).json({ error: `Multer Error: ${err.message}` });
+      return res.status(400).json({ error: `Upload Failed: ${err.message}` });
     }
     if (!req.file) {
       console.warn(`[UPLOAD WARNING] No file attached to 'file' field`);
-      return res.status(400).json({ error: 'No file uploaded (field "file" required)' });
+      return res.status(400).json({ error: 'No file uploaded (use "file" field)' });
     }
-    console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename} to ${uploadDir}`);
+    console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename}`);
     res.json({ 
       success: true,
       url: `/uploads/${req.file.filename}`,
@@ -975,11 +983,16 @@ app.delete('/api/tc/:id', (req, res) => {
   }
 });
 
-app.post('/api/migrate-to-supabase', async (req, res) => {
+app.post(['/api/migrate-to-supabase', '/api/migrate-to-supabase/'], async (req, res) => {
   const { url, key } = req.body;
+  console.log(`[MIGRATION INITIATED] Supabase Target: ${url}`);
+  
   if (!url || !key) {
     return res.status(400).json({ error: 'Supabase URL and Anon Key are required.' });
   }
+
+  // Increase timeout for this specific request if possible (express specific)
+  req.setTimeout(300000); // 5 minutes
 
   try {
     const supabaseServer = createClient(url, key);
@@ -1014,7 +1027,9 @@ app.post('/api/migrate-to-supabase', async (req, res) => {
         if (error) {
           let msg = `Supabase Error ${table}: ${error.message}`;
           if (error.message.toLowerCase().includes('uuid')) {
-            msg += ". Please run Section 3 of 'supabase_setup.sql' in your Supabase SQL Editor.";
+            msg += ". Your Supabase IDs are UUID but should be TEXT. Please run Section 3 of 'supabase_setup.sql'.";
+          } else if (error.message.toLowerCase().includes('column') || error.message.toLowerCase().includes('relation')) {
+            msg += ". Your Supabase schema is missing tables or columns. Please run 'supabase_setup.sql' to fix your database schema.";
           }
           throw new Error(msg);
         }
@@ -1025,7 +1040,9 @@ app.post('/api/migrate-to-supabase', async (req, res) => {
         if (error) {
           let msg = `Supabase Error ${table}: ${error.message}`;
           if (error.message.toLowerCase().includes('uuid')) {
-            msg += ". Please run Section 3 of 'supabase_setup.sql' in your Supabase SQL Editor.";
+            msg += ". Your Supabase IDs are UUID but should be TEXT. Please run Section 3 of 'supabase_setup.sql'.";
+          } else if (error.message.toLowerCase().includes('column') || error.message.toLowerCase().includes('relation')) {
+            msg += ". Your Supabase schema is missing tables or columns. Please run 'supabase_setup.sql' to fix your database schema.";
           }
           throw new Error(msg);
         }

@@ -103,10 +103,10 @@ export const supabaseService = {
           if (error) {
             console.error(`[Supabase Sync Failure] Table: ${section}, Error: ${error.message}, Code: ${error.code}`);
             let userMessage = `Supabase Table '${section}' error: ${error.message}`;
-            if (error.message.toLowerCase().includes('column') || error.message.toLowerCase().includes('schema cache')) {
-              userMessage += ". Please run 'supabase_setup.sql' in your Supabase SQL Editor to fix your database schema.";
+            if (error.message.toLowerCase().includes('column') || error.message.toLowerCase().includes('schema cache') || error.message.toLowerCase().includes('relation')) {
+              userMessage += ". Your Supabase schema is missing tables or columns. Please run 'supabase_setup.sql' in your Supabase SQL Editor to fix your database schema.";
             } else if (error.message.toLowerCase().includes('uuid')) {
-              userMessage += ". Your IDs are incompatible with the database (UUID vs TEXT). Please copy and run Section 3 of 'supabase_setup.sql' in your Supabase SQL Editor.";
+              userMessage += ". Your IDs are incompatible with the database (UUID vs TEXT). Please run Section 3 of 'supabase_setup.sql' in your Supabase SQL Editor.";
             }
             throw new Error(userMessage);
           }

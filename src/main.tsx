@@ -6,11 +6,14 @@ import './index.css';
 const container = document.getElementById('root');
 if (!container) throw new Error('Failed to find root element');
 
-// Robust React 18/19 Root Management
-if (!(container as any)._reactRoot) {
-  (container as any)._reactRoot = createRoot(container);
+// Enhanced React Root Management for high-frequency re-renders
+const globalRootKey = '__SCHOOL_APP_ROOT__';
+let root = (window as any)[globalRootKey];
+
+if (!root) {
+  root = createRoot(container);
+  (window as any)[globalRootKey] = root;
 }
-const root = (container as any)._reactRoot;
 
 root.render(
   <StrictMode>
