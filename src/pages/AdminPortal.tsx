@@ -546,21 +546,17 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     }
 
     try {
-      // 1. Try Firebase Storage first
+      // 1. Try Supabase Storage first
       try {
-        console.log(`[Upload] Attempting Firebase Storage upload to ${folder}/${file.name}...`);
-        const firebaseUrl = await storageService.uploadFile(file, folder);
-        console.log(`[Upload] Firebase Success: ${firebaseUrl}`);
-        handleUpdate(id, field, firebaseUrl, section);
+        console.log(`[Upload] Attempting Supabase Storage upload to ${folder}/${file.name}...`);
+        const supabaseUrl = await storageService.uploadFile(file, folder);
+        console.log(`[Upload] Supabase Success: ${supabaseUrl}`);
+        handleUpdate(id, field, supabaseUrl, section);
         showToast('Media uploaded & synced to Cloud', 'success');
         setUploadingPath(null);
         return; // Success
-      } catch (fbErr: any) {
-        console.warn('[Upload] Firebase Storage upload failed:', fbErr.message || fbErr);
-        // If it's a permission error, inform the user they need to check rules
-        if (fbErr.code?.includes('permission-denied')) {
-          console.error('[Upload] Permission Denied in Firebase Storage. Rules likely block this domain.');
-        }
+      } catch (err: any) {
+        console.warn('[Upload] Supabase Storage upload failed:', err.message || err);
       }
 
       // 2. Fallback to local server
@@ -610,14 +606,14 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'uploading', progress: 10 } : p));
     
     try {
-      // 1. Try Firebase Storage
+      // 1. Try Supabase Storage
       try {
-        console.log(`[Staging] Uploading ${pendingItem.file.name} to Firebase Storage...`);
-        const firebaseUrl = await storageService.uploadFile(pendingItem.file, 'gallery');
-        setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: firebaseUrl } : p));
+        console.log(`[Staging] Uploading ${pendingItem.file.name} to Supabase Storage...`);
+        const supabaseUrl = await storageService.uploadFile(pendingItem.file, 'gallery');
+        setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: supabaseUrl } : p));
         return;
-      } catch (fbErr: any) {
-        console.warn('[Staging] Firebase Storage failed, falling back to local:', fbErr);
+      } catch (err: any) {
+        console.warn('[Staging] Supabase Storage failed, falling back to local:', err);
       }
 
       // 2. Fallback to local

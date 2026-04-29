@@ -6,6 +6,7 @@ import fs from 'fs';
 import multer from 'multer';
 import Database from 'better-sqlite3';
 import cors from 'cors';
+import { createClient } from '@supabase/supabase-js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -889,26 +890,38 @@ app.post('/api/save', (req, res) => {
   }
 });
 
-app.delete('/api/delete', (req, res) => {
+app.post('/api/delete', (req, res) => {
   try {
     const { table, id, ids } = req.body;
+    console.log(`[SQL DELETE REQUEST] Table: "${table}", ID: ${id || 'none'}, IDs: ${Array.isArray(ids) ? ids.length : 'none'}`);
     const whitelist = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'transfer_certificates', 'faqs', 'messages', 'popups'];
     
     if (!whitelist.includes(table)) {
-      return res.status(400).json({ error: 'Invalid table name' });
+      console.warn(`[SQL DELETE DENIED] Invalid table: "${table}"`);
+      return res.status(400).json({ error: `Invalid table: ${table}` });
+    }
+
+    if (!id && (!ids || !Array.isArray(ids) || ids.length === 0)) {
+      return res.status(400).json({ error: 'No ID or IDs provided for deletion' });
     }
 
     let result;
     if (ids && Array.isArray(ids)) {
+      if (ids.length === 0) {
+        return res.json({ success: true, changes: 0 });
+      }
       const placeholders = ids.map(() => '?').join(',');
-      result = db.prepare(`DELETE FROM ${table} WHERE id IN (${placeholders})`).run(ids);
+      const stmt = db.prepare(`DELETE FROM "${table}" WHERE id IN (${placeholders})`);
+      result = stmt.run(ids);
     } else {
-      result = db.prepare(`DELETE FROM ${table} WHERE id = ?`).run(id);
+      const stmt = db.prepare(`DELETE FROM "${table}" WHERE id = ?`);
+      result = stmt.run(id);
     }
     
+    console.log(`[SQL DELETE SUCCESS] ${table} deleted ${result.changes} row(s).`);
     res.json({ success: true, changes: result.changes });
   } catch (err: any) {
-    console.error(`!!!! SQL Delete Error !!!!:`, err);
+    console.error(`[SQL DELETE ERROR] Table: "${req.body.table}":`, err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -959,6 +972,72 @@ app.delete('/api/tc/:id', (req, res) => {
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete' });
+  }
+});
+
+app.post('/api/migrate-to-supabase', async (req, res) => {
+  const { url, key } = req.body;
+  if (!url || !key) {
+    return res.status(400).json({ error: 'Supabase URL and Anon Key are required.' });
+  }
+
+  try {
+    const supabaseServer = createClient(url, key);
+    const tables = [
+      'gallery', 'notices', 'staff', 'fees', 'links', 'events', 
+      'menu', 'studentHonors', 'achievements', 'carousel', 
+      'faqs', 'messages', 'popups', 'settings', 'transfer_certificates'
+    ];
+
+    const results: Record<string, any> = {};
+
+    for (const table of tables) {
+      console.log(`[MIGRATION] Migrating ${table}...`);
+      const data = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
+      
+      if (data.length === 0) {
+        results[table] = 'Empty';
+        continue;
+      }
+
+      // Supabase uses BOOLEAN for some fields that SQLite uses 0/1 for
+      const sanitizedData = data.map(item => {
+        const newItem = { ...item };
+        if (table === 'popups' && 'isActive' in newItem) newItem.isActive = !!newItem.isActive;
+        if (table === 'settings' && 'applyNowEnabled' in newItem) newItem.applyNowEnabled = !!newItem.applyNowEnabled;
+        return newItem;
+      });
+
+      // Special handling for content which is a key-value row in Supabase but a single row column-based in SQLite
+      if (table === 'settings') {
+        const { data: upsertData, error } = await supabaseServer.from(table).upsert(sanitizedData);
+        if (error) throw new Error(`Supabase Error ${table}: ${error.message}`);
+        results[table] = `Upserted ${data.length} rows`;
+      } else {
+        // Bulk upsert
+        const { data: upsertData, error } = await supabaseServer.from(table).upsert(sanitizedData);
+        if (error) throw new Error(`Supabase Error ${table}: ${error.message}`);
+        results[table] = `Upserted ${data.length} rows`;
+      }
+    }
+
+    // Handle 'content' separately because it's a key-value store in my proposed Supabase schema
+    console.log(`[MIGRATION] Migrating content table...`);
+    const contentRow = db.prepare(`SELECT * FROM content LIMIT 1`).get() as any;
+    if (contentRow) {
+      const contentUpserts = Object.entries(contentRow)
+        .filter(([key]) => key !== 'id')
+        .map(([key, value]) => ({ id: 'global', key, value: String(value) }));
+      
+      const { error } = await supabaseServer.from('content').upsert(contentUpserts);
+      if (error) throw new Error(`Supabase Error content: ${error.message}`);
+      results['content'] = `Upserted ${contentUpserts.length} key-value pairs`;
+    }
+
+    res.json({ success: true, message: 'Migration completed', details: results });
+  } catch (err: any) {
+    console.error(`[MIGRATION ERROR]`, err);
+    res.status(500).json({ error: err.message });
   }
 });
 

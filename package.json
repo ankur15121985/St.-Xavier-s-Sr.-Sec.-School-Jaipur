@@ -23,6 +23,7 @@
     "@google/genai": "^1.29.0",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^9.6.0",
+    "@supabase/supabase-js": "^2.105.1",
     "better-sqlite3": "^12.9.0",
     "cors": "^2.8.6",
     "date-fns": "^4.1.0",
