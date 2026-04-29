@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Phone, MapPin, Send, MessageSquare, ChevronDown, CheckCircle2, Loader2, Calendar, Clock, ArrowRight } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import { AppData, ContactMessage } from '../types';
-import { firebaseService } from '../lib/firebaseService';
+import { supabaseService } from '../lib/supabaseService';
 
 const ContactPage = ({ data }: { data: AppData }) => {
   const [formData, setFormData] = useState({
@@ -27,8 +27,8 @@ const ContactPage = ({ data }: { data: AppData }) => {
         status: 'new'
       };
       
-      // Save to Firebase (via firebaseService which we'll update or use directly if it supports it)
-      await firebaseService.saveItem('messages', newMessage);
+      // Save to Supabase
+      await supabaseService.saveItem('messages', newMessage);
       
       setStatus('success');
       setFormData({ name: '', email: '', subject: '', message: '' });

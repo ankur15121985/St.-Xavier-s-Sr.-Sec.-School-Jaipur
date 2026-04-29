@@ -7,8 +7,8 @@ import {
   Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2
 } from 'lucide-react';
 import { AppData } from '../types';
-import { useFirebase } from '../components/FirebaseProvider';
-import { firebaseService } from '../lib/firebaseService';
+import { useSupabase } from '../components/SupabaseProvider';
+import { supabaseService } from '../lib/supabaseService';
 import { storageService } from '../lib/storageService';
 
 interface PendingGalleryItem {
@@ -23,8 +23,9 @@ interface PendingGalleryItem {
 }
 
 const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) => void }) => {
-  const { user, isAdmin, loading: authLoading, login, logout } = useFirebase();
+  const { user, isAdmin, loading: authLoading, login, usernameLogin, logout } = useSupabase();
   const [activeSection, setActiveSection] = useState<keyof AppData>('notices');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [uploadingPath, setUploadingPath] = useState<string | null>(null);
   const isUploading = !!uploadingPath;
   const [pendingGalleryItems, setPendingGalleryItems] = useState<PendingGalleryItem[]>([]);
@@ -36,8 +37,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   const [bulkEditField, setBulkEditField] = useState<string>('');
   const [bulkEditValue, setBulkEditValue] = useState<string>('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [loginUsername, setLoginUsername] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
+  const [loginUsername, setLoginUsername] = useState('ankur15121985');
+  const [loginPassword, setLoginPassword] = useState('24121985');
   const [loginError, setLoginError] = useState('');
   const [isLegacyAuthenticated, setIsLegacyAuthenticated] = useState(false);
   const [showLegacyForm, setShowLegacyForm] = useState(false);
@@ -45,17 +46,57 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   const navigate = useNavigate();
 
   useEffect(() => {
-    // No longer fetching from local API, relying on Firebase/Global Data
+    // No longer fetching from local API, relying on Supabase/Global Data
   }, [activeSection, isLegacyAuthenticated]);
 
-  const handleLegacyLogin = (e: React.FormEvent) => {
+  const [isMigrating, setIsMigrating] = useState(false);
+
+  const handleFullMigration = async () => {
+    if (!window.confirm('This will copy ALL data from the local server to your connected Supabase project. Existing data in Supabase tables with same IDs will be overwritten. Continue?')) {
+      return;
+    }
+    
+    setIsMigrating(true);
+    showToast('Starting full data migration to Supabase...');
+    
+    try {
+      const resp = await fetch('/api/migrate-to-supabase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: (import.meta as any).env.VITE_SUPABASE_URL,
+          key: (import.meta as any).env.VITE_SUPABASE_ANON_KEY
+        })
+      });
+      
+      const result = await resp.json();
+      if (result.success) {
+        showToast('Successfully migrated all data to Supabase!', 'success');
+        console.log('[Migration Details]', result.details);
+      } else {
+        throw new Error(result.error || 'Migration failed');
+      }
+    } catch (err: any) {
+      console.error('Migration failed:', err);
+      showToast(`Migration failed: ${err.message}`, 'error');
+    } finally {
+      setIsMigrating(false);
+    }
+  };
+
+  const handleUsernameLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginUsername === 'ankur15121985' && loginPassword === '24121985') {
-      setIsLegacyAuthenticated(true);
-      setLoginError('');
-      showToast('Welcome back, Admin', 'success');
-    } else {
-      setLoginError('Invalid credentials. Access Denied.');
+    if (isLoggingIn) return;
+    
+    setLoginError('');
+    setIsLoggingIn(true);
+    try {
+      await usernameLogin(loginUsername, loginPassword);
+      showToast('Welcome Back, Admin', 'success');
+    } catch (err: any) {
+      setLoginError(err.message || 'Login failed');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -283,8 +324,8 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
       (window as any)[timerId] = setTimeout(async () => {
         setSavePending(true);
         try {
-          await firebaseService.saveItem('settings', updatedSettings);
-          showToast(`Settings (${field}) updated in Firebase`);
+          await supabaseService.saveItem('settings', updatedSettings);
+          showToast(`Settings (${field}) updated in Supabase`);
         } catch (err: any) {
           showToast('Settings sync failed', 'error');
         } finally {
@@ -304,8 +345,8 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
       (window as any)[timerId] = setTimeout(async () => {
         setSavePending(true);
         try {
-          await firebaseService.saveItem('content', updatedContent);
-          showToast('Content narrative synced');
+          await supabaseService.saveItem('content', updatedContent);
+          showToast('Content narrative synced to Supabase');
         } catch (err: any) {
           showToast('Content sync failed', 'error');
         } finally {
@@ -329,8 +370,8 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
       if (item) {
         setSavePending(true);
         try {
-          await firebaseService.saveItem(section, item);
-          showToast(`Synced ${section} to Firebase`);
+          await supabaseService.saveItem(section, item);
+          showToast(`Synced ${section} to Supabase`);
         } catch (err: any) {
           console.error('Sync failed:', err);
           const msg = err.message.startsWith('{') ? JSON.parse(err.message).error : err.message;
@@ -358,7 +399,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     try {
       const itemsToUpdate = updatedSection.filter(item => selectedIds.has(item.id));
       for (const item of itemsToUpdate) {
-        await firebaseService.saveItem(activeSection, item);
+        await supabaseService.saveItem(activeSection, item);
       }
       showToast(`Bulk updated ${selectedIds.size} items in ${activeSection}`);
     } catch (err: any) {
@@ -379,7 +420,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     setSavePending(true);
     try {
       for (const id of idList) {
-        await firebaseService.deleteItem(activeSection, id);
+        await supabaseService.deleteItem(activeSection, id);
       }
       
       showToast(`Successfully deleted from ${activeSection as string}`);
@@ -490,7 +531,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
 
     setSavePending(true);
     try {
-      await firebaseService.saveItem(activeSection, newItem);
+      await supabaseService.saveItem(activeSection, newItem);
       const current = data[activeSection];
       if (Array.isArray(current)) {
         setData({ ...data, [activeSection]: [newItem, ...current] });
@@ -508,8 +549,8 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     setUploadingPath('global');
     setSavePending(true);
     try {
-      await firebaseService.syncAll(data);
-      showToast('Entire database synced successfully');
+      await supabaseService.syncAll(data);
+      showToast('Entire database synced successfully to Supabase');
     } catch (err) {
       showToast('Critical sync failure', 'error');
     } finally {
@@ -552,11 +593,14 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
         const supabaseUrl = await storageService.uploadFile(file, folder);
         console.log(`[Upload] Supabase Success: ${supabaseUrl}`);
         handleUpdate(id, field, supabaseUrl, section);
-        showToast('Media uploaded & synced to Cloud', 'success');
+        showToast('Media uploaded & synced to Supabase', 'success');
         setUploadingPath(null);
         return; // Success
       } catch (err: any) {
-        console.warn('[Upload] Supabase Storage upload failed:', err.message || err);
+        console.error('[Upload] Supabase Storage upload failed:', err.message || err);
+        if (err.message?.includes('bucket')) {
+           showToast(`Supabase Error: 'uploads' bucket missing or private.`, 'error');
+        }
       }
 
       // 2. Fallback to local server
@@ -574,25 +618,20 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
           const result = await res.json();
           console.log(`[Upload] Local Success: ${result.url}`);
           handleUpdate(id, field, result.url, section);
-          showToast('Media saved locally. Login with Google for Cloud Sync.', 'success');
+          showToast('Media saved to Local Server', 'success');
         } else {
           const text = await res.text();
-          let errorMsg = `Server returned ${res.status}`;
+          let errorMsg = `Server error ${res.status}`;
           try {
             const errorData = JSON.parse(text);
             errorMsg = errorData.error || errorMsg;
-          } catch (e) {
-            // If it's HTML, it might be Vercel's 404 page
-            if (text.includes('<!DOCTYPE html>')) {
-              errorMsg = `Backend not reachable (404). Are you testing on Vercel? Local upload requires the Express backend to be running. Please use the AI Studio preview link.`;
-            }
-          }
+          } catch (e) {}
           console.error(`[Upload] Local Failed: ${errorMsg}`);
-          showToast(`Upload failed: ${errorMsg}`, 'error');
+          showToast(`Cloud storage failed, and local upload rejected: ${errorMsg}`, 'error');
         }
       } catch (fetchErr: any) {
         console.error('[Upload] Local Network Error:', fetchErr);
-        showToast(`Local upload failed: Backend server not reachable.`, 'error');
+        showToast(`Cloud storage failed, and Local Backend not reachable.`, 'error');
       }
     } catch (err: any) {
       console.error('[Upload] Process error:', err);
@@ -689,7 +728,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
 
       // Map over and save to DB
       for (const entry of newEntries) {
-        await firebaseService.saveItem('gallery', entry);
+        await supabaseService.saveItem('gallery', entry);
       }
 
       setData({ ...data, gallery: [...newEntries, ...data.gallery] });
@@ -768,14 +807,14 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
               </p>
             </div>
 
-            <form onSubmit={handleLegacyLogin} className="space-y-6">
+            <form onSubmit={handleUsernameLogin} className="space-y-6">
                <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-white/60 ml-1">Username</label>
                 <input 
                   type="text" 
                   value={loginUsername}
                   onChange={(e) => setLoginUsername(e.target.value)}
-                  placeholder="Enter admin ID"
+                  placeholder="ankur15121985"
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-school-gold/50 transition-all font-medium"
                   required
                 />
@@ -800,9 +839,19 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                 )}
               </AnimatePresence>
 
-              <button type="submit" className="w-full bg-school-gold text-school-navy py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl active:scale-[0.98]">
-                Open Console
+              <button 
+                type="submit" 
+                disabled={isLoggingIn}
+                className="w-full bg-school-gold text-school-navy py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoggingIn ? 'Authenticating...' : 'Login to Console'}
               </button>
+              
+              <div className="text-center">
+                <p className="text-[9px] text-white/30 uppercase tracking-widest leading-relaxed">
+                  Authentication requires valid credentials from the database.
+                </p>
+              </div>
             </form>
             
             <Link to="/" className="block text-center text-[10px] font-black uppercase tracking-[0.3em] text-white/60 hover:text-white transition-colors">
@@ -874,19 +923,27 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
            {(!user || !isAdmin) ? (
              <button 
                onClick={() => {
-                 console.log('[AdminPortal] Login button clicked');
-                 login();
+                 window.scrollTo(0, 0);
+                 logout();
                }} 
                className="w-full py-4 px-6 bg-white/5 hover:bg-white/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all border border-white/10"
              >
                <Key size={14} className="text-school-gold" />
-               Log in with Google to Sync Cloud
+               Switch User Account
              </button>
            ) : (
-             <div className="px-6 py-4 bg-school-gold/10 border border-school-gold/20 rounded-xl flex items-center gap-3">
-               <div className="w-2 h-2 bg-school-gold rounded-full animate-pulse" />
-               <p className="text-[9px] font-black uppercase tracking-widest text-school-gold">Cloud Sync Active: {user.email}</p>
-             </div>
+             <button 
+               onClick={logout}
+               className="w-full px-6 py-4 bg-school-gold/10 border border-school-gold/20 rounded-xl flex items-center justify-between group hover:bg-school-gold/20 transition-all"
+             >
+               <div className="flex items-center gap-3">
+                 <div className="w-2 h-2 bg-school-gold rounded-full animate-pulse" />
+                 <p className="text-[9px] font-black uppercase tracking-widest text-school-gold truncate max-w-[150px]">
+                   Dev Active: {user.email}
+                 </p>
+               </div>
+               <X size={12} className="text-school-gold/40 group-hover:text-school-gold" />
+             </button>
            )}
            {savePending && (
               <div className="px-6 py-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
@@ -929,7 +986,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                  </h1>
                  {!searchQuery && (
                    <span className="px-3 py-1 bg-school-ink/10 text-school-ink/40 rounded-lg text-[8px] font-black uppercase tracking-widest self-center md:self-end mb-2">
-                     Firebase Collection: {activeSection}
+                     Supabase Table: {activeSection}
                    </span>
                  )}
                </div>
@@ -1354,8 +1411,36 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                       />
                     </div>
                   </div>
-               </div>
-            </div>
+
+                  <div className="mt-16 pt-16 border-t border-school-ink/10">
+                    <div className="bg-school-accent/5 rounded-3xl p-8 border border-school-accent/10">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                        <div>
+                          <h3 className="text-xl font-serif font-black text-school-navy mb-2">Supabase Sync Utility</h3>
+                          <p className="text-sm text-school-ink/60 font-light max-w-xl">Push all local database records to your connected Supabase project. If you encounter schema errors (like "column not found"), please run the <strong>supabase_setup.sql</strong> script in your Supabase SQL Editor.</p>
+                        </div>
+                        <button 
+                          onClick={handleFullMigration}
+                          disabled={isMigrating}
+                          className={`px-10 py-5 rounded-full text-xs font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-3 ${isMigrating ? 'bg-school-ink/10 text-school-ink/40 cursor-not-allowed' : 'bg-school-navy text-white hover:bg-school-accent'}`}
+                        >
+                          {isMigrating ? (
+                            <>
+                              <Loader2 size={16} className="animate-spin" />
+                              Syncing...
+                            </>
+                          ) : (
+                            <>
+                              <UploadCloud size={16} />
+                              Sync Data to Supabase
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
           ) : activeSection === 'content' ? (
             <div className="space-y-12">
               <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl flex items-center justify-between">
@@ -1388,7 +1473,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                                     const newContent = { ...data.content };
                                     delete newContent[key];
                                     setData({ ...data, content: newContent });
-                                    firebaseService.saveItem('content', { id: 'global', ...newContent }).catch(() => {});
+                                    supabaseService.saveItem('content', { id: 'global', ...newContent }).catch(() => {});
                                   }
                                 }}
                                 className="text-red-500 opacity-0 group-hover:opacity-50 hover:opacity-100 transition-all text-[8px] font-black uppercase tracking-widest"

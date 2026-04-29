@@ -1011,12 +1011,24 @@ app.post('/api/migrate-to-supabase', async (req, res) => {
       // Special handling for content which is a key-value row in Supabase but a single row column-based in SQLite
       if (table === 'settings') {
         const { data: upsertData, error } = await supabaseServer.from(table).upsert(sanitizedData);
-        if (error) throw new Error(`Supabase Error ${table}: ${error.message}`);
+        if (error) {
+          let msg = `Supabase Error ${table}: ${error.message}`;
+          if (error.message.toLowerCase().includes('uuid')) {
+            msg += ". Please run Section 3 of 'supabase_setup.sql' in your Supabase SQL Editor.";
+          }
+          throw new Error(msg);
+        }
         results[table] = `Upserted ${data.length} rows`;
       } else {
         // Bulk upsert
         const { data: upsertData, error } = await supabaseServer.from(table).upsert(sanitizedData);
-        if (error) throw new Error(`Supabase Error ${table}: ${error.message}`);
+        if (error) {
+          let msg = `Supabase Error ${table}: ${error.message}`;
+          if (error.message.toLowerCase().includes('uuid')) {
+            msg += ". Please run Section 3 of 'supabase_setup.sql' in your Supabase SQL Editor.";
+          }
+          throw new Error(msg);
+        }
         results[table] = `Upserted ${data.length} rows`;
       }
     }

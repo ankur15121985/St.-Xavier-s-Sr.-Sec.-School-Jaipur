@@ -13,8 +13,8 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { AppData } from './types';
 import { HelmetProvider } from 'react-helmet-async';
-import { FirebaseProvider, useFirebase } from './components/FirebaseProvider';
-import { firebaseService } from './lib/firebaseService';
+import { SupabaseProvider, useSupabase } from './components/SupabaseProvider';
+import { supabaseService } from './lib/supabaseService';
 
 // Page Imports
 import HomePage from './pages/HomePage';
@@ -367,14 +367,14 @@ const DEFAULT_DATA: AppData = {
 };
 
 const DataLoader = ({ children, data, setData, loading, setLoading }: { children: React.ReactNode, data: AppData, setData: (d: AppData) => void, loading: boolean, setLoading: (l: boolean) => void }) => {
-  const { isAdmin, loading: authLoading } = useFirebase();
+  const { isAdmin, loading: authLoading } = useSupabase();
 
   useEffect(() => {
     if (authLoading) return;
 
     const fetchDataAndSeed = async () => {
       try {
-        const fetchedData = await firebaseService.fetchAllData();
+        const fetchedData = await supabaseService.fetchAllData();
         
         let hasData = false;
         if (fetchedData) {
@@ -433,9 +433,9 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
             
             if (missing.length > 0 && isAdmin) {
               for (const item of missing) {
-                await firebaseService.saveItem('menu', item);
+                await supabaseService.saveItem('menu', item);
               }
-              const refresh = await firebaseService.fetchAllData();
+              const refresh = await supabaseService.fetchAllData();
               const latest = { ...DEFAULT_DATA };
               if (refresh) {
                 Object.keys(refresh).forEach(k => {
@@ -458,11 +458,11 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
             setData(merged);
           }
         } else if (isAdmin) {
-          console.log('Fresh Firestore/Supabase detected and user is admin. Starting seeding in background...');
+          console.log('Fresh Supabase detected and user is admin. Starting seeding in background...');
           // Seed in background but don't block the UI
-          firebaseService.syncAll(DEFAULT_DATA).then(async () => {
+          supabaseService.syncAll(DEFAULT_DATA).then(async () => {
              console.log('[Seeding] Initial seed completed');
-             const finalData = await firebaseService.fetchAllData();
+             const finalData = await supabaseService.fetchAllData();
              if (finalData) setData({ ...DEFAULT_DATA, ...finalData } as AppData);
           }).catch(e => console.error('[Seeding] Error:', e));
           
@@ -518,7 +518,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   return (
-    <FirebaseProvider>
+    <SupabaseProvider>
       <DataLoader data={data} setData={setData} loading={loading} setLoading={setLoading}>
         <HelmetProvider>
           <Router>
@@ -554,6 +554,6 @@ export default function App() {
           </Router>
         </HelmetProvider>
       </DataLoader>
-    </FirebaseProvider>
+    </SupabaseProvider>
   );
 }

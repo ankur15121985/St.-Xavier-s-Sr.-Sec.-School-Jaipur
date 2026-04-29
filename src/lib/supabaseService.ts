@@ -1,7 +1,7 @@
 import { AppData } from '../types';
 import { supabase } from '../supabaseClient';
 
-export const firebaseService = {
+export const supabaseService = {
   async fetchAllData(): Promise<Partial<AppData>> {
     try {
       const collections: (keyof AppData)[] = [
@@ -17,13 +17,13 @@ export const firebaseService = {
             const { data, error } = await supabase.from(colName).select('*');
             if (error) {
               console.warn(`[Supabase] Table ${colName} missing or inaccessible:`, error.message);
-              results[colName] = [];
+              (results as any)[colName] = [];
             } else {
-              results[colName] = data as any;
+              (results as any)[colName] = data as any;
             }
           } catch (e) {
             console.error(`[Supabase] Fatal error fetching ${colName}:`, e);
-            results[colName] = [];
+            (results as any)[colName] = [];
           }
         }),
         // Settings (single row)
@@ -98,13 +98,23 @@ export const firebaseService = {
           if (section === 'settings' && 'applyNowEnabled' in sanitized) sanitized.applyNowEnabled = !!sanitized.applyNowEnabled;
           if (section === 'settings' && 'popupEnabled' in sanitized) sanitized.popupEnabled = !!sanitized.popupEnabled;
           
+          console.log(`[Supabase Upsert] Table: ${section}, ID: ${item.id}`);
           const { error } = await supabase.from(section).upsert(sanitized);
-          if (error) throw error;
+          if (error) {
+            console.error(`[Supabase Sync Failure] Table: ${section}, Error: ${error.message}, Code: ${error.code}`);
+            let userMessage = `Supabase Table '${section}' error: ${error.message}`;
+            if (error.message.toLowerCase().includes('column') || error.message.toLowerCase().includes('schema cache')) {
+              userMessage += ". Please run 'supabase_setup.sql' in your Supabase SQL Editor to fix your database schema.";
+            } else if (error.message.toLowerCase().includes('uuid')) {
+              userMessage += ". Your IDs are incompatible with the database (UUID vs TEXT). Please copy and run Section 3 of 'supabase_setup.sql' in your Supabase SQL Editor.";
+            }
+            throw new Error(userMessage);
+          }
+          console.log(`[Supabase Sync Success] ${section}/${item.id || 'new'}`);
         }
-        console.log(`[Supabase Sync Success] ${section}/${item.id || 'new'}`);
       } catch (err: any) {
-        console.warn(`[Supabase Sync Failure] ${section}:`, err.message || err);
-        // We continue to local fallback
+        console.warn(`[Supabase Service Error] ${section}:`, err.message || err);
+        throw err; // Re-throw to inform UI
       }
 
       // Secondary: Save to local server (fallback/legacy)
