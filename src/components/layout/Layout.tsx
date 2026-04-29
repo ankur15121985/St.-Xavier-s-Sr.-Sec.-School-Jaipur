@@ -69,7 +69,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           const subLinks = buildTree(m.id);
           return {
             id: m.id,
-            label: m.label,
+            label: m.label.toUpperCase(),
             href: m.attachmentUrl || m.href,
             subLinks: subLinks.length > 0 ? subLinks : undefined
           };
@@ -139,8 +139,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                     />
                   </div>
                   <div className="flex flex-col justify-center">
-                    <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight whitespace-nowrap transition-all duration-500 ${isScrolled ? 'text-lg md:text-xl' : 'text-2xl md:text-[42px]'}`}>
-                      St. Xavier's Sr. Sec. School
+                    <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight whitespace-nowrap transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-2xl md:text-[42px]'}`}>
+                      ST. XAVIER'S SR. SEC. SCHOOL
                     </h1>
                     {!isScrolled && (
                       <p className="text-[13px] md:text-[17px] font-sans font-medium text-[#333] dark:text-slate-400 mt-1 leading-tight whitespace-nowrap">
@@ -186,7 +186,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                           <button 
                             className={`px-5 py-4 text-[12px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all border-b-2 border-transparent hover:text-school-accent ${activeDropdown === l.label ? 'text-school-accent border-school-accent bg-slate-50 dark:bg-slate-800' : 'text-school-navy dark:text-white'}`}
                           >
-                            {l.label}
+                            {l.label.toUpperCase()}
                             <ArrowDown size={10} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180' : 'opacity-40'}`} />
                           </button>
                           <AnimatePresence>
@@ -197,7 +197,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                                 exit={{ opacity: 0, y: 5 }}
                                 className="absolute top-full left-0 w-64 pt-0 z-[120] shadow-2xl"
                               >
-                                <div className="bg-white dark:bg-slate-900 border border-black/5 p-2 rounded-b-xl overflow-hidden shadow-2xl">
+                                <div className="bg-white dark:bg-slate-900 border border-black/5 p-2 rounded-b-xl shadow-2xl">
                                   {l.subLinks.map(sl => (
                                     <DropdownItem key={sl.id} sl={sl} onSelect={() => setActiveDropdown(null)} />
                                   ))}
@@ -211,7 +211,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                           to={l.href}
                           className={`px-5 py-4 text-[12px] font-bold uppercase tracking-wider transition-all border-b-2 border-transparent hover:text-school-accent ${location.pathname === l.href ? 'text-school-accent border-school-accent' : 'text-school-navy dark:text-white'}`}
                         >
-                          {l.label}
+                          {l.label.toUpperCase()}
                         </Link>
                       )}
                     </div>
@@ -231,12 +231,12 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           <div className="bg-slate-50 dark:bg-slate-900 border-b border-black/5 py-4">
              <div className="max-w-[1440px] mx-auto px-4 lg:px-8">
                 <nav className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                   <Link to="/" className="hover:text-school-accent transition-colors">Home</Link>
+                   <Link to="/" className="hover:text-school-accent transition-colors">HOME</Link>
                    {location.pathname.split('/').filter(x => x).map((path, i, arr) => (
                       <React.Fragment key={path}>
                          <ChevronRight size={10} className="text-slate-300" />
                          <span className={i === arr.length - 1 ? "text-school-navy dark:text-white" : "hover:text-school-accent transition-colors"}>
-                            {path.replace(/-/g, ' ')}
+                            {path.replace(/-/g, ' ').toUpperCase()}
                          </span>
                       </React.Fragment>
                    ))}
@@ -260,8 +260,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   />
                 </Link>
                 <div className="flex flex-col">
-                  <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight whitespace-nowrap transition-all duration-500 ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-[32px]'}`}>
-                    St. Xavier's Sr. Sec. School
+                  <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight whitespace-nowrap transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-[32px]'}`}>
+                    ST. XAVIER'S SR. SEC. SCHOOL
                   </span>
                   {!isScrolled && (
                     <span className="text-[10px] md:text-[14px] font-sans font-medium text-slate-500 dark:text-slate-400 leading-tight whitespace-nowrap mt-1">
@@ -311,7 +311,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                         <button 
                           className={`py-4 text-[13px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent ${activeDropdown === l.label ? 'text-school-accent border-school-accent' : ''}`}
                         >
-                          {l.label}
+                          {l.label.toUpperCase()}
                           <ArrowDown size={10} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180' : 'opacity-40'}`} />
                         </button>
                         <AnimatePresence>
@@ -322,7 +322,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                               exit={{ opacity: 0, y: 5 }}
                               className="absolute top-full left-0 pt-0 w-64 z-[110]"
                             >
-                              <div className="bg-white dark:bg-slate-900 rounded-b-2xl shadow-2xl border border-black/5 p-2 overflow-hidden mt-0">
+                              <div className="bg-white dark:bg-slate-900 rounded-b-2xl shadow-2xl border border-black/5 p-2 mt-0">
                                 <div className="grid gap-1">
                                   {l.subLinks.map(sl => (
                                     <DropdownItem key={sl.id} sl={sl} onSelect={() => setActiveDropdown(null)} />
@@ -338,7 +338,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                         to={l.href}
                         className={`py-4 text-[13px] font-black uppercase tracking-wider transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent ${location.pathname === l.href ? 'text-school-accent border-school-accent' : ''}`}
                       >
-                        {l.label}
+                        {l.label.toUpperCase()}
                       </Link>
                     )}
                   </div>
@@ -428,7 +428,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   {navLinks.map(l => (
                     <li key={l.id}>
                       <Link to={l.href} className="text-white/40 hover:text-white transition-colors">
-                        {l.label}
+                        {l.label.toUpperCase()}
                       </Link>
                     </li>
                   ))}
@@ -513,17 +513,17 @@ const ChatBubble = () => {
               </p>
               <div className="grid gap-3">
                 <Link to="/contact" onClick={() => setIsOpen(false)} className="flex items-center justify-between p-4 bg-school-ink/5 dark:bg-school-paper/5 rounded-2xl hover:bg-school-neon dark:hover:bg-school-neon dark:hover:text-school-ink transition-all group">
-                   <span className="text-xs font-black uppercase text-school-navy dark:text-white group-hover:text-school-navy">Ask a Question</span>
+                   <span className="text-xs font-black uppercase text-school-navy dark:text-white group-hover:text-school-navy">ASK A QUESTION</span>
                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link to="/notice-board" onClick={() => setIsOpen(false)} className="flex items-center justify-between p-4 bg-school-ink/5 dark:bg-school-paper/5 rounded-2xl hover:bg-school-neon dark:hover:bg-school-neon dark:hover:text-school-ink transition-all group">
-                   <span className="text-xs font-black uppercase text-school-navy dark:text-white group-hover:text-school-navy">Recent Notices</span>
+                   <span className="text-xs font-black uppercase text-school-navy dark:text-white group-hover:text-school-navy">RECENT NOTICES</span>
                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </div>
             <div className="p-6 bg-school-ink/5 dark:bg-school-paper/5 text-center">
-               <button onClick={() => setIsOpen(false)} className="text-[10px] font-black uppercase tracking-widest text-school-ink/20 dark:text-school-paper/20 hover:text-school-accent transition-colors">Close Assistant</button>
+               <button onClick={() => setIsOpen(false)} className="text-[10px] font-black uppercase tracking-widest text-school-ink/20 dark:text-school-paper/20 hover:text-school-accent transition-colors">CLOSE ASSISTANT</button>
             </div>
           </motion.div>
         )}
@@ -550,7 +550,7 @@ const MobileNavLink = ({ link, onClose, depth = 0, isDark }: { link: NavLink; on
           onClick={() => setIsOpen(!isOpen)}
           className={`flex items-center justify-between w-full group ${depth === 0 ? 'text-[11px] font-black uppercase text-school-accent tracking-[0.2em]' : 'text-xl font-bold text-school-ink dark:text-white'}`}
         >
-          {link.label}
+          {link.label.toUpperCase()}
           {link.subLinks && (depth === 0 ? (isOpen ? <ArrowDown size={14} /> : <ChevronRight size={14} />) : (isOpen ? <ArrowDown size={18} /> : <ChevronRight size={18} />))}
         </button>
         <AnimatePresence>
@@ -575,17 +575,17 @@ const MobileNavLink = ({ link, onClose, depth = 0, isDark }: { link: NavLink; on
     <Link 
       to={link.href} 
       onClick={onClose} 
-      className="text-2xl font-black text-school-ink dark:text-white hover:text-school-accent transition-colors"
+      className="text-2xl font-black text-school-ink dark:text-white hover:text-school-accent transition-colors uppercase"
     >
-      {link.label}
+      {link.label.toUpperCase()}
     </Link>
   ) : (
-                <Link 
-                  to={link.href} 
-                  onClick={onClose} 
-                  className="text-xl font-bold text-school-ink hover:text-school-accent transition-colors flex items-center justify-between group"
-                >
-      {link.label}
+    <Link 
+      to={link.href} 
+      onClick={onClose} 
+      className="text-xl font-bold text-school-ink hover:text-school-accent transition-colors flex items-center justify-between group uppercase"
+    >
+      {link.label.toUpperCase()}
       <ArrowRight size={20} className="opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all text-school-accent" />
     </Link>
   );
@@ -608,10 +608,10 @@ const DropdownItem = ({ sl, onSelect }: { sl: NavLink; onSelect: () => void }) =
               onClick={onSelect}
               className="text-[10px] font-black text-school-accent uppercase tracking-widest block hover:opacity-70 transition-opacity"
             >
-              {sl.label}
+              {sl.label.toUpperCase()}
             </Link>
           ) : (
-            <p className="text-[10px] font-black text-school-accent uppercase tracking-widest">{sl.label}</p>
+            <p className="text-[10px] font-black text-school-accent uppercase tracking-widest">{sl.label.toUpperCase()}</p>
           )}
           <ChevronRight size={10} className="text-school-accent opacity-40 group-hover/subItem:opacity-100 transition-all" />
         </div>
@@ -622,7 +622,7 @@ const DropdownItem = ({ sl, onSelect }: { sl: NavLink; onSelect: () => void }) =
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 }}
-              className="absolute top-0 left-full w-64 pl-1"
+              className="absolute top-0 left-full w-64 pl-1 z-[130]"
             >
               <div className="bg-white dark:bg-slate-900 border border-black/5 p-2 rounded-xl shadow-2xl">
                 {sl.subLinks.map(nsl => (
@@ -630,9 +630,9 @@ const DropdownItem = ({ sl, onSelect }: { sl: NavLink; onSelect: () => void }) =
                     key={nsl.id}
                     to={nsl.href}
                     onClick={onSelect}
-                    className="block px-3 py-2 text-xs font-bold text-slate-500 hover:text-school-navy hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all"
+                    className="block px-3 py-2 text-xs font-bold text-slate-500 hover:text-school-navy hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all uppercase"
                   >
-                    {nsl.label}
+                    {nsl.label.toUpperCase()}
                   </Link>
                 ))}
               </div>
@@ -647,9 +647,9 @@ const DropdownItem = ({ sl, onSelect }: { sl: NavLink; onSelect: () => void }) =
     <Link 
       to={sl.href}
       onClick={onSelect}
-      className="block px-4 py-3 text-xs font-bold text-slate-500 hover:text-school-navy hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all"
+      className="block px-4 py-3 text-xs font-bold text-slate-500 hover:text-school-navy hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all uppercase"
     >
-      {sl.label}
+      {sl.label.toUpperCase()}
     </Link>
   );
 };

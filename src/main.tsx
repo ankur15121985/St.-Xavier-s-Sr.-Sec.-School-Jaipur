@@ -1,25 +1,20 @@
 import { StrictMode } from 'react';
-import { createRoot, Root } from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
 const container = document.getElementById('root');
 if (!container) throw new Error('Failed to find root element');
 
-// Robust React 18+ Root Management
-// We store the 'root' object on the container and window to ensure we only call createRoot once.
-const ROOT_KEY = '__REACT_ROOT__';
-let root: Root;
-
-const existingRoot = (window as any)[ROOT_KEY] || (container as any)[ROOT_KEY];
-
-if (existingRoot && typeof existingRoot.render === 'function') {
-  root = existingRoot;
-} else {
-  root = createRoot(container);
-  (window as any)[ROOT_KEY] = root;
-  (container as any)[ROOT_KEY] = root;
+// Robust React 18/19 Root Management
+// We store the root on the window to ensure we only call createRoot once,
+// which prevents the "calling createRoot on a container that has already 
+// been passed to createRoot before" warning.
+if (!(window as any)._reactRoot) {
+  (window as any)._reactRoot = createRoot(container);
 }
+
+const root = (window as any)._reactRoot;
 
 root.render(
   <StrictMode>

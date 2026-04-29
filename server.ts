@@ -595,19 +595,25 @@ syncFeesIfNeeded();
 // Aggressive Menu Cleanup
 const cleanMenu = () => {
     try {
-        db.prepare("DELETE FROM menu WHERE label LIKE 'Other %' AND href LIKE '%school-info%'").run();
+        // Force all existing menu items to uppercase labels
+        db.prepare("UPDATE menu SET label = UPPER(label)").run();
+        
+        // Remove "Other Association & Committee" from Admission (parent '3') if it exists
+        db.prepare("DELETE FROM menu WHERE label LIKE 'OTHER ASSOCIATION%' AND parent_id = '3'").run();
+        
+        db.prepare("DELETE FROM menu WHERE label LIKE 'OTHER %' AND href LIKE '%school-info%'").run();
         
         // Update TC link if it exists
-        db.prepare("UPDATE menu SET href = '/transfer-certificate' WHERE label = 'Transfer Certificate'").run();
+        db.prepare("UPDATE menu SET href = '/transfer-certificate' WHERE label = 'TRANSFER CERTIFICATE' OR label = 'Transfer Certificate'").run();
 
         // Forced re-alignment for Association Menu to About Us
         const associations = [
-            { id: '2-6', label: 'Other Association & Committee', href: '#', parent_id: '2', order_index: 5 },
-            { id: '2-6-1', label: 'Internal Complaints Committee (POSH)', href: '#', parent_id: '2-6', order_index: 0 },
-            { id: '2-6-2', label: 'Internal Grievance Cell', href: '#', parent_id: '2-6', order_index: 1 },
-            { id: '2-6-3', label: 'POCSO Committee', href: '#', parent_id: '2-6', order_index: 2 },
-            { id: '2-6-4', label: 'School Level Fee Committee (SLFC)', href: '#', parent_id: '2-6', order_index: 3 },
-            { id: '2-6-5', label: 'Parent Teacher Association (PTA)', href: '#', parent_id: '2-6', order_index: 4 },
+            { id: '2-6', label: 'OTHER ASSOCIATION & COMMITTEE', href: '#', parent_id: '2', order_index: 5 },
+            { id: '2-6-1', label: 'INTERNAL COMPLAINTS COMMITTEE (POSH)', href: '#', parent_id: '2-6', order_index: 0 },
+            { id: '2-6-2', label: 'INTERNAL GRIEVANCE CELL', href: '#', parent_id: '2-6', order_index: 1 },
+            { id: '2-6-3', label: 'POCSO COMMITTEE', href: '#', parent_id: '2-6', order_index: 2 },
+            { id: '2-6-4', label: 'SCHOOL LEVEL FEE COMMITTEE (SLFC)', href: '#', parent_id: '2-6', order_index: 3 },
+            { id: '2-6-5', label: 'PARENT TEACHER ASSOCIATION (PTA)', href: '#', parent_id: '2-6', order_index: 4 },
         ];
 
         associations.forEach(item => {
