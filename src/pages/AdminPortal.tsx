@@ -70,11 +70,15 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       });
       
       const text = await resp.text();
+      if (!resp.ok) {
+        throw new Error(`HTTP ${resp.status}: ${text.slice(0, 100)}`);
+      }
+      
       let result;
       try {
         result = JSON.parse(text);
       } catch (e) {
-        throw new Error(`Server returned non-JSON response: ${text.slice(0, 100)}...`);
+        throw new Error(`Invalid JSON response (Is the server running?): ${text.slice(0, 100)}...`);
       }
 
       if (resp.ok && result.success) {

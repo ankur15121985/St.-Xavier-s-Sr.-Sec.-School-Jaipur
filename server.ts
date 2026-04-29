@@ -14,6 +14,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
+// GLOBAL LOGGER
+app.use((req, res, next) => {
+  console.log(`[SYS] ${req.method} ${req.url} - IP: ${req.ip}`);
+  next();
+});
+
 // Basic Middleware
 app.use(cors());
 app.use(express.json());
@@ -26,10 +32,24 @@ app.use((req, res, next) => {
   next();
 });
 
+// Setup Database
+const dbPath = path.join(__dirname, 'database.sqlite');
+const db = new Database(dbPath);
+
 // Diagnostic Ping
 app.get('/api/ping', (req, res) => res.json({ pong: true, time: new Date().toISOString() }));
 
-app.post('/api/migrate-to-supabase', async (req, res) => {
+app.get('/api/routes', (req, res) => {
+  const routes = app._router.stack
+    .filter((r: any) => r.route)
+    .map((r: any) => ({
+      path: r.route.path,
+      methods: r.route.methods
+    }));
+  res.json(routes);
+});
+
+app.post(['/api/migrate-to-supabase', '/api/migrate-to-supabase/'], async (req, res) => {
   const { url, key } = req.body;
   console.log(`[MIGRATION INITIATED] Supabase Target: ${url}`);
   
@@ -165,8 +185,6 @@ app.use('/uploads', express.static(uploadDir));
 app.use('/public/uploads', express.static(uploadDir));
 
 // Setup Database
-const dbPath = path.join(__dirname, 'database.sqlite');
-const db = new Database(dbPath);
 
 // Create tables
 db.exec(`
