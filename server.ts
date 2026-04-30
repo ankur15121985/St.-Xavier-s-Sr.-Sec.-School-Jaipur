@@ -56,27 +56,26 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 } // 50MB
 });
 
-// Upload Route (Defined VERY EARLY and handles both trailing slash and not)
-app.post(['/api/upload', '/api/upload/'], (req, res) => {
+// 1. UPLOAD ROUTE (NO ARRAY - SEPARATE DEFINITIONS FOR MAX COMPAT)
+app.post('/api/upload', (req, res) => {
   const section = req.query.section || req.body.section || 'misc';
-  console.log(`[UPLOAD REQUEST] Starting for section: ${section}`);
+  console.log(`[UPLOAD] POST /api/upload - Target Section: ${section}`);
   
   upload.single('file')(req, res, (err) => {
     if (err) {
-      console.error(`[UPLOAD ERROR] Multer error:`, err);
+      console.error(`[UPLOAD] Multer error:`, err);
       return res.status(400).json({ error: `Upload Failed: ${err.message}` });
     }
     if (!req.file) {
-      console.warn(`[UPLOAD WARNING] No file attached to 'file' field`);
-      return res.status(400).json({ error: 'No file uploaded (use "file" field)' });
+      console.warn(`[UPLOAD] No file field found in request body`);
+      return res.status(400).json({ error: 'No file uploaded (ensure field name is "file")' });
     }
     
-    // Ensure section subdirectory exists
     const sectionDir = path.join(uploadDir, String(section));
     if (!fs.existsSync(sectionDir)) fs.mkdirSync(sectionDir, { recursive: true });
 
     const relativePath = section !== 'misc' ? `${section}/${req.file.filename}` : req.file.filename;
-    console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename} in ${section}`);
+    console.log(`[UPLOAD] Success: ${req.file.filename} -> ${section}`);
     
     res.json({ 
       success: true,
@@ -84,6 +83,33 @@ app.post(['/api/upload', '/api/upload/'], (req, res) => {
       filename: req.file.filename,
       path: relativePath
     });
+  });
+});
+
+app.post('/api/upload/', (req, res) => {
+  // Redirect trailing slash to non-trailing slash version
+  res.redirect(307, '/api/upload' + (req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''));
+});
+
+// 2. CONNECTIVITY & ROUTE DIAGNOSTICS
+app.get('/api/connectivity-test', (req, res) => {
+  const uploadDirExists = fs.existsSync(uploadDir);
+  const writable = (() => {
+    try {
+      const testFile = path.join(uploadDir, '.write-test');
+      fs.writeFileSync(testFile, 'test');
+      fs.unlinkSync(testFile);
+      return true;
+    } catch { return false; }
+  })();
+
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uploadDir: uploadDir,
+    exists: uploadDirExists,
+    writable: writable,
+    serverMode: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -250,9 +276,19 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS carousel (
     id TEXT PRIMARY KEY,
     url TEXT NOT NULL,
-    caption TEXT NOT NULL
+    caption TEXT NOT NULL,
+    session TEXT,
+    attachmentUrl TEXT
   )
 `);
+
+// Migration for carousel
+try {
+  db.prepare("ALTER TABLE carousel ADD COLUMN session TEXT").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE carousel ADD COLUMN attachmentUrl TEXT").run();
+} catch (e) {}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS faqs (

@@ -46,8 +46,12 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   const navigate = useNavigate();
 
   useEffect(() => {
-    // No longer fetching from local API, relying on Supabase/Global Data
-  }, [activeSection, isLegacyAuthenticated]);
+    // Diagnostic check for API connectivity
+    fetch('/api/connectivity-test')
+      .then(r => r.json())
+      .then(res => console.log('[API DIAGNOSTIC]', res))
+      .catch(err => console.error('[API DIAGNOSTIC] Failed:', err));
+  }, []);
 
   const [isMigrating, setIsMigrating] = useState(false);
 
