@@ -3,166 +3,147 @@
   Run this in your Supabase SQL Editor (https://supabase.com/dashboard/project/_/sql)
 ********************************************************************************/
 
--- 1. CREATE ALL TABLES
--- These matches exactly with the AppData types for seamless sync.
+-- 1. CREATE ALL TABLES (IF NOT EXISTS)
+CREATE TABLE IF NOT EXISTS notices (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS staff (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS gallery (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS carousel (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS fees (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS links (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS events (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS achievements (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS transfer_certificates (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS "studentHonors" (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS menu (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS faqs (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS messages (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS popups (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS settings (id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS content (id TEXT PRIMARY KEY);
 
-CREATE TABLE IF NOT EXISTS notices (
-    id TEXT PRIMARY KEY,
-    title TEXT NOT NULL,
-    content TEXT,
-    date TEXT,
-    category TEXT,
-    link TEXT,
-    "attachmentUrl" TEXT
-);
+-- 2. MIGRATION: ADD ALL COLUMNS TO ALL TABLES
+-- This ensures that even if tables already existed, they get the new columns.
+DO $$ 
+BEGIN 
+    -- Notices
+    BEGIN ALTER TABLE notices ADD COLUMN title TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE notices ADD COLUMN content TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE notices ADD COLUMN date TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE notices ADD COLUMN category TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE notices ADD COLUMN link TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE notices ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
 
-CREATE TABLE IF NOT EXISTS staff (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    role TEXT,
-    bio TEXT DEFAULT '',
-    image TEXT,
-    type TEXT,
-    "attachmentUrl" TEXT
-);
+    -- Staff
+    BEGIN ALTER TABLE staff ADD COLUMN name TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE staff ADD COLUMN role TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE staff ADD COLUMN bio TEXT DEFAULT ''; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE staff ADD COLUMN image TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE staff ADD COLUMN type TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE staff ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
 
-CREATE TABLE IF NOT EXISTS gallery (
-    id TEXT PRIMARY KEY,
-    url TEXT,
-    caption TEXT,
-    session TEXT,
-    "attachmentUrl" TEXT
-);
+    -- Gallery
+    BEGIN ALTER TABLE gallery ADD COLUMN url TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE gallery ADD COLUMN caption TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE gallery ADD COLUMN session TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE gallery ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
 
-CREATE TABLE IF NOT EXISTS carousel (
-    id TEXT PRIMARY KEY,
-    url TEXT,
-    caption TEXT,
-    session TEXT,
-    "attachmentUrl" TEXT
-);
+    -- Carousel
+    BEGIN ALTER TABLE carousel ADD COLUMN url TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE carousel ADD COLUMN caption TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE carousel ADD COLUMN session TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE carousel ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
 
-CREATE TABLE IF NOT EXISTS fees (
-    id TEXT PRIMARY KEY,
-    category TEXT,
-    particulars TEXT,
-    amount TEXT,
-    quarterly TEXT,
-    remarks TEXT,
-    order_index INTEGER DEFAULT 0,
-    "attachmentUrl" TEXT
-);
+    -- Fees
+    BEGIN ALTER TABLE fees ADD COLUMN category TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE fees ADD COLUMN particulars TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE fees ADD COLUMN amount TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE fees ADD COLUMN quarterly TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE fees ADD COLUMN remarks TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE fees ADD COLUMN order_index INTEGER DEFAULT 0; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE fees ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
 
-CREATE TABLE IF NOT EXISTS links (
-    id TEXT PRIMARY KEY,
-    title TEXT,
-    url TEXT,
-    "isPriority" BOOLEAN DEFAULT false,
-    icon TEXT,
-    "attachmentUrl" TEXT
-);
+    -- Links
+    BEGIN ALTER TABLE links ADD COLUMN title TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE links ADD COLUMN url TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE links ADD COLUMN "isPriority" BOOLEAN DEFAULT false; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE links ADD COLUMN icon TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE links ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
 
-CREATE TABLE IF NOT EXISTS events (
-    id TEXT PRIMARY KEY,
-    title TEXT,
-    date TEXT,
-    time TEXT,
-    location TEXT,
-    "attachmentUrl" TEXT
-);
+    -- Events
+    BEGIN ALTER TABLE events ADD COLUMN title TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE events ADD COLUMN date TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE events ADD COLUMN time TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE events ADD COLUMN location TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE events ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
 
-CREATE TABLE IF NOT EXISTS achievements (
-    id TEXT PRIMARY KEY,
-    title TEXT,
-    year TEXT,
-    description TEXT,
-    "attachmentUrl" TEXT
-);
+    -- Achievements
+    BEGIN ALTER TABLE achievements ADD COLUMN title TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE achievements ADD COLUMN year TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE achievements ADD COLUMN description TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE achievements ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    
+    -- Student Honors
+    BEGIN ALTER TABLE "studentHonors" ADD COLUMN name TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE "studentHonors" ADD COLUMN category TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE "studentHonors" ADD COLUMN result TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE "studentHonors" ADD COLUMN subtext TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE "studentHonors" ADD COLUMN image TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE "studentHonors" ADD COLUMN order_index INTEGER DEFAULT 0; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE "studentHonors" ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
 
-CREATE TABLE IF NOT EXISTS transfer_certificates (
-    id TEXT PRIMARY KEY,
-    admission_number TEXT,
-    dob TEXT,
-    student_name TEXT,
-    "attachmentUrl" TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+    -- Menu
+    BEGIN ALTER TABLE menu ADD COLUMN label TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE menu ADD COLUMN href TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE menu ADD COLUMN parent_id TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE menu ADD COLUMN order_index INTEGER DEFAULT 0; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE menu ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
 
-CREATE TABLE IF NOT EXISTS "studentHonors" (
-    id TEXT PRIMARY KEY,
-    name TEXT,
-    category TEXT,
-    result TEXT,
-    subtext TEXT,
-    image TEXT,
-    order_index INTEGER DEFAULT 0,
-    "attachmentUrl" TEXT
-);
+    -- FAQs
+    BEGIN ALTER TABLE faqs ADD COLUMN question TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE faqs ADD COLUMN answer TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE faqs ADD COLUMN category TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE faqs ADD COLUMN order_index INTEGER DEFAULT 0; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE faqs ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
 
-CREATE TABLE IF NOT EXISTS menu (
-    id TEXT PRIMARY KEY,
-    label TEXT,
-    href TEXT,
-    parent_id TEXT,
-    order_index INTEGER DEFAULT 0,
-    "attachmentUrl" TEXT
-);
+    -- Messages
+    BEGIN ALTER TABLE messages ADD COLUMN name TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE messages ADD COLUMN email TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE messages ADD COLUMN subject TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE messages ADD COLUMN message TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE messages ADD COLUMN timestamp TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE messages ADD COLUMN status TEXT DEFAULT 'new'; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE messages ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
 
-CREATE TABLE IF NOT EXISTS faqs (
-    id TEXT PRIMARY KEY,
-    question TEXT,
-    answer TEXT,
-    category TEXT,
-    order_index INTEGER DEFAULT 0,
-    "attachmentUrl" TEXT
-);
+    -- Popups
+    BEGIN ALTER TABLE popups ADD COLUMN title TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE popups ADD COLUMN type TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE popups ADD COLUMN content TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE popups ADD COLUMN "buttonText" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE popups ADD COLUMN "buttonLink" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE popups ADD COLUMN "isActive" BOOLEAN DEFAULT false; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE popups ADD COLUMN order_index INTEGER DEFAULT 0; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE popups ADD COLUMN "attachmentUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
 
-CREATE TABLE IF NOT EXISTS messages (
-    id TEXT PRIMARY KEY,
-    name TEXT,
-    email TEXT,
-    subject TEXT,
-    message TEXT,
-    timestamp TEXT,
-    status TEXT DEFAULT 'new',
-    "attachmentUrl" TEXT
-);
+    -- Settings
+    BEGIN ALTER TABLE settings ADD COLUMN "applyNowEnabled" BOOLEAN DEFAULT true; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE settings ADD COLUMN "applyNowUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE settings ADD COLUMN "applyNowLabel" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE settings ADD COLUMN "siteName" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE settings ADD COLUMN "siteLogo" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE settings ADD COLUMN "contactEmail" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE settings ADD COLUMN "contactPhone" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE settings ADD COLUMN "contactAddress" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE settings ADD COLUMN "currentSession" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE settings ADD COLUMN "feesPdfUrl" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE settings ADD COLUMN "popupMessage" TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE settings ADD COLUMN "popupEnabled" BOOLEAN DEFAULT false; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    
+    -- Content
+    BEGIN ALTER TABLE content ADD COLUMN key TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+    BEGIN ALTER TABLE content ADD COLUMN value TEXT; EXCEPTION WHEN duplicate_column THEN NULL; END;
+END $$;
 
-CREATE TABLE IF NOT EXISTS popups (
-    id TEXT PRIMARY KEY,
-    title TEXT,
-    type TEXT,
-    content TEXT,
-    "buttonText" TEXT,
-    "buttonLink" TEXT,
-    "isActive" BOOLEAN DEFAULT false,
-    order_index INTEGER DEFAULT 0,
-    "attachmentUrl" TEXT
-);
-
-CREATE TABLE IF NOT EXISTS settings (
-    id TEXT PRIMARY KEY,
-    "applyNowEnabled" BOOLEAN DEFAULT true,
-    "applyNowUrl" TEXT,
-    "applyNowLabel" TEXT,
-    "siteName" TEXT,
-    "siteLogo" TEXT,
-    "contactEmail" TEXT,
-    "contactPhone" TEXT,
-    "contactAddress" TEXT,
-    "currentSession" TEXT,
-    "feesPdfUrl" TEXT,
-    "popupMessage" TEXT,
-    "popupEnabled" BOOLEAN DEFAULT false
-);
-
-CREATE TABLE IF NOT EXISTS content (
-    id TEXT PRIMARY KEY,
-    key TEXT,
-    value TEXT
-);
-
--- 2. ENABLE PUBLIC ACCESS FOR ALL TABLES
+-- 3. ENABLE PUBLIC ACCESS FOR ALL TABLES
 -- This allows the Admin Portal to read/write/update without auth blocks during testing.
 
 DO $$ 

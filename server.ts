@@ -24,6 +24,76 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.json());
 
+// Setup Multer for Image Uploads
+const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    // Determine subdirectory from query param or body
+    const section = req.query.section || req.body.section || '';
+    const dest = section ? path.join(uploadDir, String(section)) : uploadDir;
+    if (!fs.existsSync(dest)) {
+      fs.mkdirSync(dest, { recursive: true });
+    }
+    cb(null, dest);
+  },
+  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
+});
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB
+});
+
+// DIAGNOSTIC ROUTE
+app.get('/api/connectivity-test', (req, res) => {
+  res.json({
+    status: 'ok',
+    sqlite: !!db,
+    supabase: !!supabaseServer,
+    uploadDir: fs.existsSync(uploadDir),
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Upload Route (Defined VERY EARLY to avoid being swallowed by other middleware)
+app.post('/api/upload', (req, res) => {
+  const section = req.query.section || req.body.section || 'misc';
+  console.log(`[UPLOAD REQUEST] Starting for section: ${section}`);
+  
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      console.error(`[UPLOAD ERROR] Multer error:`, err);
+      return res.status(400).json({ error: `Upload Failed: ${err.message}` });
+    }
+    if (!req.file) {
+      console.warn(`[UPLOAD WARNING] No file attached to 'file' field`);
+      return res.status(400).json({ error: 'No file uploaded (use "file" field)' });
+    }
+    
+    // Ensure section subdirectory exists (redundant with multer.diskStorage but safe)
+    const sectionDir = path.join(uploadDir, String(section));
+    if (!fs.existsSync(sectionDir)) fs.mkdirSync(sectionDir, { recursive: true });
+
+    const relativePath = section ? `${section}/${req.file.filename}` : req.file.filename;
+    console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename} in ${section}`);
+    
+    res.json({ 
+      success: true,
+      url: `/uploads/${relativePath}`,
+      filename: req.file.filename,
+      path: relativePath
+    });
+  });
+});
+
+app.post('/api/upload/', (req, res) => {
+  res.redirect(307, '/api/upload' + (req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''));
+});
+
 // Detailed Request Logger for API
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
@@ -60,62 +130,7 @@ if (supabaseServer) {
   console.warn('[SUPABASE] Server-side client missing credentials.');
 }
 
-// Setup Multer for Image Uploads early to avoid route order issues
-const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Determine subdirectory from query param or body
-    const section = req.query.section || req.body.section || '';
-    const dest = section ? path.join(uploadDir, String(section)) : uploadDir;
-    if (!fs.existsSync(dest)) {
-      fs.mkdirSync(dest, { recursive: true });
-    }
-    cb(null, dest);
-  },
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
-});
-
-const upload = multer({ 
-  storage,
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB
-});
-
-// Upload Routes (Defined BEFORE Vite/SPA fallback)
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api/upload')) {
-    console.log(`[SERVER] Incoming ${req.method} ${req.path} - Content-Type: ${req.headers['content-type']}`);
-  }
-  next();
-});
-
-app.post(['/api/upload', '/api/upload/'], (req, res) => {
-  const section = req.query.section || req.body.section || '';
-  console.log(`[SERVER] /api/upload hit. Field: file. Section: ${section}`);
-  
-  upload.single('file')(req, res, (err) => {
-    if (err) {
-      console.error(`[UPLOAD ERROR] Multer error:`, err);
-      return res.status(400).json({ error: `Upload Failed: ${err.message}` });
-    }
-    if (!req.file) {
-      console.warn(`[UPLOAD WARNING] No file attached to 'file' field`);
-      return res.status(400).json({ error: 'No file uploaded (use "file" field)' });
-    }
-    
-    const relativePath = section ? `${section}/${req.file.filename}` : req.file.filename;
-    console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename} in ${section || 'root'}`);
-    
-    res.json({ 
-      success: true,
-      url: `/uploads/${relativePath}`,
-      filename: req.file.filename
-    });
-  });
-});
+// Removed old upload routes from here as they were moved up
 
 app.post('/api/gallery/upload', (req, res) => {
   upload.single('image')(req, res, (err) => {
