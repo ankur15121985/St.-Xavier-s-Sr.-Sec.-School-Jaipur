@@ -134,14 +134,13 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.entries({
           ...item,
-          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'menu', 'carousel'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
+          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'menu', 'carousel', 'marquee', 'popups'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
         }).filter(([k]) => {
           if (k === 'id') return false;
           const handledAtBottom = 
-            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'menu'].includes(section) && k === 'attachmentUrl') ||
+            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'menu', 'marquee', 'popups'].includes(section) && k === 'attachmentUrl') ||
             (['staff', 'studentHonors'].includes(section) && k === 'image') ||
-            (['gallery', 'carousel'].includes(section) && k === 'url') ||
-            (['popups'].includes(section) && k === 'image');
+            (['gallery', 'carousel'].includes(section) && k === 'url');
           return !handledAtBottom;
         }).map(([field, value]) => (
           <div key={field} className="space-y-2">
@@ -175,6 +174,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                     <option value="text">Text Message</option>
                     <option value="image">Image Popup</option>
                     <option value="pdf">PDF Download/View</option>
+                    <option value="link">External Link</option>
                   </>
                 )}
               </select>
@@ -226,8 +226,8 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
         
         {/* Consolidated Primary Action Button */}
         {(() => {
-          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'menu'].includes(section)) ? 'attachmentUrl' : 
-                              (['staff', 'gallery', 'carousel', 'studentHonors', 'popups'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
+          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'menu', 'marquee', 'popups'].includes(section)) ? 'attachmentUrl' : 
+                              (['staff', 'gallery', 'carousel', 'studentHonors'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
                               'attachmentUrl';
           const isUploading = uploadingPath === `${section}-${item.id}-${targetField}`;
           const currentVal = item[targetField];
@@ -508,12 +508,20 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
       newItem.status = 'new';
     } else if (tableStr === 'popups') {
       newItem.title = 'New Announcement';
+      newItem.header = 'Important Notice';
       newItem.type = 'text';
       newItem.content = 'Enter announcement details here...';
       newItem.buttonText = '';
       newItem.buttonLink = '';
       newItem.isActive = true;
       newItem.order_index = (data.popups?.length || 0);
+      newItem.attachmentUrl = '';
+    } else if (tableStr === 'marquee') {
+      newItem.text = 'Welcome to St. Xavier\'s Jaipur - Shaping the leaders of tomorrow.';
+      newItem.link = '';
+      newItem.attachmentUrl = '';
+      newItem.isActive = true;
+      newItem.order_index = (data.marquee?.length || 0);
     } else if (tableStr === 'transfer_certificates') {
       newItem.admission_number = 'TC' + Date.now().toString().slice(-6);
       newItem.dob = new Date().toISOString().split('T')[0];
@@ -562,7 +570,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     setUploadingPath(`${section}-${id}-${field}`);
     
     // Determine folder based on section
-    let folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups', 'menu', 'content'].includes(section as string)) ? (section as string) : 'misc';
+    let folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups', 'menu', 'content', 'marquee'].includes(section as string)) ? (section as string) : 'misc';
 
 // Specialized folder routing for new committees in Menu
     if (section === 'menu') {
@@ -739,6 +747,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
   const sections = [
     { id: 'notices', label: 'Notices', icon: <Bell size={18} /> },
     { id: 'popups', label: 'Popups', icon: <Maximize2 size={18} className="text-school-accent" /> },
+    { id: 'marquee', label: 'Marquee', icon: <ChevronRight size={18} className="text-school-neon" /> },
     { id: 'events', label: 'Events', icon: <Calendar size={18} /> },
     { id: 'staff', label: 'Faculty', icon: <Users2 size={18} /> },
     { id: 'carousel', label: 'Carousel', icon: <ImagePlus size={18} className="text-school-accent" /> },

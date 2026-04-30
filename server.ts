@@ -316,10 +316,22 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS popups (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
+    header TEXT,
     type TEXT NOT NULL,
     content TEXT NOT NULL,
     buttonText TEXT,
     buttonLink TEXT,
+    isActive INTEGER NOT NULL,
+    order_index INTEGER NOT NULL
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS marquee (
+    id TEXT PRIMARY KEY,
+    text TEXT NOT NULL,
+    link TEXT,
+    attachmentUrl TEXT,
     isActive INTEGER NOT NULL,
     order_index INTEGER NOT NULL
   )
@@ -379,17 +391,18 @@ db.exec(`
 `);
 
 // Migration to add attachmentUrl to existing tables if missing
-const tablesToUpdate = ['links', 'events', 'achievements', 'menu', 'studentHonors', 'staff', 'gallery', 'carousel', 'faqs', 'messages', 'popups', 'notices'];
+const tablesToUpdate = ['links', 'events', 'achievements', 'menu', 'studentHonors', 'staff', 'gallery', 'carousel', 'faqs', 'messages', 'popups', 'notices', 'marquee'];
 tablesToUpdate.forEach(table => {
   try {
     db.prepare(`ALTER TABLE "${table}" ADD COLUMN attachmentUrl TEXT`).run();
     console.log(`[MIGRATION] Added attachmentUrl column to ${table}`);
-  } catch (err: any) {
-    if (!err.message.toLowerCase().includes('duplicate column name')) {
-      console.warn(`[MIGRATION] Status for ${table}: ${err.message}`);
-    }
-  }
+  } catch (err: any) {}
 });
+
+// Specific migration for popups header
+try {
+  db.prepare(`ALTER TABLE popups ADD COLUMN header TEXT`).run();
+} catch (e) {}
 
 // Seed Default Settings if empty
 const settingsCountResult = db.prepare("SELECT COUNT(*) as count FROM settings").get() as any;

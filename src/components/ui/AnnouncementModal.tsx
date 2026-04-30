@@ -72,45 +72,61 @@ export const AnnouncementModal = ({ popups }: AnnouncementModalProps) => {
 
           <div className="flex flex-col md:flex-row h-full">
             {/* Visual Part */}
-            <div className={`w-full ${currentPopup.type === 'image' ? 'md:w-1/2 aspect-square md:aspect-auto' : 'hidden'}`}>
-              <img 
-                src={currentPopup.content} 
-                alt={currentPopup.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            {(currentPopup.type === 'image' || currentPopup.type === 'pdf') && (
+              <div className={`w-full md:w-1/2 aspect-square md:aspect-auto bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden`}>
+                {currentPopup.type === 'image' ? (
+                  <img 
+                    src={currentPopup.attachmentUrl || currentPopup.content} 
+                    alt={currentPopup.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-4 text-slate-300">
+                    <FileText size={80} strokeWidth={1} />
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Document Preview</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Content Part */}
-            <div className={`p-8 md:p-12 flex flex-col justify-center ${currentPopup.type === 'image' ? 'md:w-1/2' : 'w-full text-center'}`}>
+            <div className={`p-8 md:p-12 flex flex-col justify-center ${(currentPopup.type === 'image' || currentPopup.type === 'pdf') ? 'md:w-1/2' : 'w-full text-center'}`}>
               <div className="space-y-6">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${currentPopup.type === 'image' ? 'hidden' : 'mx-auto'} bg-school-accent/10 text-school-accent`}>
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${ (currentPopup.type === 'image' || currentPopup.type === 'pdf') ? 'hidden' : 'mx-auto'} bg-school-accent/10 text-school-accent`}>
                   {currentPopup.type === 'pdf' ? <FileText size={24} /> : 
                    currentPopup.type === 'image' ? <ImageIcon size={24} /> : 
+                   currentPopup.type === 'link' ? <ExternalLink size={24} /> :
                    <MessageSquare size={24} />}
                 </div>
 
                 <div className="space-y-4">
+                  {currentPopup.header && (
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-school-accent mb-2">
+                      {currentPopup.header}
+                    </p>
+                  )}
+                  
                   <h3 className="text-2xl md:text-3xl font-bold text-school-navy dark:text-white leading-tight">
                     {currentPopup.title}
                   </h3>
                   
-                  {currentPopup.type === 'text' && (
+                  {(currentPopup.type === 'text' || currentPopup.type === 'link' || currentPopup.type === 'image' || currentPopup.type === 'pdf') && currentPopup.content && (
                     <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
                       {currentPopup.content}
                     </p>
                   )}
 
-                  {currentPopup.type === 'pdf' && (
+                  {currentPopup.type === 'pdf' && currentPopup.attachmentUrl && (
                     <div className="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 flex items-center gap-4 text-left">
                       <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center shrink-0">
                         <FileText size={20} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">PDF Document</p>
-                        <p className="text-xs font-bold text-school-navy dark:text-white truncate">Important Announcement.pdf</p>
+                        <p className="text-xs font-bold text-school-navy dark:text-white truncate">{currentPopup.title}.pdf</p>
                       </div>
                       <a 
-                        href={currentPopup.content} 
+                        href={currentPopup.attachmentUrl} 
                         target="_blank" 
                         rel="noreferrer"
                         className="p-2 rounded-lg bg-school-navy text-white hover:bg-school-accent transition-colors"
@@ -119,16 +135,30 @@ export const AnnouncementModal = ({ popups }: AnnouncementModalProps) => {
                       </a>
                     </div>
                   )}
+
+                  {currentPopup.type === 'link' && currentPopup.buttonLink && (
+                    <div className="p-4 rounded-2xl bg-school-accent/5 border border-school-accent/10 flex items-center gap-4 text-left">
+                      <div className="w-10 h-10 rounded-xl bg-school-accent/10 text-school-accent flex items-center justify-center shrink-0">
+                        <ExternalLink size={20} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-school-accent/60">Important Link</p>
+                        <p className="text-xs font-bold text-school-navy dark:text-white truncate">{currentPopup.buttonLink}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-4 flex flex-col sm:flex-row gap-3 items-center justify-center">
-                  {currentPopup.buttonLink && (
+                  {(currentPopup.buttonLink || currentPopup.attachmentUrl) && (
                     <a 
-                      href={currentPopup.buttonLink}
+                      href={currentPopup.buttonLink || currentPopup.attachmentUrl}
                       onClick={handleClose}
+                      target={currentPopup.type === 'pdf' || currentPopup.type === 'link' ? "_blank" : "_self"}
+                      rel={currentPopup.type === 'pdf' || currentPopup.type === 'link' ? "noreferrer" : ""}
                       className="w-full sm:w-auto px-8 py-3.5 bg-school-navy text-white rounded-full font-bold shadow-xl hover:bg-school-accent transition-all flex items-center justify-center gap-2"
                     >
-                      {currentPopup.buttonText || 'Learn More'}
+                      {currentPopup.buttonText || (currentPopup.type === 'pdf' ? 'Open Document' : 'Learn More')}
                       <ArrowUpRight size={18} />
                     </a>
                   )}

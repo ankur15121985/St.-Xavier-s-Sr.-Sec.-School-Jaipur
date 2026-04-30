@@ -41,6 +41,7 @@ import { AppData } from '../types';
 import { Carousel } from '../components/ui/Carousel';
 import { HonorsSlider } from '../components/ui/HonorsSlider';
 import { AnnouncementModal } from '../components/ui/AnnouncementModal';
+import { Marquee } from '../components/ui/Marquee';
 
 const HomePage = ({ data }: { data: AppData }) => {
   const carouselImages = data.carousel && data.carousel.length > 0 
@@ -97,6 +98,9 @@ const HomePage = ({ data }: { data: AppData }) => {
       >
         <Carousel images={carouselImages} />
       </motion.section>
+
+      {/* Marquee Section */}
+      <Marquee items={data.marquee || []} />
 
       {/* About St. Xavier's School - Introduction Section */}
       <section id="about-section" className="py-24 relative overflow-hidden">

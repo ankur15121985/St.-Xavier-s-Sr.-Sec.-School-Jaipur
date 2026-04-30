@@ -29,10 +29,21 @@ export interface ContactMessage { id: string; name: string; email: string; subje
 export interface AnnouncementPopup {
   id: string;
   title: string;
-  type: 'text' | 'image' | 'pdf';
+  header?: string;
+  type: 'text' | 'image' | 'pdf' | 'link';
   content: string;
   buttonText?: string;
   buttonLink?: string;
+  isActive: boolean;
+  order_index: number;
+  attachmentUrl?: string;
+}
+
+export interface MarqueeItem {
+  id: string;
+  text: string;
+  link?: string;
+  attachmentUrl?: string;
   isActive: boolean;
   order_index: number;
 }
@@ -68,6 +79,7 @@ export interface AppData {
   transfer_certificates?: TransferCertificate[];
   messages: ContactMessage[];
   popups: AnnouncementPopup[];
+  marquee: MarqueeItem[];
   settings: AppSettings;
   content: Record<string, string>;
 }

@@ -317,6 +317,10 @@ const DEFAULT_DATA: AppData = {
       order_index: 0
     }
   ],
+  marquee: [
+    { id: 'm1', text: 'St. Xavier\'s School, Jaipur - A Legacy of Excellence since 1941.', link: '#', isActive: true, order_index: 0 },
+    { id: 'm2', text: 'Admissions Open for Academic Session 2026-27. Apply now!', link: '/admission-policy', isActive: true, order_index: 1 },
+  ],
   settings: {
     id: 'global',
     applyNowEnabled: true,

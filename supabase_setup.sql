@@ -43,7 +43,8 @@ CREATE TABLE "studentHonors" (id TEXT PRIMARY KEY, name TEXT, category TEXT, res
 CREATE TABLE menu (id TEXT PRIMARY KEY, label TEXT, href TEXT, parent_id TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
 CREATE TABLE faqs (id TEXT PRIMARY KEY, question TEXT, answer TEXT, category TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
 CREATE TABLE messages (id TEXT PRIMARY KEY, name TEXT, email TEXT, subject TEXT, message TEXT, timestamp TEXT, status TEXT DEFAULT 'new', "attachmentUrl" TEXT);
-CREATE TABLE popups (id TEXT PRIMARY KEY, title TEXT, type TEXT, content TEXT, "buttonText" TEXT, "buttonLink" TEXT, "isActive" BOOLEAN DEFAULT false, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE popups (id TEXT PRIMARY KEY, title TEXT, header TEXT, type TEXT, content TEXT, "buttonText" TEXT, "buttonLink" TEXT, "isActive" BOOLEAN DEFAULT false, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE marquee (id TEXT PRIMARY KEY, text TEXT, link TEXT, "attachmentUrl" TEXT, "isActive" BOOLEAN DEFAULT true, order_index INTEGER DEFAULT 0);
 CREATE TABLE settings (id TEXT PRIMARY KEY, "applyNowEnabled" BOOLEAN DEFAULT true, "applyNowUrl" TEXT, "applyNowLabel" TEXT, "siteName" TEXT, "siteLogo" TEXT, "contactEmail" TEXT, "contactPhone" TEXT, "contactAddress" TEXT, "currentSession" TEXT, "feesPdfUrl" TEXT, "popupMessage" TEXT, "popupEnabled" BOOLEAN DEFAULT false);
 CREATE TABLE content (id TEXT PRIMARY KEY, key TEXT, value TEXT);
 
