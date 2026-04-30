@@ -81,3 +81,20 @@ END $$;
 
 -- 5. FINAL SCHEMA CACHE RELOAD
 NOTIFY pgrst, 'reload schema';
+
+-- 6. STORAGE BUCKET SETUP (For Vercel/Production Uploads)
+-- Create 'uploads' bucket if it doesn't exist
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('uploads', 'uploads', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage Policies for 'uploads' bucket
+DROP POLICY IF EXISTS "Public Storage Access" ON storage.objects;
+DROP POLICY IF EXISTS "Public Storage Insert" ON storage.objects;
+DROP POLICY IF EXISTS "Public Storage Update" ON storage.objects;
+DROP POLICY IF EXISTS "Public Storage Delete" ON storage.objects;
+
+CREATE POLICY "Public Storage Access" ON storage.objects FOR SELECT TO public USING (bucket_id = 'uploads');
+CREATE POLICY "Public Storage Insert" ON storage.objects FOR INSERT TO public WITH CHECK (bucket_id = 'uploads');
+CREATE POLICY "Public Storage Update" ON storage.objects FOR UPDATE TO public USING (bucket_id = 'uploads');
+CREATE POLICY "Public Storage Delete" ON storage.objects FOR DELETE TO public USING (bucket_id = 'uploads');

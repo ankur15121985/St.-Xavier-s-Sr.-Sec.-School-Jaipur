@@ -272,7 +272,8 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                 
                 <button 
                   onClick={() => {
-                    const itemToSave = data[section].find((i: any) => i.id === item.id);
+                    const sectionData = data[section] as any;
+                    const itemToSave = Array.isArray(sectionData) ? sectionData.find((i: any) => i.id === item.id) : null;
                     if (itemToSave) {
                       setSavePending(true);
                       supabaseService.saveItem(section, itemToSave)
@@ -578,11 +579,29 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     }
 
     try {
-      // Prioritize local server upload so it reflects in the uploads folder
-      console.log(`[Upload] Uploading to local server: ${folder}/${file.name}`);
+      // 1. Prioritize Supabase Storage (Compatible with Vercel/Production)
+      console.log(`[Upload] Attempting Supabase Storage upload: ${folder}/${file.name}`);
       const formData = new FormData();
       formData.append('file', file);
-      
+
+      try {
+        const publicUrl = await storageService.uploadFile(file, folder);
+        console.log(`[Upload] Supabase Success: ${publicUrl}`);
+        handleUpdate(id, field, publicUrl, section);
+        showToast('Media saved & synced to Cloud Storage', 'success');
+        
+        // Optional: Mirror to local server as background if in Dev
+        fetch(`/api/upload?section=${encodeURIComponent(folder)}`, {
+          method: 'POST',
+          body: formData
+        }).catch(() => {});
+        
+        return; // Success
+      } catch (storageErr: any) {
+        console.warn('[Upload] Supabase Storage failed, trying local fallback:', storageErr);
+      }
+
+      // 2. Fallback to local server upload (Works in AI Studio / Local Dev)
       const res = await fetch(`/api/upload?section=${encodeURIComponent(folder)}`, {
         method: 'POST',
         body: formData
@@ -593,9 +612,6 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
         console.log(`[Upload] Local Success: ${result.url}`);
         handleUpdate(id, field, result.url, section);
         showToast('Media saved & synced successfully', 'success');
-        
-        // Also try Supabase as a background backup if possible
-        storageService.uploadFile(file, folder).catch(() => {});
       } else {
         const text = await res.text();
         const errorMessage = text.includes('<!DOCTYPE html>') ? `Server error (possibly path not found). Raw: ${text.slice(0, 100)}` : text;
@@ -612,12 +628,31 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
   const uploadPendingItem = async (pendingItem: PendingGalleryItem) => {
     setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'uploading', progress: 10 } : p));
     
+    const section = (activeSection === 'carousel' || activeSection === 'gallery') ? activeSection : 'gallery';
+
     try {
-      // Prioritize local storage
+      // 1. Prioritize Supabase Storage (Vercel compatible)
+      try {
+        const publicUrl = await storageService.uploadFile(pendingItem.file, section);
+        if (publicUrl) {
+          setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: publicUrl } : p));
+          
+          // Background mirror to local if possible
+          const formData = new FormData();
+          formData.append('file', pendingItem.file);
+          fetch(`/api/upload?section=${section}`, { method: 'POST', body: formData }).catch(() => {});
+          
+          return;
+        }
+      } catch (storageErr) {
+        console.warn('[Gallery Upload] Supabase failed, trying local:', storageErr);
+      }
+
+      // 2. Fallback to local storage (AI Studio)
       const formData = new FormData();
       formData.append('file', pendingItem.file);
       
-      const res = await fetch('/api/upload?section=gallery', {
+      const res = await fetch(`/api/upload?section=${section}`, {
         method: 'POST',
         body: formData,
       });
@@ -627,8 +662,6 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
       const result = await res.json();
       if (result.url) {
         setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: result.url } : p));
-        // Background sync to Supabase storage if desired
-        storageService.uploadFile(pendingItem.file, 'gallery').catch(() => {});
       } else {
         throw new Error('No URL returned from server');
       }
