@@ -9,10 +9,11 @@ if (!rootElement) throw new Error('Failed to find root element');
 
 // Use a global to persist the root between reloads (e.g. during dev HMR or refresh)
 const win = window as any;
-const root = win.__REACT_ROOT__ || createRoot(rootElement);
-win.__REACT_ROOT__ = root;
+if (!win.__REACT_ROOT__) {
+  win.__REACT_ROOT__ = createRoot(rootElement);
+}
 
-root.render(
+win.__REACT_ROOT__.render(
   <StrictMode>
     <App />
   </StrictMode>

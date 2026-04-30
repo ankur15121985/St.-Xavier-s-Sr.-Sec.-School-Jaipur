@@ -167,7 +167,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 <div className="hidden lg:flex items-center gap-6">
                    <button 
                      onClick={() => setIsSearchOpen(true)}
-                     className={`w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white`}
+                     className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white"
                    >
                      <Search size={isScrolled ? 16 : 20} />
                    </button>
@@ -182,19 +182,25 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                    </Link>
                 </div>
 
-                <div className="lg:hidden flex items-center gap-4">
-                  <button 
-                    onClick={() => setIsSearchOpen(true)}
-                    className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-school-navy dark:text-white"
-                  >
-                    <Search size={20} />
-                  </button>
-                  <button 
-                    onClick={() => setIsNavOpen(true)} 
-                    className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-school-navy dark:text-white shrink-0"
-                  >
-                    <Menu size={20} />
-                  </button>
+                <div className="lg:hidden flex items-center gap-2">
+                   <button 
+                     onClick={() => setIsDark(!isDark)}
+                     className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 text-school-navy dark:text-white"
+                   >
+                     {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                   </button>
+                   <button 
+                     onClick={() => setIsSearchOpen(true)}
+                     className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-school-navy dark:text-white"
+                   >
+                     <Search size={20} />
+                   </button>
+                   <button 
+                     onClick={() => setIsNavOpen(true)} 
+                     className="w-10 h-10 rounded-full flex items-center justify-center bg-school-navy text-white shadow-lg"
+                   >
+                     <Menu size={20} />
+                   </button>
                 </div>
               </div>
             </div>
@@ -301,37 +307,50 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-4">
-                <button 
-                  onClick={() => setIsSearchOpen(true)}
-                  className={`hidden sm:flex w-10 h-10 rounded-full items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white`}
-                >
-                  <Search size={18} />
-                </button>
-                <button 
-                  onClick={() => setIsDark(!isDark)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white`}
-                >
-                  {isDark ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
-                <Link 
-                  to="/admin" 
-                  className="hidden lg:flex items-center gap-2 px-6 py-2.5 bg-school-navy text-white rounded-full text-[11px] uppercase tracking-widest font-black shadow-lg hover:scale-105 active:scale-95 transition-all"
-                >
-                  <Key size={14} /> Admin Login
-                </Link>
-                <button 
-                  onClick={() => setIsSearchOpen(true)}
-                  className="lg:hidden w-10 h-10 flex items-center justify-center p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-school-navy dark:text-white"
-                >
-                  <Search size={20} />
-                </button>
-                <button 
-                  onClick={() => setIsNavOpen(true)}
-                  className="lg:hidden w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg text-school-navy dark:text-white shrink-0"
-                >
-                  <Menu size={20} />
-                </button>
+              <div className="flex items-center gap-2">
+                {/* Desktop/Wide Actions */}
+                <div className="hidden lg:flex items-center gap-4">
+                  <button 
+                    onClick={() => setIsSearchOpen(true)}
+                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white"
+                  >
+                    <Search size={18} />
+                  </button>
+                  <button 
+                    onClick={() => setIsDark(!isDark)}
+                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white"
+                  >
+                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                  </button>
+                  <Link 
+                    to="/admin" 
+                    className="flex items-center gap-2 px-6 py-2.5 bg-school-navy text-white rounded-full text-[11px] uppercase tracking-widest font-black shadow-lg hover:scale-105 active:scale-95 transition-all"
+                  >
+                    <Key size={14} /> Admin Login
+                  </Link>
+                </div>
+
+                {/* Mobile/Tablet Actions */}
+                <div className="lg:hidden flex items-center gap-2">
+                  <button 
+                    onClick={() => setIsDark(!isDark)}
+                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 text-school-navy dark:text-white"
+                  >
+                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                  </button>
+                  <button 
+                    onClick={() => setIsSearchOpen(true)}
+                    className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-school-navy dark:text-white"
+                  >
+                    <Search size={20} />
+                  </button>
+                  <button 
+                    onClick={() => setIsNavOpen(true)}
+                    className="w-10 h-10 rounded-full flex items-center justify-center bg-school-navy text-white shadow-lg"
+                  >
+                    <Menu size={20} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

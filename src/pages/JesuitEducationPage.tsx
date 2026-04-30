@@ -13,18 +13,18 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
           <div className="absolute inset-0">
             <img 
               src="https://lh3.googleusercontent.com/d/1t9vcyHXbu3KjpG-YClHk1BNsT_Rk9qZz" 
-              className="w-full h-full object-cover opacity-30 grayscale brightness-50" 
+              className="w-full h-full object-cover brightness-40" 
               alt="Jesuit Education"
             />
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-school-navy/80 via-school-navy/40 to-school-navy/90"></div>
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-school-navy/90 via-school-navy/60 to-school-navy/90"></div>
           </div>
           <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <h1 className="text-5xl md:text-7xl font-serif font-black text-white tracking-tighter mb-6 italic">Objectives of <br /> <span className="text-school-gold not-italic uppercase text-3xl md:text-4xl tracking-[0.3em]">Jesuit Education</span></h1>
-              <p className="text-white/50 text-xl font-light max-w-2xl mx-auto italic italic">Promoting the total development of the WHOLE PERSON — fully human, fully Indian, and truly modern.</p>
+              <h1 className="text-6xl md:text-8xl font-serif font-black text-white tracking-tighter mb-6 italic drop-shadow-2xl">Objectives of <br /> <span className="text-school-gold not-italic uppercase text-3xl md:text-4xl tracking-[0.3em]">Jesuit Education</span></h1>
+              <p className="text-white/90 text-xl font-bold max-w-2xl mx-auto italic bg-black/20 backdrop-blur-sm px-6 py-2 rounded-full inline-block border border-white/10 mt-4">Promoting the total development of the WHOLE PERSON — fully human, fully Indian, and truly modern.</p>
             </motion.div>
           </div>
         </section>
@@ -39,10 +39,10 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
               className="space-y-8"
             >
               <div className="inline-block px-4 py-1.5 bg-school-gold/10 rounded-full text-[10px] font-black uppercase tracking-widest text-school-gold mb-2">Our Vision</div>
-              <h2 className="text-4xl font-serif font-black text-school-ink italic tracking-tight">Inspired by Divine Wisdom</h2>
-              <div className="space-y-6 text-lg text-school-ink/70 font-light leading-relaxed text-justify">
-                <p>
-                  Jesuit Education is inspired by a vision drawn from the life and teachings of Jesus Christ and the principles of CHARACTER formation elaborated by <span className="font-bold text-school-ink">Ignatius Loyola</span>, the founder of the Society of Jesus.
+              <h2 className="text-4xl font-serif font-black text-school-navy italic tracking-tight">Inspired by Divine Wisdom</h2>
+              <div className="space-y-6 text-lg text-slate-800 font-medium leading-relaxed text-justify">
+                <p className="first-letter:text-4xl first-letter:font-black first-letter:text-school-gold first-letter:mr-2 first-letter:float-left">
+                  Jesuit Education is inspired by a vision drawn from the life and teachings of Jesus Christ and the principles of CHARACTER formation elaborated by <span className="font-bold text-school-navy">Ignatius Loyola</span>, the founder of the Society of Jesus.
                 </p>
                 <p>
                   This vision sets before our staff, students, and parents high ideals of humanism and service. We believe in a Christian Social Ethics whereby justice is an absolute requirement of faith in God and the acceptance of each other as brothers and sisters.

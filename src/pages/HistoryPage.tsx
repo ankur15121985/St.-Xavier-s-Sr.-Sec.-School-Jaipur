@@ -32,12 +32,12 @@ const HistoryPage = ({ data }: { data: AppData }) => {
         {/* Content Section - Glass Theme */}
         <section className="py-20 md:py-40 bg-school-paper relative z-10 -mt-12 md:-mt-20 rounded-t-[40px] md:rounded-t-[100px] shadow-2xl border-t border-school-ink/10">
           <div className="max-w-4xl mx-auto px-6 lg:px-12">
-            <div className="space-y-16 text-xl text-school-ink/70 leading-relaxed font-medium text-justify">
+            <div className="space-y-16 text-xl text-slate-800 leading-relaxed font-medium text-justify">
               <motion.p 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-3xl md:text-4xl text-school-ink font-black leading-tight border-l-8 border-school-accent pl-10 py-6 text-justify"
+                className="text-3xl md:text-4xl text-school-navy font-black leading-tight border-l-8 border-school-accent pl-10 py-6 text-justify"
               >
                 St. Xavier's Jaipur is synonymous with world class education imparted in an exemplary and disciplined ambience. It has unrivaled contributions in shaping the intellectual facet of Jaipur.
               </motion.p>
@@ -47,7 +47,7 @@ const HistoryPage = ({ data }: { data: AppData }) => {
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8 }}
-                className="prose prose-slate dark:prose-invert max-w-none space-y-8 text-justify"
+                className="prose prose-slate dark:prose-invert max-w-none space-y-8 text-justify text-slate-800 font-medium"
               >
                 <div id="school" className="scroll-mt-32">
                   <motion.p

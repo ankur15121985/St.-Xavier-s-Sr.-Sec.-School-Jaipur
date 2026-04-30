@@ -122,7 +122,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                 {data.content?.aboutTitle1 || 'About'} <br />
                 <span className="text-school-accent">{data.content?.aboutTitle2 || 'St. Xavier’s School.'}</span>
               </h2>
-              <p className="text-lg text-slate-500 font-medium leading-relaxed">
+              <p className="text-lg text-slate-700 font-medium leading-relaxed">
                 {data.content?.aboutDescription || 'Established in 1941, St. Xavier\'s School, Jaipur, is a premier Jesuit institution dedicated to the holistic development of its students.'}
               </p>
               <div className="pt-4">
@@ -181,7 +181,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                  whileInView={{ opacity: 1, y: 0 }}
                  viewport={{ once: true }}
                  transition={{ delay: 0.3, duration: 0.8 }}
-                 className="text-lg text-slate-500 font-medium leading-normal max-w-sm"
+                 className="text-lg text-slate-700 font-medium leading-normal max-w-sm"
                >
                  {data.content?.nodesDescription || 'Institutional highlights condensed for your convenience.'}
                </motion.p>
@@ -245,7 +245,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                 Crafted for <br />
                 <span className="text-school-accent">Modernity.</span>
               </h2>
-              <p className="text-lg text-slate-500 font-medium leading-relaxed max-w-xl">
+              <p className="text-lg text-slate-700 font-medium leading-relaxed max-w-xl">
                 We believe in an education that transcends boundaries. Our curriculum is a perfect blend of digital fluency and ancient wisdom.
               </p>
             </motion.div>
@@ -375,11 +375,11 @@ const HomePage = ({ data }: { data: AppData }) => {
                 {data.content?.principalTitle1 || 'Lead'} <br />
                 <span className="text-school-accent italic">{data.content?.principalTitle3 || 'Grace.'}</span>
               </h2>
-              <div className="space-y-8 text-slate-500 font-medium text-lg md:text-xl leading-relaxed">
+              <div className="space-y-8 text-slate-800 font-bold text-lg md:text-2xl leading-relaxed italic">
                 <p>
                   {data.content?.principalQuote || 'We cultivate individuals of character, resilient in spirit and enlightened in soul. Education is the journey of becoming.'}
                 </p>
-                <div className="pt-4">
+                <div className="pt-4 not-italic">
                    <Link to="/principal-message" className="inline-flex items-center gap-3 px-8 py-3 bg-school-navy text-white rounded-full font-bold hover:bg-school-accent transition-all shadow-xl">
                      Read The Full Message <ArrowRight size={18} />
                    </Link>

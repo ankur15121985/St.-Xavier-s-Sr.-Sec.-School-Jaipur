@@ -26,18 +26,7 @@ const StaffPage = ({ data }: { data: AppData }) => {
               <tr key={s.id} className="hover:bg-school-paper/30 transition-colors border-b border-school-ink/10 last:border-none group">
                 <td className="p-8 font-black text-school-accent text-xs">{i + 1}</td>
                 <td className="p-8">
-                  <div className="flex items-center gap-4">
-                    {s.image ? (
-                      <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-school-ink/10 shadow-sm">
-                        <img src={s.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
-                      </div>
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-school-paper/30 flex items-center justify-center shrink-0">
-                        <Users2 size={16} className="text-school-ink/30" />
-                      </div>
-                    )}
-                    <span className="font-black tracking-tight">{s.name}</span>
-                  </div>
+                  <span className="font-black tracking-tight">{s.name}</span>
                 </td>
                 <td className="p-8">
                   <span className="text-[10px] font-black uppercase tracking-widest text-school-accent bg-school-paper/40 px-3 py-1 rounded-full border border-school-ink/10">
@@ -73,15 +62,12 @@ const StaffPage = ({ data }: { data: AppData }) => {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
               {data.staff.filter(s => s.type === 'Management').map((s, i) => (
                 <PerspectiveCard key={s.id} delay={i * 0.1}>
-                  <div className="bg-school-paper/40 backdrop-blur-3xl p-10 rounded-[40px] flex flex-col h-full group border border-school-ink/10 shadow-xl hover:shadow-2xl transition-all duration-500">
-                    <div className="w-full h-64 rounded-[32px] mb-8 shadow-xl overflow-hidden bg-school-paper/30 relative group-hover:-translate-y-2 transition-transform duration-500">
-                      <img src={s.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={s.name} referrerPolicy="no-referrer" />
-                      <div className="absolute top-6 right-6 px-4 py-2 bg-school-accent text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-sm">
-                        Management
-                      </div>
+                  <div className="bg-school-paper/40 backdrop-blur-3xl p-10 rounded-[40px] flex flex-col h-full group border border-school-ink/10 shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
+                    <div className="absolute top-6 right-6 px-4 py-2 bg-school-accent text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-sm">
+                      Management
                     </div>
-                    <h4 className="text-xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors break-words italic">{s.name}</h4>
-                    <p className="text-[9px] uppercase font-black tracking-[0.15em] text-school-accent mb-6 border-b border-school-accent/20 pb-4 leading-relaxed">{s.role}</p>
+                    <h4 className="text-2xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors break-words italic pt-4">{s.name}</h4>
+                    <p className="text-[10px] uppercase font-black tracking-[0.15em] text-school-accent mb-6 border-b border-school-accent/20 pb-4 leading-relaxed">{s.role}</p>
                     <p className="text-sm text-school-ink/60 font-medium leading-relaxed italic">{s.bio}</p>
                   </div>
                 </PerspectiveCard>
@@ -101,11 +87,8 @@ const StaffPage = ({ data }: { data: AppData }) => {
               {data.staff.filter(s => s.type === 'Administration' && s.role.includes('COORDINATOR')).map((s, i) => (
                 <PerspectiveCard key={s.id} delay={i * 0.1}>
                   <div className="bg-school-paper/40 backdrop-blur-3xl p-10 rounded-[40px] flex flex-col h-full group border border-school-ink/10 shadow-xl hover:shadow-2xl transition-all duration-500">
-                    <div className="w-full h-64 rounded-[32px] mb-8 shadow-xl overflow-hidden bg-school-paper/30 relative group-hover:-translate-y-2 transition-transform duration-500">
-                      <img src={s.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={s.name} referrerPolicy="no-referrer" />
-                    </div>
-                    <h4 className="text-xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors break-words italic">{s.name}</h4>
-                    <p className="text-[9px] uppercase font-black tracking-[0.15em] text-school-accent mb-6 border-b border-school-accent/20 pb-4 leading-relaxed">{s.role}</p>
+                    <h4 className="text-2xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors break-words italic">{s.name}</h4>
+                    <p className="text-[10px] uppercase font-black tracking-[0.15em] text-school-accent mb-6 border-b border-school-accent/20 pb-4 leading-relaxed">{s.role}</p>
                     <p className="text-sm text-school-ink/60 font-medium leading-relaxed italic">{s.bio}</p>
                   </div>
                 </PerspectiveCard>
