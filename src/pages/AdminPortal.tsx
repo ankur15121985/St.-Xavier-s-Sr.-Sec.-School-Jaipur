@@ -337,6 +337,18 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
         setSavePending(true);
         try {
           await supabaseService.saveItem('settings', updatedSettings);
+          // Audit Log
+          try {
+            await supabaseService.saveItem('logs', {
+              id: `log_set_${Date.now()}`,
+              user: user?.email || 'anonymous',
+              action: 'UPDATE_SETTINGS',
+              details: `Updated setting ${field} to ${value}`,
+              timestamp: new Date().toISOString()
+            });
+          } catch (logErr) {
+            console.warn('Failed to save audit log:', logErr);
+          }
           showToast(`Settings (${field}) updated in Supabase`);
         } catch (err: any) {
           console.error('Settings sync failed:', err);
@@ -359,6 +371,18 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
         setSavePending(true);
         try {
           await supabaseService.saveItem('content', updatedContent);
+          // Audit Log
+          try {
+            await supabaseService.saveItem('logs', {
+              id: `log_cont_${Date.now()}`,
+              user: user?.email || 'anonymous',
+              action: 'UPDATE_CONTENT',
+              details: `Updated narrative content for ${field}`,
+              timestamp: new Date().toISOString()
+            });
+          } catch (logErr) {
+            console.warn('Failed to save audit log:', logErr);
+          }
           showToast('Content narrative synced to Supabase');
         } catch (err: any) {
           console.error('Content sync failed:', err);
@@ -385,6 +409,18 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
         setSavePending(true);
         try {
           await supabaseService.saveItem(section, item);
+          // Audit Log (Debounced)
+          try {
+            await supabaseService.saveItem('logs', {
+              id: `log_upd_${Date.now()}`,
+              user: user?.email || 'anonymous',
+              action: 'UPDATE_ITEM',
+              details: `Updated ${field} for item ${id} in ${section}`,
+              timestamp: new Date().toISOString()
+            });
+          } catch (logErr) {
+            console.warn('Failed to save audit log:', logErr);
+          }
           showToast(`Synced ${section} to Supabase`);
         } catch (err: any) {
           console.error('Sync failed:', err);
@@ -435,6 +471,19 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     try {
       for (const id of idList) {
         await supabaseService.deleteItem(activeSection, id);
+      }
+
+      // Audit Log for deletion
+      try {
+        await supabaseService.saveItem('logs', {
+          id: `log_del_${Date.now()}`,
+          user: user?.email || 'anonymous',
+          action: 'DELETE',
+          details: `Deleted ${idList.length} items from ${activeSection} (IDs: ${idList.join(', ')})`,
+          timestamp: new Date().toISOString()
+        });
+      } catch (logErr) {
+        console.warn('Failed to save audit log:', logErr);
       }
       
       showToast(`Successfully deleted from ${activeSection as string}`);

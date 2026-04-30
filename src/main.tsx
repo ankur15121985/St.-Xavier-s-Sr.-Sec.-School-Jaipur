@@ -3,18 +3,14 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Enhanced React Root Management to prevent dual-initialization warnings
+// Robust React Root Management to prevent dual-initialization warnings
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Failed to find root element');
 
-// Use a truly global key to prevent re-creation during module reloads
-const ROOT_SYMBOL = Symbol.for('app.root');
-let root = (window as any)[ROOT_SYMBOL];
-
-if (!root) {
-  root = createRoot(rootElement);
-  (window as any)[ROOT_SYMBOL] = root;
-}
+// Use a global to persist the root between reloads (e.g. during dev HMR or refresh)
+const win = window as any;
+const root = win.__REACT_ROOT__ || createRoot(rootElement);
+win.__REACT_ROOT__ = root;
 
 root.render(
   <StrictMode>

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Phone, Mail, MapPin, Key, Settings, ArrowRight, ChevronRight, Users2, ImageIcon, ExternalLink, Facebook, Instagram, Youtube, ArrowUp, ArrowDown, MessageSquare, Sun, Moon } from 'lucide-react';
+import { Menu, X, Phone, Mail, MapPin, Key, Settings, ArrowRight, ChevronRight, Users2, ImageIcon, ExternalLink, Facebook, Instagram, Youtube, ArrowUp, ArrowDown, MessageSquare, Sun, Moon, Search } from 'lucide-react';
 import { AppData, QuickLink } from '../../types';
 
 import ScrollButtons from '../ui/ScrollButtons';
 import PopupMessage from '../ui/PopupMessage';
+import { GlobalSearch } from '../ui/GlobalSearch';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -80,8 +81,21 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
   }, [data.menu]);
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const isHome = location.pathname === '/';
+
+  // Keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="min-h-screen selection:bg-school-accent selection:text-white overflow-x-hidden dark:text-slate-200" style={{ 
@@ -139,11 +153,11 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                     />
                   </div>
                   <div className="flex flex-col justify-center">
-                    <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight whitespace-nowrap transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-2xl md:text-[42px]'}`}>
+                    <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-2xl md:text-[42px]'} md:whitespace-nowrap`}>
                       ST. XAVIER'S SR. SEC. SCHOOL
                     </h1>
                     {!isScrolled && (
-                      <p className="text-[13px] md:text-[17px] font-sans font-medium text-[#333] dark:text-slate-400 mt-1 leading-tight whitespace-nowrap">
+                      <p className="text-[13px] md:text-[17px] font-sans font-medium text-[#333] dark:text-slate-400 mt-1 leading-tight md:whitespace-nowrap">
                         Bhagwan Das Road, C-Scheme, Jaipur - 302001 &nbsp;|&nbsp; CBSE Affiliation No.: 1730003
                       </p>
                     )}
@@ -151,6 +165,12 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 </Link>
                 
                 <div className="hidden lg:flex items-center gap-6">
+                   <button 
+                     onClick={() => setIsSearchOpen(true)}
+                     className={`w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white`}
+                   >
+                     <Search size={isScrolled ? 16 : 20} />
+                   </button>
                    {!isScrolled && (
                      <div className="text-right">
                         <p className="text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-widest leading-none">Established</p>
@@ -163,8 +183,17 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 </div>
 
                 <div className="lg:hidden flex items-center gap-4">
-                  <button onClick={() => setIsNavOpen(true)} className="p-2 bg-slate-100 rounded-lg">
-                    <Menu size={24} />
+                  <button 
+                    onClick={() => setIsSearchOpen(true)}
+                    className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-school-navy dark:text-white"
+                  >
+                    <Search size={20} />
+                  </button>
+                  <button 
+                    onClick={() => setIsNavOpen(true)} 
+                    className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-school-navy dark:text-white shrink-0"
+                  >
+                    <Menu size={20} />
                   </button>
                 </div>
               </div>
@@ -260,11 +289,11 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   />
                 </Link>
                 <div className="flex flex-col">
-                  <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight whitespace-nowrap transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-[32px]'}`}>
+                  <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-[32px]'} md:whitespace-nowrap`}>
                     ST. XAVIER'S SR. SEC. SCHOOL
                   </span>
                   {!isScrolled && (
-                    <span className="text-[10px] md:text-[14px] font-sans font-medium text-slate-500 dark:text-slate-400 leading-tight whitespace-nowrap mt-1">
+                    <span className="text-[10px] md:text-[14px] font-sans font-medium text-slate-500 dark:text-slate-400 leading-tight mt-1 md:whitespace-nowrap">
                       Bhagwan Das Road, C-Scheme, Jaipur &nbsp;|&nbsp; CBSE Affiliation No.: 1730003
                     </span>
                   )}
@@ -274,8 +303,14 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               {/* Actions */}
               <div className="flex items-center gap-4">
                 <button 
+                  onClick={() => setIsSearchOpen(true)}
+                  className={`hidden sm:flex w-10 h-10 rounded-full items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white`}
+                >
+                  <Search size={18} />
+                </button>
+                <button 
                   onClick={() => setIsDark(!isDark)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white`}
                 >
                   {isDark ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
@@ -286,10 +321,16 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   <Key size={14} /> Admin Login
                 </Link>
                 <button 
-                  onClick={() => setIsNavOpen(true)}
-                  className="lg:hidden w-10 h-10 flex items-center justify-center"
+                  onClick={() => setIsSearchOpen(true)}
+                  className="lg:hidden w-10 h-10 flex items-center justify-center p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-school-navy dark:text-white"
                 >
-                  <Menu size={24} />
+                  <Search size={20} />
+                </button>
+                <button 
+                  onClick={() => setIsNavOpen(true)}
+                  className="lg:hidden w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg text-school-navy dark:text-white shrink-0"
+                >
+                  <Menu size={20} />
                 </button>
               </div>
             </div>
@@ -359,18 +400,24 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-[100] bg-school-paper flex flex-col lg:hidden"
+            className="fixed inset-0 z-[200] bg-school-paper flex flex-col lg:hidden"
           >
-            <div className="flex justify-between items-center p-6 border-b border-school-ink/5 dark:border-school-paper/10">
+            <div className="flex justify-between items-center p-6 border-b border-school-ink/5 dark:border-school-paper/10 bg-white dark:bg-slate-900 sticky top-0 z-10">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-school-ink dark:bg-school-paper/10 p-2 rounded-xl">
-                  <img src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} alt="Logo" className="w-full h-full object-contain invert" />
+                <div className="w-10 h-10 bg-school-navy dark:bg-school-paper/10 p-2 rounded-xl">
+                  <img src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} alt="Logo" className="w-full h-full object-contain" />
                 </div>
-                <span className="font-black text-school-ink dark:text-white tracking-tight">
-                  {data.settings?.siteName?.split(',')[0]?.split('Sec.')[0]?.toUpperCase() || "ST. XAVIER'S"}
+                <span className="font-black text-school-navy dark:text-white tracking-tight flex flex-col">
+                  <span className="text-[10px] text-slate-400">ST. XAVIER'S</span>
+                  <span className="text-sm">MENU</span>
                 </span>
               </div>
-              <button onClick={() => setIsNavOpen(false)} className="p-3 bg-school-bronze dark:bg-school-paper/10 rounded-full hover:bg-school-accent hover:text-white transition-colors dark:text-white"><X size={24} /></button>
+              <button 
+                onClick={() => setIsNavOpen(false)} 
+                className="p-3 bg-school-accent text-white rounded-full hover:scale-110 active:scale-95 transition-all shadow-xl flex items-center justify-center ring-4 ring-school-accent/20"
+              >
+                <X size={24} />
+              </button>
             </div>
             
             <div className="flex-1 overflow-y-auto p-6 pb-20">
@@ -483,6 +530,9 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
 
       {/* Modern AI/Help Chat Bubble */}
       <ChatBubble />
+
+      {/* Global Search Dialog */}
+      <GlobalSearch data={data} isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
 
       {/* Floating Scroll Controls */}
       <ScrollButtons />
