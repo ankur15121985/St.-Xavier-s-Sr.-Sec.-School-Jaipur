@@ -130,7 +130,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.entries({
           ...item,
-          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'menu'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
+          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'menu', 'carousel'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
         }).filter(([k]) => {
           if (k === 'id') return false;
           const handledAtBottom = 
@@ -265,6 +265,24 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                    {isUploading ? 'Finalizing Sync...' : (section === 'menu' ? 'Upload Committee PDF/Document' : section === 'fees' ? 'Upload Fee Schedule' : section === 'staff' ? 'Update Photo' : `Upload to ${section.toUpperCase()}`)}
                    <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, targetField, section)} disabled={!!uploadingPath} />
                 </label>
+                
+                <button 
+                  onClick={() => {
+                    const itemToSave = data[section].find((i: any) => i.id === item.id);
+                    if (itemToSave) {
+                      setSavePending(true);
+                      supabaseService.saveItem(section, itemToSave)
+                        .then(() => showToast(`Successfully saved ${section} item`, 'success'))
+                        .catch((err) => showToast(`Save failed: ${err.message}`, 'error'))
+                        .finally(() => setSavePending(false));
+                    }
+                  }}
+                  disabled={savePending}
+                  className="flex-1 bg-school-navy text-white px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-school-navy/80 transition-all flex items-center justify-center gap-2 group shadow-lg shadow-school-navy/20 active:scale-95"
+                >
+                  {savePending ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} className="group-hover:scale-125 transition-transform" />}
+                  Save & Sync to Database
+                </button>
               </div>
             </div>
           );
@@ -295,7 +313,8 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
           await supabaseService.saveItem('settings', updatedSettings);
           showToast(`Settings (${field}) updated in Supabase`);
         } catch (err: any) {
-          showToast('Settings sync failed', 'error');
+          console.error('Settings sync failed:', err);
+          showToast(`Settings sync failed: ${err.message?.slice(0, 50)}`, 'error');
         } finally {
           setSavePending(false);
         }
@@ -316,7 +335,8 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
           await supabaseService.saveItem('content', updatedContent);
           showToast('Content narrative synced to Supabase');
         } catch (err: any) {
-          showToast('Content sync failed', 'error');
+          console.error('Content sync failed:', err);
+          showToast(`Content sync failed: ${err.message?.slice(0, 50)}`, 'error');
         } finally {
           setSavePending(false);
         }
@@ -440,9 +460,8 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
         ? 'https://picsum.photos/seed/new_gallery/1200/800' 
         : 'https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600';
       newItem.caption = tableStr === 'gallery' ? 'Gallery Image Caption' : 'Carousel Slide Title';
-      if (tableStr === 'gallery') {
-        newItem.session = '2024-25';
-      }
+      newItem.session = '2024-25';
+      newItem.attachmentUrl = '';
     } else if (tableStr === 'links') {
       newItem.title = 'New Link';
       newItem.url = '#';
@@ -575,7 +594,8 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
         storageService.uploadFile(file, folder).catch(() => {});
       } else {
         const text = await res.text();
-        showToast(`Upload failed: ${text.slice(0, 50)}`, 'error');
+        const errorMessage = text.includes('<!DOCTYPE html>') ? `Server error (possibly path not found). Raw: ${text.slice(0, 100)}` : text;
+        showToast(`Upload failed: ${errorMessage.slice(0, 70)}`, 'error');
       }
     } catch (err: any) {
       console.error('[Upload] Process error:', err);
@@ -651,26 +671,29 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     const finishedItems = pendingGalleryItems.filter(p => p.status === 'completed' && p.url);
     if (finishedItems.length === 0) return;
 
+    const section = (activeSection === 'carousel' || activeSection === 'gallery') ? activeSection : 'gallery';
+
     setUploadingPath('finalize');
     try {
       const newEntries = finishedItems.map(p => ({
         id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
         url: p.url!,
-        caption: p.caption || 'Gallery Image',
-        session: p.session || ''
+        caption: p.caption || (section === 'carousel' ? 'Carousel Slide' : 'Gallery Image'),
+        session: p.session || '',
+        attachmentUrl: ''
       }));
 
       // Map over and save to DB
       for (const entry of newEntries) {
-        await supabaseService.saveItem('gallery', entry);
+        await supabaseService.saveItem(section, entry);
       }
 
-      setData({ ...data, gallery: [...newEntries, ...data.gallery] });
+      setData({ ...data, [section]: [...newEntries, ...(data[section] as any[])] });
       setPendingGalleryItems(prev => prev.filter(p => !finishedItems.find(f => f.id === p.id)));
-      showToast(`Successfully added ${newEntries.length} images to the gallery.`);
+      showToast(`Successfully added ${newEntries.length} images to ${section}.`);
     } catch (err) {
       console.error('Finalize failed:', err);
-      showToast('Error saving gallery items', 'error');
+      showToast(`Error saving ${section} items`, 'error');
     } finally {
       setUploadingPath(null);
     }
@@ -966,7 +989,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                 </motion.button>
               </>
             )}
-            {activeSection === 'gallery' && (
+            {(activeSection === 'gallery' || activeSection === 'carousel') && (
               <label className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-school-navy text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none cursor-pointer">
                 <ImageIcon size={16} /> 
                 {pendingGalleryItems.some(p => p.status === 'uploading') ? 'Uploading...' : 'Browse & Upload Images'}

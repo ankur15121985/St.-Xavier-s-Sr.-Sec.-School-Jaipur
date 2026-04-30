@@ -1,6 +1,6 @@
 export interface Notice { id: string; title: string; content?: string; date: string; category: string; link?: string; attachmentUrl?: string; }
 export interface StaffMember { id: string; name: string; role: string; bio: string; image: string; type: 'Management' | 'Faculty' | 'Administration'; }
-export interface GalleryItem { id: string; url: string; caption: string; session?: string; }
+export interface GalleryItem { id: string; url: string; caption: string; session?: string; attachmentUrl?: string; }
 export interface FeeStructure { 
   id: string; 
   category: string; 

@@ -22,7 +22,15 @@ app.use((req, res, next) => {
 
 // Basic Middleware
 app.use(cors());
-app.use(express.json());
+// Do not use global express.json() here if you want to avoid interfering with files, 
+// move it to routes that need it, or ensure it only runs for json content-type.
+app.use((req, res, next) => {
+  if (req.headers['content-type']?.includes('application/json')) {
+    express.json()(req, res, next);
+  } else {
+    next();
+  }
+});
 
 // Setup Multer for Image Uploads
 const uploadDir = path.join(process.cwd(), 'public', 'uploads');
@@ -48,19 +56,8 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 } // 50MB
 });
 
-// DIAGNOSTIC ROUTE
-app.get('/api/connectivity-test', (req, res) => {
-  res.json({
-    status: 'ok',
-    sqlite: !!db,
-    supabase: !!supabaseServer,
-    uploadDir: fs.existsSync(uploadDir),
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Upload Route (Defined VERY EARLY to avoid being swallowed by other middleware)
-app.post('/api/upload', (req, res) => {
+// Upload Route (Defined VERY EARLY and handles both trailing slash and not)
+app.post(['/api/upload', '/api/upload/'], (req, res) => {
   const section = req.query.section || req.body.section || 'misc';
   console.log(`[UPLOAD REQUEST] Starting for section: ${section}`);
   
@@ -74,11 +71,11 @@ app.post('/api/upload', (req, res) => {
       return res.status(400).json({ error: 'No file uploaded (use "file" field)' });
     }
     
-    // Ensure section subdirectory exists (redundant with multer.diskStorage but safe)
+    // Ensure section subdirectory exists
     const sectionDir = path.join(uploadDir, String(section));
     if (!fs.existsSync(sectionDir)) fs.mkdirSync(sectionDir, { recursive: true });
 
-    const relativePath = section ? `${section}/${req.file.filename}` : req.file.filename;
+    const relativePath = section !== 'misc' ? `${section}/${req.file.filename}` : req.file.filename;
     console.log(`[UPLOAD SUCCESS] Saved: ${req.file.filename} in ${section}`);
     
     res.json({ 
@@ -88,10 +85,6 @@ app.post('/api/upload', (req, res) => {
       path: relativePath
     });
   });
-});
-
-app.post('/api/upload/', (req, res) => {
-  res.redirect(307, '/api/upload' + (req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''));
 });
 
 // Detailed Request Logger for API
