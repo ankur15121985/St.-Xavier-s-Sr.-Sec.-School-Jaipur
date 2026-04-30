@@ -6,7 +6,7 @@ export const supabaseService = {
     try {
       const collections: (keyof AppData)[] = [
         'notices', 'staff', 'gallery', 'fees', 'links', 
-        'events', 'achievements', 'studentHonors', 'menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages'
+        'events', 'achievements', 'studentHonors', 'menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs'
       ];
 
       const results: Partial<AppData> = {};

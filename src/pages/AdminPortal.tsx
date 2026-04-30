@@ -37,8 +37,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   const [bulkEditField, setBulkEditField] = useState<string>('');
   const [bulkEditValue, setBulkEditValue] = useState<string>('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [loginUsername, setLoginUsername] = useState('ankur15121985');
-  const [loginPassword, setLoginPassword] = useState('24121985');
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isLegacyAuthenticated, setIsLegacyAuthenticated] = useState(false);
   const [showLegacyForm, setShowLegacyForm] = useState(false);
@@ -125,12 +125,14 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
 
   const renderItemCard = (item: any, section: keyof AppData) => (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={item.id} className={`bg-school-paper p-6 md:p-8 rounded-3xl shadow-sm border transition-all flex flex-col md:flex-row items-start gap-6 md:gap-8 group ${selectedIds.has(item.id) ? 'border-school-gold ring-1 ring-school-gold/20' : 'border-school-ink/10'}`}>
-      <div className="flex items-center justify-between w-full md:w-auto">
-        <button onClick={() => toggleSelect(item.id)} className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${selectedIds.has(item.id) ? 'bg-school-gold border-school-gold text-school-navy scale-110' : 'border-school-ink/10 group-hover:border-school-ink/20'}`}>
-          {selectedIds.has(item.id) && <Check size={14} strokeWidth={4} />}
-        </button>
-        <button onClick={() => setItemToDelete(item.id)} className="md:hidden p-3 rounded-xl bg-red-50 text-red-400"><Trash2 size={18} /></button>
-      </div>
+      {section !== 'logs' && (
+        <div className="flex items-center justify-between w-full md:w-auto">
+          <button onClick={() => toggleSelect(item.id)} className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${selectedIds.has(item.id) ? 'bg-school-gold border-school-gold text-school-navy scale-110' : 'border-school-ink/10 group-hover:border-school-ink/20'}`}>
+            {selectedIds.has(item.id) && <Check size={14} strokeWidth={4} />}
+          </button>
+          <button onClick={() => setItemToDelete(item.id)} className="md:hidden p-3 rounded-xl bg-red-50 text-red-400"><Trash2 size={18} /></button>
+        </div>
+      )}
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.entries({
           ...item,
@@ -145,7 +147,22 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
         }).map(([field, value]) => (
           <div key={field} className="space-y-2">
             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30">{field as string}</label>
-            {field === 'bio' || field === 'description' || field === 'content' ? (
+            {section === 'logs' ? (
+              <div className="text-xs font-medium text-school-ink bg-school-ink/5 p-3 rounded-xl border border-school-ink/5 break-all">
+                {String(value)}
+              </div>
+            ) : field === 'password' && section === 'admins' ? (
+              <input type="password" value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all" />
+            ) : (field === 'role' && section === 'admins') ? (
+              <select 
+                value={item[field] || 'staff'} 
+                onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
+                className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
+              >
+                <option value="admin">Admin</option>
+                <option value="staff">Staff</option>
+              </select>
+            ) : field === 'bio' || field === 'description' || field === 'content' ? (
                <textarea value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium h-24 focus:ring-1 focus:ring-school-gold transition-all resize-none" />
             ) : (field.toLowerCase().includes('url') || field.toLowerCase().includes('image') || field.toLowerCase().includes('link') || field.toLowerCase().includes('file') || field.toLowerCase().includes('pdf') || field.toLowerCase().includes('attachment') || field === 'href' || field === 'src') ? (
               <div className="space-y-4">
@@ -234,6 +251,8 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
           const isPDF = currentVal && typeof currentVal === 'string' && currentVal.toLowerCase().endsWith('.pdf');
           const isImage = currentVal && typeof currentVal === 'string' && (currentVal.match(/\.(jpg|jpeg|png|gif|webp)$/i) || currentVal.includes('lh3.googleusercontent.com'));
           
+          if (section === 'logs') return null;
+
           return (
             <div className="mt-4 pt-4 border-t border-school-ink/5 w-full col-span-full flex flex-col gap-4">
               {currentVal && (
@@ -293,9 +312,11 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
           );
         })()}
       </div>
-      <button onClick={() => setItemToDelete(item.id)} className="p-4 rounded-2xl bg-red-400/10 text-red-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-400/20">
-        <Trash2 size={20} />
-      </button>
+      {section !== 'logs' && (
+        <button onClick={() => setItemToDelete(item.id)} className="p-4 rounded-2xl bg-red-400/10 text-red-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-400/20">
+          <Trash2 size={20} />
+        </button>
+      )}
     </motion.div>
   );
 
@@ -527,11 +548,29 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
       newItem.dob = new Date().toISOString().split('T')[0];
       newItem.student_name = 'Student Name';
       newItem.attachmentUrl = '';
+    } else if (tableStr === 'admins') {
+      newItem.username = 'new_admin';
+      newItem.password = 'change_me_123';
+      newItem.role = 'staff';
+      newItem.created_at = new Date().toISOString();
     }
 
     setSavePending(true);
     try {
       await supabaseService.saveItem(activeSection, newItem);
+      // Audit Log
+      try {
+        await supabaseService.saveItem('logs', {
+          id: `log_${Date.now()}`,
+          user: user?.email || 'anonymous',
+          action: 'CREATE',
+          details: `Created new item in ${activeSection} (ID: ${newItem.id})`,
+          timestamp: new Date().toISOString()
+        });
+      } catch (logErr) {
+        console.warn('Failed to save audit log:', logErr);
+      }
+      
       const current = data[activeSection];
       if (Array.isArray(current)) {
         setData({ ...data, [activeSection]: [newItem, ...current] });
@@ -550,6 +589,18 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     setSavePending(true);
     try {
       await supabaseService.syncAll(data);
+      // Audit Log
+      try {
+        await supabaseService.saveItem('logs', {
+          id: `log_${Date.now()}`,
+          user: user?.email || 'anonymous',
+          action: 'SYNC_ALL',
+          details: `Manual sync of all tables triggered by admin`,
+          timestamp: new Date().toISOString()
+        });
+      } catch (logErr) {
+        console.warn('Failed to save audit log:', logErr);
+      }
       showToast('Entire database synced successfully to Supabase');
     } catch (err) {
       showToast('Critical sync failure', 'error');
@@ -760,6 +811,8 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     { id: 'transfer_certificates', label: 'TC Records', icon: <FileText size={18} className="text-school-accent" /> },
     { id: 'messages', label: 'Inquiries', icon: <Mail size={18} className="text-school-accent" /> },
     { id: 'menu', label: 'Menu', icon: <Menu size={18} /> },
+    { id: 'admins', label: 'Admin Accounts', icon: <Key size={18} className="text-school-neon" /> },
+    { id: 'logs', label: 'Audit Logs', icon: <FileText size={18} className="text-school-ink opacity-50" /> },
     { id: 'content', label: 'Site Content', icon: <LayoutGrid size={18} className="text-school-neon" /> },
     { id: 'settings', label: 'Global Settings', icon: <Settings size={18} className="text-school-gold" /> }
   ];
@@ -1018,7 +1071,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
               {searchQuery ? `Showing matches for "${searchQuery}" across all categories.` : `Comprehensive CRUD control for ${activeSection} on the main portal.`}
             </p>
           </div>
-        {!searchQuery && activeSection !== 'settings' && activeSection !== 'content' && (
+        {!searchQuery && activeSection !== 'settings' && activeSection !== 'content' && activeSection !== 'logs' && (
           <div className="flex flex-wrap gap-4 shrink-0">
             {savePending && (
               <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} onClick={handleSaveAll} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-emerald-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">

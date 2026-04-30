@@ -82,4 +82,22 @@ export interface AppData {
   marquee: MarqueeItem[];
   settings: AppSettings;
   content: Record<string, string>;
+  admins: AdminCredential[];
+  logs: AuditLog[];
+}
+
+export interface AdminCredential {
+  id: string;
+  username: string;
+  password?: string;
+  role: 'admin' | 'staff';
+  created_at?: string;
+}
+
+export interface AuditLog {
+  id: string;
+  user: string;
+  action: string;
+  details: string;
+  timestamp: string;
 }

@@ -19,8 +19,27 @@ DROP TABLE IF EXISTS faqs CASCADE;
 DROP TABLE IF EXISTS messages CASCADE;
 DROP TABLE IF EXISTS popups CASCADE;
 DROP TABLE IF EXISTS marquee CASCADE;
+DROP TABLE IF EXISTS admins CASCADE;
+DROP TABLE IF EXISTS logs CASCADE;
 DROP TABLE IF EXISTS settings CASCADE;
 DROP TABLE IF EXISTS content CASCADE;
+
+-- Auth & Logs
+CREATE TABLE admins (
+    id TEXT PRIMARY KEY, 
+    username TEXT UNIQUE NOT NULL, 
+    password TEXT NOT NULL, 
+    role TEXT DEFAULT 'staff',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+CREATE TABLE logs (
+    id TEXT PRIMARY KEY,
+    "user" TEXT NOT NULL,
+    action TEXT NOT NULL,
+    details TEXT,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
 
 -- 2. CREATE CAROUSEL TABLE (FIRST PRIORITY)
 CREATE TABLE carousel (

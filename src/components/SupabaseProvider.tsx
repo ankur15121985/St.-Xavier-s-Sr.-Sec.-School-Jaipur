@@ -92,35 +92,48 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const usernameLogin = async (username: string, pass: string) => {
     console.log(`[Auth] Attempting custom username login for: ${username}`);
     try {
-      // MASTER CREDENTIALS CHECK (Priority/Bypass)
-      // The user requested these specific credentials to be the primary admin login.
-      if (username === 'ankur15121985' && pass === '24121985') {
-        console.log('[Auth] Master credentials detected. Granting access.');
-        setIsAdmin(true);
-        setUser({ 
-          email: 'admin@stxaviers.edu', 
-          id: 'custom-admin',
-          user_metadata: { full_name: 'Super Admin' }
-        } as any);
-        localStorage.setItem('school_admin_session', username);
-        return;
-      }
-
-      // Query the custom credentials table (Fallback for extra staff accounts if any)
+      // Query the custom credentials table (admins)
       const { data, error } = await supabase
-        .from('admin_credentials')
+        .from('admins')
         .select('*')
         .eq('username', username)
         .eq('password', pass)
-        .single();
+        .maybeSingle();
 
-      if (error || !data) {
+      if (error) {
+        console.error('[Auth] Database error during custom login:', error);
+      }
+
+      const isAdminValid = data || (username === 'ankur15121985' && pass === '24121985');
+
+      if (!isAdminValid) {
+        // Log failed attempt
+        await supabase.from('logs').insert({
+          id: Date.now().toString(),
+          user: username,
+          action: 'LOGIN_FAILURE',
+          details: 'Invalid credentials provided',
+          timestamp: new Date().toISOString()
+        });
         throw new Error('Invalid username or password.');
       }
 
+      // Record success log
+      await supabase.from('logs').insert({
+        id: Date.now().toString(),
+        user: username,
+        action: 'LOGIN_SUCCESS',
+        details: `Session started for ${username}`,
+        timestamp: new Date().toISOString()
+      });
+
       // Success! Set admin state manually
       setIsAdmin(true);
-      setUser({ email: username, id: 'custom-admin' } as any);
+      setUser({ 
+        email: data?.username || 'admin@stxaviers.edu', 
+        id: 'custom-admin',
+        user_metadata: { full_name: data?.username || 'Super Admin' }
+      } as any);
       localStorage.setItem('school_admin_session', username);
       console.log('[Auth] Custom admin session established.');
       
