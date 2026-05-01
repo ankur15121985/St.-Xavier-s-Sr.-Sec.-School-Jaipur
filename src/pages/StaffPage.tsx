@@ -15,25 +15,25 @@ const StaffPage = ({ data }: { data: AppData }) => {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-school-accent/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-[0.2em]">
-              <th className="p-8 border-b border-white/10 w-16">S.No</th>
-              <th className="p-8 border-b border-white/10">Employee Name</th>
-              <th className="p-8 border-b border-white/10">Designation</th>
-              <th className="p-8 border-b border-white/10">Appointment Details</th>
+              <th className="py-2 px-3 border-b border-white/10 w-16">S.No</th>
+              <th className="py-2 px-3 border-b border-white/10">Employee Name</th>
+              <th className="py-2 px-3 border-b border-white/10">Designation</th>
+              <th className="py-2 px-3 border-b border-white/10">Appointment Details</th>
             </tr>
           </thead>
           <tbody className="text-school-ink text-sm">
             {members.map((s, i) => (
               <tr key={s.id} className="hover:bg-school-paper/30 transition-colors border-b border-school-ink/10 last:border-none group">
-                <td className="p-8 font-black text-school-accent text-xs">{i + 1}</td>
-                <td className="p-8">
+                <td className="py-2 px-3 font-black text-school-accent text-xs">{i + 1}</td>
+                <td className="py-2 px-3">
                   <span className="font-black tracking-tight">{s.name}</span>
                 </td>
-                <td className="p-8">
+                <td className="py-2 px-3">
                   <span className="text-[10px] font-black uppercase tracking-widest text-school-accent bg-school-paper/40 px-3 py-1 rounded-full border border-school-ink/10">
                     {s.role}
                   </span>
                 </td>
-                <td className="p-8">
+                <td className="py-2 px-3">
                   <p className="text-xs text-school-ink/60 leading-relaxed font-medium italic">{s.bio}</p>
                 </td>
               </tr>

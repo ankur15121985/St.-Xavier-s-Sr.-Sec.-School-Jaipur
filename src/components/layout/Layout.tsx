@@ -515,7 +515,10 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           </div>
           
           <div className="pt-12 flex flex-col md:flex-row justify-between items-center gap-6 text-white/20 text-xs font-semibold tracking-wider uppercase">
-            <p>© 2026 {data.settings?.siteName}.</p>
+            <div>
+              <p>© 2026 {data.settings?.siteName}.</p>
+              <p className="mt-1 text-[10px] text-white/10 tracking-[0.3em]">MADE BY ABHISHEK MATHUR</p>
+            </div>
             <div className="flex gap-8">
               <span className="hover:text-white transition-colors cursor-pointer">Privacy</span>
               <span className="hover:text-white transition-colors cursor-pointer">Terms</span>

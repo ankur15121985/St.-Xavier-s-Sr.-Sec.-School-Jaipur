@@ -42,6 +42,9 @@ import NoticeBoardPage from './pages/NoticeBoardPage';
 import ContactPage from './pages/ContactPage';
 import AdminPortal from './pages/AdminPortal';
 import TransferCertificatePage from './pages/TransferCertificatePage';
+import FormerRectorsPage from './pages/FormerRectorsPage';
+import FormerManagersPage from './pages/FormerManagersPage';
+import FormerPrincipalsPage from './pages/FormerPrincipalsPage';
 
 const PageTransition = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -255,9 +258,9 @@ const DEFAULT_DATA: AppData = {
     { id: '2', label: 'About Us', href: '#', parent_id: null, order_index: 1 },
     { id: '2-5', label: 'Our Founder', href: '/founder-patron#founder', parent_id: '2', order_index: 0 },
     { id: '2-1', label: 'School History', href: '/history#school', parent_id: '2', order_index: 1 },
-    { id: '2-2', label: 'Former Principals', href: '/history#principal', parent_id: '2', order_index: 2 },
-    { id: '2-3', label: 'Former Rectors', href: '/history#rector', parent_id: '2', order_index: 3 },
-    { id: '2-4', label: 'Former Managers', href: '/history#manager', parent_id: '2', order_index: 4 },
+    { id: '2-2', label: 'Former Principals', href: '/former-principals', parent_id: '2', order_index: 2 },
+    { id: '2-3', label: 'Former Rectors', href: '/former-rectors', parent_id: '2', order_index: 3 },
+    { id: '2-4', label: 'Former Managers', href: '/former-managers', parent_id: '2', order_index: 4 },
     { id: '2-7', label: 'School Governing Members', href: '/governing-members', parent_id: '2', order_index: 5 },
     { id: '2-8', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 6 },
     { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
@@ -321,6 +324,7 @@ const DEFAULT_DATA: AppData = {
     { id: 'm1', text: 'St. Xavier\'s School, Jaipur - A Legacy of Excellence since 1941.', link: '#', isActive: true, order_index: 0 },
     { id: 'm2', text: 'Admissions Open for Academic Session 2026-27. Apply now!', link: '/admission-policy', isActive: true, order_index: 1 },
   ],
+  former_leaders: [],
   admins: [],
   logs: [],
   settings: {
@@ -540,6 +544,9 @@ export default function App() {
                 <Route path="/history" element={<PageTransition><HistoryPage data={data} /></PageTransition>} />
                 <Route path="/founder-patron" element={<PageTransition><FounderPatronPage data={data} /></PageTransition>} />
                 <Route path="/governing-members" element={<PageTransition><GoverningMembersPage data={data} /></PageTransition>} />
+                <Route path="/former-rectors" element={<PageTransition><FormerRectorsPage data={data} /></PageTransition>} />
+                <Route path="/former-managers" element={<PageTransition><FormerManagersPage data={data} /></PageTransition>} />
+                <Route path="/former-principals" element={<PageTransition><FormerPrincipalsPage data={data} /></PageTransition>} />
                 <Route path="/anthem" element={<PageTransition><SchoolAnthemPage data={data} /></PageTransition>} />
                 <Route path="/admission-policy" element={<PageTransition><AdmissionPolicyPage data={data} /></PageTransition>} />
                 <Route path="/scholarships" element={<PageTransition><ScholarshipPage data={data} /></PageTransition>} />

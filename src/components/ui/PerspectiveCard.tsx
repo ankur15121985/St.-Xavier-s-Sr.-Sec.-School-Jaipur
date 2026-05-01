@@ -14,7 +14,7 @@ export const PerspectiveCard = ({ children, delay = 0, className = "" }: { child
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.8 }}
-      viewport={{ once: true }}
+      viewport={{ amount: 0.1 }}
       onMouseMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         x.set(e.clientX - (rect.left + rect.width / 2));

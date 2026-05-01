@@ -57,16 +57,7 @@ const AdmissionPolicyPage = ({ data }: { data: AppData }) => {
             </div>
 
             {/* Action Section */}
-            <div id="prospectus" className="pt-12 border-t border-school-ink/10 flex flex-col items-center gap-8">
-              <a 
-                href={prospectusLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-10 py-5 bg-school-navy text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-school-gold hover:scale-105 transition-all shadow-xl group"
-              >
-                <Download size={18} className="group-hover:translate-y-1 transition-transform" />
-                View Prospectus
-              </a>
+            <div className="pt-12 border-t border-school-ink/10 flex flex-col items-center gap-8">
               <p className="text-xs text-school-ink/40 font-black uppercase tracking-widest text-center">Digital Admission Portal 2026-27</p>
             </div>
           </motion.div>

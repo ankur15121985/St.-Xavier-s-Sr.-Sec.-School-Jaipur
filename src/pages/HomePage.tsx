@@ -109,7 +109,7 @@ const HomePage = ({ data }: { data: AppData }) => {
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ amount: 0.1, margin: "-100px" }}
               transition={{ duration: 0.8 }}
               className="space-y-8"
             >
@@ -135,7 +135,7 @@ const HomePage = ({ data }: { data: AppData }) => {
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ amount: 0.1, margin: "-100px" }}
               transition={{ duration: 0.8 }}
               className="relative aspect-square"
             >
@@ -159,7 +159,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                <motion.div
                  initial={{ opacity: 0, x: -20 }}
                  whileInView={{ opacity: 1, x: 0 }}
-                 viewport={{ once: true }}
+                 viewport={{ amount: 0.1 }}
                  className="flex items-center gap-4"
                >
                  <div className="w-8 h-[2px] bg-school-accent" />
@@ -168,7 +168,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                <motion.h2 
                  initial={{ opacity: 0, y: 30 }}
                  whileInView={{ opacity: 1, y: 0 }}
-                 viewport={{ once: true }}
+                 viewport={{ amount: 0.1 }}
                  transition={{ duration: 0.8 }}
                  className="text-5xl md:text-7xl font-bold text-school-navy dark:text-white leading-[1.1] tracking-tight"
                >
@@ -179,7 +179,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                <motion.p
                  initial={{ opacity: 0, y: 20 }}
                  whileInView={{ opacity: 1, y: 0 }}
-                 viewport={{ once: true }}
+                 viewport={{ amount: 0.1 }}
                  transition={{ delay: 0.3, duration: 0.8 }}
                  className="text-lg text-slate-700 font-medium leading-normal max-w-sm"
                >
@@ -191,7 +191,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                variants={staggerContainer}
                initial="initial"
                whileInView="whileInView"
-               viewport={{ once: true }}
+               viewport={{ amount: 0.1 }}
                className="lg:col-span-7 grid grid-cols-2 md:grid-cols-6 gap-4"
             >
                {((data.links && data.links.length > 0) ? data.links.slice(0, 5) : [
@@ -237,7 +237,7 @@ const HomePage = ({ data }: { data: AppData }) => {
             <motion.div 
                initial={{ opacity: 0, y: 50 }}
                whileInView={{ opacity: 1, y: 0 }}
-               viewport={{ once: true }}
+               viewport={{ amount: 0.1 }}
                transition={{ duration: 0.8 }}
                className="space-y-8"
             >
@@ -253,7 +253,7 @@ const HomePage = ({ data }: { data: AppData }) => {
             <motion.div 
                initial={{ opacity: 0, scale: 0.9 }}
                whileInView={{ opacity: 1, scale: 1 }}
-               viewport={{ once: true }}
+               viewport={{ amount: 0.1 }}
                transition={{ duration: 0.8 }}
                className="relative aspect-square"
             >
@@ -269,7 +269,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       <motion.section 
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
+        viewport={{ amount: 0.1 }}
         transition={{ duration: 1 }}
         className="py-24 border-y border-black/5 dark:border-white/5"
       >
@@ -285,7 +285,7 @@ const HomePage = ({ data }: { data: AppData }) => {
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ amount: 0.1 }}
           className="max-w-[1440px] mx-auto px-6 text-center mb-16"
         >
           <h3 className="text-4xl md:text-6xl font-bold text-school-navy tracking-tight">Stay Updated.</h3>
@@ -295,7 +295,7 @@ const HomePage = ({ data }: { data: AppData }) => {
            <motion.div 
              initial={{ opacity: 0, x: -30 }}
              whileInView={{ opacity: 1, x: 0 }}
-             viewport={{ once: true }}
+             viewport={{ amount: 0.1 }}
              transition={{ duration: 0.8 }}
              className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm p-10 rounded-3xl border border-black/5 shadow-sm"
            >
@@ -313,7 +313,7 @@ const HomePage = ({ data }: { data: AppData }) => {
            <motion.div 
              initial={{ opacity: 0, x: 30 }}
              whileInView={{ opacity: 1, x: 0 }}
-             viewport={{ once: true }}
+             viewport={{ amount: 0.1 }}
              transition={{ duration: 0.8 }}
              className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm p-10 rounded-3xl border border-black/5 shadow-sm"
            >
@@ -342,14 +342,14 @@ const HomePage = ({ data }: { data: AppData }) => {
             <motion.div 
                initial={{ opacity: 0, x: -50 }}
                whileInView={{ opacity: 1, x: 0 }}
-               viewport={{ once: true }}
+               viewport={{ amount: 0.1 }}
                transition={{ duration: 1 }}
                className="relative"
             >
               <motion.div 
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
-                viewport={{ once: true }}
+                viewport={{ amount: 0.1 }}
                 transition={{ duration: 1.2, ease: "easeOut" }}
                 className="aspect-[4/5] rounded-3xl overflow-hidden shadow-xl relative group transition-all duration-1000 border border-black/5"
               >
@@ -364,7 +364,7 @@ const HomePage = ({ data }: { data: AppData }) => {
             <motion.div 
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ amount: 0.1 }}
               transition={{ duration: 1 }}
               className="space-y-10"
             >
@@ -399,7 +399,7 @@ const HomePage = ({ data }: { data: AppData }) => {
           <motion.div 
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ amount: 0.1 }}
             className="text-center mb-10 md:mb-20 space-y-4"
           >
             <h2 className="text-5xl md:text-[10rem] font-black text-school-ink tracking-tighter leading-none opacity-5 absolute -top-10 md:-top-20 left-0 text-left">ESTABLISHED.</h2>
@@ -416,7 +416,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                 key={i}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ amount: 0.1 }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ scale: 1.02, y: -5 }}
                 className="group bg-school-paper/40 backdrop-blur-3xl p-10 md:p-16 rounded-[40px] md:rounded-[80px] border border-school-ink/10 hover:bg-school-accent hover:text-white transition-all cursor-pointer flex flex-col justify-between min-h-[350px] md:min-h-[500px] shadow-xl shadow-school-accent/5"
@@ -445,7 +445,7 @@ const HomePage = ({ data }: { data: AppData }) => {
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ amount: 0.1 }}
             className="mb-16"
           >
             <h2 className="text-4xl md:text-6xl font-bold text-school-navy dark:text-white tracking-tight">
@@ -459,7 +459,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                   key={img.id}
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
+                  viewport={{ amount: 0.1 }}
                   transition={{ delay: i * 0.1 }}
                   whileHover={{ scale: 0.98 }}
                   className="relative group overflow-hidden rounded-3xl aspect-[4/5] bg-black/5"
@@ -484,7 +484,7 @@ const HomePage = ({ data }: { data: AppData }) => {
           <motion.div 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+            viewport={{ amount: 0.1 }}
             className="mb-20 border-b border-black/5 dark:border-white/5 pb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
           >
             <div>
@@ -503,7 +503,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                 key={s.id}
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                viewport={{ amount: 0.1 }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ x: 10 }}
                 className="group flex flex-col gap-4 border-l-2 border-slate-100 dark:border-slate-800 pl-8 hover:border-school-accent transition-colors py-2"

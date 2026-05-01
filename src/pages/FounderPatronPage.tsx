@@ -76,8 +76,8 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
                   <h3 className="text-5xl md:text-8xl font-serif font-black text-school-navy tracking-tight leading-none">The Visionary.</h3>
                 </div>
 
-                <div className="space-y-6 text-[18px] text-slate-800 leading-relaxed font-medium text-justify">
-                   <p className="first-letter:text-5xl first-letter:font-serif first-letter:font-black first-letter:text-school-accent first-letter:mr-3 first-letter:float-left">
+                <div className="space-y-6 text-xl md:text-2xl text-school-navy leading-relaxed font-light">
+                   <p className="first-letter:text-7xl first-letter:font-serif first-letter:font-black first-letter:text-school-accent first-letter:mr-4 first-letter:float-left">
                     St. Ignatius grew up in Spain and lived a rather plush life. He frequented the court and developed a taste for that life style, especially the ladies. Ignatius was involved with gambling and was a very confrontational man. After some legal issues in his youth he found himself at age 30 in the Spanish army defending the Spanish town of Pamplona against the French. During this battle, his commander wanted to retreat because they were outnumbered, but Ignatius convinced the commander to stay out of honor. During this battle a cannon ball struck Ignatius' legs. The French soldiers, impressed with his courage, carried him back to his home rather than into prison. In the hospital, Ignatius needed to have his leg re-broke without anesthesia. Due to an infection the doctors told him to prepare for death. On the feast day of Saints Peter and Paul, Ignatius miraculously got better. The leg healed in such a way as to cause a big bump which prevented him from wearing the long fitted boots that Spanish soldiers wore. So he told the doctors to fix it, all without anesthesia. In the end, the operation didn't fully work since Ignatius always walked with a limp.
                   </p>
                   <p>
@@ -138,7 +138,7 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
                    <p className="mt-6 text-[11px] font-sans font-black uppercase tracking-[0.2em] not-italic text-school-gold text-left">— The call to Francis Xavier</p>
                 </div>
 
-                <div className="space-y-6 text-[18px] text-slate-800 leading-relaxed font-medium text-justify">
+                <div className="space-y-6 text-xl md:text-2xl text-school-navy leading-relaxed font-light">
                    <p>
                     These words were repeated to a young teacher of philosophy who had a highly promising career in academics, with success and a life of prestige and honor before him. Francis Xavier, 24 at the time, and living and teaching in Paris, did not heed these words at once. They came from a good friend, Ignatius of Loyola (July 31), whose tireless persuasion finally won the young man to Christ. 
                   </p>

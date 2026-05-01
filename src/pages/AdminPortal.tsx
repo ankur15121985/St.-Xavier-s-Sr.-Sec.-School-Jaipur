@@ -174,9 +174,9 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                 )}
               </div>
             ) : 
-field === 'type' && (section === 'staff' || section === 'popups') ? (
+field === 'type' && (section === 'staff' || section === 'popups' || section === 'former_leaders') ? (
               <select 
-                value={item[field] ?? (section === 'staff' ? 'Faculty' : 'text')} 
+                value={item[field] ?? (section === 'staff' ? 'Faculty' : section === 'former_leaders' ? 'Principal' : 'text')} 
                 onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
                 className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
               >
@@ -185,6 +185,12 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
                     <option value="Management">Management</option>
                     <option value="Faculty">Faculty</option>
                     <option value="Administration">Administration</option>
+                  </>
+                ) : section === 'former_leaders' ? (
+                  <>
+                    <option value="Rector">Rector</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Principal">Principal</option>
                   </>
                 ) : (
                   <>
@@ -597,6 +603,12 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
       newItem.dob = new Date().toISOString().split('T')[0];
       newItem.student_name = 'Student Name';
       newItem.attachmentUrl = '';
+    } else if (tableStr === 'former_leaders') {
+      newItem.name = 'Legacy Leader Name';
+      newItem.tenure = '1941 - 1945';
+      newItem.image = '';
+      newItem.type = 'Principal';
+      newItem.order_index = (data.former_leaders?.length || 0);
     } else if (tableStr === 'admins') {
       newItem.username = 'new_admin';
       newItem.password = 'change_me_123';
@@ -670,7 +682,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     setUploadingPath(`${section}-${id}-${field}`);
     
     // Determine folder based on section
-    let folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups', 'menu', 'content', 'marquee'].includes(section as string)) ? (section as string) : 'misc';
+    let folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups', 'menu', 'content', 'marquee', 'former_leaders'].includes(section as string)) ? (section as string) : 'misc';
 
 // Specialized folder routing for new committees in Menu
     if (section === 'menu') {
@@ -860,6 +872,7 @@ field === 'type' && (section === 'staff' || section === 'popups') ? (
     { id: 'transfer_certificates', label: 'TC Records', icon: <FileText size={18} className="text-school-accent" /> },
     { id: 'messages', label: 'Inquiries', icon: <Mail size={18} className="text-school-accent" /> },
     { id: 'menu', label: 'Menu', icon: <Menu size={18} /> },
+    { id: 'former_leaders', label: 'History Leaders', icon: <Award size={18} className="text-school-accent" /> },
     { id: 'admins', label: 'Admin Accounts', icon: <Key size={18} className="text-school-neon" /> },
     { id: 'logs', label: 'Audit Logs', icon: <FileText size={18} className="text-school-ink opacity-50" /> },
     { id: 'content', label: 'Site Content', icon: <LayoutGrid size={18} className="text-school-neon" /> },

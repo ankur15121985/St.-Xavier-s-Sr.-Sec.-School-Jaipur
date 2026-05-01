@@ -80,6 +80,7 @@ export interface AppData {
   messages: ContactMessage[];
   popups: AnnouncementPopup[];
   marquee: MarqueeItem[];
+  former_leaders: FormerLeader[];
   settings: AppSettings;
   content: Record<string, string>;
   admins: AdminCredential[];
@@ -100,4 +101,13 @@ export interface AuditLog {
   action: string;
   details: string;
   timestamp: string;
+}
+
+export interface FormerLeader {
+  id: string;
+  name: string;
+  tenure: string;
+  image?: string;
+  type: 'Rector' | 'Manager' | 'Principal';
+  order_index: number;
 }
