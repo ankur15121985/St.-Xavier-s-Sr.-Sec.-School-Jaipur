@@ -12,9 +12,10 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
  */
 export async function uploadFile(file: File, folder: string = 'misc'): Promise<string> {
   const bucket = 'uploads'; // User confirmed this bucket exists
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-  const filePath = `${folder}/${fileName}`;
+  
+  // Sanitize filename to avoid issues with special characters while preserving original name
+  const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+  const filePath = `${folder}/${sanitizedName}`;
 
   console.log(`[Supabase Storage] Attempting upload of ${file.name} to bucket: ${bucket}, path: ${filePath}`);
   

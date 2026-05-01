@@ -113,7 +113,7 @@ const TransferCertificatePage = ({ data }: { data: AppData }) => {
 
                 <div className="px-6 py-3 bg-school-gold/10 rounded-2xl border border-school-gold/20">
                   <p className="text-[9px] font-black uppercase tracking-widest text-school-navy/60 text-center">
-                    Test Record: <span className="text-school-gold">TC01</span> & <span className="text-school-gold">27-04-2026</span>
+                    Test Record: <span className="text-school-gold">TC01</span> & <span className="text-school-gold">2026-04-27</span>
                   </p>
                 </div>
 

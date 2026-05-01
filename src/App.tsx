@@ -324,6 +324,9 @@ const DEFAULT_DATA: AppData = {
     { id: 'm1', text: 'St. Xavier\'s School, Jaipur - A Legacy of Excellence since 1941.', link: '#', isActive: true, order_index: 0 },
     { id: 'm2', text: 'Admissions Open for Academic Session 2026-27. Apply now!', link: '/admission-policy', isActive: true, order_index: 1 },
   ],
+  transfer_certificates: [
+    { id: 'tc1', admission_number: 'TC01', dob: '2026-04-27', student_name: 'Institutional Test Student', attachmentUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf' }
+  ],
   former_leaders: [],
   admins: [],
   logs: [],

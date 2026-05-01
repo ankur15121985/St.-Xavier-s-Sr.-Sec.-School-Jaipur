@@ -239,6 +239,13 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 <option value="read">Read</option>
                 <option value="replied">Replied</option>
               </select>
+            ) : (field === 'dob' || field === 'date') ? (
+              <input 
+                type="date" 
+                value={item[field] ?? ''} 
+                onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
+                className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all" 
+              />
             ) : (
               <div className="space-y-2">
                 <input value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all" />
@@ -681,20 +688,16 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     console.log(`[Upload] Starting upload for ${section}/${id}/${field} - File: ${file.name} (${file.size} bytes)`);
     setUploadingPath(`${section}-${id}-${field}`);
     
-    // Determine folder based on section
-    let folder = (['fees', 'notices', 'staff', 'gallery', 'carousel', 'events', 'achievements', 'links', 'settings', 'studentHonors', 'popups', 'menu', 'content', 'marquee', 'former_leaders'].includes(section as string)) ? (section as string) : 'misc';
-
-// Specialized folder routing for new committees in Menu
+    // Determine folder based on section display label
+    const activeMenuSection = sections.find(s => s.id === section);
+    let folder = activeMenuSection ? activeMenuSection.label.replace(/\s+/g, '_') : (section as string);
+    
+    // For the specific 'menu' section, use the label of the menu item as the folder
     if (section === 'menu') {
       const items = data[section] as any[];
       const item = items.find(i => i.id === id);
-      if (item) {
-        const label = (item.label || '').toUpperCase();
-        if (label.includes('POSH')) folder = 'POSH';
-        else if (label.includes('GRIEVANCE CELL') || label.includes('INTERNAL GRIEVANCE')) folder = 'IGC';
-        else if (label.includes('POCSO')) folder = 'POCSO';
-        else if (label.includes('SLFC')) folder = 'SLFC';
-        else if (label.includes('PTA')) folder = 'PTA';
+      if (item && item.label) {
+        folder = item.label.replace(/\s+/g, '_');
       }
     }
 
@@ -748,19 +751,21 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
   const uploadPendingItem = async (pendingItem: PendingGalleryItem) => {
     setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'uploading', progress: 10 } : p));
     
-    const section = (activeSection === 'carousel' || activeSection === 'gallery') ? activeSection : 'gallery';
+    const targetSection = (activeSection === 'carousel' || activeSection === 'gallery') ? activeSection : 'gallery';
+    const activeMenuSection = sections.find(s => s.id === targetSection);
+    const folder = activeMenuSection ? activeMenuSection.label.replace(/\s+/g, '_') : targetSection;
 
     try {
       // 1. Prioritize Supabase Storage (Vercel compatible)
       try {
-        const publicUrl = await storageService.uploadFile(pendingItem.file, section);
+        const publicUrl = await storageService.uploadFile(pendingItem.file, folder);
         if (publicUrl) {
           setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: publicUrl } : p));
           
           // Background mirror to local if possible
           const formData = new FormData();
           formData.append('file', pendingItem.file);
-          fetch(`/api/upload?section=${section}`, { method: 'POST', body: formData }).catch(() => {});
+          fetch(`/api/upload?section=${encodeURIComponent(folder)}`, { method: 'POST', body: formData }).catch(() => {});
           
           return;
         }
@@ -772,7 +777,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       const formData = new FormData();
       formData.append('file', pendingItem.file);
       
-      const res = await fetch(`/api/upload?section=${section}`, {
+      const res = await fetch(`/api/upload?section=${encodeURIComponent(folder)}`, {
         method: 'POST',
         body: formData,
       });
