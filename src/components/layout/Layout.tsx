@@ -60,10 +60,10 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
 
   // Transform flat menu data into hierarchical structure
   const navLinks = React.useMemo<NavLink[]>(() => {
-    if (!data.menu) return [];
+    if (!data.navigation_menu) return [];
     
     const buildTree = (parentId: string | null = null): NavLink[] => {
-      return data.menu
+      return data.navigation_menu
         .filter(m => m.parent_id === parentId)
         .sort((a, b) => a.order_index - b.order_index)
         .map(m => {
@@ -78,7 +78,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
     };
 
     return buildTree();
-  }, [data.menu]);
+  }, [data.navigation_menu]);
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -415,43 +415,90 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
       <AnimatePresence>
         {isNavOpen && (
           <motion.div 
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-[200] bg-school-paper flex flex-col lg:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md lg:hidden"
+            onClick={() => setIsNavOpen(false)}
           >
-            <div className="flex justify-between items-center p-6 border-b border-school-ink/5 dark:border-school-paper/10 bg-white dark:bg-slate-900 sticky top-0 z-10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-school-navy dark:bg-school-paper/10 p-2 rounded-xl">
-                  <img src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} alt="Logo" className="w-full h-full object-contain" />
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-white dark:bg-slate-950 flex flex-col shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center p-6 border-b border-black/5 dark:border-white/5 bg-white dark:bg-slate-900 sticky top-0 z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-school-navy dark:bg-school-paper/10 p-2 rounded-xl">
+                    <img src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} alt="Logo" className="w-full h-full object-contain" />
+                  </div>
+                  <span className="font-black text-school-navy dark:text-white tracking-tight flex flex-col">
+                    <span className="text-[10px] text-slate-400">ST. XAVIER'S</span>
+                    <span className="text-sm">MENU</span>
+                  </span>
                 </div>
-                <span className="font-black text-school-navy dark:text-white tracking-tight flex flex-col">
-                  <span className="text-[10px] text-slate-400">ST. XAVIER'S</span>
-                  <span className="text-sm">MENU</span>
-                </span>
+                <button 
+                  onClick={() => setIsNavOpen(false)} 
+                  className="p-2 text-school-navy dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all"
+                >
+                  <X size={24} />
+                </button>
               </div>
-              <button 
-                onClick={() => setIsNavOpen(false)} 
-                className="p-3 bg-school-accent text-white rounded-full hover:scale-110 active:scale-95 transition-all shadow-xl flex items-center justify-center ring-4 ring-school-accent/20"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-6 pb-20">
-              <div className="grid gap-8">
-                {navLinks.map(l => (
-                  <MobileNavLink key={l.id} link={l} onClose={() => setIsNavOpen(false)} isDark={isDark} />
-                ))}
-                
-                {/* Mobile Bottom Links */}
-                <div className="pt-8 border-t border-school-ink/5 dark:border-school-paper/10 grid gap-4">
-                   <Link to="/admin" onClick={() => setIsNavOpen(false)} className="text-lg font-bold text-school-ink/60 hover:text-school-ink italic underline decoration-school-accent underline-offset-4">Admin Login</Link>
-                   <Link to="/contact" onClick={() => setIsNavOpen(false)} className="text-lg font-bold text-school-ink/60 hover:text-school-ink italic underline decoration-school-accent underline-offset-4">Connect With Us</Link>
-                </div>
+              
+              <div className="flex-1 overflow-y-auto px-6 py-8">
+                <motion.div 
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.05
+                      }
+                    }
+                  }}
+                  className="grid gap-2"
+                >
+                  {navLinks.map(l => (
+                    <motion.div
+                      key={l.id}
+                      variants={{
+                        hidden: { opacity: 0, x: 20 },
+                        visible: { opacity: 1, x: 0 }
+                      }}
+                    >
+                      <MobileNavLink link={l} onClose={() => setIsNavOpen(false)} isDark={isDark} />
+                    </motion.div>
+                  ))}
+                  
+                  {/* Mobile Bottom Links */}
+                  <motion.div 
+                    variants={{
+                      hidden: { opacity: 0, x: 20 },
+                      visible: { opacity: 1, x: 0 }
+                    }}
+                    className="mt-8 pt-8 border-t border-black/5 dark:border-white/5 space-y-4"
+                  >
+                     <Link to="/admin" onClick={() => setIsNavOpen(false)} className="flex items-center gap-3 text-slate-600 dark:text-slate-400 font-bold hover:text-school-accent transition-colors">
+                        <Key size={18} /> Admin Portal
+                     </Link>
+                     <Link to="/contact" onClick={() => setIsNavOpen(false)} className="flex items-center gap-3 text-slate-600 dark:text-slate-400 font-bold hover:text-school-accent transition-colors">
+                        <MessageSquare size={18} /> Connect With Us
+                     </Link>
+                  </motion.div>
+                </motion.div>
               </div>
-            </div>
+
+              <div className="p-6 border-t border-black/5 dark:border-white/5 bg-slate-50 dark:bg-slate-900/50">
+                 <div className="flex items-center gap-4 text-slate-400 dark:text-slate-500">
+                    <Phone size={16} />
+                    <span className="text-xs font-bold">{data.settings?.contactPhone}</span>
+                 </div>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -517,7 +564,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           <div className="pt-12 flex flex-col md:flex-row justify-between items-center gap-6 text-white/20 text-xs font-semibold tracking-wider uppercase">
             <div>
               <p>© 2026 {data.settings?.siteName}.</p>
-              <p className="mt-1 text-[10px] text-white/10 tracking-[0.3em]">MADE BY ABHISHEK MATHUR</p>
+              <p className="mt-2 text-[10px] text-white/40 tracking-[0.2em] font-black">Made by ABHISHEK MATHUR</p>
             </div>
             <div className="flex gap-8">
               <span className="hover:text-white transition-colors cursor-pointer">Privacy</span>
@@ -615,27 +662,43 @@ const ChatBubble = () => {
 const MobileNavLink = ({ link, onClose, depth = 0, isDark }: { link: NavLink; onClose: () => void; depth?: number; isDark?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  if (link.subLinks) {
+  const hasSubLinks = link.subLinks && link.subLinks.length > 0;
+
+  if (hasSubLinks) {
     return (
-      <div className="space-y-4">
+      <div className="py-1">
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className={`flex items-center justify-between w-full group ${depth === 0 ? 'text-[11px] font-black uppercase text-school-accent tracking-[0.2em]' : 'text-xl font-bold text-school-ink dark:text-white'}`}
+          className={`flex items-center justify-between w-full py-3 px-4 rounded-xl transition-all ${
+            isOpen 
+              ? 'bg-slate-100 dark:bg-slate-800 text-school-accent' 
+              : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900'
+          }`}
         >
-          {link.label.toUpperCase()}
-          {link.subLinks && (depth === 0 ? (isOpen ? <ArrowDown size={14} /> : <ChevronRight size={14} />) : (isOpen ? <ArrowDown size={18} /> : <ChevronRight size={18} />))}
+          <span className={`${depth === 0 ? 'text-sm font-black tracking-widest' : 'text-sm font-bold opacity-80'}`}>
+            {link.label.toUpperCase()}
+          </span>
+          <motion.div
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ArrowDown size={14} className={isOpen ? 'text-school-accent' : 'opacity-40'} />
+          </motion.div>
         </button>
-        <AnimatePresence>
+        <AnimatePresence initial={false}>
           {isOpen && (
             <motion.div 
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className={`flex flex-col gap-4 overflow-hidden ${depth === 0 ? 'pl-4 border-l-2 border-school-ink/5 dark:border-school-paper/10' : 'pl-6 border-l border-school-ink/5 dark:border-school-paper/10'}`}
+              transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+              className="overflow-hidden"
             >
-              {link.subLinks.map(sl => (
-                <MobileNavLink key={sl.id} link={sl} onClose={onClose} depth={depth + 1} isDark={isDark} />
-              ))}
+              <div className="pt-2 pb-2 pl-4 space-y-1">
+                {link.subLinks?.map(sl => (
+                  <MobileNavLink key={sl.id} link={sl} onClose={onClose} depth={depth + 1} isDark={isDark} />
+                ))}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -643,23 +706,21 @@ const MobileNavLink = ({ link, onClose, depth = 0, isDark }: { link: NavLink; on
     );
   }
 
-  return depth === 0 ? (
-    <Link 
-      to={link.href} 
-      onClick={onClose} 
-      className="text-2xl font-black text-school-ink dark:text-white hover:text-school-accent transition-colors uppercase"
-    >
-      {link.label.toUpperCase()}
-    </Link>
-  ) : (
-    <Link 
-      to={link.href} 
-      onClick={onClose} 
-      className="text-xl font-bold text-school-ink hover:text-school-accent transition-colors flex items-center justify-between group uppercase"
-    >
-      {link.label.toUpperCase()}
-      <ArrowRight size={20} className="opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all text-school-accent" />
-    </Link>
+  return (
+    <div className="py-1">
+      <Link 
+        to={link.href} 
+        onClick={onClose} 
+        className={`flex items-center justify-between w-full py-3 px-4 rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-900 group ${
+          depth === 0 
+            ? 'text-sm font-black tracking-widest text-slate-800 dark:text-white' 
+            : 'text-sm font-medium text-slate-600 dark:text-slate-400'
+        }`}
+      >
+        <span>{link.label.toUpperCase()}</span>
+        <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-all text-school-accent" />
+      </Link>
+    </div>
   );
 };
 

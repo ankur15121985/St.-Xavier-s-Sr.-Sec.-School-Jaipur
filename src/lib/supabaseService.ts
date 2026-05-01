@@ -6,7 +6,7 @@ export const supabaseService = {
     try {
       const collections: (keyof AppData)[] = [
         'notices', 'staff', 'gallery', 'fees', 'links', 
-        'events', 'achievements', 'studentHonors', 'menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs', 'former_leaders',
+        'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs', 'former_leaders',
         'former_principals', 'former_rectors', 'former_managers', 'student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'
       ];
 
@@ -120,9 +120,13 @@ export const supabaseService = {
 
       // Secondary: Save to local server (fallback/legacy)
       try {
+        const token = localStorage.getItem('school_admin_token');
         const res = await fetch('/api/save', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({ table: section, item })
         });
         if (res.ok) console.log(`[Local Sync Success] ${section}`);
@@ -148,9 +152,13 @@ export const supabaseService = {
       }
 
       // 2. Delete from local server
+      const token = localStorage.getItem('school_admin_token');
       await fetch('/api/delete', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ table: section, id })
       }).catch(e => console.warn('Local delete failed:', e));
 

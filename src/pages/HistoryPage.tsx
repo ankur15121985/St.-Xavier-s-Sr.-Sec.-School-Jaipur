@@ -19,13 +19,36 @@ const HistoryPage = ({ data }: { data: AppData }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-school-navy via-school-navy/60 to-transparent"></div>
           <div className="absolute inset-0 flex items-center justify-center text-center px-6 pt-10">
             <motion.div 
+              id="legacy"
+              style={{ scrollMarginTop: '100px' }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1 }}
-              className="max-w-4xl"
+              className="max-w-4xl relative"
             >
               <div className="w-16 md:w-24 h-1.5 md:h-2 bg-school-neon mx-auto mb-6 md:mb-8 rounded-full"></div>
               <h1 className="text-5xl sm:text-6xl md:text-8xl font-sans font-black text-white tracking-tighter mb-4 italic leading-tight">The Legacy <br /> <span className="text-school-neon tracking-tighter text-3xl sm:text-4xl md:text-5xl uppercase font-black not-italic opacity-90">Archive.</span></h1>
+              
+              {/* Added Scroll Indicator */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5, duration: 1 }}
+                className="absolute -bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
+                onClick={() => {
+                  const element = document.getElementById('school');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
+                <div className="text-[10px] uppercase font-black tracking-[0.3em] text-school-neon opacity-70">Scroll to Explore</div>
+                <motion.div
+                  animate={{ y: [0, 8, 0] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="w-1 h-12 bg-gradient-to-b from-school-neon to-transparent rounded-full"
+                />
+              </motion.div>
             </motion.div>
           </div>
         </section>

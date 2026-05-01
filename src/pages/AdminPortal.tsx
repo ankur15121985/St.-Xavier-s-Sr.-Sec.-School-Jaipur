@@ -136,11 +136,11 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.entries({
           ...item,
-          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'menu', 'carousel', 'marquee', 'popups'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
+          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
         }).filter(([k]) => {
           if (k === 'id') return false;
           const handledAtBottom = 
-            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'menu', 'marquee', 'popups'].includes(section) && k === 'attachmentUrl') ||
+            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups'].includes(section) && k === 'attachmentUrl') ||
             (['staff', 'studentHonors'].includes(section) && k === 'image') ||
             (['gallery', 'carousel'].includes(section) && k === 'url');
           return !handledAtBottom;
@@ -237,15 +237,15 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
               >
                 {item[field] ? 'Active / Enabled' : 'Inactive / Disabled'}
               </button>
-            ) : field === 'parent_id' && section === 'menu' ? (
+            ) : field === 'parent_id' && section === 'navigation_menu' ? (
               <select 
                 value={item[field] || ''} 
                 onChange={(e) => handleUpdate(item.id, field as string, e.target.value || '', section)} 
                 className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
               >
                 <option value="">None (Top Level)</option>
-                {data.menu.filter(m => m.id !== item.id).map(m => (
-                  <option key={m.id} value={m.id}>{m.label} {m.parent_id ? `(under ${data.menu.find(p => p.id === m.parent_id)?.label})` : ''}</option>
+                {data.navigation_menu.filter(m => m.id !== item.id).map(m => (
+                  <option key={m.id} value={m.id}>{m.label} {m.parent_id ? `(under ${data.navigation_menu.find(p => p.id === m.parent_id)?.label})` : ''}</option>
                 ))}
               </select>
             ) : field === 'status' && section === 'messages' ? (
@@ -275,7 +275,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         
         {/* Consolidated Primary Action Button */}
         {(() => {
-          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'menu', 'marquee', 'popups'].includes(section)) ? 'attachmentUrl' : 
+          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups'].includes(section)) ? 'attachmentUrl' : 
                               (['staff', 'gallery', 'carousel', 'studentHonors', 'former_principals', 'former_rectors', 'former_managers', 'student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
                               'attachmentUrl';
           const isUploading = uploadingPath === `${section}-${item.id}-${targetField}`;
@@ -317,7 +317,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <label className="flex-1 block text-center px-6 py-4 bg-school-gold text-school-navy rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/90 transition-all shadow-lg shadow-school-gold/20 active:scale-95">
-                   {isUploading ? 'Finalizing Sync...' : (section === 'menu' ? 'Upload Committee PDF/Document' : section === 'fees' ? 'Upload Fee Schedule' : section === 'staff' ? 'Update Photo' : `Upload to ${section.toUpperCase()}`)}
+                   {isUploading ? 'Finalizing Sync...' : (section === 'navigation_menu' ? 'Upload Committee PDF/Document' : section === 'fees' ? 'Upload Fee Schedule' : section === 'staff' ? 'Update Photo' : `Upload to ${section.toUpperCase()}`)}
                    <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, targetField, section)} disabled={!!uploadingPath} />
                 </label>
                 
@@ -587,15 +587,15 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     } else if (tableStr === 'studentHonors') {
       newItem.name = 'New Honor Student';
       newItem.category = 'Category (e.g. JEE Mains)';
-      newItem.result = '99%';
+      newItem.result = 'Merit';
       newItem.subtext = 'Additional honors details...';
       newItem.image = 'https://picsum.photos/seed/honor/300/300';
       newItem.order_index = (data.studentHonors?.length || 0);
-    } else if (tableStr === 'menu') {
+    } else if (tableStr === 'navigation_menu') {
       newItem.label = 'New Menu Item';
       newItem.href = '#';
       newItem.parent_id = null;
-      newItem.order_index = (data.menu?.filter(m => !m.parent_id).length || 0);
+      newItem.order_index = (data.navigation_menu?.filter(m => !m.parent_id).length || 0);
     } else if (tableStr === 'faqs') {
       newItem.question = 'New Question';
       newItem.answer = 'Answer text goes here...';
@@ -643,7 +643,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     } else if (tableStr === 'streamwise_toppers') {
       newItem.name = 'Topper Name';
       newItem.stream = 'Science';
-      newItem.percentage = '99%';
+      newItem.percentage = 'Merit';
       newItem.academic_year = '2026';
       newItem.image = '';
       newItem.order_index = (data.streamwise_toppers?.length || 0);
@@ -729,8 +729,8 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     const activeMenuSection = sections.find(s => s.id === section);
     let folder = activeMenuSection ? activeMenuSection.label.replace(/\s+/g, '_') : (section as string);
     
-    // For the specific 'menu' section, use the label of the menu item as the folder
-    if (section === 'menu') {
+    // For the specific 'navigation_menu' section, use the label of the menu item as the folder
+    if (section === 'navigation_menu') {
       const items = data[section] as any[];
       const item = items.find(i => i.id === id);
       if (item && item.label) {
@@ -751,8 +751,10 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         showToast('Media saved & synced to Cloud Storage', 'success');
         
         // Optional: Mirror to local server as background if in Dev
+        const token = localStorage.getItem('school_admin_token');
         fetch(`/api/upload?section=${encodeURIComponent(folder)}`, {
           method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
           body: formData
         }).catch(() => {});
         
@@ -762,8 +764,10 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       }
 
       // 2. Fallback to local server upload (Works in AI Studio / Local Dev)
+      const token = localStorage.getItem('school_admin_token');
       const res = await fetch(`/api/upload?section=${encodeURIComponent(folder)}`, {
         method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
       
@@ -800,9 +804,14 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
           setPendingGalleryItems(prev => prev.map(p => p.id === pendingItem.id ? { ...p, status: 'completed', progress: 100, url: publicUrl } : p));
           
           // Background mirror to local if possible
+          const token = localStorage.getItem('school_admin_token');
           const formData = new FormData();
           formData.append('file', pendingItem.file);
-          fetch(`/api/upload?section=${encodeURIComponent(folder)}`, { method: 'POST', body: formData }).catch(() => {});
+          fetch(`/api/upload?section=${encodeURIComponent(folder)}`, { 
+            method: 'POST', 
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData 
+          }).catch(() => {});
           
           return;
         }
@@ -811,11 +820,13 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       }
 
       // 2. Fallback to local storage (AI Studio)
+      const token = localStorage.getItem('school_admin_token');
       const formData = new FormData();
       formData.append('file', pendingItem.file);
       
       const res = await fetch(`/api/upload?section=${encodeURIComponent(folder)}`, {
         method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
       });
       
@@ -913,7 +924,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'faqs', label: 'FAQs', icon: <MessageSquare size={18} className="text-school-gold" /> },
     { id: 'transfer_certificates', label: 'TC Records', icon: <FileText size={18} className="text-school-accent" /> },
     { id: 'messages', label: 'Inquiries', icon: <Mail size={18} className="text-school-accent" /> },
-    { id: 'menu', label: 'Menu', icon: <Menu size={18} /> },
+    { id: 'navigation_menu', label: 'Menu', icon: <Menu size={18} /> },
     { id: 'former_principals', label: 'Principals History', icon: <Award size={18} className="text-school-accent" /> },
     { id: 'former_rectors', label: 'Rectors History', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'former_managers', label: 'Managers History', icon: <Award size={18} className="text-school-neon" /> },

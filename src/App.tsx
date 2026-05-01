@@ -45,6 +45,8 @@ import TransferCertificatePage from './pages/TransferCertificatePage';
 import FormerRectorsPage from './pages/FormerRectorsPage';
 import FormerManagersPage from './pages/FormerManagersPage';
 import FormerPrincipalsPage from './pages/FormerPrincipalsPage';
+import StreamToppersPage from './pages/StreamToppersPage';
+import XavieriteOfTheYearPage from './pages/XavieriteOfTheYearPage';
 
 const PageTransition = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -249,20 +251,22 @@ const DEFAULT_DATA: AppData = {
     { id: '3', title: 'State Cricket Champions', year: '2025', description: 'The U-19 team won the Rajasthan State Inter-School Tournament.' }
   ],
   studentHonors: [
-    { id: '1', name: 'Rijul Jain', category: 'JEE Mains:- 90.44%', result: '90.44%', subtext: 'SCIENCE CLUB (JOINT SECRETARY), RAJYA PURASKAR AWARDEE (SCOUTS AND GUIDES)', image: 'https://picsum.photos/seed/student1/300/300', order_index: 0 },
-    { id: '2', name: 'Ameyatman Roy', category: 'JEE Mains:- 90.27%', result: '90.27%', subtext: '90.27 PERCENTILE', image: 'https://picsum.photos/seed/student2/300/300', order_index: 1 },
-    { id: '3', name: 'Aryan Sharma', category: 'JEE Mains:- 99.12%', result: '99.12%', subtext: 'ACADEMIC EXCELLENCE AWARD WINNER', image: 'https://picsum.photos/seed/student3/300/300', order_index: 2 },
+    { id: '1', name: 'Rijul Jain', category: 'JEE Mains Aspirant', result: 'Qualified', subtext: 'SCIENCE CLUB (JOINT SECRETARY), RAJYA PURASKAR AWARDEE (SCOUTS AND GUIDES)', image: 'https://picsum.photos/seed/student1/300/300', order_index: 0 },
+    { id: '2', name: 'Ameyatman Roy', category: 'JEE Mains Merit', result: 'Qualified', subtext: 'ACADEMIC MERIT SCHOLAR', image: 'https://picsum.photos/seed/student2/300/300', order_index: 1 },
+    { id: '3', name: 'Aryan Sharma', category: 'JEE Mains Achiever', result: 'Qualified', subtext: 'ACADEMIC EXCELLENCE AWARD WINNER', image: 'https://picsum.photos/seed/student3/300/300', order_index: 2 },
   ],
-  menu: [
+  navigation_menu: [
     { id: '1', label: 'Home', href: '/', parent_id: null, order_index: 0 },
     { id: '2', label: 'About Us', href: '#', parent_id: null, order_index: 1 },
     { id: '2-5', label: 'Our Founder', href: '/founder-patron#founder', parent_id: '2', order_index: 0 },
-    { id: '2-1', label: 'School History', href: '/history#school', parent_id: '2', order_index: 1 },
+    { id: '2-1', label: 'School History', href: '/history#legacy', parent_id: '2', order_index: 1 },
     { id: '2-2', label: 'Former Principals', href: '/former-principals', parent_id: '2', order_index: 2 },
     { id: '2-3', label: 'Former Rectors', href: '/former-rectors', parent_id: '2', order_index: 3 },
     { id: '2-4', label: 'Former Managers', href: '/former-managers', parent_id: '2', order_index: 4 },
     { id: '2-7', label: 'School Governing Members', href: '/governing-members', parent_id: '2', order_index: 5 },
     { id: '2-8', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 6 },
+    { id: '2-9', label: 'Xavierite of the Year', href: '/xavierite-of-the-year', parent_id: '2', order_index: 7 },
+    { id: '2-10', label: 'Stream Toppers', href: '/stream-toppers', parent_id: '2', order_index: 8 },
     { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
     { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
     { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
@@ -421,7 +425,7 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
             if (val) {
               if (Array.isArray(val)) {
                 if (val.length > 0) {
-                  if (k === 'menu') {
+                  if (k === 'navigation_menu') {
                     // Filter out deprecated or duplicate menu items
                     val = (val as any[]).filter(m => 
                       m.label !== 'Staff Directory' && 
@@ -443,7 +447,7 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
                     });
 
                     const fetchedIds = new Set((val as any[]).map(m => m.id));
-                    const missing = DEFAULT_DATA.menu.filter(m => {
+                    const missing = DEFAULT_DATA.navigation_menu.filter(m => {
                       return !fetchedIds.has(m.id) && !seenLabels.has(m.label);
                     });
                     merged[k] = [...(val as any[]), ...missing] as any;
@@ -457,13 +461,13 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
             }
           });
           
-          if (fetchedData.menu?.length > 0 && isAdmin) {
-            const fetchedIds = new Set(fetchedData.menu.map((m: any) => m.id));
-            const missing = DEFAULT_DATA.menu.filter(m => !fetchedIds.has(m.id));
+          if (fetchedData.navigation_menu?.length > 0 && isAdmin) {
+            const fetchedIds = new Set(fetchedData.navigation_menu.map((m: any) => m.id));
+            const missing = DEFAULT_DATA.navigation_menu.filter(m => !fetchedIds.has(m.id));
             
             if (missing.length > 0 && isAdmin) {
               for (const item of missing) {
-                await supabaseService.saveItem('menu', item);
+                await supabaseService.saveItem('navigation_menu', item);
               }
               const refresh = await supabaseService.fetchAllData();
               const latest = { ...DEFAULT_DATA };
@@ -580,6 +584,8 @@ export default function App() {
                 <Route path="/careers" element={<PageTransition><CareersPage data={data} /></PageTransition>} />
                 <Route path="/notice-board" element={<PageTransition><NoticeBoardPage data={data} /></PageTransition>} />
                 <Route path="/transfer-certificate" element={<PageTransition><TransferCertificatePage data={data} /></PageTransition>} />
+                <Route path="/stream-toppers" element={<PageTransition><StreamToppersPage data={data} /></PageTransition>} />
+                <Route path="/xavierite-of-the-year" element={<PageTransition><XavieriteOfTheYearPage data={data} /></PageTransition>} />
                 <Route path="/contact" element={<PageTransition><ContactPage data={data} /></PageTransition>} />
                 <Route path="/admin" element={<PageTransition><AdminPortal data={data} setData={setData} /></PageTransition>} />
               </Routes>

@@ -101,7 +101,7 @@ export interface AppData {
   events: Event[];
   achievements: Achievement[];
   studentHonors: StudentHonor[];
-  menu: MenuItem[];
+  navigation_menu: MenuItem[];
   carousel: GalleryItem[];
   faqs: FAQ[];
   transfer_certificates?: TransferCertificate[];

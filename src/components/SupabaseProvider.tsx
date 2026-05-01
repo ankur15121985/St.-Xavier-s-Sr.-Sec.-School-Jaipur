@@ -21,9 +21,15 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Persistence for custom admin session
   useEffect(() => {
     const customAdmin = localStorage.getItem('school_admin_session');
-    if (customAdmin) {
+    const token = localStorage.getItem('school_admin_token');
+    
+    if (customAdmin && token) {
       setIsAdmin(true);
-      setUser({ email: customAdmin, id: 'custom-admin' } as any);
+      setUser({ 
+        email: customAdmin, 
+        id: 'custom-admin',
+        user_metadata: { full_name: customAdmin }
+      } as any);
     }
   }, []);
 
@@ -90,55 +96,35 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const usernameLogin = async (username: string, pass: string) => {
-    console.log(`[Auth] Attempting custom username login for: ${username}`);
+    console.log(`[Auth] Attempting login for: ${username}`);
     try {
-      // Query the custom credentials table (admins)
-      const { data, error } = await supabase
-        .from('admins')
-        .select('*')
-        .eq('username', username)
-        .eq('password', pass)
-        .maybeSingle();
-
-      if (error) {
-        console.error('[Auth] Database error during custom login:', error);
-      }
-
-      const isAdminValid = data || (username === 'ankur15121985' && pass === '24121985');
-
-      if (!isAdminValid) {
-        // Log failed attempt
-        await supabase.from('logs').insert({
-          id: crypto.randomUUID(),
-          user: username,
-          action: 'LOGIN_FAILURE',
-          details: 'Invalid credentials provided',
-          timestamp: new Date().toISOString()
-        });
-        throw new Error('Invalid username or password.');
-      }
-
-      // Record success log
-      await supabase.from('logs').insert({
-        id: crypto.randomUUID(),
-        user: username,
-        action: 'LOGIN_SUCCESS',
-        details: `Session started for ${username}`,
-        timestamp: new Date().toISOString()
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password: pass })
       });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Login failed');
+      }
+
+      const { token, user: userData } = await res.json();
 
       // Success! Set admin state manually
       setIsAdmin(true);
       setUser({ 
-        email: data?.username || 'admin@stxaviers.edu', 
-        id: 'custom-admin',
-        user_metadata: { full_name: data?.username || 'Super Admin' }
+        email: userData.username, 
+        id: userData.id,
+        user_metadata: { full_name: userData.username }
       } as any);
+      
       localStorage.setItem('school_admin_session', username);
-      console.log('[Auth] Custom admin session established.');
+      localStorage.setItem('school_admin_token', token);
+      console.log('[Auth] Admin session and token established.');
       
     } catch (error: any) {
-      console.error('[Auth] Username Login failed:', error);
+      console.error('[Auth] Login failed:', error);
       alert(`Login Error: ${error.message}`);
       throw error;
     }
@@ -146,6 +132,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const logout = async () => {
     localStorage.removeItem('school_admin_session');
+    localStorage.removeItem('school_admin_token');
     await supabase.auth.signOut();
     setUser(null);
     setIsAdmin(false);

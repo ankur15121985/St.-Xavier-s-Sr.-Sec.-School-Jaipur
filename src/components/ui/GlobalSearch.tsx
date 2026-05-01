@@ -46,8 +46,8 @@ export const GlobalSearch = ({ data, isOpen, onClose }: GlobalSearchProps) => {
     const searchStr = query.toLowerCase();
     const found: SearchResult[] = [];
 
-    // Search Pages (from Menu)
-    data.menu.forEach(item => {
+    // Search Pages (from Navigation Menu)
+    data.navigation_menu.forEach(item => {
       if (item.label.toLowerCase().includes(searchStr)) {
         found.push({
           id: `page-${item.id}`,

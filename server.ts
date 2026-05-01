@@ -7,12 +7,62 @@ import multer from 'multer';
 import Database from 'better-sqlite3';
 import cors from 'cors';
 import { createClient } from '@supabase/supabase-js';
+import helmet from 'helmet';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { rateLimit } from 'express-rate-limit';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3000;
+
+// Security Middleware
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for Vite dev mode compatibility
+  crossOriginEmbedderPolicy: false,
+}));
+
+// Rate Limiting
+const generalLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	limit: 1000, // Limit each IP to 1000 requests per window
+	standardHeaders: 'draft-7',
+	legacyHeaders: false,
+});
+
+const loginLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	limit: 10, // Limit each IP to 10 login attempts per window
+	message: { error: 'Too many login attempts, please try again after 15 minutes' },
+	standardHeaders: 'draft-7',
+	legacyHeaders: false,
+});
+
+app.use(generalLimiter);
+
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev-only-change-in-env';
+
+// Authentication Middleware
+const authenticateToken = (req: any, res: any, next: any) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    console.warn(`[AUTH] Missing token for ${req.method} ${req.url}`);
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+    if (err) {
+      console.error(`[AUTH] Invalid token for ${req.method} ${req.url}:`, err.message);
+      return res.status(403).json({ error: 'Session expired or invalid' });
+    }
+    req.user = user;
+    next();
+  });
+};
 
 // GLOBAL LOGGER
 app.use((req, res, next) => {
@@ -21,7 +71,15 @@ app.use((req, res, next) => {
 });
 
 // Basic Middleware
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    // In dev, allow any origin if needed, but better to be strict
+    callback(null, true); 
+  },
+  credentials: true
+}));
 // Do not use global express.json() here if you want to avoid interfering with files, 
 // move it to routes that need it, or ensure it only runs for json content-type.
 app.use((req, res, next) => {
@@ -57,7 +115,7 @@ const upload = multer({
 });
 
 // 1. UPLOAD ROUTE (NO ARRAY - SEPARATE DEFINITIONS FOR MAX COMPAT)
-app.post('/api/upload', (req, res) => {
+app.post('/api/upload', authenticateToken, (req, res) => {
   const section = req.query.section || req.body.section || 'misc';
   console.log(`[UPLOAD] POST /api/upload - Target Section: ${section}`);
   
@@ -121,9 +179,76 @@ app.use((req, res, next) => {
   next();
 });
 
+// Authentication Middleware (Moved up)
 // Setup Database
 const dbPath = path.join(__dirname, 'database.sqlite');
 const db = new Database(dbPath);
+
+// Seed Default Admin if empty
+const seedAdmin = () => {
+  const adminCount = db.prepare("SELECT COUNT(*) as count FROM admins").get() as any;
+  if ((adminCount?.count || 0) === 0) {
+    console.log("[AUTH] Seeding root admin...");
+    const rootUser = 'admin';
+    const rootPass = 'admin123'; // In a real app, this should be set via env and changed immediately
+    const hashedPass = bcrypt.hashSync(rootPass, 10);
+    db.prepare("INSERT INTO admins (id, username, password, role) VALUES (?, ?, ?, ?)").run(
+      'root-admin',
+      rootUser,
+      hashedPass,
+      'admin'
+    );
+    // Also bootstrap the one from SupabaseProvider if configured
+    const bootstrapUser = 'ankur15121985';
+    const bootstrapPass = '24121985'; 
+    const hashedBootstrap = bcrypt.hashSync(bootstrapPass, 10);
+    db.prepare("INSERT INTO admins (id, username, password, role) VALUES (?, ?, ?, ?)").run(
+      'bootstrap-admin',
+      bootstrapUser,
+      hashedBootstrap,
+      'admin'
+    );
+  }
+};
+
+// Login Endpoint
+app.post('/api/login', loginLimiter, express.json(), (req, res) => {
+  const { username, password } = req.body;
+  
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password required' });
+  }
+
+  try {
+    const user = db.prepare("SELECT * FROM admins WHERE username = ?").get(username) as any;
+    
+    if (!user) {
+      console.warn(`[AUTH] Login failed: User ${username} not found`);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const validPassword = bcrypt.compareSync(password, user.password);
+    if (!validPassword) {
+      console.warn(`[AUTH] Login failed: Incorrect password for ${username}`);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '8h' }
+    );
+
+    console.log(`[AUTH] ${username} logged in successfully`);
+    res.json({ 
+      token, 
+      user: { id: user.id, username: user.username, role: user.role } 
+    });
+  } catch (err: any) {
+    console.error(`[AUTH] Login system error:`, err);
+    res.status(500).json({ error: 'Login system error' });
+  }
+});
 
 // Diagnostic Ping
 app.get('/api/ping', (req, res) => res.json({ pong: true, time: new Date().toISOString() }));
@@ -151,7 +276,7 @@ if (supabaseServer) {
 
 // Removed old upload routes from here as they were moved up
 
-app.post('/api/gallery/upload', (req, res) => {
+app.post('/api/gallery/upload', authenticateToken, (req, res) => {
   upload.single('image')(req, res, (err) => {
     if (err) return res.status(500).json({ error: err.message });
     if (!req.file) return res.status(400).json({ error: 'No image file uploaded' });
@@ -159,7 +284,7 @@ app.post('/api/gallery/upload', (req, res) => {
   });
 });
 
-app.post('/api/gallery/upload-multiple', (req, res) => {
+app.post('/api/gallery/upload-multiple', authenticateToken, (req, res) => {
   upload.array('images', 10)(req, res, (err) => {
     if (err) return res.status(500).json({ error: err.message });
     const files = req.files as Express.Multer.File[];
@@ -608,9 +733,9 @@ tablesToSeed.forEach(table => {
             ];
         } else if (table === 'studentHonors') {
             defaultData = [
-                { id: '1', name: 'Rijul Jain', category: 'JEE Mains:- 90.44%', result: '90.44%', subtext: 'SCIENCE CLUB (JOINT SECRETARY), RAJYA PURASKAR AWARDEE (SCOUTS AND GUIDES)', image: 'https://picsum.photos/seed/student1/300/300', order_index: 0 },
-                { id: '2', name: 'Ameyatman Roy', category: 'JEE Mains:- 90.27%', result: '90.27%', subtext: '90.27 PERCENTILE', image: 'https://picsum.photos/seed/student2/300/300', order_index: 1 },
-                { id: '3', name: 'Aryan Sharma', category: 'JEE Mains:- 99.12%', result: '99.12%', subtext: 'ACADEMIC EXCELLENCE AWARD WINNER', image: 'https://picsum.photos/seed/student3/300/300', order_index: 2 },
+                { id: '1', name: 'Rijul Jain', category: 'JEE Mains Aspirant', result: 'Qualified', subtext: 'SCIENCE CLUB (JOINT SECRETARY), RAJYA PURASKAR AWARDEE (SCOUTS AND GUIDES)', image: 'https://picsum.photos/seed/student1/300/300', order_index: 0 },
+                { id: '2', name: 'Ameyatman Roy', category: 'JEE Mains Merit', result: 'Qualified', subtext: 'ACADEMIC MERIT SCHOLAR', image: 'https://picsum.photos/seed/student2/300/300', order_index: 1 },
+                { id: '3', name: 'Aryan Sharma', category: 'JEE Mains Achiever', result: 'Qualified', subtext: 'ACADEMIC EXCELLENCE AWARD WINNER', image: 'https://picsum.photos/seed/student3/300/300', order_index: 2 },
             ];
         }
 
@@ -772,6 +897,7 @@ const cleanMenu = () => {
     }
 };
 cleanMenu();
+seedAdmin();
 addColumnIfMissing('notices', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('links', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('events', 'attachmentUrl', 'TEXT');
@@ -982,7 +1108,7 @@ const SCHEMA: Record<string, string[]> = {
   content: ['id', 'key', 'value']
 };
 
-app.post('/api/save', async (req, res) => {
+app.post('/api/save', authenticateToken, express.json(), async (req, res) => {
   try {
     const { table, item } = req.body;
     const whitelist = Object.keys(SCHEMA);
@@ -1040,7 +1166,7 @@ app.post('/api/save', async (req, res) => {
   }
 });
 
-app.post('/api/delete', async (req, res) => {
+app.post('/api/delete', authenticateToken, express.json(), async (req, res) => {
   try {
     const { table, id, ids } = req.body;
     const whitelist = Object.keys(SCHEMA);
@@ -1096,7 +1222,15 @@ app.get('/api/tc', (req, res) => {
   }
 });
 
-app.post('/api/tc/search', express.json(), (req, res) => {
+const tcSearchLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	limit: 20, // Limit each IP to 20 searches per window
+	message: { error: 'Too many search attempts, please try again after 15 minutes' },
+	standardHeaders: 'draft-7',
+	legacyHeaders: false,
+});
+
+app.post('/api/tc/search', tcSearchLimiter, express.json(), (req, res) => {
   const { admissionNumber, dob } = req.body;
   console.log(`[TC SEARCH] Query: ${admissionNumber}, DOB: ${dob}`);
   try {
@@ -1114,7 +1248,7 @@ app.post('/api/tc/search', express.json(), (req, res) => {
   }
 });
 
-app.post('/api/tc', express.json(), (req, res) => {
+app.post('/api/tc', authenticateToken, express.json(), (req, res) => {
   const { admission_number, dob, student_name, attachmentUrl } = req.body;
   const id = Math.random().toString(36).substr(2, 9);
   try {
@@ -1126,7 +1260,7 @@ app.post('/api/tc', express.json(), (req, res) => {
   }
 });
 
-app.delete('/api/tc/:id', (req, res) => {
+app.delete('/api/tc/:id', authenticateToken, (req, res) => {
   try {
     db.prepare("DELETE FROM transfer_certificates WHERE id = ?").run(req.params.id);
     res.json({ success: true });
