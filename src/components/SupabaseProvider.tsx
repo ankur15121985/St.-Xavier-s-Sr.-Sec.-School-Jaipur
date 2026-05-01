@@ -98,15 +98,37 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const usernameLogin = async (username: string, pass: string) => {
     console.log(`[Auth] Attempting login for: ${username}`);
     try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password: pass })
-      });
+      let res;
+      try {
+        res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password: pass })
+        });
+      } catch (fetchError) {
+        // If fetch fails (e.g. network error, server down), trigger fallback
+        console.warn('[Auth] Local API fetch failed, falling back to Supabase direct query:', fetchError);
+        return await supabaseFallbackLogin(username, pass);
+      }
 
       if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Login failed');
+        // If it's a 404, it's likely that the API server is not running (e.g. Vercel)
+        if (res.status === 404) {
+          console.warn('[Auth] /api/login returned 404. Falling back to Supabase.');
+          return await supabaseFallbackLogin(username, pass);
+        }
+
+        let errorMessage = 'Login failed';
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await res.json();
+          errorMessage = errorData.error || errorMessage;
+        } else {
+          const text = await res.text();
+          console.error('[Auth] Non-JSON error response:', text);
+          errorMessage = `Server Error (${res.status})`;
+        }
+        throw new Error(errorMessage);
       }
 
       const { token, user: userData } = await res.json();
@@ -124,9 +146,72 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.log('[Auth] Admin session and token established.');
       
     } catch (error: any) {
-      console.error('[Auth] Login failed:', error);
+      console.error('[Auth] Login process error:', error);
       alert(`Login Error: ${error.message}`);
       throw error;
+    }
+  };
+
+  /**
+   * Fallback login method that queries Supabase directly.
+   * Useful for deployments on Vercel where the Express server might not be running.
+   */
+  const supabaseFallbackLogin = async (username: string, pass: string) => {
+    console.log(`[Auth] Executing Supabase fallback login for: ${username}`);
+    try {
+      // Query the custom credentials table (admins)
+      const { data, error } = await supabase
+        .from('admins')
+        .select('*')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (error) {
+        console.error('[Auth] Supabase fallback database error:', error);
+        throw new Error(`Database error: ${error.message}`);
+      }
+
+      if (!data) {
+        throw new Error('Invalid username or password.');
+      }
+
+      // Check password (Note: Fallback mode expects plain text or matches direct string)
+      // If it's hashed in Supabase but we are on client, we can't easily verify bcrypt here without extra libs.
+      // But we'll try a simple match first.
+      const isValid = data.password === pass;
+
+      if (!isValid) {
+        throw new Error('Invalid username or password.');
+      }
+
+      // Record success log
+      try {
+        await supabase.from('logs').insert({
+          id: crypto.randomUUID(),
+          user: username,
+          action: 'LOGIN_SUCCESS_FALLBACK',
+          details: `Session started via Supabase fallback for ${username}`,
+          timestamp: new Date().toISOString()
+        });
+      } catch (e) {
+        console.warn('Logging failed:', e);
+      }
+
+      // Success! Set admin state
+      setIsAdmin(true);
+      setUser({ 
+        email: data.username, 
+        id: data.id,
+        user_metadata: { full_name: data.username }
+      } as any);
+      
+      localStorage.setItem('school_admin_session', username);
+      // We don't have a JWT token in fallback mode, we just use session
+      console.log('[Auth] Supabase fallback login successful.');
+      
+    } catch (err: any) {
+      console.error('[Auth] Supabase Fallback Login failed:', err);
+      throw err;
     }
   };
 

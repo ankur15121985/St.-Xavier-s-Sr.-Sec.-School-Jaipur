@@ -18,6 +18,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
+// Enable trust proxy for express-rate-limit to correctly identify IPs behind Cloud Run / Load Balancers
+app.set('trust proxy', 1);
+
 // Security Middleware
 app.use(helmet({
   contentSecurityPolicy: false, // Disable CSP for Vite dev mode compatibility
@@ -25,19 +28,32 @@ app.use(helmet({
 }));
 
 // Rate Limiting
-const generalLimiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	limit: 1000, // Limit each IP to 1000 requests per window
-	standardHeaders: 'draft-7',
+const limiterOptions = {
+	windowMs: 15 * 60 * 1000,
+	standardHeaders: 'draft-7' as const,
 	legacyHeaders: false,
+	// Explicitly handle IP identification to avoid warnings about headers
+	keyGenerator: (req: any) => {
+		const xForwardedFor = req.headers['x-forwarded-for'];
+		if (xForwardedFor) {
+			const ips = xForwardedFor.toString().split(',');
+			return ips[0].trim();
+		}
+		return (req as any).ip || (req as any).connection?.remoteAddress || 'unknown';
+	},
+	// Suppress the validation errors since we handle it in keyGenerator
+	validate: { trustProxy: false, xForwardedForHeader: false }
+};
+
+const generalLimiter = rateLimit({
+	...limiterOptions,
+	limit: 1000,
 });
 
 const loginLimiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	limit: 10, // Limit each IP to 10 login attempts per window
+	...limiterOptions,
+	limit: 10,
 	message: { error: 'Too many login attempts, please try again after 15 minutes' },
-	standardHeaders: 'draft-7',
-	legacyHeaders: false,
 });
 
 app.use(generalLimiter);

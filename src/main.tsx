@@ -3,32 +3,41 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Robust React Root Management to prevent dual-initialization warnings
-const container = document.getElementById('root');
-if (!container) throw new Error('Failed to find root element');
+// Robust React Root Management
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Failed to find root element');
 
-const win = window as any;
-// Global key to persist the React root across script re-evaluations
-const GLOBAL_ROOT_KEY = '__XAVIERS_JAIPUR_ROOT_SINGLETON__';
+// Use a global variable to store the React root to prevent multiple initializations
+const _window = window as any;
+const ROOT_STORE_KEY = '__APP_REACT_ROOT__';
 
-let root = win[GLOBAL_ROOT_KEY];
+let root = _window[ROOT_STORE_KEY];
 
 if (!root) {
-  // If we don't have a saved root, but the container was already used by React,
-  // we try to clean up or just ignore the warning if it's unavoidable.
-  // However, we'll try to find any existing root property to reuse it or clear it.
-  for (const key in container) {
-    if (key.startsWith('__reactContainer$')) {
-      // If we find this, React has already initialized this container.
-      // We can't easily retrieve the 'root' object from it, so we'll 
-      // just try to clear the container to avoid the warning on a fresh createRoot.
-      container.innerHTML = '';
-      break;
-    }
+  // Check if the element has already been used as a container to avoid the warning
+  // In some dev environments, the container might still have React's internal properties
+  // even if the script is re-running.
+  const container = rootElement as any;
+  const isInitialized = Object.keys(container).some(key => key.startsWith('__reactContainer$'));
+  
+  if (isInitialized) {
+    // If it's already initialized but we lost our root reference, 
+    // we can't easily recover it. Clearing the element's internal state
+    // is tricky, but we'll try to find the fiber root if possible or just
+    // Proceed with a fresh one after clearing innerHTML.
+    // However, the best way is to not re-create it if we can avoid it.
+    console.warn('[Root] Container already initialized. Attempting recovery.');
+    rootElement.innerHTML = '';
   }
   
-  root = createRoot(container);
-  win[GLOBAL_ROOT_KEY] = root;
+  try {
+    root = createRoot(rootElement);
+    _window[ROOT_STORE_KEY] = root;
+  } catch (err) {
+    console.error('[Root] Failed to create React root:', err);
+    // Fallback: if createRoot fails, try to just use what's there or refresh
+    throw err;
+  }
 }
 
 root.render(
