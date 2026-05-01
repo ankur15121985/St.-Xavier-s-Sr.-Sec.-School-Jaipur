@@ -327,7 +327,16 @@ const DEFAULT_DATA: AppData = {
   transfer_certificates: [
     { id: 'tc1', admission_number: 'TC01', dob: '2026-04-27', student_name: 'Institutional Test Student', attachmentUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf' }
   ],
-  former_leaders: [],
+  former_leaders: [
+    { id: 'p1', name: 'Fr. R. J. Pereira, S.J.', tenure: '1941 - 1949', type: 'Principal', order_index: 1 },
+    { id: 'p2', name: 'Fr. C. Baston, S.J.', tenure: '1949 - 1963', type: 'Principal', order_index: 2 },
+    { id: 'p3', name: 'Fr. S. Carvalho, S.J.', tenure: '1963 - 1970', type: 'Principal', order_index: 3 },
+    { id: 'p4', name: 'Fr. T. A. George, S.J.', tenure: '1970 - 1980', type: 'Principal', order_index: 4 },
+    { id: 'r1', name: 'Fr. V. S. Upasini, S.J.', tenure: '1985 - 1991', type: 'Rector', order_index: 1 },
+    { id: 'r2', name: 'Fr. Edward Mudavassery, S.J.', tenure: '1991 - 1997', type: 'Rector', order_index: 2 },
+    { id: 'm1', name: 'Fr. Joseph Kochupura, S.J.', tenure: '2005 - 2012', type: 'Manager', order_index: 1 },
+    { id: 'm2', name: 'Fr. Glenn Menezes, S.J.', tenure: '2012 - 2018', type: 'Manager', order_index: 2 },
+  ],
   admins: [],
   logs: [],
   settings: {
@@ -337,8 +346,8 @@ const DEFAULT_DATA: AppData = {
     applyNowLabel: 'Apply 2026-27',
     siteName: "St. Xavier's, C-scheme",
     siteLogo: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
-    contactEmail: 'xaviersjaipur@gmail.com',
-    contactPhone: '0141-2372336, 2362436',
+    contactEmail: 'xavier41jaipur@gmail.com',
+    contactPhone: '0141-2372336 (Senior School), 2367792 (Junior School)',
     contactAddress: 'Bhagwan Das Road, C-Scheme, Jaipur - 302001, Rajasthan, India',
     popupEnabled: true,
     popupMessage: 'Welcome to St. Xavier\'s, C-scheme. Admissions for the academic session 2026-27 are now open. Please visit the admission portal for details.'

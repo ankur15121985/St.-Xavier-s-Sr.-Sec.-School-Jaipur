@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { AppData } from '../types';
 
@@ -149,6 +150,34 @@ const HistoryPage = ({ data }: { data: AppData }) => {
                 >
                   The governance of the State went through an overhaul with Royalty taking the backseat and the democratic government taking control but the popularity of St. Xavier's kept soaring. Even at times when the school's operation was under the scanner, no blemish was ever reflected which led to Mr. Mohanlal Sukhadia the Chief Minister of the newly ordained government, declaring it as a role model.
                 </motion.p>
+              </motion.div>
+
+              {/* Legacy CTA */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ amount: 0.1 }}
+                className="pt-20"
+              >
+                <div className="bg-school-navy p-12 md:p-20 rounded-[60px] text-center relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-school-gold/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  <h3 className="text-3xl md:text-5xl font-serif text-white italic mb-10">Honor the Pillars of our History.</h3>
+                  <div className="flex flex-wrap justify-center gap-4">
+                    {[
+                      { label: 'Former Principals', href: '/former-principals' },
+                      { label: 'Former Rectors', href: '/former-rectors' },
+                      { label: 'Former Managers', href: '/former-managers' }
+                    ].map((lnk) => (
+                      <Link 
+                        key={lnk.href}
+                        to={lnk.href}
+                        className="px-8 py-3 bg-white/10 hover:bg-school-gold text-white hover:text-school-navy border border-white/10 hover:border-school-gold rounded-full transition-all font-black uppercase text-[10px] tracking-widest backdrop-blur-sm"
+                      >
+                        {lnk.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
             </div>
           </div>

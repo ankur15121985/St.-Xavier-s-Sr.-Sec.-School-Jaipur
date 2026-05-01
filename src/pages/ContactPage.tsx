@@ -83,7 +83,6 @@ const ContactPage = ({ data }: { data: AppData }) => {
             >
               <div className="space-y-4">
                 <h2 className="text-4xl md:text-6xl font-black text-school-ink tracking-tight">Drop a Message.</h2>
-                <p className="text-lg text-school-ink/60 font-medium leading-relaxed">Our administrative team usually responds within 24-48 business hours.</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -162,8 +161,10 @@ const ContactPage = ({ data }: { data: AppData }) => {
                {/* Contact Info Pills */}
                <div className="grid gap-6">
                   {[
-                    { icon: <Phone />, label: 'Admissions Office', value: '0141-2372336', sub: 'Ext: 201' },
-                    { icon: <Mail />, label: 'Support Email', value: 'office@xaviersjaipur.edu.in', sub: 'Primary Contact' },
+                    { icon: <Phone />, label: 'Senior School', value: '0141-2372336', sub: 'Main Office' },
+                    { icon: <Phone />, label: 'Junior School', value: '0141-2367792, 2376569', sub: 'Information Desk' },
+                    { icon: <Mail />, label: 'Official Email', value: 'xavier41jaipur@gmail.com', sub: 'Correspondence' },
+                    { icon: <ArrowRight />, label: 'Official Website', value: 'www.xaviersjaipur.edu.in', sub: 'Online Portal' },
                     { icon: <MapPin />, label: 'Visit Campus', value: 'Bhagwan Das Road', sub: 'Jaipur, Rajasthan' }
                   ].map((info, i) => (
                     <motion.div 
