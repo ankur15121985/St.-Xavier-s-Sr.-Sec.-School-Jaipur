@@ -21,7 +21,7 @@ const ContactPage = ({ data }: { data: AppData }) => {
     
     try {
       const newMessage: ContactMessage = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         ...formData,
         timestamp: new Date().toISOString(),
         status: 'new'

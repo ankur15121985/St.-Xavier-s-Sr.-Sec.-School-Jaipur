@@ -109,7 +109,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (!isAdminValid) {
         // Log failed attempt
         await supabase.from('logs').insert({
-          id: Date.now().toString(),
+          id: crypto.randomUUID(),
           user: username,
           action: 'LOGIN_FAILURE',
           details: 'Invalid credentials provided',
@@ -120,7 +120,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       // Record success log
       await supabase.from('logs').insert({
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         user: username,
         action: 'LOGIN_SUCCESS',
         details: `Session started for ${username}`,

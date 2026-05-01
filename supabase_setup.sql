@@ -131,3 +131,59 @@ CREATE POLICY "Public Storage Access" ON storage.objects FOR SELECT TO public US
 CREATE POLICY "Public Storage Insert" ON storage.objects FOR INSERT TO public WITH CHECK (bucket_id = 'uploads');
 CREATE POLICY "Public Storage Update" ON storage.objects FOR UPDATE TO public USING (bucket_id = 'uploads');
 CREATE POLICY "Public Storage Delete" ON storage.objects FOR DELETE TO public USING (bucket_id = 'uploads');
+
+/********************************************************************************
+  APPENDIX: FIX UUID TYPE ERRORS & RLS
+  If you see "invalid input syntax for type uuid" OR "RLS policy" errors, 
+  run these commands in your Supabase SQL Editor.
+********************************************************************************/
+
+-- A. Convert ID columns to TEXT (Fixes UUID vs STRING mismatch)
+ALTER TABLE streamwise_toppers ALTER COLUMN id TYPE TEXT;
+ALTER TABLE xavierite_of_the_year ALTER COLUMN id TYPE TEXT;
+ALTER TABLE student_leaders ALTER COLUMN id TYPE TEXT;
+ALTER TABLE former_principals ALTER COLUMN id TYPE TEXT;
+ALTER TABLE former_rectors ALTER COLUMN id TYPE TEXT;
+ALTER TABLE former_managers ALTER COLUMN id TYPE TEXT;
+ALTER TABLE staff ALTER COLUMN id TYPE TEXT;
+ALTER TABLE notices ALTER COLUMN id TYPE TEXT;
+ALTER TABLE events ALTER COLUMN id TYPE TEXT;
+ALTER TABLE achievements ALTER COLUMN id TYPE TEXT;
+ALTER TABLE settings ALTER COLUMN id TYPE TEXT;
+ALTER TABLE content ALTER COLUMN id TYPE TEXT;
+ALTER TABLE carousel ALTER COLUMN id TYPE TEXT;
+ALTER TABLE gallery ALTER COLUMN id TYPE TEXT;
+ALTER TABLE fees ALTER COLUMN id TYPE TEXT;
+ALTER TABLE links ALTER COLUMN id TYPE TEXT;
+ALTER TABLE transfer_certificates ALTER COLUMN id TYPE TEXT;
+ALTER TABLE "studentHonors" ALTER COLUMN id TYPE TEXT;
+ALTER TABLE menu ALTER COLUMN id TYPE TEXT;
+ALTER TABLE faqs ALTER COLUMN id TYPE TEXT;
+ALTER TABLE messages ALTER COLUMN id TYPE TEXT;
+ALTER TABLE popups ALTER COLUMN id TYPE TEXT;
+ALTER TABLE marquee ALTER COLUMN id TYPE TEXT;
+ALTER TABLE admins ALTER COLUMN id TYPE TEXT;
+ALTER TABLE logs ALTER COLUMN id TYPE TEXT;
+
+-- B. Re-apply RLS for ALL tables
+DO $$ 
+DECLARE
+    t_name TEXT;
+BEGIN 
+    FOR t_name IN SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' 
+    AND table_name NOT IN ('schema_migrations', 'pg_stat_statements')
+    LOOP
+        EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t_name);
+        EXECUTE format('DROP POLICY IF EXISTS "Public Full Access" ON %I', t_name);
+        EXECUTE format('CREATE POLICY "Public Full Access" ON %I FOR ALL TO public USING (true) WITH CHECK (true)', t_name);
+    END LOOP;
+
+    -- Special handle for quoted table name
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'studentHonors') THEN
+        ALTER TABLE "studentHonors" ENABLE ROW LEVEL SECURITY;
+        DROP POLICY IF EXISTS "Public Full Access" ON "studentHonors";
+        CREATE POLICY "Public Full Access" ON "studentHonors" FOR ALL TO public USING (true) WITH CHECK (true);
+    END IF;
+END $$;
+
+NOTIFY pgrst, 'reload schema';

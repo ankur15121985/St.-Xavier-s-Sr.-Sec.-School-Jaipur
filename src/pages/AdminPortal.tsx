@@ -538,7 +538,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
   };
 
   const handleAdd = async () => {
-    const newItem: any = { id: Date.now().toString() };
+    const newItem: any = { id: crypto.randomUUID() };
     const tableStr = activeSection as string;
     
     // Initialize fields
@@ -875,7 +875,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     setUploadingPath('finalize');
     try {
       const newEntries = finishedItems.map(p => ({
-        id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+        id: crypto.randomUUID(),
         url: p.url!,
         caption: p.caption || (section === 'carousel' ? 'Carousel Slide' : 'Gallery Image'),
         session: p.session || '',
