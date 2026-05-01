@@ -12,9 +12,16 @@ interface Props {
 }
 
 const FormerLeadersPage = ({ data, type, title, description }: Props) => {
-  const leaders = (data.former_leaders || [])
-    .filter(l => l.type === type)
-    .sort((a, b) => a.order_index - b.order_index);
+  const getLeaders = () => {
+    switch (type) {
+      case 'Principal': return data.former_principals || [];
+      case 'Rector': return data.former_rectors || [];
+      case 'Manager': return data.former_managers || [];
+      default: return [];
+    }
+  };
+
+  const leaders = [...getLeaders()].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
 
   return (
     <Layout data={data}>

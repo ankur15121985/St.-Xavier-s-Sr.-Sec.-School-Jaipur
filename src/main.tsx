@@ -7,13 +7,17 @@ import './index.css';
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Failed to find root element');
 
-// Use a global to persist the root between reloads (e.g. during dev HMR or refresh)
 const win = window as any;
 if (!win.__REACT_ROOT__) {
   win.__REACT_ROOT__ = createRoot(rootElement);
+} else if (import.meta.env.DEV) {
+    // In dev mode, we might want to ensure we're using the latest render logic if needed, 
+    // but the warning specifically triggers on createRoot calls.
 }
 
-win.__REACT_ROOT__.render(
+const root = win.__REACT_ROOT__;
+
+root.render(
   <StrictMode>
     <App />
   </StrictMode>

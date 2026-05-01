@@ -19,6 +19,12 @@ DROP TABLE IF EXISTS faqs CASCADE;
 DROP TABLE IF EXISTS messages CASCADE;
 DROP TABLE IF EXISTS popups CASCADE;
 DROP TABLE IF EXISTS marquee CASCADE;
+DROP TABLE IF EXISTS former_principals CASCADE;
+DROP TABLE IF EXISTS former_rectors CASCADE;
+DROP TABLE IF EXISTS former_managers CASCADE;
+DROP TABLE IF EXISTS student_leaders CASCADE;
+DROP TABLE IF EXISTS streamwise_toppers CASCADE;
+DROP TABLE IF EXISTS xavierite_of_the_year CASCADE;
 DROP TABLE IF EXISTS admins CASCADE;
 DROP TABLE IF EXISTS logs CASCADE;
 DROP TABLE IF EXISTS settings CASCADE;
@@ -65,6 +71,12 @@ CREATE TABLE faqs (id TEXT PRIMARY KEY, question TEXT, answer TEXT, category TEX
 CREATE TABLE messages (id TEXT PRIMARY KEY, name TEXT, email TEXT, subject TEXT, message TEXT, timestamp TEXT, status TEXT DEFAULT 'new', "attachmentUrl" TEXT);
 CREATE TABLE popups (id TEXT PRIMARY KEY, title TEXT, header TEXT, type TEXT, content TEXT, "buttonText" TEXT, "buttonLink" TEXT, "isActive" BOOLEAN DEFAULT false, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
 CREATE TABLE marquee (id TEXT PRIMARY KEY, text TEXT, link TEXT, "attachmentUrl" TEXT, "isActive" BOOLEAN DEFAULT true, order_index INTEGER DEFAULT 0);
+CREATE TABLE former_principals (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE former_rectors (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE former_managers (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE student_leaders (id TEXT PRIMARY KEY, name TEXT, role TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE streamwise_toppers (id TEXT PRIMARY KEY, name TEXT, stream TEXT, percentage TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE xavierite_of_the_year (id TEXT PRIMARY KEY, name TEXT, academic_year TEXT, citation TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
 CREATE TABLE settings (id TEXT PRIMARY KEY, "applyNowEnabled" BOOLEAN DEFAULT true, "applyNowUrl" TEXT, "applyNowLabel" TEXT, "siteName" TEXT, "siteLogo" TEXT, "contactEmail" TEXT, "contactPhone" TEXT, "contactAddress" TEXT, "currentSession" TEXT, "feesPdfUrl" TEXT, "popupMessage" TEXT, "popupEnabled" BOOLEAN DEFAULT false);
 CREATE TABLE content (id TEXT PRIMARY KEY, key TEXT, value TEXT);
 

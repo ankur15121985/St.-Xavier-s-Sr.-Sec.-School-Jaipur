@@ -64,6 +64,34 @@ export interface AppSettings {
   popupEnabled?: boolean;
 }
 
+export interface StudentLeader {
+  id: string;
+  name: string;
+  role: 'Head Boy' | 'Head Girl';
+  academic_year: string;
+  image?: string;
+  order_index: number;
+}
+
+export interface StreamwiseTopper {
+  id: string;
+  name: string;
+  stream: string;
+  percentage: string;
+  academic_year: string;
+  image?: string;
+  order_index: number;
+}
+
+export interface XavieriteOfYear {
+  id: string;
+  name: string;
+  academic_year: string;
+  citation?: string;
+  image?: string;
+  order_index: number;
+}
+
 export interface AppData {
   notices: Notice[];
   staff: StaffMember[];
@@ -81,6 +109,12 @@ export interface AppData {
   popups: AnnouncementPopup[];
   marquee: MarqueeItem[];
   former_leaders: FormerLeader[];
+  former_principals: FormerLeader[];
+  former_rectors: FormerLeader[];
+  former_managers: FormerLeader[];
+  student_leaders: StudentLeader[];
+  streamwise_toppers: StreamwiseTopper[];
+  xavierite_of_the_year: XavieriteOfYear[];
   settings: AppSettings;
   content: Record<string, string>;
   admins: AdminCredential[];
@@ -108,6 +142,5 @@ export interface FormerLeader {
   name: string;
   tenure: string;
   image?: string;
-  type: 'Rector' | 'Manager' | 'Principal';
   order_index: number;
 }

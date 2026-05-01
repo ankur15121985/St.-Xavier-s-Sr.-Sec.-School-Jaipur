@@ -162,7 +162,26 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
               </select>
-            ) : field === 'bio' || field === 'description' || field === 'content' ? (
+            ) : (field === 'role' && section === 'student_leaders') ? (
+              <select 
+                value={item[field] || 'Head Boy'} 
+                onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
+                className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
+              >
+                <option value="Head Boy">Head Boy</option>
+                <option value="Head Girl">Head Girl</option>
+              </select>
+            ) : (field === 'stream' && section === 'streamwise_toppers') ? (
+              <select 
+                value={item[field] || 'Science'} 
+                onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
+                className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
+              >
+                <option value="Science">Science</option>
+                <option value="Commerce">Commerce</option>
+                <option value="Humanities">Humanities</option>
+              </select>
+            ) : field === 'bio' || field === 'description' || field === 'content' || field === 'citation' ? (
                <textarea value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium h-24 focus:ring-1 focus:ring-school-gold transition-all resize-none" />
             ) : (field.toLowerCase().includes('url') || field.toLowerCase().includes('image') || field.toLowerCase().includes('link') || field.toLowerCase().includes('file') || field.toLowerCase().includes('pdf') || field.toLowerCase().includes('attachment') || field === 'href' || field === 'src') ? (
               <div className="space-y-4">
@@ -257,7 +276,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         {/* Consolidated Primary Action Button */}
         {(() => {
           const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'menu', 'marquee', 'popups'].includes(section)) ? 'attachmentUrl' : 
-                              (['staff', 'gallery', 'carousel', 'studentHonors'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
+                              (['staff', 'gallery', 'carousel', 'studentHonors', 'former_principals', 'former_rectors', 'former_managers', 'student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
                               'attachmentUrl';
           const isUploading = uploadingPath === `${section}-${item.id}-${targetField}`;
           const currentVal = item[targetField];
@@ -610,12 +629,30 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.dob = new Date().toISOString().split('T')[0];
       newItem.student_name = 'Student Name';
       newItem.attachmentUrl = '';
-    } else if (tableStr === 'former_leaders') {
-      newItem.name = 'Legacy Leader Name';
-      newItem.tenure = '1941 - 1945';
+    } else if (tableStr === 'former_principals' || tableStr === 'former_rectors' || tableStr === 'former_managers') {
+      newItem.name = 'New Legacy Name';
+      newItem.tenure = 'YYYY - YYYY';
       newItem.image = '';
-      newItem.type = 'Principal';
-      newItem.order_index = (data.former_leaders?.length || 0);
+      newItem.order_index = (data[activeSection] as any[] || []).length;
+    } else if (tableStr === 'student_leaders') {
+      newItem.name = 'Candidate Name';
+      newItem.role = 'Head Boy';
+      newItem.academic_year = '2026-27';
+      newItem.image = '';
+      newItem.order_index = (data.student_leaders?.length || 0);
+    } else if (tableStr === 'streamwise_toppers') {
+      newItem.name = 'Topper Name';
+      newItem.stream = 'Science';
+      newItem.percentage = '99%';
+      newItem.academic_year = '2026';
+      newItem.image = '';
+      newItem.order_index = (data.streamwise_toppers?.length || 0);
+    } else if (tableStr === 'xavierite_of_the_year') {
+      newItem.name = 'Awardee Name';
+      newItem.academic_year = '2026';
+      newItem.citation = 'Excellence in all fields...';
+      newItem.image = '';
+      newItem.order_index = (data.xavierite_of_the_year?.length || 0);
     } else if (tableStr === 'admins') {
       newItem.username = 'new_admin';
       newItem.password = 'change_me_123';
@@ -877,7 +914,12 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'transfer_certificates', label: 'TC Records', icon: <FileText size={18} className="text-school-accent" /> },
     { id: 'messages', label: 'Inquiries', icon: <Mail size={18} className="text-school-accent" /> },
     { id: 'menu', label: 'Menu', icon: <Menu size={18} /> },
-    { id: 'former_leaders', label: 'History Leaders', icon: <Award size={18} className="text-school-accent" /> },
+    { id: 'former_principals', label: 'Principals History', icon: <Award size={18} className="text-school-accent" /> },
+    { id: 'former_rectors', label: 'Rectors History', icon: <Award size={18} className="text-school-gold" /> },
+    { id: 'former_managers', label: 'Managers History', icon: <Award size={18} className="text-school-neon" /> },
+    { id: 'student_leaders', label: 'Head Boy/Girl', icon: <Users2 size={18} className="text-school-gold" /> },
+    { id: 'streamwise_toppers', label: 'Stream Toppers', icon: <Award size={18} className="text-school-accent" /> },
+    { id: 'xavierite_of_the_year', label: 'Xavierite of Year', icon: <Award size={18} className="text-school-neon" /> },
     { id: 'admins', label: 'Admin Accounts', icon: <Key size={18} className="text-school-neon" /> },
     { id: 'logs', label: 'Audit Logs', icon: <FileText size={18} className="text-school-ink opacity-50" /> },
     { id: 'content', label: 'Site Content', icon: <LayoutGrid size={18} className="text-school-neon" /> },
