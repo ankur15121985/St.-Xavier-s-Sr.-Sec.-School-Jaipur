@@ -62,6 +62,8 @@ export interface AppSettings {
   feesPdfUrl?: string;
   popupMessage?: string;
   popupEnabled?: boolean;
+  flagImage?: string;
+  flagEnabled?: boolean;
 }
 
 export interface StudentLeader {

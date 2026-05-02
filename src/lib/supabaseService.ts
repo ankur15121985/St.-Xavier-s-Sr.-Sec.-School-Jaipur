@@ -100,11 +100,30 @@ export const supabaseService = {
           if (section === 'settings' && 'popupEnabled' in sanitized) sanitized.popupEnabled = !!sanitized.popupEnabled;
           
           console.log(`[Supabase Upsert] Table: ${section}, ID: ${item.id}`);
-          const { error } = await supabase.from(section).upsert(sanitized);
-          if (error || (error as any) === null) { 
-            // In some versions error might be undefined on success, but we check truthiness
-          }
+          let { error } = await supabase.from(section).upsert(sanitized);
           
+          // Handle missing columns gracefully by dynamic stripping
+          if (error && error.code === 'PGRST204') {
+            console.warn(`[Supabase Sync] Schema mismatch in ${section}, attempting to strip unknown fields...`);
+            
+            // Try to identify the missing column from the error message
+            // Error typically looks like: "Could not find the 'fieldname' column..."
+            const match = error.message.match(/column ['"](.+?)['"]/i);
+            const missingField = match ? match[1] : null;
+            
+            if (missingField && sanitized[missingField] !== undefined) {
+              const { [missingField]: _, ...fallbackSanitized } = sanitized;
+              console.log(`[Supabase Sync Retry] Stripping field '${missingField}' and retrying...`);
+              const { error: retryError } = await supabase.from(section).upsert(fallbackSanitized);
+              error = retryError;
+            } else if (section === 'settings') {
+              // Brute force fallback for settings specifically if heuristic fails
+              const { flagImage, flagEnabled, ...fallbackSettings } = sanitized;
+              const { error: retryError } = await supabase.from(section).upsert(fallbackSettings);
+              error = retryError;
+            }
+          }
+
           if (error) {
             console.error(`[Supabase Sync Failure] Table: ${section}, Error: ${error.message}, Code: ${error.code}`);
             let userMessage = `Supabase Table '${section}' error: ${error.message}`;

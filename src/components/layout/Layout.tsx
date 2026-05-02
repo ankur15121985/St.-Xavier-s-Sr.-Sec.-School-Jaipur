@@ -147,28 +147,30 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             {/* Row 1: Logo Section */}
             <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
               <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
-                <Link to="/" className="flex items-center gap-4 group relative">
-                  <div className={`transition-all duration-500 shrink-0 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-20 h-20 md:w-[100px] md:h-[100px]'}`}>
+                <div className="flex items-center gap-4 relative">
+                  <Link to="/" className={`shrink-0 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-20 h-20 md:w-[100px] md:h-[100px]'}`}>
                     <img 
                       src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
                       alt="Logo" 
                       className="w-full h-full object-contain"
                     />
-                    <IndianFlag className={`absolute -bottom-4 -left-4 z-20 ${isScrolled ? 'w-8 h-5' : 'w-14 h-9'}`} />
-                  </div>
+                  </Link>
                   <div className="flex flex-col justify-center">
-                    <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-2xl md:text-[42px]'} md:whitespace-nowrap`}>
-                      ST. XAVIER'S SR. SEC. SCHOOL
-                    </h1>
+                    <Link to="/">
+                      <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-2xl md:text-[42px]'} md:whitespace-nowrap`}>
+                        ST. XAVIER'S SR. SEC. SCHOOL
+                      </h1>
+                    </Link>
                     {!isScrolled && (
                       <p className="text-[13px] md:text-[17px] font-sans font-medium text-[#333] dark:text-slate-400 mt-1 leading-tight md:whitespace-nowrap">
                         Bhagwan Das Road, C-Scheme, Jaipur - 302001 &nbsp;|&nbsp; CBSE Affiliation No.: 1730003
                       </p>
                     )}
                   </div>
-                </Link>
+                </div>
                 
                 <div className="hidden lg:flex items-center gap-6">
+                   <IndianFlag src={data.settings?.flagImage} className={isScrolled ? 'w-8 h-5' : 'w-14 h-9'} />
                    <button 
                      onClick={() => setIsSearchOpen(true)}
                      className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white"
@@ -187,6 +189,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 </div>
 
                 <div className="lg:hidden flex items-center gap-2">
+                   <IndianFlag src={data.settings?.flagImage} className="w-8 h-5" />
                    <button 
                      onClick={() => setIsDark(!isDark)}
                      className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 text-school-navy dark:text-white"
@@ -290,19 +293,20 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
               {/* Brand Area - Left Defined */}
-              <div className="flex items-center gap-4 transition-all relative">
-                <Link to="/" className={`shrink-0 transition-all duration-500 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-12 h-12 md:w-[80px] md:h-[80px]'}`}>
+              <div className="flex items-center gap-4 relative">
+                <Link to="/" className={`shrink-0 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-12 h-12 md:w-[80px] md:h-[80px]'}`}>
                   <img 
                     src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
                     alt="Logo" 
                     className="w-full h-full object-contain"
                   />
-                  <IndianFlag className={`absolute -bottom-3 -left-3 z-20 ${isScrolled ? 'w-8 h-5' : 'w-12 h-8'}`} />
                 </Link>
                 <div className="flex flex-col">
-                  <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-[32px]'} md:whitespace-nowrap`}>
-                    ST. XAVIER'S SR. SEC. SCHOOL
-                  </span>
+                  <Link to="/">
+                    <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-[32px]'} md:whitespace-nowrap`}>
+                      ST. XAVIER'S SR. SEC. SCHOOL
+                    </span>
+                  </Link>
                   {!isScrolled && (
                     <span className="text-[10px] md:text-[14px] font-sans font-medium text-slate-500 dark:text-slate-400 leading-tight mt-1 md:whitespace-nowrap">
                       Bhagwan Das Road, C-Scheme, Jaipur &nbsp;|&nbsp; CBSE Affiliation No.: 1730003
@@ -315,6 +319,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               <div className="flex items-center gap-2">
                 {/* Desktop/Wide Actions */}
                 <div className="hidden lg:flex items-center gap-4">
+                  {data.settings?.flagEnabled && <IndianFlag src={data.settings?.flagImage} className={isScrolled ? 'w-8 h-5' : 'w-12 h-8'} />}
                   <button 
                     onClick={() => setIsSearchOpen(true)}
                     className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white"
@@ -337,6 +342,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
 
                 {/* Mobile/Tablet Actions */}
                 <div className="lg:hidden flex items-center gap-2">
+                  {data.settings?.flagEnabled && <IndianFlag src={data.settings?.flagImage} className="w-8 h-5" />}
                   <button 
                     onClick={() => setIsDark(!isDark)}
                     className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 text-school-navy dark:text-white"

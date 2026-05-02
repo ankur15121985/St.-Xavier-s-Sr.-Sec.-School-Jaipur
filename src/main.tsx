@@ -3,56 +3,33 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Robust React Root Management to handle script re-evaluations and HMR-like environments
-const getRoot = () => {
-  const ROOT_STORE_KEY = '__APP_REACT_ROOT__';
-  const _window = window as any;
-  
-  const rootElement = document.getElementById('root');
-  if (!rootElement) {
-    console.error('[Root] Target container #root not found');
-    throw new Error('Failed to find root element');
-  }
+// Use a persistent global handle to prevent "multiple roots" errors
+const ROOT_ID = 'root';
+const ROOT_KEY = Symbol.for('__react_root_handle__');
+const g = window as any;
 
-  // 1. If we already have a root stored globally, use it. This is exactly what React 18 recommends
-  // to avoid the "already been passed to createRoot" warning.
-  if (_window[ROOT_STORE_KEY]) {
-    console.info('[Root] Using existing React root from global store.');
-    return _window[ROOT_STORE_KEY];
-  }
+let container = document.getElementById(ROOT_ID);
+if (!container) throw new Error('Failed to find root element');
 
-  // 2. Check if this specific element has already been used by React by inspecting its properties
-  // React attaches a property starting with __reactContainer to the DOM node
-  const container = rootElement as any;
-  const isInitialized = Object.getOwnPropertyNames(container).some(key => key.startsWith('__reactContainer$')) ||
-                        Object.keys(container).some(key => key.startsWith('__reactContainer$'));
-
-  if (isInitialized) {
-    console.warn('[Root] Element #root was already initialized by another React instance but no global reference was found. Replacing element to safely reset.');
-    const newRootElement = document.createElement('div');
-    newRootElement.id = 'root';
-    if (rootElement.parentNode) {
-      rootElement.parentNode.replaceChild(newRootElement, rootElement);
-    }
-    
-    try {
-      const root = createRoot(newRootElement);
-      _window[ROOT_STORE_KEY] = root;
-      return root;
-    } catch (err) {
-      console.error('[Root] Emergency recovery failure:', err);
-      throw err;
-    }
-  }
-
-  // 3. Normal path: First time initialization
-  console.info('[Root] Initializing fresh React root.');
-  const root = createRoot(rootElement);
-  _window[ROOT_STORE_KEY] = root;
-  return root;
+// Helper to check if a node is already managed by React
+const isManaged = (node: HTMLElement) => {
+  return Object.keys(node).some(key => key.startsWith('__reactContainer'));
 };
 
-const root = getRoot();
+let root = (container as any)[ROOT_KEY] || g.__REACT_ROOT__;
+
+if (!root) {
+  if (isManaged(container)) {
+    // If React already manages this node but we lost the handle, we must reset the container
+    const newContainer = container.cloneNode(false) as HTMLElement;
+    container.parentNode?.replaceChild(newContainer, container);
+    container = newContainer;
+  }
+  
+  root = createRoot(container);
+  (container as any)[ROOT_KEY] = root;
+  g.__REACT_ROOT__ = root;
+}
 
 root.render(
   <StrictMode>

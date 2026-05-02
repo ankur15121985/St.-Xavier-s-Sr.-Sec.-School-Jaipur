@@ -1,15 +1,51 @@
 import React from 'react';
 import { motion } from 'motion/react';
 
-const IndianFlag: React.FC<{ className?: string }> = ({ className }) => {
+const IndianFlag: React.FC<{ className?: string, src?: string }> = ({ className, src }) => {
+  if (src && src.trim() !== '') {
+    return (
+      <motion.div 
+        className={`relative inline-block cursor-grab active:cursor-grabbing select-none hover:z-[100] ${className}`}
+        drag
+        dragMomentum={false}
+        dragElastic={0}
+        dragConstraints={{ left: -2000, right: 2000, top: -2000, bottom: 2000 }}
+        whileHover={{ scale: 1.1 }}
+        whileDrag={{ 
+          scale: 1.3, 
+          zIndex: 1000,
+          boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+          cursor: 'grabbing'
+        }}
+        dragTransition={{ power: 0 }}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+      >
+        <img 
+          src={src} 
+          alt="Custom Flag" 
+          className="w-full h-auto drop-shadow-2xl rounded-sm"
+          referrerPolicy="no-referrer"
+        />
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div 
-      className={`relative inline-block cursor-grab active:cursor-grabbing select-none ${className}`}
+      className={`relative inline-block cursor-grab active:cursor-grabbing select-none hover:z-[100] ${className}`}
       drag
       dragMomentum={false}
-      dragElastic={0.1}
-      whileHover={{ scale: 1.1, zIndex: 50 }}
-      whileTap={{ scale: 0.9 }}
+      dragElastic={0}
+      dragConstraints={{ left: -2000, right: 2000, top: -2000, bottom: 2000 }}
+      whileHover={{ scale: 1.1 }}
+      whileDrag={{ 
+        scale: 1.3, 
+        zIndex: 1000,
+        boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+        cursor: 'grabbing'
+      }}
+      dragTransition={{ power: 0 }}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
     >

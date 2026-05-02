@@ -10,6 +10,7 @@ import { AppData } from '../types';
 import { useSupabase } from '../components/SupabaseProvider';
 import { supabaseService } from '../lib/supabaseService';
 import { storageService } from '../lib/storageService';
+import { supabase } from '../supabaseClient';
 
 interface PendingGalleryItem {
   id: string;
@@ -46,14 +47,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Diagnostic check for API connectivity
-    fetch('/api/connectivity-test')
-      .then(r => r.json())
-      .then(res => console.log('[API DIAGNOSTIC]', res))
-      .catch(err => console.error('[API DIAGNOSTIC] Failed:', err));
+    // Session check logic could go here if needed
   }, []);
-
-  const [isMigrating, setIsMigrating] = useState(false);
 
 
   const handleUsernameLogin = async (e: React.FormEvent) => {
@@ -1441,7 +1436,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                  <h2 className="text-3xl font-serif font-black text-school-navy italic tracking-tight mb-4">Global Site Settings</h2>
                  <p className="text-sm text-school-navy/60 leading-relaxed font-light">Site-wide configurations, contact information, and main branding assets.</p>
                </div>
-               
+
                <div className="grid md:grid-cols-2 gap-12">
                   <div className="space-y-6">
                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Site Name</label>
@@ -1564,6 +1559,46 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
                     />
                   </div>
+
+                  <div className="flex items-center justify-between mb-8 mt-16 pt-16 border-t border-school-ink/5">
+                    <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight">Interactive Flag Configuration</h2>
+                    <button 
+                      onClick={() => handleUpdate('global', 'flagEnabled', !data.settings.flagEnabled, 'settings')}
+                      className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                        data.settings.flagEnabled 
+                          ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200' 
+                          : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                      }`}
+                    >
+                      {data.settings.flagEnabled ? 'Enabled' : 'Disabled'}
+                    </button>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-12">
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Custom Animated Image (GIF/WebP)</label>
+                        <label className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
+                          {uploadingPath === 'settings-global-flagImage' ? 'Uploading...' : 'Upload Image'}
+                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'global', 'flagImage', 'settings')} disabled={!!uploadingPath} />
+                        </label>
+                      </div>
+                      <input 
+                        value={data.settings.flagImage || ''}
+                        onChange={(e) => handleUpdate('global', 'flagImage', e.target.value, 'settings')}
+                        placeholder="Leave empty for default Indian Flag"
+                        className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                      />
+                    </div>
+                    {data.settings.flagImage && (
+                      <div className="space-y-6">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Preview</label>
+                        <div className="w-32 h-20 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center border border-dashed border-school-ink/20 overflow-hidden">
+                          <img src={data.settings.flagImage} alt="Flag Preview" className="max-w-full max-h-full object-contain" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight mb-8 mt-16 pt-16 border-t border-school-ink/5">Institutional Popup Notice</h2>
                   <div className="grid md:grid-cols-2 gap-12">
                     <div className="space-y-6">

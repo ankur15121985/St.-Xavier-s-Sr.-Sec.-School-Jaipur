@@ -557,9 +557,19 @@ db.exec(`
     contactEmail TEXT,
     contactPhone TEXT,
     contactAddress TEXT,
-    currentSession TEXT
+    currentSession TEXT,
+    flagImage TEXT,
+    flagEnabled INTEGER DEFAULT 1
   )
 `);
+
+// Migration for settings
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN flagImage TEXT").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN flagEnabled INTEGER DEFAULT 1").run();
+} catch (e) {}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS content (

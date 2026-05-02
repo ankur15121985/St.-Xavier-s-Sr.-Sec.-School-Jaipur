@@ -367,7 +367,9 @@ const DEFAULT_DATA: AppData = {
     contactPhone: '0141-2372336 (Senior School), 2367792 (Junior School)',
     contactAddress: 'Bhagwan Das Road, C-Scheme, Jaipur - 302001, Rajasthan, India',
     popupEnabled: true,
-    popupMessage: 'Welcome to St. Xavier\'s, C-scheme. Admissions for the academic session 2026-27 are now open. Please visit the admission portal for details.'
+    popupMessage: 'Welcome to St. Xavier\'s, C-scheme. Admissions for the academic session 2026-27 are now open. Please visit the admission portal for details.',
+    flagImage: '',
+    flagEnabled: true
   },
   content: {
     id: 'global',

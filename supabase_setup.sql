@@ -79,7 +79,7 @@ CREATE TABLE student_leaders (id TEXT PRIMARY KEY, name TEXT, role TEXT, academi
 CREATE TABLE streamwise_toppers (id TEXT PRIMARY KEY, name TEXT, stream TEXT, percentage TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
 CREATE TABLE xavierite_of_the_year (id TEXT PRIMARY KEY, name TEXT, academic_year TEXT, citation TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
 CREATE TABLE useful_links (id TEXT PRIMARY KEY, title TEXT, url TEXT, "isPriority" BOOLEAN DEFAULT false, icon TEXT, "attachmentUrl" TEXT);
-CREATE TABLE settings (id TEXT PRIMARY KEY, "applyNowEnabled" BOOLEAN DEFAULT true, "applyNowUrl" TEXT, "applyNowLabel" TEXT, "siteName" TEXT, "siteLogo" TEXT, "contactEmail" TEXT, "contactPhone" TEXT, "contactAddress" TEXT, "currentSession" TEXT, "feesPdfUrl" TEXT, "popupMessage" TEXT, "popupEnabled" BOOLEAN DEFAULT false);
+CREATE TABLE settings (id TEXT PRIMARY KEY, "applyNowEnabled" BOOLEAN DEFAULT true, "applyNowUrl" TEXT, "applyNowLabel" TEXT, "siteName" TEXT, "siteLogo" TEXT, "contactEmail" TEXT, "contactPhone" TEXT, "contactAddress" TEXT, "currentSession" TEXT, "feesPdfUrl" TEXT, "popupMessage" TEXT, "popupEnabled" BOOLEAN DEFAULT false, "flagImage" TEXT, "flagEnabled" BOOLEAN DEFAULT true);
 CREATE TABLE content (id TEXT PRIMARY KEY, key TEXT, value TEXT);
 
 -- 4. ENABLE PUBLIC FULL ACCESS FOR ALL TABLES
