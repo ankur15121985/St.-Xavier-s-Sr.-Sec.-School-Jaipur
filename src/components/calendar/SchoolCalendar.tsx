@@ -28,10 +28,30 @@ const SchoolCalendar = ({ events }: SchoolCalendarProps) => {
 
   // Parse events dates
   const parsedEvents = useMemo(() => {
-    return events.map(event => ({
-      ...event,
-      parsedDate: parse(event.date, 'MMMM dd, yyyy', new Date())
-    }));
+    return events.map(event => {
+      let parsedDate: Date;
+      try {
+        if (event.date.includes(',')) {
+          // Handle "MMMM dd, yyyy"
+          parsedDate = parse(event.date, 'MMMM dd, yyyy', new Date());
+        } else {
+          // Handle "yyyy-MM-dd"
+          parsedDate = parse(event.date, 'yyyy-MM-dd', new Date());
+        }
+        
+        // If still invalid, try generic new Date()
+        if (isNaN(parsedDate.getTime())) {
+          parsedDate = new Date(event.date);
+        }
+      } catch (e) {
+        parsedDate = new Date(event.date);
+      }
+      
+      return {
+        ...event,
+        parsedDate: startOfDay(parsedDate)
+      };
+    }).filter(e => !isNaN(e.parsedDate.getTime()));
   }, [events]);
 
   const renderHeader = () => {
@@ -161,13 +181,26 @@ const SchoolCalendar = ({ events }: SchoolCalendarProps) => {
     return parsedEvents.filter(e => isSameDay(e.parsedDate, selectedDate));
   }, [selectedDate, parsedEvents]);
 
-  const addToCalendar = (event: Event) => {
+  const addToCalendar = (event: any) => {
     const title = encodeURIComponent(event.title);
     const details = encodeURIComponent(`School Event at ${event.location}`);
     const location = encodeURIComponent(event.location);
     
-    // Simple Google Calendar link
-    const dateStr = format(parse(event.date, 'MMMM dd, yyyy', new Date()), 'yyyyMMdd');
+    // Use the already parsed date
+    let eventDate: Date;
+    try {
+      if (event.parsedDate) {
+        eventDate = event.parsedDate;
+      } else if (event.date.includes(',')) {
+        eventDate = parse(event.date, 'MMMM dd, yyyy', new Date());
+      } else {
+        eventDate = parse(event.date, 'yyyy-MM-dd', new Date());
+      }
+    } catch (e) {
+      eventDate = new Date();
+    }
+
+    const dateStr = format(eventDate, 'yyyyMMdd');
     const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${dateStr}/${dateStr}`;
     
     window.open(googleCalendarUrl, '_blank');

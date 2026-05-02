@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, PerspectiveCamera, Environment, Stars, ContactShadows, useScroll, ScrollControls, Scroll } from '@react-three/drei';
 import * as THREE from 'three';
@@ -44,7 +44,9 @@ const CampusSceneContent = () => {
 
   return (
     <group ref={groupRef}>
-      <Environment preset="city" />
+      <Suspense fallback={null}>
+        <Environment preset="lobby" />
+      </Suspense>
       <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1.5} castShadow />

@@ -7,6 +7,8 @@ import { AppData, QuickLink } from '../../types';
 import ScrollButtons from '../ui/ScrollButtons';
 import PopupMessage from '../ui/PopupMessage';
 import { GlobalSearch } from '../ui/GlobalSearch';
+import IndianFlag from '../ui/IndianFlag';
+import SidebarLinks from './SidebarLinks';
 import CanvasFooterEffect from '../ui/CanvasFooterEffect';
 
 interface LayoutProps {
@@ -145,13 +147,14 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             {/* Row 1: Logo Section */}
             <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
               <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
-                <Link to="/" className="flex items-center gap-4 group">
-                  <div className={`transition-all duration-500 shrink-0 ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-20 h-20 md:w-[100px] md:h-[100px]'}`}>
+                <Link to="/" className="flex items-center gap-4 group relative">
+                  <div className={`transition-all duration-500 shrink-0 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-20 h-20 md:w-[100px] md:h-[100px]'}`}>
                     <img 
                       src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
                       alt="Logo" 
                       className="w-full h-full object-contain"
                     />
+                    <IndianFlag className={`absolute -bottom-4 -left-4 z-20 ${isScrolled ? 'w-8 h-5' : 'w-14 h-9'}`} />
                   </div>
                   <div className="flex flex-col justify-center">
                     <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-2xl md:text-[42px]'} md:whitespace-nowrap`}>
@@ -287,13 +290,14 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
               {/* Brand Area - Left Defined */}
-              <div className="flex items-center gap-4 transition-all">
-                <Link to="/" className={`shrink-0 transition-all duration-500 ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-12 h-12 md:w-[80px] md:h-[80px]'}`}>
+              <div className="flex items-center gap-4 transition-all relative">
+                <Link to="/" className={`shrink-0 transition-all duration-500 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-12 h-12 md:w-[80px] md:h-[80px]'}`}>
                   <img 
                     src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
                     alt="Logo" 
                     className="w-full h-full object-contain"
                   />
+                  <IndianFlag className={`absolute -bottom-3 -left-3 z-20 ${isScrolled ? 'w-8 h-5' : 'w-12 h-8'}`} />
                 </Link>
                 <div className="flex flex-col">
                   <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-[32px]'} md:whitespace-nowrap`}>
@@ -666,6 +670,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
 
       {/* Floating Scroll Controls */}
       <ScrollButtons />
+      <SidebarLinks links={data.useful_links || []} />
     </div>
   );
 };

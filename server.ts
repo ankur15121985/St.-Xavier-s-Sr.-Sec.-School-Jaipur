@@ -27,8 +27,29 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://*.run.app", "https://ais-pre-*.run.app", "https://ais-dev-*.run.app"],
-      connectSrc: ["'self'", "https://*.supabase.co", "wss://*.supabase.co", "https://*.run.app", "https://ais-pre-*.run.app", "https://ais-dev-*.run.app"],
-      imgSrc: ["'self'", "data:", "blob:", "https://*.supabase.co", "https://xaviersjaipur.edu.in", "https://picsum.photos", "https://lh3.googleusercontent.com"],
+      connectSrc: [
+        "'self'", 
+        "https://*.supabase.co", 
+        "wss://*.supabase.co", 
+        "https://*.run.app", 
+        "https://ais-pre-*.run.app", 
+        "https://ais-dev-*.run.app",
+        "https://raw.githack.com",
+        "https://cdn.jsdelivr.net",
+        "https://dl.polyhaven.org",
+        "https://raw.githubusercontent.com"
+      ],
+      imgSrc: [
+        "'self'", 
+        "data:", 
+        "blob:", 
+        "https://*.supabase.co", 
+        "https://xaviersjaipur.edu.in", 
+        "https://picsum.photos", 
+        "https://lh3.googleusercontent.com",
+        "https://raw.githack.com",
+        "https://cdn.jsdelivr.net"
+      ],
       fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       frameAncestors: ["'self'", "https://*.run.app", "https://ais-dev-*.run.app", "https://ais-pre-*.run.app", "https://*.google.com"],
@@ -491,6 +512,17 @@ db.exec(`
     attachmentUrl TEXT,
     isActive INTEGER NOT NULL,
     order_index INTEGER NOT NULL
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS useful_links (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    url TEXT,
+    isPriority INTEGER DEFAULT 0,
+    icon TEXT,
+    attachmentUrl TEXT
   )
 `);
 

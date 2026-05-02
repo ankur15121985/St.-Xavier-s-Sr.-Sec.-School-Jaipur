@@ -115,6 +115,7 @@ export interface AppData {
   student_leaders: StudentLeader[];
   streamwise_toppers: StreamwiseTopper[];
   xavierite_of_the_year: XavieriteOfYear[];
+  useful_links: QuickLink[];
   settings: AppSettings;
   content: Record<string, string>;
   admins: AdminCredential[];

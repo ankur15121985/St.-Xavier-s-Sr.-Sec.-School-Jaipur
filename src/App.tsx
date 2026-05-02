@@ -250,6 +250,11 @@ const DEFAULT_DATA: AppData = {
     { id: '2', title: 'Best School in Jaipur 2025', year: '2025', description: 'Ranked #1 for Holistic Development by Education World.' },
     { id: '3', title: 'State Cricket Champions', year: '2025', description: 'The U-19 team won the Rajasthan State Inter-School Tournament.' }
   ],
+  useful_links: [
+    { id: 'ul1', title: 'CBSE Portal', url: 'https://cbse.gov.in', icon: 'link' },
+    { id: 'ul2', title: 'School Prospectus', url: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf', icon: 'pdf' },
+    { id: 'ul3', title: 'Exam Guidelines', url: '#', icon: 'FileText' }
+  ],
   studentHonors: [
     { id: '1', name: 'Rijul Jain', category: 'JEE Mains Aspirant', result: 'Qualified', subtext: 'SCIENCE CLUB (JOINT SECRETARY), RAJYA PURASKAR AWARDEE (SCOUTS AND GUIDES)', image: 'https://picsum.photos/seed/student1/300/300', order_index: 0 },
     { id: '2', name: 'Ameyatman Roy', category: 'JEE Mains Merit', result: 'Qualified', subtext: 'ACADEMIC MERIT SCHOLAR', image: 'https://picsum.photos/seed/student2/300/300', order_index: 1 },

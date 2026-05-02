@@ -136,11 +136,11 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.entries({
           ...item,
-          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
+          ...( ['notices', 'fees', 'links', 'useful_links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
         }).filter(([k]) => {
           if (k === 'id') return false;
           const handledAtBottom = 
-            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups'].includes(section) && k === 'attachmentUrl') ||
+            (['notices', 'fees', 'links', 'useful_links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups'].includes(section) && k === 'attachmentUrl') ||
             (['staff', 'studentHonors'].includes(section) && k === 'image') ||
             (['gallery', 'carousel'].includes(section) && k === 'url');
           return !handledAtBottom;
@@ -275,7 +275,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         
         {/* Consolidated Primary Action Button */}
         {(() => {
-          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups'].includes(section)) ? 'attachmentUrl' : 
+          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'useful_links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups'].includes(section)) ? 'attachmentUrl' : 
                               (['staff', 'gallery', 'carousel', 'studentHonors', 'former_principals', 'former_rectors', 'former_managers', 'student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
                               'attachmentUrl';
           const isUploading = uploadingPath === `${section}-${item.id}-${targetField}`;
@@ -569,13 +569,18 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.caption = tableStr === 'gallery' ? 'Gallery Image Caption' : 'Carousel Slide Title';
       newItem.session = '2024-25';
       newItem.attachmentUrl = '';
+    } else if (tableStr === 'useful_links') {
+      newItem.title = 'New Sidebar Link';
+      newItem.url = 'https://';
+      newItem.icon = 'link';
+      newItem.attachmentUrl = '';
     } else if (tableStr === 'links') {
       newItem.title = 'New Link';
       newItem.url = '#';
       newItem.attachmentUrl = '';
     } else if (tableStr === 'events') {
       newItem.title = 'New School Event';
-      newItem.date = new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
+      newItem.date = new Date().toISOString().split('T')[0]; // Store as YYYY-MM-DD
       newItem.time = '10:00 AM - 12:00 PM';
       newItem.location = 'St. Xavier\'s Jaipur Main Campus';
       newItem.attachmentUrl = '';
@@ -911,6 +916,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
 
   const sections = [
     { id: 'notices', label: 'Notices', icon: <Bell size={18} /> },
+    { id: 'useful_links', label: 'Sidebar Links', icon: <LinkIcon size={18} className="text-school-neon" /> },
     { id: 'popups', label: 'Popups', icon: <Maximize2 size={18} className="text-school-accent" /> },
     { id: 'marquee', label: 'Marquee', icon: <ChevronRight size={18} className="text-school-neon" /> },
     { id: 'events', label: 'Events', icon: <Calendar size={18} /> },

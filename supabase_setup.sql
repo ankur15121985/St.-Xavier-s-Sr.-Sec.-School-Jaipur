@@ -25,6 +25,7 @@ DROP TABLE IF EXISTS former_managers CASCADE;
 DROP TABLE IF EXISTS student_leaders CASCADE;
 DROP TABLE IF EXISTS streamwise_toppers CASCADE;
 DROP TABLE IF EXISTS xavierite_of_the_year CASCADE;
+DROP TABLE IF EXISTS useful_links CASCADE;
 DROP TABLE IF EXISTS admins CASCADE;
 DROP TABLE IF EXISTS logs CASCADE;
 DROP TABLE IF EXISTS settings CASCADE;
@@ -77,6 +78,7 @@ CREATE TABLE former_managers (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image
 CREATE TABLE student_leaders (id TEXT PRIMARY KEY, name TEXT, role TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
 CREATE TABLE streamwise_toppers (id TEXT PRIMARY KEY, name TEXT, stream TEXT, percentage TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
 CREATE TABLE xavierite_of_the_year (id TEXT PRIMARY KEY, name TEXT, academic_year TEXT, citation TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE useful_links (id TEXT PRIMARY KEY, title TEXT, url TEXT, "isPriority" BOOLEAN DEFAULT false, icon TEXT, "attachmentUrl" TEXT);
 CREATE TABLE settings (id TEXT PRIMARY KEY, "applyNowEnabled" BOOLEAN DEFAULT true, "applyNowUrl" TEXT, "applyNowLabel" TEXT, "siteName" TEXT, "siteLogo" TEXT, "contactEmail" TEXT, "contactPhone" TEXT, "contactAddress" TEXT, "currentSession" TEXT, "feesPdfUrl" TEXT, "popupMessage" TEXT, "popupEnabled" BOOLEAN DEFAULT false);
 CREATE TABLE content (id TEXT PRIMARY KEY, key TEXT, value TEXT);
 
@@ -162,6 +164,7 @@ ALTER TABLE faqs ALTER COLUMN id TYPE TEXT;
 ALTER TABLE messages ALTER COLUMN id TYPE TEXT;
 ALTER TABLE popups ALTER COLUMN id TYPE TEXT;
 ALTER TABLE marquee ALTER COLUMN id TYPE TEXT;
+ALTER TABLE useful_links ALTER COLUMN id TYPE TEXT;
 ALTER TABLE admins ALTER COLUMN id TYPE TEXT;
 ALTER TABLE logs ALTER COLUMN id TYPE TEXT;
 
