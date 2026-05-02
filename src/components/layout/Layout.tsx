@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Phone, Mail, MapPin, Key, Settings, ArrowRight, ChevronRight, Users2, ImageIcon, ExternalLink, Facebook, Instagram, Youtube, ArrowUp, ArrowDown, MessageSquare, Sun, Moon, Search } from 'lucide-react';
+import { Menu, X, Phone, Mail, MapPin, Key, Settings, ArrowRight, ChevronRight, Users2, ImageIcon, ExternalLink, Facebook, Instagram, Youtube, Twitter, ArrowUp, ArrowDown, MessageSquare, Sun, Moon, Search } from 'lucide-react';
 import { AppData, QuickLink } from '../../types';
 
 import ScrollButtons from '../ui/ScrollButtons';
 import PopupMessage from '../ui/PopupMessage';
 import { GlobalSearch } from '../ui/GlobalSearch';
+import CanvasFooterEffect from '../ui/CanvasFooterEffect';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -508,67 +509,127 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
       </main>
 
       <footer className="bg-slate-950 text-white pt-32 pb-16 relative overflow-hidden mt-32">
+        <CanvasFooterEffect />
+        {/* Aesthetic Background Elements */}
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-school-accent/10 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-school-gold/5 blur-[100px] rounded-full pointer-events-none" />
+        
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-12 gap-16 border-b border-white/5 pb-20">
-            <div className="lg:col-span-4 space-y-10">
+          {/* Institutional Signature Section - Refined for Prestige */}
+          <div className="mb-24 relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-school-accent/20 via-school-gold/20 to-school-accent/20 rounded-[40px] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-[40px] flex flex-col md:flex-row items-center gap-8 md:gap-12">
+              <div className="w-24 h-24 md:w-32 md:h-32 shrink-0 bg-white p-4 rounded-3xl shadow-inner">
+                 <img 
+                   src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
+                   alt="St. Xavier's Logo" 
+                   className="w-full h-full object-contain"
+                 />
+              </div>
+              <div className="flex flex-col text-center md:text-left space-y-4">
+                 <h2 className="font-display font-medium text-3xl md:text-5xl lg:text-6xl text-white leading-none tracking-tight">
+                   St. Xavier's <span className="text-school-accent italic">Sr. Sec. School</span>
+                 </h2>
+                 <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6 text-white/50 font-medium text-sm md:text-lg">
+                    <div className="flex items-center justify-center md:justify-start gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-school-accent"></div>
+                      <span>Bhagwan Das Road, C-Scheme, Jaipur</span>
+                    </div>
+                    <span className="hidden md:inline text-white/20">|</span>
+                    <div className="flex items-center justify-center md:justify-start gap-2">
+                       <div className="w-1.5 h-1.5 rounded-full bg-school-gold"></div>
+                       <span>CBSE Affiliation No.: 1730003</span>
+                    </div>
+                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-12 gap-16 lg:gap-24 border-b border-white/5 pb-24">
+            <div className="lg:col-span-4 space-y-12">
               <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white p-2 rounded-xl">
-                    <img src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} alt="Logo" className="w-full h-full object-contain" />
-                  </div>
-                  <h3 className="text-2xl font-bold tracking-tight">
-                    {data.settings?.siteName?.split(',')[0]}
-                  </h3>
-                </div>
-                <p className="text-lg text-white/40 font-medium leading-relaxed">
-                  {data.content?.footerDescription || 'Pioneering Jesuit excellence since 1941.'}
+                <h4 className="font-serif italic text-2xl text-white/90">Our Mission</h4>
+                <p className="text-xl text-white/40 font-medium leading-relaxed italic">
+                  "{data.content?.footerDescription || 'Pioneering Jesuit excellence since 1941. Dedicated to producing men and women for others.'}"
                 </p>
               </div>
               
-              <div className="flex gap-3">
-                {[Facebook, Instagram, Youtube].map((Icon, i) => (
-                  <a key={i} href="#" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center hover:bg-school-accent transition-all">
-                    <Icon size={20} />
+              <div className="flex gap-4">
+                {[Facebook, Instagram, Youtube, Twitter].map((Icon, i) => (
+                  <a 
+                    key={i} 
+                    href="#" 
+                    className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-slate-950 hover:border-white transition-all duration-500 group"
+                  >
+                    <Icon size={20} className="group-hover:scale-110 transition-transform" />
                   </a>
                 ))}
               </div>
             </div>
 
-            <div className="lg:col-span-8 grid sm:grid-cols-3 gap-12">
-              <div className="space-y-8">
-                <h4 className="text-sm font-bold text-school-accent uppercase tracking-widest">Explore</h4>
-                <ul className="space-y-4">
-                  {navLinks.map(l => (
+            <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-12 lg:gap-16">
+              <div className="space-y-10">
+                <h4 className="text-xs font-black text-school-accent uppercase tracking-[0.3em]">Explore</h4>
+                <ul className="space-y-5">
+                  {navLinks.slice(0, 5).map(l => (
                     <li key={l.id}>
-                      <Link to={l.href} className="text-white/40 hover:text-white transition-colors">
-                        {l.label.toUpperCase()}
+                      <Link to={l.href} className="text-white/40 hover:text-white transition-all hover:translate-x-1 inline-block font-medium">
+                        {l.label}
                       </Link>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="space-y-8 lg:col-span-2">
-                <h4 className="text-sm font-bold text-school-accent uppercase tracking-widest">Connect</h4>
-                <div className="space-y-6">
-                  <p className="text-lg font-medium text-white/50 leading-relaxed max-w-sm">
-                    {data.settings?.contactAddress || 'Bhagwan Das Road, C-Scheme, Jaipur, Rajasthan 302001'}
-                  </p>
-                  <p className="text-lg font-bold text-white">
-                    {data.settings?.contactPhone || '0141-2372336'}
-                  </p>
+              
+              <div className="space-y-10">
+                <h4 className="text-xs font-black text-school-gold uppercase tracking-[0.3em]">Resources</h4>
+                <ul className="space-y-5">
+                  {navLinks.slice(5).map(l => (
+                    <li key={l.id}>
+                      <Link to={l.href} className="text-white/40 hover:text-white transition-all hover:translate-x-1 inline-block font-medium">
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="space-y-10 col-span-2 md:col-span-1">
+                <h4 className="text-xs font-black text-white uppercase tracking-[0.3em]">Contact</h4>
+                <div className="space-y-8">
+                  <div className="space-y-2">
+                    <p className="text-xs text-white/20 uppercase font-black tracking-widest">Address</p>
+                    <p className="text-lg font-medium text-white/60 leading-relaxed">
+                      {data.settings?.contactAddress || 'Bhagwan Das Road, C-Scheme, Jaipur, Rajasthan 302001'}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-xs text-white/20 uppercase font-black tracking-widest">Phone</p>
+                    <a href={`tel:${data.settings?.contactPhone || '0141-2372336'}`} className="text-2xl font-display font-medium text-white hover:text-school-accent transition-colors">
+                      {data.settings?.contactPhone || '0141-2372336'}
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="pt-12 flex flex-col md:flex-row justify-between items-center gap-6 text-white/20 text-xs font-semibold tracking-wider uppercase">
-            <div>
-              <p>© 2026 {data.settings?.siteName}.</p>
-              <p className="mt-2 text-[10px] text-white/40 tracking-[0.2em] font-black">Made by ABHISHEK MATHUR</p>
+          <div className="pt-16 flex flex-col md:flex-row justify-between items-center gap-10">
+            <div className="flex flex-col items-center md:items-start gap-4">
+              <div className="flex items-center gap-6 text-white/20 text-[10px] font-black tracking-[0.4em] uppercase">
+                <p>© 2026 {data.settings?.siteName}.</p>
+                <div className="w-1 h-1 rounded-full bg-white/10"></div>
+                <p>All Rights Reserved</p>
+              </div>
+              <p className="text-[9px] text-white/10 tracking-[0.5em] font-black uppercase">
+                Designed with Precision by <span className="text-white/20">ABHISHEK MATHUR</span>
+              </p>
             </div>
-            <div className="flex gap-8">
-              <span className="hover:text-white transition-colors cursor-pointer">Privacy</span>
-              <span className="hover:text-white transition-colors cursor-pointer">Terms</span>
+            
+            <div className="flex items-center gap-12 text-[10px] font-black tracking-[0.3em] uppercase text-white/30">
+              <Link to="/privacy" className="hover:text-school-accent transition-colors">Privacy Policy</Link>
+              <Link to="/terms" className="hover:text-school-gold transition-colors">Terms of Service</Link>
+              <Link to="/sitemap" className="hover:text-white transition-colors">Sitemap</Link>
             </div>
           </div>
         </div>

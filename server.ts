@@ -23,8 +23,20 @@ app.set('trust proxy', 1);
 
 // Security Middleware
 app.use(helmet({
-  contentSecurityPolicy: false, // Disable CSP for Vite dev mode compatibility
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://*.run.app", "https://ais-pre-*.run.app", "https://ais-dev-*.run.app"],
+      connectSrc: ["'self'", "https://*.supabase.co", "wss://*.supabase.co", "https://*.run.app", "https://ais-pre-*.run.app", "https://ais-dev-*.run.app"],
+      imgSrc: ["'self'", "data:", "blob:", "https://*.supabase.co", "https://xaviersjaipur.edu.in", "https://picsum.photos", "https://lh3.googleusercontent.com"],
+      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      frameAncestors: ["'self'", "https://*.run.app", "https://ais-dev-*.run.app", "https://ais-pre-*.run.app", "https://*.google.com"],
+    },
+  },
   crossOriginEmbedderPolicy: false,
+  xContentTypeOptions: true,
+  xFrameOptions: false // Disable X-Frame-Options to allow framing in AI Studio
 }));
 
 // Rate Limiting
@@ -32,7 +44,6 @@ const limiterOptions = {
 	windowMs: 15 * 60 * 1000,
 	standardHeaders: 'draft-7' as const,
 	legacyHeaders: false,
-	// Explicitly handle IP identification to avoid warnings about headers
 	keyGenerator: (req: any) => {
 		const xForwardedFor = req.headers['x-forwarded-for'];
 		if (xForwardedFor) {
@@ -41,19 +52,24 @@ const limiterOptions = {
 		}
 		return (req as any).ip || (req as any).connection?.remoteAddress || 'unknown';
 	},
-	// Suppress the validation errors since we handle it in keyGenerator
 	validate: { trustProxy: false, xForwardedForHeader: false }
 };
 
 const generalLimiter = rateLimit({
 	...limiterOptions,
-	limit: 1000,
+	limit: 300, // 300 requests per 15 minutes
 });
 
 const loginLimiter = rateLimit({
 	...limiterOptions,
-	limit: 10,
+	limit: 5, // Even stricter for logins
 	message: { error: 'Too many login attempts, please try again after 15 minutes' },
+});
+
+const uploadLimiter = rateLimit({
+  ...limiterOptions,
+  limit: 20, // Limit uploads to prevent storage exhaustion attacks
+  message: { error: 'Upload limit exceeded, please try again later' },
 });
 
 app.use(generalLimiter);
@@ -130,8 +146,8 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 } // 50MB
 });
 
-// 1. UPLOAD ROUTE (NO ARRAY - SEPARATE DEFINITIONS FOR MAX COMPAT)
-app.post('/api/upload', authenticateToken, (req, res) => {
+// 1. UPLOAD ROUTE (PROTECTED BY AUTH AND RATE LIMITER)
+app.post('/api/upload', authenticateToken, uploadLimiter, (req, res) => {
   const section = req.query.section || req.body.section || 'misc';
   console.log(`[UPLOAD] POST /api/upload - Target Section: ${section}`);
   

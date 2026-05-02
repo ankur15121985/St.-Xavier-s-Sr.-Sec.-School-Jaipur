@@ -101,10 +101,17 @@ export const supabaseService = {
           
           console.log(`[Supabase Upsert] Table: ${section}, ID: ${item.id}`);
           const { error } = await supabase.from(section).upsert(sanitized);
+          if (error || (error as any) === null) { 
+            // In some versions error might be undefined on success, but we check truthiness
+          }
+          
           if (error) {
             console.error(`[Supabase Sync Failure] Table: ${section}, Error: ${error.message}, Code: ${error.code}`);
             let userMessage = `Supabase Table '${section}' error: ${error.message}`;
-            if (error.message.toLowerCase().includes('column') || error.message.toLowerCase().includes('schema cache') || error.message.toLowerCase().includes('relation')) {
+            
+            if (error.message.includes('Failed to fetch')) {
+              userMessage = `Network Error: Failed to reach Supabase. This usually means your connection is unstable, the Supabase project is paused, or an ad-blocker is interfering with the request.`;
+            } else if (error.message.toLowerCase().includes('column') || error.message.toLowerCase().includes('schema cache') || error.message.toLowerCase().includes('relation')) {
               userMessage += ". Your Supabase schema is missing tables or columns. Please run 'supabase_setup.sql' in your Supabase SQL Editor to fix your database schema.";
             } else if (error.message.toLowerCase().includes('uuid')) {
               userMessage += ". Your IDs are incompatible with the database (UUID vs TEXT). Please run Section 3 of 'supabase_setup.sql' in your Supabase SQL Editor.";
@@ -114,7 +121,11 @@ export const supabaseService = {
           console.log(`[Supabase Sync Success] ${section}/${item.id || 'new'}`);
         }
       } catch (err: any) {
-        console.warn(`[Supabase Service Error] ${section}:`, err.message || err);
+        const errorMsg = err.message || String(err);
+        if (errorMsg.includes('Failed to fetch')) {
+           console.warn(`[Supabase Connectivity] Detected a network-level fetch failure for ${section}. Check connectivity or status at https://status.supabase.com`);
+        }
+        console.warn(`[Supabase Service Error] ${section}:`, errorMsg);
         throw err; // Re-throw to inform UI
       }
 
