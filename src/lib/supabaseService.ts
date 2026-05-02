@@ -92,8 +92,13 @@ export const supabaseService = {
             if (error) throw error;
           }
         } else {
-          // Convert types for Supabase
+          // Convert types for Supabase and STRIP deprecated fields
           const sanitized = { ...item };
+          
+          // Explicitly delete deprecated fields that might still exist in legacy state/storage
+          delete (sanitized as any).isVital;
+          delete (sanitized as any).is_vital;
+
           // Ensure booleans are correct for Postgres
           if (section === 'popups' && 'isActive' in sanitized) sanitized.isActive = !!sanitized.isActive;
           if (section === 'settings' && 'applyNowEnabled' in sanitized) sanitized.applyNowEnabled = !!sanitized.applyNowEnabled;
@@ -102,26 +107,39 @@ export const supabaseService = {
           console.log(`[Supabase Upsert] Table: ${section}, ID: ${item.id}`);
           let { error } = await supabase.from(section).upsert(sanitized);
           
-          // Handle missing columns gracefully by dynamic stripping
-          if (error && error.code === 'PGRST204') {
-            console.warn(`[Supabase Sync] Schema mismatch in ${section}, attempting to strip unknown fields...`);
+          // Handle missing columns or stale cache gracefully by dynamic recursive stripping or retry
+          if (error && (error.code === 'PGRST204' || error.code === 'PGRST205' || error.code === '42703')) {
+            console.warn(`[Supabase Sync] Schema issue in ${section} (Code: ${error.code}), attempting recovery...`);
             
-            // Try to identify the missing column from the error message
-            // Error typically looks like: "Could not find the 'fieldname' column..."
-            const match = error.message.match(/column ['"](.+?)['"]/i);
-            const missingField = match ? match[1] : null;
-            
-            if (missingField && sanitized[missingField] !== undefined) {
-              const { [missingField]: _, ...fallbackSanitized } = sanitized;
-              console.log(`[Supabase Sync Retry] Stripping field '${missingField}' and retrying...`);
-              const { error: retryError } = await supabase.from(section).upsert(fallbackSanitized);
-              error = retryError;
-            } else if (section === 'settings') {
-              // Brute force fallback for settings specifically if heuristic fails
-              const { flagImage, flagEnabled, ...fallbackSettings } = sanitized;
-              const { error: retryError } = await supabase.from(section).upsert(fallbackSettings);
-              error = retryError;
+            let currentSanitized = { ...sanitized };
+            let currentError = error;
+            let retryCount = 0;
+            const MAX_RETRIES = 5;
+
+            // If it's a stale cache error (PGRST205), try a single raw retry after a short delay
+            if (error.code === 'PGRST205') {
+              await new Promise(resolve => setTimeout(resolve, 500));
+              const { error: retryError } = await supabase.from(section).upsert(sanitized);
+              currentError = retryError;
+              if (!currentError) error = null;
             }
+
+            while (currentError && (currentError.code === 'PGRST204' || currentError.code === '42703') && retryCount < MAX_RETRIES) {
+              const match = currentError.message.match(/column ['"](.+?)['"]/i);
+              const missingField = match ? match[1] : null;
+              
+              if (missingField && currentSanitized[missingField] !== undefined) {
+                console.log(`[Supabase Sync Retry ${retryCount + 1}] Stripping field '${missingField}'...`);
+                const { [missingField]: _, ...nextSanitized } = currentSanitized;
+                currentSanitized = nextSanitized;
+                const { error: retryError } = await supabase.from(section).upsert(currentSanitized);
+                currentError = retryError;
+                retryCount++;
+              } else {
+                break;
+              }
+            }
+            error = currentError;
           }
 
           if (error) {

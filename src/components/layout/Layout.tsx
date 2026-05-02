@@ -8,7 +8,6 @@ import ScrollButtons from '../ui/ScrollButtons';
 import PopupMessage from '../ui/PopupMessage';
 import { GlobalSearch } from '../ui/GlobalSearch';
 import IndianFlag from '../ui/IndianFlag';
-import SidebarLinks from './SidebarLinks';
 import CanvasFooterEffect from '../ui/CanvasFooterEffect';
 
 interface LayoutProps {
@@ -676,7 +675,6 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
 
       {/* Floating Scroll Controls */}
       <ScrollButtons />
-      <SidebarLinks links={data.useful_links || []} />
     </div>
   );
 };

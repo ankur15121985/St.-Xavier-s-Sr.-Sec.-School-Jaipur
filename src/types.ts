@@ -11,7 +11,7 @@ export interface FeeStructure {
   order_index: number; 
   attachmentUrl?: string; 
 }
-export interface QuickLink { id: string; title: string; url: string; isPriority?: boolean; icon?: string; attachmentUrl?: string; }
+export interface QuickLink { id: string; title: string; url: string; isPriority?: boolean; icon?: string; attachmentUrl?: string; noticeId?: string; }
 export interface Event { id: string; title: string; date: string; time: string; location: string; attachmentUrl?: string; }
 export interface Achievement { id: string; title: string; year: string; description: string; attachmentUrl?: string; }
 export interface TransferCertificate {

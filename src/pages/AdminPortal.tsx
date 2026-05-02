@@ -131,11 +131,11 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.entries({
           ...item,
-          ...( ['notices', 'fees', 'links', 'useful_links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
+          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
         }).filter(([k]) => {
           if (k === 'id') return false;
           const handledAtBottom = 
-            (['notices', 'fees', 'links', 'useful_links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups'].includes(section) && k === 'attachmentUrl') ||
+            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups'].includes(section) && k === 'attachmentUrl') ||
             (['staff', 'studentHonors'].includes(section) && k === 'image') ||
             (['gallery', 'carousel'].includes(section) && k === 'url');
           return !handledAtBottom;
@@ -225,12 +225,14 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 <option value="Annual Fee">Annual Fees (Quarters)</option>
                 <option value="Admission Fee">Admission Fee (One-time)</option>
               </select>
-            ) : field === 'isActive' ? (
+            ) : field === 'isActive' || field === 'isPriority' ? (
               <button 
                 onClick={() => handleUpdate(item.id, field as string, !item[field], section)}
-                className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${item[field] ? 'bg-green-500/10 text-green-500 hover:bg-green-500/20' : 'bg-red-500/10 text-red-500 hover:bg-red-500/20'}`}
+                className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${item[field] ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20'}`}
               >
-                {item[field] ? 'Active / Enabled' : 'Inactive / Disabled'}
+                {item[field] 
+                  ? (field === 'isPriority' ? 'Priority Item' : 'Active / Enabled')
+                  : (field === 'isPriority' ? 'Set as Priority' : 'Inactive / Disabled')}
               </button>
             ) : field === 'parent_id' && section === 'navigation_menu' ? (
               <select 
@@ -270,7 +272,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         
         {/* Consolidated Primary Action Button */}
         {(() => {
-          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'useful_links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups'].includes(section)) ? 'attachmentUrl' : 
+          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups'].includes(section)) ? 'attachmentUrl' : 
                               (['staff', 'gallery', 'carousel', 'studentHonors', 'former_principals', 'former_rectors', 'former_managers', 'student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
                               'attachmentUrl';
           const isUploading = uploadingPath === `${section}-${item.id}-${targetField}`;
@@ -537,7 +539,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     const tableStr = activeSection as string;
     
     // Initialize fields
-    if (tableStr === 'notices') {
+      if (tableStr === 'notices') {
       newItem.title = 'New Notice Title';
       newItem.content = 'Enter notice details here...';
       newItem.date = new Date().toLocaleDateString();
@@ -563,11 +565,6 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         : 'https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600';
       newItem.caption = tableStr === 'gallery' ? 'Gallery Image Caption' : 'Carousel Slide Title';
       newItem.session = '2024-25';
-      newItem.attachmentUrl = '';
-    } else if (tableStr === 'useful_links') {
-      newItem.title = 'New Sidebar Link';
-      newItem.url = 'https://';
-      newItem.icon = 'link';
       newItem.attachmentUrl = '';
     } else if (tableStr === 'links') {
       newItem.title = 'New Link';
@@ -911,7 +908,6 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
 
   const sections = [
     { id: 'notices', label: 'Notices', icon: <Bell size={18} /> },
-    { id: 'useful_links', label: 'Sidebar Links', icon: <LinkIcon size={18} className="text-school-neon" /> },
     { id: 'popups', label: 'Popups', icon: <Maximize2 size={18} className="text-school-accent" /> },
     { id: 'marquee', label: 'Marquee', icon: <ChevronRight size={18} className="text-school-neon" /> },
     { id: 'events', label: 'Events', icon: <Calendar size={18} /> },

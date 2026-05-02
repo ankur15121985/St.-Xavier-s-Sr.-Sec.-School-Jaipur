@@ -49,8 +49,8 @@ const SidebarLinks: React.FC<SidebarLinksProps> = ({ links }) => {
           >
             <div className="p-6 bg-school-navy text-white flex items-center justify-between">
               <div>
-                <h4 className="text-lg font-serif font-bold italic tracking-wide">Quick Links</h4>
-                <p className="text-[9px] uppercase tracking-widest text-school-gold/70 font-black">Useful Resources</p>
+                <h4 className="text-lg font-serif font-bold italic tracking-wide">Resource Links</h4>
+                <p className="text-[9px] uppercase tracking-widest text-school-gold/70 font-black">Institutional Resources</p>
               </div>
               <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
                 <X size={18} />
