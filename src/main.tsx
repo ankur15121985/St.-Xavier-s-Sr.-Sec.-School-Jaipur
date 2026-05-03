@@ -10,12 +10,13 @@ if (!rootElement) {
   throw new Error('Failed to find root element');
 }
 
-// Check if a root already exists for this element
-let root = (rootElement as any)._reactRoot;
+// In some environments, scripts might re-run. 
+// We use a global key on the window object to store the root and check it.
+let root = (window as any)._reactRoot;
 
 if (!root) {
   root = createRoot(rootElement);
-  (rootElement as any)._reactRoot = root;
+  (window as any)._reactRoot = root;
 }
 
 root.render(

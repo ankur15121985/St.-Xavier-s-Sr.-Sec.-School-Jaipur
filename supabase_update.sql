@@ -24,7 +24,27 @@ CREATE TABLE IF NOT EXISTS useful_links (
     "noticeId" TEXT
 );
 
--- 2. Add foreign keys if not exists (using DO block for safety)
+-- 2. Add missing columns to settings table
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'settings' AND column_name = 'flagImage') THEN
+        ALTER TABLE settings ADD COLUMN "flagImage" TEXT;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'settings' AND column_name = 'flagEnabled') THEN
+        ALTER TABLE settings ADD COLUMN "flagEnabled" BOOLEAN DEFAULT true;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'settings' AND column_name = 'currentSession') THEN
+        ALTER TABLE settings ADD COLUMN "currentSession" TEXT;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'settings' AND column_name = 'feesPdfUrl') THEN
+        ALTER TABLE settings ADD COLUMN "feesPdfUrl" TEXT;
+    END IF;
+END $$;
+
+-- 3. Add foreign keys if not exists (using DO block for safety)
 DO $$
 BEGIN
     IF NOT EXISTS (
