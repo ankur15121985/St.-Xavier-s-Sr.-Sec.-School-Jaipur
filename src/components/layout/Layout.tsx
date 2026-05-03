@@ -9,6 +9,7 @@ import PopupMessage from '../ui/PopupMessage';
 import { GlobalSearch } from '../ui/GlobalSearch';
 import IndianFlag from '../ui/IndianFlag';
 import CanvasFooterEffect from '../ui/CanvasFooterEffect';
+import SidebarLinks from './SidebarLinks';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -106,6 +107,9 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
     }}>
       {/* Admin Institutional Popup - High level */}
       {data.settings && <PopupMessage settings={data.settings} />}
+
+      {/* Persistent Resource Sidebar */}
+      <SidebarLinks links={data.useful_links || []} />
 
       {/* Large Single Cross Watermark - Positioned on the left across whole page */}
       <div 
@@ -625,10 +629,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           
           <div className="pt-16 flex flex-col md:flex-row justify-between items-center gap-10">
             <div className="flex flex-col items-center md:items-start gap-4">
-              <div className="flex items-center gap-6 text-white/20 text-[10px] font-black tracking-[0.4em] uppercase">
-                <p>© 2026 {data.settings?.siteName}.</p>
-                <div className="w-1 h-1 rounded-full bg-white/10"></div>
-                <p>All Rights Reserved</p>
+              <div className="flex items-center gap-6 text-white/40 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
+                <p>© 2024 St. Xavier’s Sr. Sec. School | All Rights Reserved.</p>
               </div>
               <p className="text-[9px] text-white/10 tracking-[0.5em] font-black uppercase">
                 Designed with Precision by <span className="text-white/20">ABHISHEK MATHUR</span>

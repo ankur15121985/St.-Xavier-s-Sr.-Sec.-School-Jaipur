@@ -47,6 +47,7 @@ import FormerManagersPage from './pages/FormerManagersPage';
 import FormerPrincipalsPage from './pages/FormerPrincipalsPage';
 import StreamToppersPage from './pages/StreamToppersPage';
 import XavieriteOfTheYearPage from './pages/XavieriteOfTheYearPage';
+import ExplorePage from './pages/ExplorePage';
 
 const PageTransition = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -305,6 +306,7 @@ const DEFAULT_DATA: AppData = {
     { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
     { id: '9-3', label: 'Mandatory disclosure', href: '#', parent_id: '9', order_index: 1 },
     { id: '9-4', label: 'Transfer Certificate', href: '/transfer-certificate', parent_id: '9', order_index: 2 },
+    { id: '9-5', label: 'INSIGHTS', href: '/explore', parent_id: '9', order_index: 3 },
     { id: '10', label: 'Contact', href: '/contact', parent_id: null, order_index: 9 },
   ],
   carousel: [
@@ -353,6 +355,10 @@ const DEFAULT_DATA: AppData = {
   student_leaders: [],
   streamwise_toppers: [],
   xavierite_of_the_year: [],
+  custom_content: [
+    { id: 'cc1', title: 'Institutional Philosophy', heading: 'The Jesuit Vision', content: 'Our education is inspired by the vision of St. Ignatius of Loyola. We aim for academic excellence, character building, and social responsibility.', order_index: 0 },
+    { id: 'cc2', title: 'Academic Excellence', heading: 'Modern Pedagogy', content: 'Integrating technology with traditional values to create future-ready leaders.', order_index: 1 }
+  ],
   former_leaders: [], // Keeping for compatibility with any existing reference
   admins: [],
   logs: [],
@@ -558,6 +564,19 @@ export default function App() {
   const [data, setData] = useState<AppData>(DEFAULT_DATA);
   const [loading, setLoading] = useState(true);
 
+  // Disable right click on the entire website
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
+
   return (
     <SupabaseProvider>
       <DataLoader data={data} setData={setData} loading={loading} setLoading={setLoading}>
@@ -593,6 +612,7 @@ export default function App() {
                 <Route path="/transfer-certificate" element={<PageTransition><TransferCertificatePage data={data} /></PageTransition>} />
                 <Route path="/stream-toppers" element={<PageTransition><StreamToppersPage data={data} /></PageTransition>} />
                 <Route path="/xavierite-of-the-year" element={<PageTransition><XavieriteOfTheYearPage data={data} /></PageTransition>} />
+                <Route path="/explore" element={<PageTransition><ExplorePage data={data} /></PageTransition>} />
                 <Route path="/contact" element={<PageTransition><ContactPage data={data} /></PageTransition>} />
                 <Route path="/admin" element={<PageTransition><AdminPortal data={data} setData={setData} /></PageTransition>} />
               </Routes>

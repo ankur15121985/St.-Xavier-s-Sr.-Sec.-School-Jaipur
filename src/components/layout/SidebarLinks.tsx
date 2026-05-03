@@ -24,7 +24,7 @@ const SidebarLinks: React.FC<SidebarLinksProps> = ({ links }) => {
   };
 
   return (
-    <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[100] flex items-center">
+    <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[500] flex items-center">
       {/* Toggle Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}

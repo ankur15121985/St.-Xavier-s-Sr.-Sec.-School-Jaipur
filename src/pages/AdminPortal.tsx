@@ -4,13 +4,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
   Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus,
-  Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2
+  Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink
 } from 'lucide-react';
 import { AppData } from '../types';
 import { useSupabase } from '../components/SupabaseProvider';
 import { supabaseService } from '../lib/supabaseService';
 import { storageService } from '../lib/storageService';
 import { supabase } from '../supabaseClient';
+
+import SidebarLinks from '../components/layout/SidebarLinks';
 
 interface PendingGalleryItem {
   id: string;
@@ -67,8 +69,13 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
     }
   };
 
+  const [showSchemaError, setShowSchemaError] = useState(false);
+
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
+    if (type === 'error' && (message.includes('schema cache') || message.includes('find the table'))) {
+       setShowSchemaError(true);
+    }
     setTimeout(() => setToast(null), 3000);
   };
 
@@ -131,11 +138,11 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.entries({
           ...item,
-          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
+          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
         }).filter(([k]) => {
           if (k === 'id') return false;
           const handledAtBottom = 
-            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups'].includes(section) && k === 'attachmentUrl') ||
+            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content'].includes(section) && k === 'attachmentUrl') ||
             (['staff', 'studentHonors'].includes(section) && k === 'image') ||
             (['gallery', 'carousel'].includes(section) && k === 'url');
           return !handledAtBottom;
@@ -272,7 +279,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         
         {/* Consolidated Primary Action Button */}
         {(() => {
-          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups'].includes(section)) ? 'attachmentUrl' : 
+          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content'].includes(section)) ? 'attachmentUrl' : 
                               (['staff', 'gallery', 'carousel', 'studentHonors', 'former_principals', 'former_rectors', 'former_managers', 'student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
                               'attachmentUrl';
           const isUploading = uploadingPath === `${section}-${item.id}-${targetField}`;
@@ -626,6 +633,18 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.dob = new Date().toISOString().split('T')[0];
       newItem.student_name = 'Student Name';
       newItem.attachmentUrl = '';
+    } else if (tableStr === 'useful_links') {
+      newItem.title = 'New Link';
+      newItem.url = 'https://';
+      newItem.icon = 'link';
+      newItem.isPriority = false;
+      newItem.attachmentUrl = '';
+    } else if (tableStr === 'custom_content') {
+      newItem.title = 'New Section';
+      newItem.heading = 'Title Goes Here';
+      newItem.content = 'Write your content here using markdown if needed.';
+      newItem.order_index = (data.custom_content?.length || 0);
+      newItem.attachmentUrl = '';
     } else if (tableStr === 'former_principals' || tableStr === 'former_rectors' || tableStr === 'former_managers') {
       newItem.name = 'New Legacy Name';
       newItem.tenure = 'YYYY - YYYY';
@@ -922,6 +941,8 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'transfer_certificates', label: 'TC Records', icon: <FileText size={18} className="text-school-accent" /> },
     { id: 'messages', label: 'Inquiries', icon: <Mail size={18} className="text-school-accent" /> },
     { id: 'navigation_menu', label: 'Menu', icon: <Menu size={18} /> },
+    { id: 'useful_links', label: 'Resource Links', icon: <ExternalLink size={18} className="text-school-accent" /> },
+    { id: 'custom_content', label: 'Insights Content', icon: <FileText size={18} className="text-school-gold" /> },
     { id: 'former_principals', label: 'Principals History', icon: <Award size={18} className="text-school-accent" /> },
     { id: 'former_rectors', label: 'Rectors History', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'former_managers', label: 'Managers History', icon: <Award size={18} className="text-school-neon" /> },
@@ -1129,6 +1150,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       </aside>
 
       <main className="flex-1 md:ml-80 p-6 md:p-12 min-w-0">
+        <SidebarLinks links={data.useful_links || []} />
         {/* Mobile Header Toggle */}
         <div className="md:hidden flex items-center justify-between mb-8 bg-school-paper p-4 rounded-2xl shadow-sm border border-school-ink/10">
            <div className="flex items-center gap-3">
@@ -1146,6 +1168,40 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 {toast.type === 'error' ? <X size={14} /> : <Check size={14} />}
               </div>
               {toast.message}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showSchemaError && (
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 bg-red-500 rounded-[32px] p-8 text-white shadow-2xl relative overflow-hidden">
+               <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+                 <div className="flex items-center gap-6">
+                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
+                       <AlertCircle size={32} />
+                    </div>
+                    <div>
+                       <h3 className="text-xl font-serif font-black italic">Database Update Required</h3>
+                       <p className="text-white/70 text-sm font-medium">Wait! Your database is missing new features. Run the <b>UPDATE script</b> (Additive, No Data Loss) to fix this.</p>
+                    </div>
+                 </div>
+                 <div className="flex gap-4">
+                    <a 
+                      href="/supabase_update.sql" 
+                      target="_blank"
+                      className="px-8 py-4 bg-white text-red-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/90 transition-all shadow-xl font-bold"
+                    >
+                      View Update SQL
+                    </a>
+                    <button 
+                      onClick={() => setShowSchemaError(false)}
+                      className="px-8 py-4 bg-black/20 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black/30 transition-all"
+                    >
+                      Dismiss
+                    </button>
+                 </div>
+               </div>
+               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
             </motion.div>
           )}
         </AnimatePresence>

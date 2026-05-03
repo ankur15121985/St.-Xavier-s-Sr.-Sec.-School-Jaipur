@@ -275,123 +275,163 @@ const HomePage = ({ data }: { data: AppData }) => {
       </section>
 
       {/* Distinction Section - Redesigned Hyper-Focused Excellence */}
-      <section className="py-24 md:py-48 relative overflow-hidden bg-school-paper">
+      <section className="py-20 md:py-32 relative overflow-hidden bg-school-paper">
         <FocusVisual />
         
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-12 gap-16 items-end mb-24">
-            <div className="lg:col-span-8">
-              <motion.div 
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ amount: 0.1 }}
-                className="flex items-center gap-4 mb-8"
-              >
-                <div className="w-12 h-[1px] bg-school-accent" />
-                <span className="text-school-accent font-black uppercase tracking-[0.3em] text-[10px]">Institutional Distinction</span>
-              </motion.div>
-              
-              <motion.h2 
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ amount: 0.1 }}
-                transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                className="text-5xl md:text-9xl font-black text-school-navy dark:text-white leading-[0.9] tracking-tighter"
-              >
-                Hyper-focused <br />
-                <span className="text-school-accent italic font-serif font-light">Excellence.</span>
-              </motion.h2>
-            </div>
+          <div className="mb-20">
+            <motion.div 
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ amount: 0.1 }}
+              className="flex items-center gap-4 mb-6"
+            >
+              <div className="w-12 h-[1px] bg-school-accent" />
+              <span className="text-school-accent font-black uppercase tracking-[0.3em] text-[10px]">Institutional Distinction</span>
+            </motion.div>
             
-            <div className="lg:col-span-4 pb-4">
-              <motion.p 
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ amount: 0.1 }}
-                transition={{ delay: 0.5, duration: 1 }}
-                className="text-lg text-slate-500 font-medium leading-relaxed max-w-sm"
-              >
-                Our commitment to quality isn't just a goal—it's the fundamental architecture of everything we build.
-              </motion.p>
-            </div>
+            <motion.h2 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ amount: 0.1 }}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+              className="text-4xl md:text-7xl font-black text-school-navy dark:text-white leading-[0.9] tracking-tighter max-w-4xl"
+            >
+              Hyper-focused <br />
+              <span className="text-school-accent italic font-serif font-light">Excellence.</span>
+            </motion.h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-            {/* Card 01 - Large Lead */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {/* Card 01 - Academic Mastery (NEW & COMPACT) */}
             <motion.div 
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ amount: 0.1 }}
               transition={{ duration: 0.8 }}
-              className="md:col-span-7 group relative"
+              className="group relative"
             >
-              <div className="absolute inset-0 bg-school-navy rounded-[40px] md:rounded-[60px] translate-y-4 group-hover:translate-y-6 transition-transform duration-500 opacity-5" />
-              <div className="relative h-[400px] md:h-[600px] bg-white dark:bg-slate-900 rounded-[40px] md:rounded-[60px] border border-black/5 p-10 md:p-16 flex flex-col justify-between overflow-hidden shadow-2xl shadow-black/5 group-hover:-translate-y-2 transition-all duration-500">
-                <div className="flex justify-between items-start">
-                  <div className="w-20 h-20 bg-school-accent rounded-3xl flex items-center justify-center text-white rotate-3 group-hover:rotate-12 transition-transform shadow-xl shadow-school-accent/20">
-                    <SchoolIcon size={40} />
+              <div className="relative h-[480px] bg-white dark:bg-slate-900 rounded-[40px] border border-black/5 p-10 flex flex-col justify-between overflow-hidden shadow-2xl shadow-black/5">
+                <div className="relative z-10">
+                  <div className="flex items-center gap-4 mb-10">
+                    <div className="w-12 h-12 bg-school-navy rounded-2xl flex items-center justify-center text-white shadow-lg shadow-school-navy/20">
+                      <SchoolIcon size={24} />
+                    </div>
+                    <div className="h-[2px] w-8 bg-slate-100" />
+                    <span className="text-2xl font-black text-school-navy/10">01</span>
                   </div>
-                  <span className="text-6xl md:text-8xl font-black text-school-navy/5 dark:text-white/5">01</span>
+                  
+                  <h3 className="text-4xl font-black text-school-navy dark:text-white leading-tight mb-6">Academic <br />Mastery.</h3>
+                  <p className="text-slate-500 text-sm font-medium leading-relaxed">Rigorous standards meet innovative pedagogy, creating an environment where intellectual boundaries are redefined.</p>
                 </div>
-                
-                <div className="space-y-6">
-                  <h3 className="text-4xl md:text-6xl font-black text-school-navy dark:text-white leading-tight">Academic <br />Mastery.</h3>
-                  <p className="text-slate-500 font-medium max-w-md">Rigorous standards meet innovative pedagogy, creating an environment where intellectual boundaries are constantly challenged and redefined.</p>
-                  <div className="w-12 h-12 rounded-full border border-school-navy/10 flex items-center justify-center group-hover:bg-school-navy group-hover:text-white transition-all">
-                    <ArrowRight size={20} />
+
+                <div className="relative z-10">
+                  {/* Creative Visual: Mini Dashboard Style */}
+                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-black/5">
+                    <div className="flex justify-between items-end mb-4">
+                      <div className="space-y-1">
+                        <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Pillar Status</div>
+                        <div className="text-xs font-black text-school-navy dark:text-white">OPTIMIZED</div>
+                      </div>
+                      <div className="flex gap-1">
+                        {[40, 70, 50, 90, 60].map((h, i) => (
+                          <motion.div 
+                            key={i} 
+                            initial={{ height: 0 }}
+                            whileInView={{ height: h + '%' }}
+                            className="w-1.5 bg-school-accent rounded-full" 
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="h-[1px] w-full bg-slate-200 dark:bg-white/10 mb-4" />
+                    <div className="grid grid-cols-2 gap-4">
+                       <div className="space-y-1">
+                         <div className="text-[7px] font-black text-slate-400 uppercase">Consistency</div>
+                         <div className="text-[10px] font-black text-school-navy dark:text-white">99.8%</div>
+                       </div>
+                       <div className="space-y-1">
+                         <div className="text-[7px] font-black text-slate-400 uppercase">Innovation</div>
+                         <div className="text-[10px] font-black text-school-navy dark:text-white">LEADING</div>
+                       </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Decorative Pattern */}
-                <div className="absolute top-0 right-0 p-8 opacity-5">
-                   <div className="grid grid-cols-3 gap-2">
-                     {[...Array(9)].map((_, i) => <div key={i} className="w-2 h-2 rounded-full bg-current" />)}
-                   </div>
+                {/* Decorative Technical Grid */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+                  <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                 </div>
               </div>
             </motion.div>
 
-            {/* Card 02 - Vertical Secondary */}
+            {/* Card 02 - Holistic Legacy */}
+            <motion.div 
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ amount: 0.1 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="group"
+            >
+              <div className="h-[480px] bg-school-accent p-10 rounded-[40px] flex flex-col justify-between text-white group cursor-pointer hover:shadow-2xl hover:shadow-school-accent/30 transition-all duration-500 overflow-hidden relative">
+                <div className="absolute -right-8 -bottom-8 opacity-10 group-hover:scale-110 transition-transform duration-700 pointer-events-none">
+                  <Trophy size={240} strokeWidth={1} />
+                </div>
+                
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-10">
+                    <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+                      <Trophy size={24} />
+                    </div>
+                    <span className="text-3xl font-black opacity-30">02</span>
+                  </div>
+                  
+                  <h3 className="text-4xl font-black leading-tight mb-6">Holistic <br />Legacy.</h3>
+                  <p className="text-white/80 text-sm font-medium leading-relaxed">A century-long commitment to nurturing character and spirit, forging leaders for a better world.</p>
+                </div>
+                
+                <div className="relative z-10 pt-8 border-t border-white/20 flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em]">Established 1941</span>
+                  <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+                    <div className="w-1 h-1 bg-white rounded-full animate-ping" />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Card 03 - Global Identity */}
             <motion.div 
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ amount: 0.1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="md:col-span-5 space-y-6 md:space-y-8"
+              className="group"
             >
-              <div className="h-[280px] md:h-[400px] bg-school-accent p-10 rounded-[40px] md:rounded-[60px] flex flex-col justify-between text-white group cursor-pointer hover:shadow-2xl hover:shadow-school-accent/30 transition-all duration-500 overflow-hidden relative">
-                <div className="absolute -right-10 -bottom-10 opacity-10 group-hover:scale-110 transition-transform duration-700">
-                  <Trophy size={200} strokeWidth={1} />
-                </div>
-                
-                <div className="flex justify-between items-start relative z-10">
-                  <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
-                    <Trophy size={24} />
-                  </div>
-                  <span className="text-4xl font-black opacity-30">02</span>
-                </div>
-                
+              <div className="h-[480px] bg-slate-50 dark:bg-slate-900 border border-black/5 p-10 rounded-[40px] flex flex-col justify-between overflow-hidden relative group cursor-pointer hover:bg-school-navy hover:text-white transition-all duration-500">
                 <div className="relative z-10">
-                  <h3 className="text-3xl font-black leading-tight mb-4">Holistic <br />Legacy.</h3>
-                  <p className="text-white/70 text-sm font-medium">A century-long commitment to nurturing character and spirit.</p>
+                  <div className="flex justify-between items-start mb-10">
+                    <div className="w-12 h-12 bg-black/5 dark:bg-white/5 rounded-2xl flex items-center justify-center group-hover:bg-white transition-colors">
+                      <Users2 size={24} className="group-hover:text-school-navy" />
+                    </div>
+                    <span className="text-2xl font-black text-black/10 dark:text-white/10 group-hover:text-white/20">03</span>
+                  </div>
+                  
+                  <h3 className="text-4xl font-black leading-tight mb-6">Global <br />Identity.</h3>
+                  <p className="text-slate-500 group-hover:text-white/70 text-sm font-medium leading-relaxed">Connecting Xavierites across continents through a shared vision of service and excellence.</p>
                 </div>
-              </div>
 
-              <div className="h-[280px] bg-slate-50 dark:bg-slate-900 border border-black/5 dark:border-white/5 p-10 rounded-[40px] flex flex-col justify-between group cursor-pointer hover:bg-school-neon transition-all duration-500">
-                <div className="flex justify-between items-start">
-                   <div className="w-12 h-12 bg-black/5 dark:bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-white transition-colors">
-                     <Users2 size={24} className="group-hover:text-school-navy" />
-                   </div>
-                   <span className="text-2xl font-black text-black/10 dark:text-white/10 group-hover:text-black/20">03</span>
-                </div>
-                
-                <div>
-                   <h3 className="text-2xl font-black text-school-navy dark:text-white group-hover:text-school-navy">Global Identity.</h3>
-                   <div className="mt-4 flex -space-x-2 overflow-hidden">
-                     {[...Array(3)].map((_, i) => (
-                       <div key={i} className="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-900 bg-slate-200" />
+                <div className="relative z-10">
+                   <div className="flex -space-x-4 mb-6">
+                     {[...Array(4)].map((_, i) => (
+                       <div key={i} className="inline-block h-12 w-12 rounded-2xl ring-4 ring-white dark:ring-slate-900 bg-slate-200 group-hover:ring-school-navy transition-all overflow-hidden">
+                         <img src={`https://i.pravatar.cc/150?u=${i + 10}`} className="w-full h-full object-cover" />
+                       </div>
                      ))}
+                     <div className="inline-block h-12 w-12 rounded-2xl ring-4 ring-white dark:ring-slate-900 bg-school-accent flex items-center justify-center text-[10px] font-black text-white group-hover:ring-school-navy">
+                       +5K
+                     </div>
                    </div>
+                   <div className="h-[2px] w-full bg-black/5 group-hover:bg-white/10" />
                 </div>
               </div>
             </motion.div>

@@ -7,7 +7,7 @@ export const supabaseService = {
       const collections: (keyof AppData)[] = [
         'notices', 'staff', 'gallery', 'fees', 'links', 
         'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs', 'former_leaders',
-        'former_principals', 'former_rectors', 'former_managers', 'student_leaders', 'streamwise_toppers', 'xavierite_of_the_year', 'useful_links'
+        'former_principals', 'former_rectors', 'former_managers', 'student_leaders', 'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content'
       ];
 
       const results: Partial<AppData> = {};

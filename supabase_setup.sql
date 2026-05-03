@@ -3,36 +3,13 @@
   Run this in your Supabase SQL Editor (https://supabase.com/dashboard/project/_/sql)
 ********************************************************************************/
 
--- 1. DROP ALL EXISTING TABLES
-DROP TABLE IF EXISTS notices CASCADE;
-DROP TABLE IF EXISTS staff CASCADE;
-DROP TABLE IF EXISTS gallery CASCADE;
-DROP TABLE IF EXISTS carousel CASCADE;
-DROP TABLE IF EXISTS fees CASCADE;
-DROP TABLE IF EXISTS links CASCADE;
-DROP TABLE IF EXISTS events CASCADE;
-DROP TABLE IF EXISTS achievements CASCADE;
-DROP TABLE IF EXISTS transfer_certificates CASCADE;
-DROP TABLE IF EXISTS "studentHonors" CASCADE;
-DROP TABLE IF EXISTS navigation_menu CASCADE;
-DROP TABLE IF EXISTS faqs CASCADE;
-DROP TABLE IF EXISTS messages CASCADE;
-DROP TABLE IF EXISTS popups CASCADE;
-DROP TABLE IF EXISTS marquee CASCADE;
-DROP TABLE IF EXISTS former_principals CASCADE;
-DROP TABLE IF EXISTS former_rectors CASCADE;
-DROP TABLE IF EXISTS former_managers CASCADE;
-DROP TABLE IF EXISTS student_leaders CASCADE;
-DROP TABLE IF EXISTS streamwise_toppers CASCADE;
-DROP TABLE IF EXISTS xavierite_of_the_year CASCADE;
-DROP TABLE IF EXISTS useful_links CASCADE;
-DROP TABLE IF EXISTS admins CASCADE;
-DROP TABLE IF EXISTS logs CASCADE;
-DROP TABLE IF EXISTS settings CASCADE;
-DROP TABLE IF EXISTS content CASCADE;
+-- 1. (OPTIONAL) RESET TABLES - COMMENTED OUT FOR SAFETY
+-- To reset a specific table, uncomment the line below:
+-- DROP TABLE IF EXISTS notices CASCADE;
+-- ... etc.
 
 -- 2. CREATE SYSTEM TABLES
-CREATE TABLE admins (
+CREATE TABLE IF NOT EXISTS admins (
     id TEXT PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
@@ -40,7 +17,7 @@ CREATE TABLE admins (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE logs (
+CREATE TABLE IF NOT EXISTS logs (
     id TEXT PRIMARY KEY,
     "user" TEXT NOT NULL,
     action TEXT NOT NULL,
@@ -48,7 +25,7 @@ CREATE TABLE logs (
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE settings (
+CREATE TABLE IF NOT EXISTS settings (
     id TEXT PRIMARY KEY,
     "applyNowEnabled" BOOLEAN DEFAULT true,
     "applyNowUrl" TEXT,
@@ -66,14 +43,14 @@ CREATE TABLE settings (
     "feesPdfUrl" TEXT
 );
 
-CREATE TABLE content (
+CREATE TABLE IF NOT EXISTS content (
     id TEXT DEFAULT 'global',
     key TEXT PRIMARY KEY,
     value TEXT
 );
 
 -- 3. SCHOOL DATA TABLES
-CREATE TABLE notices (
+CREATE TABLE IF NOT EXISTS notices (
     id TEXT PRIMARY KEY,
     title TEXT,
     content TEXT,
@@ -83,7 +60,7 @@ CREATE TABLE notices (
     "attachmentUrl" TEXT
 );
 
-CREATE TABLE staff (
+CREATE TABLE IF NOT EXISTS staff (
     id TEXT PRIMARY KEY,
     name TEXT,
     role TEXT,
@@ -93,7 +70,7 @@ CREATE TABLE staff (
     "attachmentUrl" TEXT
 );
 
-CREATE TABLE gallery (
+CREATE TABLE IF NOT EXISTS gallery (
     id TEXT PRIMARY KEY,
     url TEXT,
     caption TEXT,
@@ -101,7 +78,7 @@ CREATE TABLE gallery (
     "attachmentUrl" TEXT
 );
 
-CREATE TABLE fees (
+CREATE TABLE IF NOT EXISTS fees (
     id TEXT PRIMARY KEY,
     category TEXT,
     particulars TEXT,
@@ -112,7 +89,7 @@ CREATE TABLE fees (
     "attachmentUrl" TEXT
 );
 
-CREATE TABLE links (
+CREATE TABLE IF NOT EXISTS links (
     id TEXT PRIMARY KEY,
     title TEXT,
     url TEXT,
@@ -121,7 +98,7 @@ CREATE TABLE links (
     "attachmentUrl" TEXT
 );
 
-CREATE TABLE events (
+CREATE TABLE IF NOT EXISTS events (
     id TEXT PRIMARY KEY,
     title TEXT,
     date TEXT,
@@ -130,7 +107,7 @@ CREATE TABLE events (
     "attachmentUrl" TEXT
 );
 
-CREATE TABLE achievements (
+CREATE TABLE IF NOT EXISTS achievements (
     id TEXT PRIMARY KEY,
     title TEXT,
     year TEXT,
@@ -138,7 +115,7 @@ CREATE TABLE achievements (
     "attachmentUrl" TEXT
 );
 
-CREATE TABLE "studentHonors" (
+CREATE TABLE IF NOT EXISTS "studentHonors" (
     id TEXT PRIMARY KEY,
     name TEXT,
     category TEXT,
@@ -149,7 +126,7 @@ CREATE TABLE "studentHonors" (
     "attachmentUrl" TEXT
 );
 
-CREATE TABLE navigation_menu (
+CREATE TABLE IF NOT EXISTS navigation_menu (
     id TEXT PRIMARY KEY,
     label TEXT,
     href TEXT,
@@ -158,7 +135,7 @@ CREATE TABLE navigation_menu (
     "attachmentUrl" TEXT
 );
 
-CREATE TABLE carousel (
+CREATE TABLE IF NOT EXISTS carousel (
     id TEXT PRIMARY KEY,
     url TEXT,
     caption TEXT,
@@ -166,7 +143,7 @@ CREATE TABLE carousel (
     "attachmentUrl" TEXT
 );
 
-CREATE TABLE faqs (
+CREATE TABLE IF NOT EXISTS faqs (
     id TEXT PRIMARY KEY,
     question TEXT,
     answer TEXT,
@@ -175,7 +152,7 @@ CREATE TABLE faqs (
     "attachmentUrl" TEXT
 );
 
-CREATE TABLE transfer_certificates (
+CREATE TABLE IF NOT EXISTS transfer_certificates (
     id TEXT PRIMARY KEY,
     admission_number TEXT,
     dob TEXT,
@@ -184,7 +161,7 @@ CREATE TABLE transfer_certificates (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
     id TEXT PRIMARY KEY,
     name TEXT,
     email TEXT,
@@ -194,7 +171,7 @@ CREATE TABLE messages (
     status TEXT DEFAULT 'new'
 );
 
-CREATE TABLE popups (
+CREATE TABLE IF NOT EXISTS popups (
     id TEXT PRIMARY KEY,
     title TEXT,
     header TEXT,
@@ -207,7 +184,7 @@ CREATE TABLE popups (
     "attachmentUrl" TEXT
 );
 
-CREATE TABLE marquee (
+CREATE TABLE IF NOT EXISTS marquee (
     id TEXT PRIMARY KEY,
     text TEXT,
     link TEXT,
@@ -217,14 +194,23 @@ CREATE TABLE marquee (
 );
 
 -- LEADERSHIP HISTORY
-CREATE TABLE former_principals (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
-CREATE TABLE former_rectors (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
-CREATE TABLE former_managers (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
-CREATE TABLE student_leaders (id TEXT PRIMARY KEY, name TEXT, role TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
-CREATE TABLE streamwise_toppers (id TEXT PRIMARY KEY, name TEXT, stream TEXT, percentage TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
-CREATE TABLE xavierite_of_the_year (id TEXT PRIMARY KEY, name TEXT, academic_year TEXT, citation TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE IF NOT EXISTS former_principals (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE IF NOT EXISTS former_rectors (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE IF NOT EXISTS former_managers (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE IF NOT EXISTS student_leaders (id TEXT PRIMARY KEY, name TEXT, role TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE IF NOT EXISTS streamwise_toppers (id TEXT PRIMARY KEY, name TEXT, stream TEXT, percentage TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE IF NOT EXISTS xavierite_of_the_year (id TEXT PRIMARY KEY, name TEXT, academic_year TEXT, citation TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
 
-CREATE TABLE useful_links (
+CREATE TABLE IF NOT EXISTS custom_content (
+    id TEXT PRIMARY KEY,
+    title TEXT,
+    heading TEXT,
+    content TEXT,
+    order_index INTEGER DEFAULT 0,
+    "attachmentUrl" TEXT
+);
+
+CREATE TABLE IF NOT EXISTS useful_links (
     id TEXT PRIMARY KEY,
     title TEXT,
     url TEXT,

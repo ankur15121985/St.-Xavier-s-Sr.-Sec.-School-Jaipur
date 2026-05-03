@@ -25,6 +25,7 @@ export interface TransferCertificate {
 export interface StudentHonor { id: string; name: string; category: string; result: string; subtext: string; image: string; order_index: number; attachmentUrl?: string; }
 export interface MenuItem { id: string; label: string; href: string; parent_id?: string | null; order_index: number; attachmentUrl?: string; }
 export interface FAQ { id: string; question: string; answer: string; category?: string; order_index: number; }
+export interface CustomContent { id: string; title: string; heading: string; content: string; order_index: number; attachmentUrl?: string; }
 export interface ContactMessage { id: string; name: string; email: string; subject?: string; message: string; timestamp: string; status: 'new' | 'read' | 'replied'; }
 export interface AnnouncementPopup {
   id: string;
@@ -118,6 +119,7 @@ export interface AppData {
   streamwise_toppers: StreamwiseTopper[];
   xavierite_of_the_year: XavieriteOfYear[];
   useful_links: QuickLink[];
+  custom_content: CustomContent[];
   settings: AppSettings;
   content: Record<string, string>;
   admins: AdminCredential[];
