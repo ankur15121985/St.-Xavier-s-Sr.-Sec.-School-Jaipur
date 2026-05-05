@@ -7,6 +7,8 @@ import { AppData, QuickLink } from '../../types';
 import ScrollButtons from '../ui/ScrollButtons';
 import PopupMessage from '../ui/PopupMessage';
 import { GlobalSearch } from '../ui/GlobalSearch';
+import { LanguageSelector } from '../ui/LanguageSelector';
+import { NavThreeBackground } from '../ui/NavThreeBackground';
 import IndianFlag from '../ui/IndianFlag';
 import CanvasFooterEffect from '../ui/CanvasFooterEffect';
 import SidebarLinks from './SidebarLinks';
@@ -158,22 +160,26 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       className="w-full h-full object-contain"
                     />
                   </Link>
-                  <div className="flex flex-col justify-center">
+                  <div className="flex flex-col justify-center min-w-0">
                     <Link to="/">
-                      <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-2xl md:text-[42px]'} md:whitespace-nowrap`}>
+                      <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight transition-all duration-500 uppercase ${isScrolled ? 'text-sm sm:text-lg md:text-xl' : 'text-sm sm:text-xl md:text-[42px]'} whitespace-nowrap overflow-hidden text-ellipsis`}>
                         ST. XAVIER'S SR. SEC. SCHOOL
                       </h1>
                     </Link>
                     {!isScrolled && (
-                      <p className="text-[13px] md:text-[17px] font-sans font-medium text-[#333] dark:text-slate-400 mt-1 leading-tight md:whitespace-nowrap">
+                      <p className="hidden md:block text-[13px] md:text-[17px] font-sans font-medium text-[#333] dark:text-slate-400 mt-1 leading-tight md:whitespace-nowrap">
                         Bhagwan Das Road, C-Scheme, Jaipur - 302001 &nbsp;|&nbsp; CBSE Affiliation No.: 1730003
                       </p>
                     )}
                   </div>
                 </div>
                 
-                <div className="hidden lg:flex items-center gap-6">
+                <div className="flex items-center gap-6">
                    <IndianFlag src={data.settings?.flagImage} className={isScrolled ? 'w-8 h-5' : 'w-14 h-9'} />
+                   <div className="flex items-center gap-2">
+                     <span className={`font-black uppercase tracking-widest text-[9px] hidden xl:block ${isScrolled ? 'text-school-navy/30' : 'text-school-navy/60'}`}>Language</span>
+                     <LanguageSelector isScrolled={isScrolled} />
+                   </div>
                    <button 
                      onClick={() => setIsSearchOpen(true)}
                      className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white"
@@ -194,20 +200,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 <div className="lg:hidden flex items-center gap-2">
                    <IndianFlag src={data.settings?.flagImage} className="w-8 h-5" />
                    <button 
-                     onClick={() => setIsDark(!isDark)}
-                     className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 text-school-navy dark:text-white"
-                   >
-                     {isDark ? <Sun size={18} /> : <Moon size={18} />}
-                   </button>
-                   <button 
-                     onClick={() => setIsSearchOpen(true)}
-                     className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-school-navy dark:text-white"
-                   >
-                     <Search size={20} />
-                   </button>
-                   <button 
                      onClick={() => setIsNavOpen(true)} 
-                     className="w-10 h-10 rounded-full flex items-center justify-center bg-school-navy text-white shadow-lg"
+                     className="w-10 h-10 rounded-full flex items-center justify-center bg-school-navy text-white shadow-lg ml-2"
                    >
                      <Menu size={20} />
                    </button>
@@ -304,14 +298,14 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                     className="w-full h-full object-contain"
                   />
                 </Link>
-                <div className="flex flex-col">
+                <div className="flex flex-col min-w-0">
                   <Link to="/">
-                    <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight transition-all duration-500 uppercase ${isScrolled ? 'text-lg md:text-xl' : 'text-xl md:text-[32px]'} md:whitespace-nowrap`}>
+                    <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight transition-all duration-500 uppercase ${isScrolled ? 'text-sm sm:text-lg md:text-xl' : 'text-sm sm:text-xl md:text-[32px]'} whitespace-nowrap overflow-hidden text-ellipsis`}>
                       ST. XAVIER'S SR. SEC. SCHOOL
                     </span>
                   </Link>
                   {!isScrolled && (
-                    <span className="text-[10px] md:text-[14px] font-sans font-medium text-slate-500 dark:text-slate-400 leading-tight mt-1 md:whitespace-nowrap">
+                    <span className="hidden md:block text-[10px] md:text-[14px] font-sans font-medium text-slate-500 dark:text-slate-400 leading-tight mt-1 md:whitespace-nowrap">
                       Bhagwan Das Road, C-Scheme, Jaipur &nbsp;|&nbsp; CBSE Affiliation No.: 1730003
                     </span>
                   )}
@@ -323,6 +317,10 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 {/* Desktop/Wide Actions */}
                 <div className="hidden lg:flex items-center gap-4">
                   {data.settings?.flagEnabled && <IndianFlag src={data.settings?.flagImage} className={isScrolled ? 'w-8 h-5' : 'w-12 h-8'} />}
+                  <div className="flex items-center gap-2">
+                    <span className={`font-black uppercase tracking-widest text-[8px] hidden xl:block ${isScrolled ? 'text-school-navy/30' : 'text-school-navy/60'}`}>Translate</span>
+                    <LanguageSelector isScrolled={isScrolled} />
+                  </div>
                   <button 
                     onClick={() => setIsSearchOpen(true)}
                     className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white"
@@ -347,20 +345,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 <div className="lg:hidden flex items-center gap-2">
                   {data.settings?.flagEnabled && <IndianFlag src={data.settings?.flagImage} className="w-8 h-5" />}
                   <button 
-                    onClick={() => setIsDark(!isDark)}
-                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 text-school-navy dark:text-white"
-                  >
-                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
-                  </button>
-                  <button 
-                    onClick={() => setIsSearchOpen(true)}
-                    className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-school-navy dark:text-white"
-                  >
-                    <Search size={20} />
-                  </button>
-                  <button 
                     onClick={() => setIsNavOpen(true)}
-                    className="w-10 h-10 rounded-full flex items-center justify-center bg-school-navy text-white shadow-lg"
+                    className="w-10 h-10 rounded-full flex items-center justify-center bg-school-navy text-white shadow-lg ml-2"
                   >
                     <Menu size={20} />
                   </button>
@@ -432,7 +418,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md lg:hidden"
+            className="fixed inset-0 z-[600] bg-black/40 backdrop-blur-md lg:hidden"
             onClick={() => setIsNavOpen(false)}
           >
             <motion.div 
@@ -443,25 +429,47 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-white dark:bg-slate-950 flex flex-col shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center p-6 border-b border-black/5 dark:border-white/5 bg-white dark:bg-slate-900 sticky top-0 z-10">
+              <div className="absolute inset-0 z-0">
+                <NavThreeBackground />
+              </div>
+
+              <div className="flex justify-between items-center p-6 border-b border-black/5 dark:border-white/5 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md sticky top-0 z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-school-navy dark:bg-school-paper/10 p-2 rounded-xl">
+                  <div className="w-14 h-14 bg-white dark:bg-slate-800 p-2 rounded-2xl shadow-sm border border-black/5 dark:border-white/5">
                     <img src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} alt="Logo" className="w-full h-full object-contain" />
                   </div>
-                  <span className="font-black text-school-navy dark:text-white tracking-tight flex flex-col">
-                    <span className="text-[10px] text-slate-400">ST. XAVIER'S</span>
-                    <span className="text-sm">MENU</span>
-                  </span>
                 </div>
                 <button 
                   onClick={() => setIsNavOpen(false)} 
-                  className="p-2 text-school-navy dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all"
+                  className="p-3 text-school-navy dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all bg-slate-50 shadow-sm"
                 >
-                  <X size={24} />
+                  <X size={20} />
                 </button>
               </div>
               
-              <div className="flex-1 overflow-y-auto px-6 py-8">
+              <div className="flex-1 overflow-y-auto px-6 py-8 relative z-10">
+                {/* Mobile Top Actions (Language, Theme, Search) */}
+                <div className="flex items-center justify-between gap-2 mb-8 p-4 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-black/5 dark:border-white/5 shadow-sm">
+                   <LanguageSelector isScrolled={false} align="left" />
+                   <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => setIsDark(!isDark)}
+                        className="w-12 h-12 rounded-full flex items-center justify-center transition-all bg-white dark:bg-slate-800 text-school-navy dark:text-white shadow-sm"
+                      >
+                        {isDark ? <Sun size={20} /> : <Moon size={20} />}
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setIsNavOpen(false);
+                          setIsSearchOpen(true);
+                        }}
+                        className="w-12 h-12 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 text-school-navy dark:text-white shadow-sm"
+                      >
+                        <Search size={20} />
+                      </button>
+                   </div>
+                </div>
+
                 <motion.div 
                   initial="hidden"
                   animate="visible"
@@ -568,10 +576,12 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               </div>
               
               <div className="flex gap-4">
-                {[Facebook, Instagram, Youtube, Twitter].map((Icon, i) => (
+                {[Facebook, Instagram, Youtube].map((Icon, i) => (
                   <a 
                     key={i} 
                     href="#" 
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-slate-950 hover:border-white transition-all duration-500 group"
                   >
                     <Icon size={20} className="group-hover:scale-110 transition-transform" />
@@ -580,48 +590,55 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               </div>
             </div>
 
-            <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-12 lg:gap-16">
-              <div className="space-y-10">
-                <h4 className="text-xs font-black text-school-accent uppercase tracking-[0.3em]">Explore</h4>
-                <ul className="space-y-5">
-                  {navLinks.slice(0, 5).map(l => (
-                    <li key={l.id}>
-                      <Link to={l.href} className="text-white/40 hover:text-white transition-all hover:translate-x-1 inline-block font-medium">
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+            <div className="lg:col-span-8 flex flex-col gap-10" id="site-map">
+              <div className="flex items-center gap-4">
+                <span className="h-[1px] flex-1 bg-white/10" />
+                <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.5em]">Site Map</h4>
+                <span className="h-[1px] flex-1 bg-white/10" />
               </div>
-              
-              <div className="space-y-10">
-                <h4 className="text-xs font-black text-school-gold uppercase tracking-[0.3em]">Resources</h4>
-                <ul className="space-y-5">
-                  {navLinks.slice(5).map(l => (
-                    <li key={l.id}>
-                      <Link to={l.href} className="text-white/40 hover:text-white transition-all hover:translate-x-1 inline-block font-medium">
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="space-y-10 col-span-2 md:col-span-1">
-                <h4 className="text-xs font-black text-white uppercase tracking-[0.3em]">Contact</h4>
-                <div className="space-y-8">
-                  <div className="space-y-2">
-                    <p className="text-xs text-white/20 uppercase font-black tracking-widest">Address</p>
-                    <p className="text-lg font-medium text-white/60 leading-relaxed">
-                      {data.settings?.contactAddress || 'Bhagwan Das Road, C-Scheme, Jaipur, Rajasthan 302001'}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-xs text-white/20 uppercase font-black tracking-widest">Phone</p>
-                    <a href={`tel:${data.settings?.contactPhone || '0141-2372336'}`} className="text-2xl font-display font-medium text-white hover:text-school-accent transition-colors">
-                      {data.settings?.contactPhone || '0141-2372336'}
-                    </a>
-                  </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+                <div className="space-y-6">
+                  <h4 className="text-[10px] font-black text-school-accent uppercase tracking-[0.3em]">Institutional</h4>
+                  <ul className="space-y-3">
+                    <li><Link to="/history" className="text-white/40 hover:text-white transition-all text-sm font-medium">History</Link></li>
+                    <li><Link to="/jesuit-education-objectives" className="text-white/40 hover:text-white transition-all text-sm font-medium">Jesuit Education</Link></li>
+                    <li><Link to="/founder-patron" className="text-white/40 hover:text-white transition-all text-sm font-medium">Founder Patron</Link></li>
+                    <li><Link to="/governing-members" className="text-white/40 hover:text-white transition-all text-sm font-medium">Governing Body</Link></li>
+                    <li><Link to="/former-managers" className="text-white/40 hover:text-white transition-all text-sm font-medium">Former Managers</Link></li>
+                  </ul>
+                </div>
+                
+                <div className="space-y-6">
+                  <h4 className="text-[10px] font-black text-school-gold uppercase tracking-[0.3em]">Academics</h4>
+                  <ul className="space-y-3">
+                    <li><Link to="/admission-policy" className="text-white/40 hover:text-white transition-all text-sm font-medium">Admissions</Link></li>
+                    <li><Link to="/fees" className="text-white/40 hover:text-white transition-all text-sm font-medium">Fee Structure</Link></li>
+                    <li><Link to="/scholarships" className="text-white/40 hover:text-white transition-all text-sm font-medium">Scholarships</Link></li>
+                    <li><Link to="/staff" className="text-white/40 hover:text-white transition-all text-sm font-medium">Our Faculty</Link></li>
+                    <li><Link to="/stream-toppers" className="text-white/40 hover:text-white transition-all text-sm font-medium">Merit Holders</Link></li>
+                  </ul>
+                </div>
+  
+                <div className="space-y-6">
+                  <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Life at Xavier's</h4>
+                  <ul className="space-y-3">
+                    <li><Link to="/events" className="text-white/40 hover:text-white transition-all text-sm font-medium">School Events</Link></li>
+                    <li><Link to="/gallery" className="text-white/40 hover:text-white transition-all text-sm font-medium">Media Gallery</Link></li>
+                    <li><Link to="/sports-complex" className="text-white/40 hover:text-white transition-all text-sm font-medium">Sports Center</Link></li>
+                    <li><Link to="/achievements" className="text-white/40 hover:text-white transition-all text-sm font-medium">Student Pride</Link></li>
+                    <li><Link to="/alumni" className="text-white/40 hover:text-white transition-all text-sm font-medium">Alumni Portal</Link></li>
+                  </ul>
+                </div>
+  
+                <div className="space-y-6">
+                  <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Contact & Info</h4>
+                  <ul className="space-y-3">
+                    <li><Link to="/contact" className="text-white/40 hover:text-white transition-all text-sm font-medium">Contact Us</Link></li>
+                    <li><Link to="/school-info" className="text-white/40 hover:text-white transition-all text-sm font-medium">Mandatory Disclosure</Link></li>
+                    <li><Link to="/careers" className="text-white/40 hover:text-white transition-all text-sm font-medium">Careers</Link></li>
+                    <li><Link to="/transfer-certificate" className="text-white/40 hover:text-white transition-all text-sm font-medium">TC Search</Link></li>
+                    <li><Link to="/notice-board" className="text-white/40 hover:text-white transition-all text-sm font-medium">Digital Notice Board</Link></li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -632,15 +649,20 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               <div className="flex items-center gap-6 text-white/40 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
                 <p>© 2024 St. Xavier’s Sr. Sec. School | All Rights Reserved.</p>
               </div>
-              <p className="text-[9px] text-white/10 tracking-[0.5em] font-black uppercase">
-                Designed with Precision by <span className="text-white/20">ABHISHEK MATHUR</span>
+              <p className="text-[10px] text-white/60 tracking-[0.3em] font-black uppercase">
+                Designed with Precision by <span className="text-school-gold">ABHISHEK MATHUR</span>
               </p>
             </div>
             
             <div className="flex items-center gap-12 text-[10px] font-black tracking-[0.3em] uppercase text-white/30">
-              <Link to="/privacy" className="hover:text-school-accent transition-colors">Privacy Policy</Link>
-              <Link to="/terms" className="hover:text-school-gold transition-colors">Terms of Service</Link>
-              <Link to="/sitemap" className="hover:text-white transition-colors">Sitemap</Link>
+              <span className="text-white/10">|</span>
+              <Link 
+                to="/sitemap" 
+                className="hover:text-white transition-colors cursor-pointer"
+              >
+                Complete Sitemap
+              </Link>
+              <span className="text-white/10">|</span>
             </div>
           </div>
         </div>

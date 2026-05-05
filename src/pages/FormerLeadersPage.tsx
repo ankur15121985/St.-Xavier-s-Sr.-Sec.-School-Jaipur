@@ -21,7 +21,7 @@ const FormerLeadersPage = ({ data, type, title, description }: Props) => {
     }
   };
 
-  const leaders = [...getLeaders()].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
+  const leaders = [...getLeaders()].filter(l => l.is_enabled !== false).sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
 
   return (
     <Layout data={data}>

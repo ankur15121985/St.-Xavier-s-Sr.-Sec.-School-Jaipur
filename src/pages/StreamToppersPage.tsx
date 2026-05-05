@@ -5,9 +5,10 @@ import { AppData, StreamwiseTopper } from '../types';
 import { Award, Star, BookOpen, Calculator, Globe } from 'lucide-react';
 
 const StreamToppersPage = ({ data }: { data: AppData }) => {
-  const scienceToppers = data.streamwise_toppers.filter(t => t.stream === 'Science');
-  const commerceToppers = data.streamwise_toppers.filter(t => t.stream === 'Commerce');
-  const humanitiesToppers = data.streamwise_toppers.filter(t => t.stream === 'Humanities');
+  const enabledToppers = data.streamwise_toppers.filter(t => t.is_enabled !== false);
+  const scienceToppers = enabledToppers.filter(t => t.stream === 'Science');
+  const commerceToppers = enabledToppers.filter(t => t.stream === 'Commerce');
+  const humanitiesToppers = enabledToppers.filter(t => t.stream === 'Humanities');
 
   const TopperCard = ({ topper, index }: { topper: StreamwiseTopper, index: number }) => (
     <motion.div

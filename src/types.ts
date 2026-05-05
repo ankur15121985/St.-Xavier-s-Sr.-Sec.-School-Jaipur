@@ -1,6 +1,6 @@
-export interface Notice { id: string; title: string; content?: string; date: string; category: string; link?: string; attachmentUrl?: string; }
-export interface StaffMember { id: string; name: string; role: string; bio: string; image: string; type: 'Management' | 'Faculty' | 'Administration'; }
-export interface GalleryItem { id: string; url: string; caption: string; session?: string; attachmentUrl?: string; }
+export interface Notice { id: string; title: string; content?: string; date: string; category: string; link?: string; attachmentUrl?: string; is_enabled?: boolean; }
+export interface StaffMember { id: string; name: string; role: string; bio: string; image: string; type: 'Management' | 'Faculty' | 'Administration'; is_enabled?: boolean; }
+export interface GalleryItem { id: string; url: string; caption: string; session?: string; attachmentUrl?: string; is_enabled?: boolean; }
 export interface FeeStructure { 
   id: string; 
   category: string; 
@@ -11,9 +11,9 @@ export interface FeeStructure {
   order_index: number; 
   attachmentUrl?: string; 
 }
-export interface QuickLink { id: string; title: string; url: string; isPriority?: boolean; icon?: string; attachmentUrl?: string; noticeId?: string; }
-export interface Event { id: string; title: string; date: string; time: string; location: string; attachmentUrl?: string; }
-export interface Achievement { id: string; title: string; year: string; description: string; attachmentUrl?: string; }
+export interface QuickLink { id: string; title: string; url: string; isPriority?: boolean; icon?: string; attachmentUrl?: string; noticeId?: string; is_enabled?: boolean; }
+export interface Event { id: string; title: string; date: string; time: string; location: string; attachmentUrl?: string; is_enabled?: boolean; }
+export interface Achievement { id: string; title: string; year: string; description: string; attachmentUrl?: string; is_enabled?: boolean; }
 export interface TransferCertificate {
   id: string;
   admission_number: string;
@@ -22,10 +22,10 @@ export interface TransferCertificate {
   attachmentUrl: string;
   created_at?: string;
 }
-export interface StudentHonor { id: string; name: string; category: string; result: string; subtext: string; image: string; order_index: number; attachmentUrl?: string; }
-export interface MenuItem { id: string; label: string; href: string; parent_id?: string | null; order_index: number; attachmentUrl?: string; }
-export interface FAQ { id: string; question: string; answer: string; category?: string; order_index: number; }
-export interface CustomContent { id: string; title: string; heading: string; content: string; order_index: number; attachmentUrl?: string; }
+export interface StudentHonor { id: string; name: string; category: string; result: string; subtext: string; image: string; order_index: number; attachmentUrl?: string; is_enabled?: boolean; }
+export interface MenuItem { id: string; label: string; href: string; parent_id?: string | null; order_index: number; attachmentUrl?: string; is_enabled?: boolean; }
+export interface FAQ { id: string; question: string; answer: string; category?: string; order_index: number; is_enabled?: boolean; }
+export interface CustomContent { id: string; title: string; heading: string; content: string; order_index: number; attachmentUrl?: string; is_enabled?: boolean; }
 export interface ContactMessage { id: string; name: string; email: string; subject?: string; message: string; timestamp: string; status: 'new' | 'read' | 'replied'; }
 export interface AnnouncementPopup {
   id: string;
@@ -49,6 +49,15 @@ export interface MarqueeItem {
   order_index: number;
 }
 
+export interface LeadGrace {
+  id: string;
+  heading: string;
+  content: string;
+  image_url?: string;
+  updated_at?: string;
+  is_enabled?: boolean;
+}
+
 export interface AppSettings {
   id: string;
   applyNowEnabled: boolean;
@@ -65,6 +74,21 @@ export interface AppSettings {
   popupEnabled?: boolean;
   flagImage?: string;
   flagEnabled?: boolean;
+  aboutTitle?: string;
+  aboutContent?: string;
+  historyTitle?: string;
+  historyContent?: string;
+  showCarousel?: boolean;
+  showMarquee?: boolean;
+  showAbout?: boolean;
+  showFeature?: boolean;
+  showVision?: boolean;
+  showInsights?: boolean;
+  showPrincipalMessage?: boolean;
+  showDistinction?: boolean;
+  showGallery?: boolean;
+  showLeadership?: boolean;
+  showHonors?: boolean;
 }
 
 export interface StudentLeader {
@@ -74,6 +98,7 @@ export interface StudentLeader {
   academic_year: string;
   image?: string;
   order_index: number;
+  is_enabled?: boolean;
 }
 
 export interface StreamwiseTopper {
@@ -84,6 +109,7 @@ export interface StreamwiseTopper {
   academic_year: string;
   image?: string;
   order_index: number;
+  is_enabled?: boolean;
 }
 
 export interface XavieriteOfYear {
@@ -93,6 +119,15 @@ export interface XavieriteOfYear {
   citation?: string;
   image?: string;
   order_index: number;
+  is_enabled?: boolean;
+}
+
+export interface DigitalCampus {
+  id: string; // 'current'
+  title: string;
+  model_url?: string;
+  is_enabled: boolean;
+  updated_at?: string;
 }
 
 export interface AppData {
@@ -120,6 +155,9 @@ export interface AppData {
   xavierite_of_the_year: XavieriteOfYear[];
   useful_links: QuickLink[];
   custom_content: CustomContent[];
+  school_history: any[];
+  lead_grace: LeadGrace[];
+  digital_campus?: DigitalCampus;
   settings: AppSettings;
   content: Record<string, string>;
   admins: AdminCredential[];
@@ -148,4 +186,5 @@ export interface FormerLeader {
   tenure: string;
   image?: string;
   order_index: number;
+  is_enabled?: boolean;
 }

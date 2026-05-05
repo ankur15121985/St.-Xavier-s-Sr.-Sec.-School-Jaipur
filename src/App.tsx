@@ -47,7 +47,9 @@ import FormerManagersPage from './pages/FormerManagersPage';
 import FormerPrincipalsPage from './pages/FormerPrincipalsPage';
 import StreamToppersPage from './pages/StreamToppersPage';
 import XavieriteOfTheYearPage from './pages/XavieriteOfTheYearPage';
+import LeadGracePage from './pages/LeadGracePage';
 import ExplorePage from './pages/ExplorePage';
+import SitemapPage from './pages/SitemapPage';
 
 const PageTransition = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -359,6 +361,10 @@ const DEFAULT_DATA: AppData = {
     { id: 'cc1', title: 'Institutional Philosophy', heading: 'The Jesuit Vision', content: 'Our education is inspired by the vision of St. Ignatius of Loyola. We aim for academic excellence, character building, and social responsibility.', order_index: 0 },
     { id: 'cc2', title: 'Academic Excellence', heading: 'Modern Pedagogy', content: 'Integrating technology with traditional values to create future-ready leaders.', order_index: 1 }
   ],
+  school_history: [],
+  lead_grace: [
+    { id: 'lg1', heading: 'Lead with Grace', content: 'We cultivate individuals of character, resilient in spirit and enlightened in soul. Education is the journey of becoming.', image_url: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png' }
+  ],
   former_leaders: [], // Keeping for compatibility with any existing reference
   admins: [],
   logs: [],
@@ -375,6 +381,17 @@ const DEFAULT_DATA: AppData = {
     popupEnabled: true,
     popupMessage: 'Welcome to St. Xavier\'s, C-scheme. Admissions for the academic session 2026-27 are now open. Please visit the admission portal for details.',
     flagImage: '',
+    showCarousel: true,
+    showMarquee: true,
+    showAbout: true,
+    showFeature: true,
+    showVision: true,
+    showInsights: true,
+    showPrincipalMessage: true,
+    showDistinction: true,
+    showGallery: true,
+    showLeadership: true,
+    showHonors: true,
     flagEnabled: true
   },
   content: {
@@ -405,8 +422,8 @@ const DEFAULT_DATA: AppData = {
     principalQuote: 'We cultivate individuals of character, resilient in spirit and enlightened in soul. Education is the journey of becoming.',
     principalButton: 'The Full Narrative',
     regencyBadge: 'The Guardians',
-    regencyTitle1: 'The',
-    regencyTitle2: 'Regency.',
+    regencyTitle: 'The Regency.',
+    regencyDescription: 'The governing body and leadership dedicated to the institutional vision and student excellence.',
     oeuvreTitle1: 'Campus',
     oeuvreTitle2: 'Oeuvre.',
     oeuvreDescription: 'A visual collective capturing the vibrant soul of St. Xavier\'s Jaipur.'
@@ -469,7 +486,12 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
                   }
                 }
               } else {
-                merged[k] = val as any;
+                // If it's an object (like settings or content), merge it with DEFAULT_DATA
+                if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+                  merged[k] = { ...merged[k], ...val } as any;
+                } else {
+                  merged[k] = val as any;
+                }
               }
             }
           });
@@ -612,9 +634,11 @@ export default function App() {
                 <Route path="/transfer-certificate" element={<PageTransition><TransferCertificatePage data={data} /></PageTransition>} />
                 <Route path="/stream-toppers" element={<PageTransition><StreamToppersPage data={data} /></PageTransition>} />
                 <Route path="/xavierite-of-the-year" element={<PageTransition><XavieriteOfTheYearPage data={data} /></PageTransition>} />
+                <Route path="/lead-grace" element={<PageTransition><LeadGracePage data={data} /></PageTransition>} />
                 <Route path="/explore" element={<PageTransition><ExplorePage data={data} /></PageTransition>} />
                 <Route path="/contact" element={<PageTransition><ContactPage data={data} /></PageTransition>} />
                 <Route path="/admin" element={<PageTransition><AdminPortal data={data} setData={setData} /></PageTransition>} />
+                <Route path="/sitemap" element={<PageTransition><SitemapPage data={data} /></PageTransition>} />
               </Routes>
             </AnimatePresence>
           </Router>

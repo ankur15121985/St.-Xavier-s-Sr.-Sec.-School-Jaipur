@@ -10,7 +10,9 @@ const GalleryPage = ({ data }: { data: AppData }) => {
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const groupedGallery = data.gallery.reduce((acc, item) => {
+  const filteredGallery = data.gallery.filter(item => item.is_enabled !== false);
+
+  const groupedGallery = filteredGallery.reduce((acc, item) => {
     const session = item.session || 'Institutional Archives';
     if (!acc[session]) acc[session] = [];
     acc[session].push(item);

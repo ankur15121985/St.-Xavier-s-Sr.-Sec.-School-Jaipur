@@ -45,9 +45,10 @@ const PopupMessage = ({ settings }: PopupMessageProps) => {
             <div className="px-8 pb-10 space-y-4">
               <h3 className="text-2xl font-bold text-school-navy dark:text-white tracking-tight">Institutional Announcement</h3>
               <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-2xl border border-black/5">
-                <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-                  {settings.popupMessage}
-                </p>
+                <div 
+                  className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed prose prose-slate prose-sm max-w-none whitespace-pre-wrap shadow-none bg-transparent"
+                  dangerouslySetInnerHTML={{ __html: settings.popupMessage }}
+                />
               </div>
               <button 
                 onClick={() => setShow(false)}

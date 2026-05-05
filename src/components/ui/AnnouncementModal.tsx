@@ -111,9 +111,10 @@ export const AnnouncementModal = ({ popups }: AnnouncementModalProps) => {
                   </h3>
                   
                   {(currentPopup.type === 'text' || currentPopup.type === 'link' || currentPopup.type === 'image' || currentPopup.type === 'pdf') && currentPopup.content && (
-                    <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-                      {currentPopup.content}
-                    </p>
+                    <div 
+                      className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed prose prose-slate prose-sm max-w-none whitespace-pre-wrap shadow-none bg-transparent"
+                      dangerouslySetInnerHTML={{ __html: currentPopup.content }}
+                    />
                   )}
 
                   {currentPopup.type === 'pdf' && currentPopup.attachmentUrl && (

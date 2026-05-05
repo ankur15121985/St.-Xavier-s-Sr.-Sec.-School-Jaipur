@@ -14,7 +14,7 @@ const AchievementsPage = ({ data }: { data: AppData }) => {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid md:grid-cols-3 gap-12">
-          {data.achievements.map((a, i) => (
+          {data.achievements.filter(a => a.is_enabled !== false).map((a, i) => (
             <motion.div 
               key={a.id}
               initial={{ opacity: 0, y: 30 }}
@@ -27,7 +27,10 @@ const AchievementsPage = ({ data }: { data: AppData }) => {
               </div>
               <span className="text-[10px] font-black uppercase tracking-[0.5em] text-school-gold mb-4">{a.year} Milestone</span>
               <h4 className="text-3xl font-serif font-black text-school-ink mb-6 group-hover:text-school-gold transition-colors">{a.title}</h4>
-              <p className="text-sm text-school-ink/40 font-light leading-relaxed">{a.description}</p>
+              <div 
+                className="text-sm text-school-ink/40 font-light leading-relaxed prose prose-sm prose-slate max-w-none whitespace-pre-wrap shadow-none bg-transparent"
+                dangerouslySetInnerHTML={{ __html: a.description }}
+              />
             </motion.div>
           ))}
         </div>

@@ -5,7 +5,8 @@ import { AppData, XavieriteOfYear } from '../types';
 import { Award, Star, Quote } from 'lucide-react';
 
 const XavieriteOfTheYearPage = ({ data }: { data: AppData }) => {
-  const years = [...(data.xavierite_of_the_year || [])].sort((a, b) => b.academic_year.localeCompare(a.academic_year));
+  const enabledWinners = (data.xavierite_of_the_year || []).filter(x => x.is_enabled !== false);
+  const years = [...enabledWinners].sort((a, b) => b.academic_year.localeCompare(a.academic_year));
 
   return (
     <Layout data={data}>

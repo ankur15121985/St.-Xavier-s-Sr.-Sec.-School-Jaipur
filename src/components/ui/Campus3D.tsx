@@ -1,129 +1,185 @@
 import React, { useRef, useMemo, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, PerspectiveCamera, Environment, Stars, ContactShadows, useScroll, ScrollControls, Scroll } from '@react-three/drei';
+import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
+import { 
+  Float, 
+  PerspectiveCamera, 
+  Text, 
+  ContactShadows, 
+  Environment,
+  OrbitControls,
+  Sky,
+  useGLTF
+} from '@react-three/drei';
 import * as THREE from 'three';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { motion } from 'motion/react';
+import { DigitalCampus } from '../../types';
 
-const Building = ({ position, args, color, delay = 0 }: { position: [number, number, number], args: [number, number, number], color: string, delay?: number }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+const Model = ({ url }: { url: string }) => {
+  const isObj = url.toLowerCase().endsWith('.obj');
   
-  return (
-    <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5} position={position}>
-      <mesh ref={meshRef} castShadow receiveShadow>
-        <boxGeometry args={args} />
-        <meshStandardMaterial color={color} roughness={0.1} metalness={0.8} />
-      </mesh>
-    </Float>
-  );
+  if (isObj) {
+    const obj = useLoader(OBJLoader, url);
+    return <primitive object={obj} scale={0.5} />;
+  }
+
+  // Default to GLTF/GLB
+  const { scene } = useGLTF(url);
+  return <primitive object={scene} />;
 };
 
-const Tree = ({ position }: { position: [number, number, number] }) => (
-  <group position={position}>
-    <mesh position={[0, 0.5, 0]} castShadow>
-      <cylinderGeometry args={[0.1, 0.2, 1, 8]} />
-      <meshStandardMaterial color="#5D4037" />
-    </mesh>
-    <mesh position={[0, 1.2, 0]} castShadow>
-      <coneGeometry args={[0.6, 1.5, 8]} />
-      <meshStandardMaterial color="#2E7D32" />
-    </mesh>
-  </group>
-);
-
-const CampusSceneContent = () => {
-  const scroll = useScroll();
-  const groupRef = useRef<THREE.Group>(null);
-
+const Student = ({ delay = 0, speed = 1, x = 0 }: { delay?: number, speed?: number, x?: number }) => {
+  const ref = useRef<THREE.Group>(null);
+  
   useFrame((state) => {
-    if (groupRef.current) {
-      // Parallax effect based on scroll
-      const offset = scroll.offset;
-      groupRef.current.rotation.y = offset * Math.PI * 0.5;
-      groupRef.current.position.z = offset * -5;
+    if (ref.current) {
+      const time = state.clock.getElapsedTime() + delay;
+      // Walking motion: cycle from -15 to 15
+      ref.current.position.z = ((time * speed) % 30) - 15;
+      // Slight bounce
+      ref.current.position.y = Math.abs(Math.sin(time * 8)) * 0.1;
+      // Slight rotation
+      ref.current.rotation.y = Math.PI + Math.sin(time * 8) * 0.1;
     }
   });
 
   return (
-    <group ref={groupRef}>
-      <Suspense fallback={null}>
-        <Environment preset="lobby" />
-      </Suspense>
-      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1.5} castShadow />
-
-      {/* Main Building */}
-      <Building position={[0, 2, 0]} args={[4, 4, 3]} color="#002147" />
-      
-      {/* Side Wings */}
-      <Building position={[-4, 1.5, 0]} args={[2, 3, 2]} color="#001a38" />
-      <Building position={[4, 1.5, 0]} args={[2, 3, 2]} color="#001a38" />
-
-      {/* Clock Tower */}
-      <Building position={[0, 5, 1]} args={[1, 6, 1]} color="#D4AF37" />
-
-      {/* Greenery */}
-      <Tree position={[-6, 0, 4]} />
-      <Tree position={[-8, 0, 2]} />
-      <Tree position={[6, 0, 4]} />
-      <Tree position={[8, 0, 2]} />
-      <Tree position={[0, 0, 8]} />
-
-      {/* Ground */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]} receiveShadow>
-        <planeGeometry args={[100, 100]} />
-        <meshStandardMaterial color="#1a1a1a" />
+    // @ts-ignore
+    <group ref={ref} position={[x, 0, 0]}>
+      {/* Body */}
+      {/* @ts-ignore */}
+      <mesh position={[0, 1.2, 0]} castShadow>
+        {/* @ts-ignore */}
+        <sphereGeometry args={[0.3, 16, 16]} />
+        {/* @ts-ignore */}
+        <meshStandardMaterial color="#002147" roughness={0.3} metalness={0.8} />
+      {/* @ts-ignore */}
       </mesh>
-
-      <ContactShadows opacity={0.4} scale={20} blur={2.4} far={4.5} />
+      {/* Head */}
+      {/* @ts-ignore */}
+      <mesh position={[0, 1.8, 0]} castShadow>
+        {/* @ts-ignore */}
+        <sphereGeometry args={[0.2, 16, 16]} />
+        {/* @ts-ignore */}
+        <meshStandardMaterial color="#D4AF37" roughness={0.3} />
+      {/* @ts-ignore */}
+      </mesh>
+    {/* @ts-ignore */}
     </group>
   );
 };
 
-export const Campus3D = () => {
-  return (
-    <div id="campus-3d" className="w-full h-screen bg-[#050505] relative overflow-hidden">
-      <Canvas shadows dpr={[1, 2]}>
-        <PerspectiveCamera makeDefault position={[0, 5, 20]} fov={35} />
-        <ScrollControls pages={3} damping={0.1}>
-          <CampusSceneContent />
-          <Scroll html>
-            <div className="w-screen h-[300vh] flex flex-col items-center pointer-events-none">
-              <section className="h-screen w-full flex items-center justify-center p-10">
-                <div className="max-w-4xl text-center space-y-6">
-                  <h2 className="text-7xl md:text-9xl font-black text-white italic tracking-tighter mix-blend-difference">
-                    DIGITAL <span className="text-school-gold">CAMPUS.</span>
-                  </h2>
-                  <p className="text-white/40 text-xl font-light uppercase tracking-[0.5em]">Explore the Horizon of Xavier's</p>
-                </div>
-              </section>
-              
-              <section className="h-screen w-full flex items-center justify-start p-20">
-                <div className="max-w-xl bg-white/5 backdrop-blur-3xl p-12 rounded-[40px] border border-white/10 space-y-6">
-                  <h3 className="text-4xl font-black text-school-gold">Architectural Legacy</h3>
-                  <p className="text-white/60 leading-relaxed font-medium">
-                    A blend of tradition and modernity, our campus stands as a testament to Jesuit excellence in the heart of Jaipur.
-                  </p>
-                </div>
-              </section>
+const CampusSceneContent = ({ modelUrl }: { modelUrl?: string }) => {
+  const students = useMemo(() => [
+    { x: -6, delay: 0, speed: 2.2 },
+    { x: -3, delay: 2, speed: 1.8 },
+    { x: 1, delay: 4, speed: 2.0 },
+    { x: 5, delay: 1, speed: 2.4 },
+    { x: -9, delay: 5.5, speed: 1.6 },
+  ], []);
 
-              <section className="h-screen w-full flex items-center justify-end p-20 text-right">
-                <div className="max-w-xl bg-school-navy/40 backdrop-blur-3xl p-12 rounded-[40px] border border-school-gold/20 space-y-6">
-                  <h3 className="text-4xl font-black text-white">Future Ready</h3>
-                  <p className="text-white/60 leading-relaxed font-medium">
-                    State-of-the-art facilities designed to foster innovation, leadership, and integrity in every student.
-                  </p>
-                </div>
-              </section>
-            </div>
-          </Scroll>
-        </ScrollControls>
-      </Canvas>
-      
-      {/* Overlay Instructions */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 text-white/30 pointer-events-none">
-        <span className="text-[10px] font-black uppercase tracking-[0.4em]">Scroll to Navigate</span>
-        <div className="w-px h-12 bg-gradient-to-b from-school-gold to-transparent animate-pulse" />
+  return (
+    <>
+      {/* Dynamic Model Overlay or Placeholder */}
+      {modelUrl ? (
+        <Suspense fallback={<Student x={0} speed={0} />}>
+          <Model url={modelUrl} />
+        </Suspense>
+      ) : (
+        <>
+          {/* Walking Students */}
+          {students.map((s, i) => (
+            <Student key={i} {...s} />
+          ))}
+        </>
+      )}
+
+      {/* Ground */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]} receiveShadow>
+        <planeGeometry args={[100, 100]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.8} />
+      </mesh>
+
+      <ContactShadows 
+        position={[0, 0, 0]}
+        opacity={0.4} 
+        scale={40} 
+        blur={2} 
+        far={10} 
+        resolution={512} 
+        color="#000000"
+      />
+    </>
+  );
+};
+
+export const Campus3D = ({ config }: { config?: DigitalCampus }) => {
+  if (config && config.is_enabled === false) return null;
+
+  const title = config?.title || 'Legacy in Motion.';
+  const titleParts = title.split(' ');
+  const lastWord = titleParts.pop() || '';
+  const firstPart = titleParts.join(' ');
+
+  return (
+    <div id="digital-campus-3d" className="w-full min-h-screen md:h-screen bg-[#fcfbf7] dark:bg-slate-950 relative overflow-hidden flex flex-col md:flex-row items-center justify-between p-10 md:p-20">
+      <div className="w-full md:w-1/2 z-10 space-y-8 text-center md:text-left py-10">
+        <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          className="inline-block px-6 py-2 bg-school-accent/10 rounded-full"
+        >
+          <span className="text-school-accent font-black uppercase tracking-[0.4em] text-[10px]">DIGITAL CAMPUS EXPERIENCE</span>
+        </motion.div>
+        
+        <h2 className="text-5xl md:text-8xl font-black text-school-navy dark:text-white italic tracking-tighter leading-none">
+          {firstPart} <span className="text-school-accent underline decoration-school-gold/30">{lastWord}</span>
+        </h2>
+        
+        <p className="text-slate-600 dark:text-slate-400 text-lg md:text-xl font-medium leading-relaxed max-w-xl">
+          Step into our interactive architectural experience. See the spirit of St. Xavier's Jaipur come to life through this digital walk-through.
+        </p>
+
+        <div className="flex flex-wrap justify-center md:justify-start gap-4">
+           {['360° View', 'Interactive', 'Walk of Honor'].map(tag => (
+             <span key={tag} className="px-5 py-2 bg-white dark:bg-slate-900 border border-black/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-school-navy dark:text-white shadow-sm">
+                {tag}
+             </span>
+           ))}
+        </div>
+      </div>
+
+      <div className="w-full md:flex-1 h-[600px] relative mt-10 md:mt-0 rounded-[40px] overflow-hidden border border-black/5 bg-white shadow-2xl">
+        <Canvas 
+          shadows 
+          dpr={[1, 2]}
+          camera={{ position: [0, 5, 20], fov: 35 }}
+          gl={{ antialias: true }}
+          style={{ background: '#f8fafc' }}
+        >
+          <ambientLight intensity={1.5} />
+          <directionalLight position={[10, 10, 10]} intensity={2} castShadow />
+          <pointLight position={[-10, 5, -5]} color="#002147" intensity={3} />
+          
+          <CampusSceneContent modelUrl={config?.model_url} />
+          
+          <OrbitControls 
+            enableZoom={false} 
+            autoRotate 
+            autoRotateSpeed={1} 
+            maxPolarAngle={Math.PI / 2}
+            minPolarAngle={Math.PI / 4}
+          />
+        </Canvas>
+        
+        {/* Helper UI Overlay */}
+        <div className="absolute inset-0 pointer-events-none border-[12px] border-white/50" />
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-xl border border-black/5">
+           <div className="w-2 h-2 bg-school-accent rounded-full animate-pulse" />
+           <span className="text-[10px] font-black uppercase tracking-widest text-school-navy">Digital Interaction Active</span>
+        </div>
       </div>
     </div>
   );
 };
+

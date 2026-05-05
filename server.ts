@@ -379,9 +379,15 @@ db.exec(`
     role TEXT NOT NULL,
     bio TEXT NOT NULL,
     image TEXT NOT NULL,
-    type TEXT NOT NULL
+    type TEXT NOT NULL,
+    is_enabled INTEGER DEFAULT 1
   )
 `);
+
+// Migration for staff
+try {
+  db.prepare("ALTER TABLE staff ADD COLUMN is_enabled INTEGER DEFAULT 1").run();
+} catch (e) {}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS fees (
@@ -558,18 +564,112 @@ db.exec(`
     contactPhone TEXT,
     contactAddress TEXT,
     currentSession TEXT,
+    popupEnabled INTEGER DEFAULT 1,
+    popupMessage TEXT,
+    feesPdfUrl TEXT,
     flagImage TEXT,
-    flagEnabled INTEGER DEFAULT 1
+    flagEnabled INTEGER DEFAULT 1,
+    aboutTitle TEXT,
+    aboutContent TEXT,
+    historyTitle TEXT,
+    historyContent TEXT,
+    showCarousel INTEGER DEFAULT 1,
+    showMarquee INTEGER DEFAULT 1,
+    showAbout INTEGER DEFAULT 1,
+    showFeature INTEGER DEFAULT 1,
+    showVision INTEGER DEFAULT 1,
+    showInsights INTEGER DEFAULT 1,
+    showPrincipalMessage INTEGER DEFAULT 1,
+    showDistinction INTEGER DEFAULT 1,
+    showGallery INTEGER DEFAULT 1,
+    showLeadership INTEGER DEFAULT 1,
+    showHonors INTEGER DEFAULT 1
   )
 `);
 
 // Migration for settings
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN currentSession TEXT").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN popupEnabled INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN popupMessage TEXT").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN feesPdfUrl TEXT").run();
+} catch (e) {}
 try {
   db.prepare("ALTER TABLE settings ADD COLUMN flagImage TEXT").run();
 } catch (e) {}
 try {
   db.prepare("ALTER TABLE settings ADD COLUMN flagEnabled INTEGER DEFAULT 1").run();
 } catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN aboutTitle TEXT").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN aboutContent TEXT").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN historyTitle TEXT").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN historyContent TEXT").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN showCarousel INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN showMarquee INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN showAbout INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN showFeature INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN showVision INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN showInsights INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN showPrincipalMessage INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN showDistinction INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN showGallery INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN showLeadership INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN showHonors INTEGER DEFAULT 1").run();
+} catch (e) {}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS school_history (
+    id TEXT PRIMARY KEY,
+    title TEXT,
+    content TEXT,
+    updated_at TEXT
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS lead_grace (
+    id TEXT PRIMARY KEY,
+    heading TEXT,
+    content TEXT,
+    image_url TEXT,
+    updated_at TEXT
+  )
+`);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS content (
@@ -596,8 +696,8 @@ db.exec(`
     oeuvreTitle2 TEXT,
     oeuvreDescription TEXT,
     regencyBadge TEXT,
-    regencyTitle1 TEXT,
-    regencyTitle2 TEXT,
+    regencyTitle TEXT,
+    regencyDescription TEXT,
     nodesTitle1 TEXT,
     nodesTitle2 TEXT,
     nodesDescription TEXT,
@@ -608,6 +708,21 @@ db.exec(`
     footerDescription TEXT
   )
 `);
+
+// Migration and forced sync for content
+try {
+  const contentInfo = db.pragma("table_info(content)") as any[];
+  if (!contentInfo.some(c => c.name === 'regencyTitle')) {
+    console.log("[MIGRATION] Updating content table schema...");
+    db.exec("ALTER TABLE content ADD COLUMN regencyTitle TEXT");
+    db.exec("ALTER TABLE content ADD COLUMN regencyDescription TEXT");
+    
+    // Transfer data from old columns if they exist
+    if (contentInfo.some(c => c.name === 'regencyTitle1')) {
+      db.exec("UPDATE content SET regencyTitle = regencyTitle1");
+    }
+  }
+} catch (e) {}
 
 // Migration to add attachmentUrl to existing tables if missing
 const tablesToUpdate = ['links', 'events', 'achievements', 'menu', 'studentHonors', 'staff', 'gallery', 'carousel', 'faqs', 'messages', 'popups', 'notices', 'marquee'];
@@ -627,7 +742,15 @@ try {
 const settingsCountResult = db.prepare("SELECT COUNT(*) as count FROM settings").get() as any;
 if ((settingsCountResult?.count || 0) === 0) {
     console.log("Seeding default settings...");
-    db.prepare("INSERT INTO settings (id, applyNowEnabled, applyNowUrl, applyNowLabel, siteName, siteLogo, contactEmail, contactPhone, contactAddress, currentSession) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").run(
+    db.prepare(`
+      INSERT INTO settings (
+        id, applyNowEnabled, applyNowUrl, applyNowLabel, siteName, siteLogo, 
+        contactEmail, contactPhone, contactAddress, currentSession,
+        showCarousel, showMarquee, showAbout, showFeature, showVision, 
+        showInsights, showPrincipalMessage, showDistinction, showGallery, 
+        showLeadership, showHonors
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
       'global',
       1,
       'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
@@ -637,7 +760,8 @@ if ((settingsCountResult?.count || 0) === 0) {
       'xaviersjaipur@gmail.com',
       '0141-2372336, 2362436',
       'Bhagwan Das Road, C-Scheme, Jaipur - 302001, Rajasthan, India',
-      '2025-26'
+      '2025-26',
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     );
 }
 
@@ -669,8 +793,8 @@ if ((contentCountResult?.count || 0) === 0) {
         oeuvreTitle2: 'Oeuvre.',
         oeuvreDescription: 'A visual collective capturing the vibrant soul of St. Xavier\'s Jaipur.',
         regencyBadge: 'The Guardians',
-        regencyTitle1: 'The',
-        regencyTitle2: 'Regency.',
+        regencyTitle: 'The Regency.',
+        regencyDescription: 'The governing body and leadership dedicated to the institutional vision and student excellence.',
         nodesTitle1: 'Vital',
         nodesTitle2: 'Nodes.',
         nodesDescription: 'The administrative heart of our institution, condensed for your convenience.',
@@ -1138,22 +1262,34 @@ const targetStaff = [
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};
-    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups'];
+    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups', 'school_history', 'lead_grace'];
 
     tables.forEach(table => {
-      let rows = db.prepare(`SELECT * FROM "${table}"`).all();
-      if (table === 'popups') {
-        rows = (rows as any[]).map(r => ({ ...r, isActive: Boolean(r.isActive) }));
+      let rows = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
+      
+      // Convert SQLite integers (0/1) to Booleans for frontend consistency
+      if (['popups', 'marquee'].includes(table)) {
+        rows = rows.map(r => ({ ...r, isActive: Boolean(r.isActive) }));
+      } else if (table === 'staff') {
+        rows = rows.map(r => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
+      } else if (table === 'useful_links') {
+        rows = rows.map(r => ({ ...r, isPriority: Boolean(r.isPriority) }));
+      } else if (table === 'studentHonors') {
+        rows = rows.map(r => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
       }
+      
       data[table] = rows;
     });
 
     const settings = db.prepare(`SELECT * FROM settings WHERE id = 'global'`).get() as any;
     if (settings) {
-      data.settings = {
-        ...settings,
-        applyNowEnabled: Boolean(settings.applyNowEnabled)
-      };
+      const convertedSettings = { ...settings };
+      Object.keys(settings).forEach(key => {
+        if (key.startsWith('show') || key.endsWith('Enabled')) {
+          convertedSettings[key] = Boolean(settings[key] ?? 1);
+        }
+      });
+      data.settings = convertedSettings;
     }
 
     res.json(data);
@@ -1178,6 +1314,8 @@ const SCHEMA: Record<string, string[]> = {
   faqs: ['id', 'question', 'answer', 'category', 'order_index', 'attachmentUrl'],
   messages: ['id', 'name', 'email', 'subject', 'message', 'timestamp', 'status', 'attachmentUrl'],
   popups: ['id', 'title', 'type', 'content', 'buttonText', 'buttonLink', 'isActive', 'order_index', 'attachmentUrl'],
+  school_history: ['id', 'title', 'content', 'updated_at'],
+  lead_grace: ['id', 'heading', 'content', 'image_url', 'updated_at'],
   settings: ['id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 'contactEmail', 'contactPhone', 'contactAddress', 'currentSession', 'feesPdfUrl', 'popupMessage', 'popupEnabled'],
   content: ['id', 'key', 'value']
 };

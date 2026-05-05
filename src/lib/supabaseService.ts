@@ -7,7 +7,7 @@ export const supabaseService = {
       const collections: (keyof AppData)[] = [
         'notices', 'staff', 'gallery', 'fees', 'links', 
         'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs', 'former_leaders',
-        'former_principals', 'former_rectors', 'former_managers', 'student_leaders', 'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content'
+        'former_principals', 'former_rectors', 'former_managers', 'student_leaders', 'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content', 'lead_grace', 'digital_campus'
       ];
 
       const results: Partial<AppData> = {};
@@ -34,6 +34,15 @@ export const supabaseService = {
              if (error) console.warn('[Supabase] Settings table issue:', error.message);
              if (data) results.settings = data as any;
            } catch (e) { console.error('[Supabase] Settings fetch error:', e); }
+        })(),
+        // Digital Campus (single row)
+        (async () => {
+           try {
+             const { data, error } = await supabase.from('digital_campus').select('*').limit(1).maybeSingle();
+             if (error) console.warn('[Supabase] Digital Campus table issue:', error.message);
+             if (data) results.digital_campus = data as any;
+             else results.digital_campus = { id: 'current', title: 'Legacy in Motion', is_enabled: true };
+           } catch (e) { console.error('[Supabase] Digital Campus fetch error:', e); }
         })(),
         // Content (key-value)
         (async () => {
@@ -101,8 +110,15 @@ export const supabaseService = {
 
           // Ensure booleans are correct for Postgres
           if (section === 'popups' && 'isActive' in sanitized) sanitized.isActive = !!sanitized.isActive;
-          if (section === 'settings' && 'applyNowEnabled' in sanitized) sanitized.applyNowEnabled = !!sanitized.applyNowEnabled;
-          if (section === 'settings' && 'popupEnabled' in sanitized) sanitized.popupEnabled = !!sanitized.popupEnabled;
+          if (section === 'digital_campus' && 'is_enabled' in sanitized) sanitized.is_enabled = !!sanitized.is_enabled;
+          
+          if (section === 'settings') {
+            Object.keys(sanitized).forEach(key => {
+              if (key.startsWith('show') || key.endsWith('Enabled')) {
+                sanitized[key] = !!sanitized[key];
+              }
+            });
+          }
           
           console.log(`[Supabase Upsert] Table: ${section}, ID: ${item.id}`);
           let { error } = await supabase.from(section).upsert(sanitized);
@@ -118,13 +134,14 @@ export const supabaseService = {
 
             // If it's a stale cache error (PGRST205), try a single raw retry after a short delay
             if (error.code === 'PGRST205') {
-              await new Promise(resolve => setTimeout(resolve, 500));
+              console.log('[Supabase Sync] Stale schema cache detected (PGRST205). Retrying after schema notification...');
+              await new Promise(resolve => setTimeout(resolve, 800));
               const { error: retryError } = await supabase.from(section).upsert(sanitized);
               currentError = retryError;
               if (!currentError) error = null;
             }
 
-            while (currentError && (currentError.code === 'PGRST204' || currentError.code === '42703') && retryCount < MAX_RETRIES) {
+            while (currentError && (currentError.code === 'PGRST204' || currentError.code === '42703' || currentError.message.includes('relation "public.digital_campus" does not exist')) && retryCount < MAX_RETRIES) {
               const match = currentError.message.match(/column ['"](.+?)['"]/i);
               const missingField = match ? match[1] : null;
               

@@ -40,8 +40,67 @@ CREATE TABLE IF NOT EXISTS settings (
     "flagImage" TEXT,
     "flagEnabled" BOOLEAN DEFAULT true,
     "currentSession" TEXT,
-    "feesPdfUrl" TEXT
+    "feesPdfUrl" TEXT,
+    "aboutTitle" TEXT,
+    "aboutContent" TEXT,
+    "historyTitle" TEXT,
+    "historyContent" TEXT,
+    "showCarousel" BOOLEAN DEFAULT true,
+    "showMarquee" BOOLEAN DEFAULT true,
+    "showAbout" BOOLEAN DEFAULT true,
+    "showFeature" BOOLEAN DEFAULT true,
+    "showVision" BOOLEAN DEFAULT true,
+    "showInsights" BOOLEAN DEFAULT true,
+    "showPrincipalMessage" BOOLEAN DEFAULT true,
+    "showDistinction" BOOLEAN DEFAULT true,
+    "showGallery" BOOLEAN DEFAULT true,
+    "showLeadership" BOOLEAN DEFAULT true,
+    "showHonors" BOOLEAN DEFAULT true
 );
+
+CREATE TABLE IF NOT EXISTS school_history (
+    id TEXT PRIMARY KEY,
+    title TEXT,
+    content TEXT,
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- LEAD GRACE TABLE (CLEAN RESET POLICIES)
+CREATE TABLE IF NOT EXISTS lead_grace (
+    id TEXT PRIMARY KEY,
+    heading TEXT,
+    content TEXT,
+    image_url TEXT,
+    updated_at TIMESTAMPTZ DEFAULT now(),
+    is_enabled BOOLEAN DEFAULT true
+);
+
+-- DIGITAL CAMPUS TABLE
+CREATE TABLE IF NOT EXISTS digital_campus (
+    id TEXT PRIMARY KEY DEFAULT 'current',
+    title TEXT DEFAULT 'Legacy in Motion',
+    model_url TEXT,
+    is_enabled BOOLEAN DEFAULT true,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+ALTER TABLE digital_campus ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public Full Access" ON digital_campus;
+CREATE POLICY "Public Full Access" ON digital_campus FOR ALL TO public USING (true) WITH CHECK (true);
+GRANT ALL ON TABLE digital_campus TO anon, authenticated, postgres, service_role;
+
+-- Reset RLS for lead_grace
+ALTER TABLE lead_grace ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public Full Access" ON lead_grace;
+DROP POLICY IF EXISTS "Anon Full Access" ON lead_grace;
+DROP POLICY IF EXISTS "Authenticated Full Access" ON lead_grace;
+DROP POLICY IF EXISTS "Allow All" ON lead_grace;
+
+-- Single robust policy for all access
+CREATE POLICY "Allow All" ON lead_grace FOR ALL TO public USING (true) WITH CHECK (true);
+
+-- Explicit Grants
+GRANT ALL ON TABLE lead_grace TO anon, authenticated, postgres, service_role;
 
 CREATE TABLE IF NOT EXISTS content (
     id TEXT DEFAULT 'global',
@@ -57,7 +116,8 @@ CREATE TABLE IF NOT EXISTS notices (
     date TEXT,
     category TEXT,
     link TEXT,
-    "attachmentUrl" TEXT
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS staff (
@@ -67,7 +127,8 @@ CREATE TABLE IF NOT EXISTS staff (
     bio TEXT,
     image TEXT,
     type TEXT,
-    "attachmentUrl" TEXT
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS gallery (
@@ -75,7 +136,8 @@ CREATE TABLE IF NOT EXISTS gallery (
     url TEXT,
     caption TEXT,
     session TEXT,
-    "attachmentUrl" TEXT
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS fees (
@@ -95,7 +157,8 @@ CREATE TABLE IF NOT EXISTS links (
     url TEXT,
     "isPriority" BOOLEAN DEFAULT false,
     icon TEXT,
-    "attachmentUrl" TEXT
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS events (
@@ -104,7 +167,8 @@ CREATE TABLE IF NOT EXISTS events (
     date TEXT,
     time TEXT,
     location TEXT,
-    "attachmentUrl" TEXT
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS achievements (
@@ -112,7 +176,8 @@ CREATE TABLE IF NOT EXISTS achievements (
     title TEXT,
     year TEXT,
     description TEXT,
-    "attachmentUrl" TEXT
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS "studentHonors" (
@@ -123,7 +188,8 @@ CREATE TABLE IF NOT EXISTS "studentHonors" (
     subtext TEXT,
     image TEXT,
     order_index INTEGER DEFAULT 0,
-    "attachmentUrl" TEXT
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS navigation_menu (
@@ -132,7 +198,8 @@ CREATE TABLE IF NOT EXISTS navigation_menu (
     href TEXT,
     parent_id TEXT,
     order_index INTEGER DEFAULT 0,
-    "attachmentUrl" TEXT
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS carousel (
@@ -140,7 +207,8 @@ CREATE TABLE IF NOT EXISTS carousel (
     url TEXT,
     caption TEXT,
     session TEXT,
-    "attachmentUrl" TEXT
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS faqs (
@@ -149,7 +217,8 @@ CREATE TABLE IF NOT EXISTS faqs (
     answer TEXT,
     category TEXT,
     order_index INTEGER DEFAULT 0,
-    "attachmentUrl" TEXT
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS transfer_certificates (
@@ -194,12 +263,12 @@ CREATE TABLE IF NOT EXISTS marquee (
 );
 
 -- LEADERSHIP HISTORY
-CREATE TABLE IF NOT EXISTS former_principals (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
-CREATE TABLE IF NOT EXISTS former_rectors (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
-CREATE TABLE IF NOT EXISTS former_managers (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
-CREATE TABLE IF NOT EXISTS student_leaders (id TEXT PRIMARY KEY, name TEXT, role TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
-CREATE TABLE IF NOT EXISTS streamwise_toppers (id TEXT PRIMARY KEY, name TEXT, stream TEXT, percentage TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
-CREATE TABLE IF NOT EXISTS xavierite_of_the_year (id TEXT PRIMARY KEY, name TEXT, academic_year TEXT, citation TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT);
+CREATE TABLE IF NOT EXISTS former_principals (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);
+CREATE TABLE IF NOT EXISTS former_rectors (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);
+CREATE TABLE IF NOT EXISTS former_managers (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);
+CREATE TABLE IF NOT EXISTS student_leaders (id TEXT PRIMARY KEY, name TEXT, role TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);
+CREATE TABLE IF NOT EXISTS streamwise_toppers (id TEXT PRIMARY KEY, name TEXT, stream TEXT, percentage TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);
+CREATE TABLE IF NOT EXISTS xavierite_of_the_year (id TEXT PRIMARY KEY, name TEXT, academic_year TEXT, citation TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);
 
 CREATE TABLE IF NOT EXISTS custom_content (
     id TEXT PRIMARY KEY,
@@ -207,7 +276,8 @@ CREATE TABLE IF NOT EXISTS custom_content (
     heading TEXT,
     content TEXT,
     order_index INTEGER DEFAULT 0,
-    "attachmentUrl" TEXT
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS useful_links (

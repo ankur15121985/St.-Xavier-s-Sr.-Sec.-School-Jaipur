@@ -74,9 +74,10 @@ const ExplorePage: React.FC<ExplorePageProps> = ({ data }) => {
                           <h2 className="text-4xl md:text-5xl font-serif font-bold text-school-navy leading-tight">{item.heading}</h2>
                        </div>
                        
-                       <div className="prose prose-lg max-w-none prose-slate mt-8 markdown-body dark:prose-invert">
-                          <Markdown>{item.content}</Markdown>
-                       </div>
+                       <div 
+                         className="prose prose-lg max-w-none prose-slate mt-8 markdown-body dark:prose-invert shadow-none bg-transparent"
+                         dangerouslySetInnerHTML={{ __html: item.content }}
+                       />
 
                        {item.attachmentUrl && (
                          <motion.a 

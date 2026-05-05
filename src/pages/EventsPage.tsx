@@ -45,7 +45,7 @@ const EventsPage = ({ data }: { data: AppData }) => {
               exit={{ opacity: 0, scale: 1.02 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <SchoolCalendar events={data.events} />
+              <SchoolCalendar events={data.events.filter(e => e.is_enabled !== false)} />
             </motion.div>
           ) : (
             <motion.div 
@@ -56,7 +56,7 @@ const EventsPage = ({ data }: { data: AppData }) => {
               transition={{ duration: 0.5 }}
               className="max-w-7xl mx-auto px-6 lg:px-12 grid md:grid-cols-2 gap-8"
             >
-              {data.events.map((e, i) => (
+              {data.events.filter(e => e.is_enabled !== false).map((e, i) => (
                 <motion.div 
                   key={e.id}
                   initial={{ opacity: 0, scale: 0.95 }}

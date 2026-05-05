@@ -34,7 +34,10 @@ const StaffPage = ({ data }: { data: AppData }) => {
                   </span>
                 </td>
                 <td className="py-2 px-3">
-                  <p className="text-xs text-school-ink/60 leading-relaxed font-medium italic">{s.bio}</p>
+                  <div 
+                    className="text-xs text-school-ink/60 leading-relaxed font-medium italic prose prose-sm prose-slate max-w-none whitespace-pre-wrap shadow-none bg-transparent"
+                    dangerouslySetInnerHTML={{ __html: s.bio }}
+                  />
                 </td>
               </tr>
             ))}
@@ -60,7 +63,7 @@ const StaffPage = ({ data }: { data: AppData }) => {
               <div className="flex-1 h-2 bg-school-ink/10 rounded-full"></div>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
-              {data.staff.filter(s => s.type === 'Management').map((s, i) => (
+              {data.staff.filter(s => s.type === 'Management' && s.is_enabled !== false).map((s, i) => (
                 <PerspectiveCard key={s.id} delay={i * 0.1}>
                   <div className="bg-school-paper/40 backdrop-blur-3xl p-10 rounded-[40px] flex flex-col h-full group border border-school-ink/10 shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
                     <div className="absolute top-6 right-6 px-4 py-2 bg-school-accent text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-sm">
@@ -68,7 +71,10 @@ const StaffPage = ({ data }: { data: AppData }) => {
                     </div>
                     <h4 className="text-2xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors break-words italic pt-4">{s.name}</h4>
                     <p className="text-[10px] uppercase font-black tracking-[0.15em] text-school-accent mb-6 border-b border-school-accent/20 pb-4 leading-relaxed">{s.role}</p>
-                    <p className="text-sm text-school-ink/60 font-medium leading-relaxed italic">{s.bio}</p>
+                    <div 
+                      className="text-sm text-school-ink/60 font-medium leading-relaxed italic prose prose-sm prose-slate max-w-none whitespace-pre-wrap shadow-none bg-transparent"
+                      dangerouslySetInnerHTML={{ __html: s.bio }}
+                    />
                   </div>
                 </PerspectiveCard>
               ))}
@@ -84,19 +90,22 @@ const StaffPage = ({ data }: { data: AppData }) => {
             
             {/* Senior Administration / Coordinators */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 mb-24">
-              {data.staff.filter(s => s.type === 'Administration' && s.role.includes('COORDINATOR')).map((s, i) => (
+              {data.staff.filter(s => s.type === 'Administration' && s.role.includes('COORDINATOR') && s.is_enabled !== false).map((s, i) => (
                 <PerspectiveCard key={s.id} delay={i * 0.1}>
                   <div className="bg-school-paper/40 backdrop-blur-3xl p-10 rounded-[40px] flex flex-col h-full group border border-school-ink/10 shadow-xl hover:shadow-2xl transition-all duration-500">
                     <h4 className="text-2xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors break-words italic">{s.name}</h4>
                     <p className="text-[10px] uppercase font-black tracking-[0.15em] text-school-accent mb-6 border-b border-school-accent/20 pb-4 leading-relaxed">{s.role}</p>
-                    <p className="text-sm text-school-ink/60 font-medium leading-relaxed italic">{s.bio}</p>
+                    <div 
+                      className="text-sm text-school-ink/60 font-medium leading-relaxed italic prose prose-sm prose-slate max-w-none whitespace-pre-wrap shadow-none bg-transparent"
+                      dangerouslySetInnerHTML={{ __html: s.bio }}
+                    />
                   </div>
                 </PerspectiveCard>
               ))}
             </div>
 
             {/* Support Administration Staff */}
-            {renderTable(data.staff.filter(s => s.type === 'Administration' && !s.role.includes('COORDINATOR')), 'Office Administrative Staff')}
+            {renderTable(data.staff.filter(s => s.type === 'Administration' && !s.role.includes('COORDINATOR') && s.is_enabled !== false), 'Office Administrative Staff')}
           </div>
 
           {/* Faculty Groups (Tables) */}
@@ -106,9 +115,9 @@ const StaffPage = ({ data }: { data: AppData }) => {
               <div className="flex-1 h-px bg-school-ink/10"></div>
             </div>
             
-            {renderTable(data.staff.filter(s => s.type === 'Faculty' && s.role === 'PGT'), 'Post Graduate Teachers (PGT)')}
-            {renderTable(data.staff.filter(s => s.type === 'Faculty' && s.role === 'TGT'), 'Trained Graduate Teachers (TGT)')}
-            {renderTable(data.staff.filter(s => s.type === 'Faculty' && s.role === 'PRT'), 'Primary Teachers (PRT)')}
+            {renderTable(data.staff.filter(s => s.type === 'Faculty' && s.role === 'PGT' && s.is_enabled !== false), 'Post Graduate Teachers (PGT)')}
+            {renderTable(data.staff.filter(s => s.type === 'Faculty' && s.role === 'TGT' && s.is_enabled !== false), 'Trained Graduate Teachers (TGT)')}
+            {renderTable(data.staff.filter(s => s.type === 'Faculty' && s.role === 'PRT' && s.is_enabled !== false), 'Primary Teachers (PRT)')}
           </div>
         </div>
       </section>

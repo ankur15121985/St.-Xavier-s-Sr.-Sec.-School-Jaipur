@@ -4,7 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
   Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus,
-  Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink
+  Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink,
+  Type, Palette, Bold, Italic
 } from 'lucide-react';
 import { AppData } from '../types';
 import { useSupabase } from '../components/SupabaseProvider';
@@ -13,6 +14,7 @@ import { storageService } from '../lib/storageService';
 import { supabase } from '../supabaseClient';
 
 import SidebarLinks from '../components/layout/SidebarLinks';
+import RichTextEditor from '../components/ui/RichTextEditor';
 
 interface PendingGalleryItem {
   id: string;
@@ -25,9 +27,9 @@ interface PendingGalleryItem {
   status: 'pending' | 'uploading' | 'completed' | 'error';
 }
 
-const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) => void }) => {
+const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch<React.SetStateAction<AppData>> }) => {
   const { user, isAdmin, loading: authLoading, login, usernameLogin, logout } = useSupabase();
-  const [activeSection, setActiveSection] = useState<keyof AppData>('notices');
+  const [activeSection, setActiveSection] = useState<string>('notices');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [uploadingPath, setUploadingPath] = useState<string | null>(null);
   const isUploading = !!uploadingPath;
@@ -183,8 +185,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: (d: AppData) =
                 <option value="Commerce">Commerce</option>
                 <option value="Humanities">Humanities</option>
               </select>
-            ) : field === 'bio' || field === 'description' || field === 'content' || field === 'citation' ? (
-               <textarea value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium h-24 focus:ring-1 focus:ring-school-gold transition-all resize-none" />
+            ) : (['bio', 'description', 'content', 'message', 'text', 'remarks', 'citation'].includes(field as string)) ? (
+               <RichTextEditor value={item[field] ?? ''} onChange={(val) => handleUpdate(item.id, field as string, val, section)} label={field as string} />
             ) : (field.toLowerCase().includes('url') || field.toLowerCase().includes('image') || field.toLowerCase().includes('link') || field.toLowerCase().includes('file') || field.toLowerCase().includes('pdf') || field.toLowerCase().includes('attachment') || field === 'href' || field === 'src') ? (
               <div className="space-y-4">
                 <input value={item[field] ?? ''} onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all" />
@@ -232,7 +234,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 <option value="Annual Fee">Annual Fees (Quarters)</option>
                 <option value="Admission Fee">Admission Fee (One-time)</option>
               </select>
-            ) : field === 'isActive' || field === 'isPriority' ? (
+            ) : field === 'isActive' || field === 'isPriority' || field === 'is_enabled' ? (
               <button 
                 onClick={() => handleUpdate(item.id, field as string, !item[field], section)}
                 className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${item[field] ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20'}`}
@@ -359,114 +361,161 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
   const globalResults = getGlobalSearchResults();
 
   const handleUpdate = (id: string, field: string, value: any, section: keyof AppData) => {
-    // Optimization: Create a copy of the entire data object to avoid staleness in debounced saves
-    let currentData = { ...data };
-
     if (section === 'settings') {
-      const updatedSettings = { ...data.settings, [field]: value };
-      currentData.settings = updatedSettings;
-      setData(currentData);
-      
-      const timerId = `save-settings`;
-      if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
-      (window as any)[timerId] = setTimeout(async () => {
-        setSavePending(true);
-        try {
-          await supabaseService.saveItem('settings', updatedSettings);
-          // Audit Log
+      setData(prev => {
+        const updatedSettings = { ...prev.settings, [field]: value };
+        
+        const timerId = `save-settings`;
+        if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+        (window as any)[timerId] = setTimeout(async () => {
+          setSavePending(true);
           try {
-            await supabaseService.saveItem('logs', {
-              id: `log_set_${Date.now()}`,
-              user: user?.email || 'anonymous',
-              action: 'UPDATE_SETTINGS',
-              details: `Updated setting ${field} to ${value}`,
-              timestamp: new Date().toISOString()
-            });
-          } catch (logErr) {
-            console.warn('Failed to save audit log:', logErr);
+            await supabaseService.saveItem('settings', updatedSettings);
+            try {
+              await supabaseService.saveItem('logs', {
+                id: `log_set_${Date.now()}`,
+                user: user?.email || 'anonymous',
+                action: 'UPDATE_SETTINGS',
+                details: `Updated setting ${field} to ${value}`,
+                timestamp: new Date().toISOString()
+              });
+            } catch (logErr) {
+              console.warn('Failed to save audit log:', logErr);
+            }
+            showToast(`Settings (${field}) updated in Supabase`);
+          } catch (err: any) {
+            console.error('Settings sync failed:', err);
+            showToast(`Settings sync failed: ${err.message?.slice(0, 50)}`, 'error');
+          } finally {
+            setSavePending(false);
           }
-          showToast(`Settings (${field}) updated in Supabase`);
-        } catch (err: any) {
-          console.error('Settings sync failed:', err);
-          showToast(`Settings sync failed: ${err.message?.slice(0, 50)}`, 'error');
-        } finally {
-          setSavePending(false);
-        }
-      }, 1000);
+        }, 1000);
+
+        return { ...prev, settings: updatedSettings };
+      });
       return;
     }
 
     if (section === 'content') {
-      const updatedContent = { ...data.content, [field]: value };
-      currentData.content = updatedContent;
-      setData(currentData);
-      
-      const timerId = `save-content`;
-      if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
-      (window as any)[timerId] = setTimeout(async () => {
-        setSavePending(true);
-        try {
-          await supabaseService.saveItem('content', updatedContent);
-          // Audit Log
+      setData(prev => {
+        const updatedContent = { ...prev.content, [field]: value };
+        
+        const timerId = `save-content`;
+        if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+        (window as any)[timerId] = setTimeout(async () => {
+          setSavePending(true);
           try {
-            await supabaseService.saveItem('logs', {
-              id: `log_cont_${Date.now()}`,
-              user: user?.email || 'anonymous',
-              action: 'UPDATE_CONTENT',
-              details: `Updated narrative content for ${field}`,
-              timestamp: new Date().toISOString()
-            });
-          } catch (logErr) {
-            console.warn('Failed to save audit log:', logErr);
+            await supabaseService.saveItem('content', updatedContent);
+            try {
+              await supabaseService.saveItem('logs', {
+                id: `log_cont_${Date.now()}`,
+                user: user?.email || 'anonymous',
+                action: 'UPDATE_CONTENT',
+                details: `Updated narrative content for ${field}`,
+                timestamp: new Date().toISOString()
+              });
+            } catch (logErr) {
+              console.warn('Failed to save audit log:', logErr);
+            }
+            showToast('Content narrative synced to Supabase');
+          } catch (err: any) {
+            console.error('Content sync failed:', err);
+            showToast(`Content sync failed: ${err.message?.slice(0, 50)}`, 'error');
+          } finally {
+            setSavePending(false);
           }
-          showToast('Content narrative synced to Supabase');
-        } catch (err: any) {
-          console.error('Content sync failed:', err);
-          showToast(`Content sync failed: ${err.message?.slice(0, 50)}`, 'error');
-        } finally {
-          setSavePending(false);
-        }
-      }, 1000);
+        }, 1000);
+
+        return { ...prev, content: updatedContent };
+      });
       return;
     }
 
-    const updated = data[section] as any[];
-    const newItems = updated.map((item: any) =>
-      item.id === id ? { ...item, [field]: value } : item
-    );
-    setData({ ...data, [section]: newItems });
-    
-    // Auto-save logic with debounce
-    const timerId = `save-${section as string}-${id}`;
-    if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
-    (window as any)[timerId] = setTimeout(async () => {
-      const item = newItems.find((i: any) => i.id === id);
-      if (item) {
-        setSavePending(true);
-        try {
-          await supabaseService.saveItem(section, item);
-          // Audit Log (Debounced)
+    if (section === 'digital_campus') {
+      setData(prev => {
+        const updatedDC = { ...(prev.digital_campus || { id: 'current', title: 'Legacy in Motion', is_enabled: true }), [field]: value };
+        
+        const timerId = `save-digital-campus`;
+        if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+        (window as any)[timerId] = setTimeout(async () => {
+          setSavePending(true);
           try {
-            await supabaseService.saveItem('logs', {
-              id: `log_upd_${Date.now()}`,
-              user: user?.email || 'anonymous',
-              action: 'UPDATE_ITEM',
-              details: `Updated ${field} for item ${id} in ${section}`,
-              timestamp: new Date().toISOString()
-            });
-          } catch (logErr) {
-            console.warn('Failed to save audit log:', logErr);
+            await supabaseService.saveItem('digital_campus', updatedDC);
+            try {
+              await supabaseService.saveItem('logs', {
+                id: `log_dc_${Date.now()}`,
+                user: user?.email || 'anonymous',
+                action: 'UPDATE_DIGITAL_CAMPUS',
+                details: `Updated Digital Campus item: ${field}`,
+                timestamp: new Date().toISOString()
+              });
+            } catch (logErr) {
+              console.warn('Failed to save audit log:', logErr);
+            }
+            showToast('Digital Campus updated');
+          } catch (err: any) {
+            console.error('Digital Campus sync failed:', err);
+            showToast(`Sync failed: ${err.message?.slice(0, 50)}`, 'error');
+          } finally {
+            setSavePending(false);
           }
-          showToast(`Synced ${section} to Supabase`);
-        } catch (err: any) {
-          console.error('Sync failed:', err);
-          const msg = err.message.startsWith('{') ? JSON.parse(err.message).error : err.message;
-          showToast(`Sync failed: ${msg}`, 'error');
-        } finally {
-          setSavePending(false);
+        }, 1000);
+
+        return { ...prev, digital_campus: updatedDC };
+      });
+      return;
+    }
+
+    setData(prev => {
+      const currentItems = (prev[section] as any[]) || [];
+      let itemFound = false;
+      let newItems = currentItems.map((item: any) => {
+        if (item.id === id) {
+          itemFound = true;
+          return { ...item, [field]: value };
         }
+        return item;
+      });
+
+      if (!itemFound && (section === 'school_history' || section === 'lead_grace')) {
+        // Special singleton handling: if id doesn't exist, create it (usually 'main' or 'lg1')
+        newItems = [...currentItems, { id, [field]: value }];
       }
-    }, 1000);
+
+      const updatedItem = newItems.find((i: any) => i.id === id);
+
+      // Auto-save logic with debounce
+      const timerId = `save-${section as string}-${id}`;
+      if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+      (window as any)[timerId] = setTimeout(async () => {
+        if (updatedItem) {
+          setSavePending(true);
+          try {
+            await supabaseService.saveItem(section, updatedItem);
+            try {
+              await supabaseService.saveItem('logs', {
+                id: `log_upd_${Date.now()}`,
+                user: user?.email || 'anonymous',
+                action: 'UPDATE_ITEM',
+                details: `Updated ${field} for item ${id} in ${section}`,
+                timestamp: new Date().toISOString()
+              });
+            } catch (logErr) {
+              console.warn('Failed to save audit log:', logErr);
+            }
+            showToast(`Synced ${section} to Supabase`);
+          } catch (err: any) {
+            console.error('Sync failed:', err);
+            const msg = err.message.startsWith('{') ? JSON.parse(err.message).error : err.message;
+            showToast(`Sync failed: ${msg}`, 'error');
+          } finally {
+            setSavePending(false);
+          }
+        }
+      }, 1000);
+
+      return { ...prev, [section]: newItems };
+    });
   };
 
   const handleBulkUpdate = async () => {
@@ -479,13 +528,13 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       selectedIds.has(item.id) ? { ...item, [bulkEditField]: bulkEditValue } : item
     );
 
-    setData({ ...data, [activeSection]: updatedSection });
+    setData(prev => ({ ...prev, [activeSection]: updatedSection }));
     setSavePending(true);
     
     try {
       const itemsToUpdate = updatedSection.filter(item => selectedIds.has(item.id));
       for (const item of itemsToUpdate) {
-        await supabaseService.saveItem(activeSection, item);
+        await supabaseService.saveItem(activeSection as any, item);
       }
       showToast(`Bulk updated ${selectedIds.size} items in ${activeSection}`);
     } catch (err: any) {
@@ -506,7 +555,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     setSavePending(true);
     try {
       for (const id of idList) {
-        await supabaseService.deleteItem(activeSection, id);
+        await supabaseService.deleteItem(activeSection as any, id);
       }
 
       // Audit Log for deletion
@@ -523,13 +572,16 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       }
       
       showToast(`Successfully deleted from ${activeSection as string}`);
-      const current = data[activeSection];
-      if (Array.isArray(current)) {
-        setData({ 
-          ...data, 
-          [activeSection]: current.filter((i: any) => !idList.includes(i.id)) 
-        });
-      }
+      setData(prev => {
+        const current = prev[activeSection];
+        if (Array.isArray(current)) {
+          return { 
+            ...prev, 
+            [activeSection]: current.filter((i: any) => !idList.includes(i.id)) 
+          };
+        }
+        return prev;
+      });
       setItemToDelete(null);
       setSelectedIds(new Set());
     } catch (err: any) {
@@ -678,7 +730,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
 
     setSavePending(true);
     try {
-      await supabaseService.saveItem(activeSection, newItem);
+      await supabaseService.saveItem(activeSection as any, newItem);
       // Audit Log
       try {
         await supabaseService.saveItem('logs', {
@@ -692,10 +744,13 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         console.warn('Failed to save audit log:', logErr);
       }
       
-      const current = data[activeSection];
-      if (Array.isArray(current)) {
-        setData({ ...data, [activeSection]: [newItem, ...current] });
-      }
+      setData(prev => {
+        const current = prev[activeSection];
+        if (Array.isArray(current)) {
+          return { ...prev, [activeSection]: [newItem, ...current] };
+        }
+        return prev;
+      });
       showToast('Item added and synced to cloud');
     } catch (err: any) {
       const msg = err.message.startsWith('{') ? JSON.parse(err.message).error : err.message;
@@ -942,7 +997,9 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'messages', label: 'Inquiries', icon: <Mail size={18} className="text-school-accent" /> },
     { id: 'navigation_menu', label: 'Menu', icon: <Menu size={18} /> },
     { id: 'useful_links', label: 'Resource Links', icon: <ExternalLink size={18} className="text-school-accent" /> },
+    { id: 'digital_campus', label: 'Digital Campus', icon: <Maximize2 size={18} className="text-school-neon" /> },
     { id: 'custom_content', label: 'Insights Content', icon: <FileText size={18} className="text-school-gold" /> },
+    { id: 'lead_grace', label: 'Lead Grace', icon: <Award size={18} className="text-school-neon" /> },
     { id: 'former_principals', label: 'Principals History', icon: <Award size={18} className="text-school-accent" /> },
     { id: 'former_rectors', label: 'Rectors History', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'former_managers', label: 'Managers History', icon: <Award size={18} className="text-school-neon" /> },
@@ -952,6 +1009,8 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'admins', label: 'Admin Accounts', icon: <Key size={18} className="text-school-neon" /> },
     { id: 'logs', label: 'Audit Logs', icon: <FileText size={18} className="text-school-ink opacity-50" /> },
     { id: 'content', label: 'Site Content', icon: <LayoutGrid size={18} className="text-school-neon" /> },
+    { id: 'about', label: 'About Text', icon: <FileText size={18} className="text-school-accent" /> },
+    { id: 'school_history', label: 'School History', icon: <FileText size={18} className="text-school-gold" /> },
     { id: 'settings', label: 'Global Settings', icon: <Settings size={18} className="text-school-gold" /> }
   ];
 
@@ -1482,7 +1541,182 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
               )}
             </div>
           )}
-          {activeSection === 'settings' ? (
+          {activeSection === 'about' ? (
+              <div className="space-y-12">
+                <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl relative overflow-hidden">
+                  <div className="relative z-10">
+                    <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4">About Section Narrative</h2>
+                    <p className="text-sm text-white/40 leading-relaxed font-light max-w-xl">Customize the primary "About St. Xavier's School" title and story displayed on the homepage.</p>
+                  </div>
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-school-accent opacity-5 rounded-full -mr-32 -mt-32 blur-[80px]" />
+                </div>
+
+                <div className="bg-white dark:bg-slate-900/50 p-10 rounded-[40px] border border-black/5 shadow-sm space-y-12">
+                  <div className="space-y-6">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Section Heading</label>
+                    <input 
+                      value={data.settings.aboutTitle || ''}
+                      onChange={(e) => handleUpdate('global', 'aboutTitle', e.target.value, 'settings')}
+                      placeholder="e.g. About St. Xavier's School"
+                      className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xl font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                    />
+                    <p className="text-[9px] text-school-ink/30 font-bold uppercase tracking-widest">This appears as the main bold title in the about section.</p>
+                  </div>
+
+                  <div className="space-y-6">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">The Narrative (Main Content)</label>
+                    <RichTextEditor 
+                      value={data.settings.aboutContent || ''}
+                      onChange={(val) => handleUpdate('global', 'aboutContent', val, 'settings')}
+                    />
+                    <p className="text-[9px] text-school-ink/30 font-bold uppercase tracking-widest">Rich text content describing the school's heritage and mission.</p>
+                  </div>
+                </div>
+              </div>
+          ) : activeSection === 'school_history' ? (
+              <div className="space-y-12">
+                <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl relative overflow-hidden">
+                  <div className="relative z-10">
+                    <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4">School History Narrative</h2>
+                    <p className="text-sm text-white/40 leading-relaxed font-light max-w-xl">Customize the heading and historical content for the School History page.</p>
+                  </div>
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-school-gold opacity-5 rounded-full -mr-32 -mt-32 blur-[80px]" />
+                </div>
+
+                <div className="bg-white dark:bg-slate-900/50 p-10 rounded-[40px] border border-black/5 shadow-sm space-y-12">
+                  <div className="space-y-6">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Page Heading</label>
+                    <input 
+                      value={data.school_history?.[0]?.title || ''}
+                      onChange={(e) => handleUpdate('main', 'title', e.target.value, 'school_history')}
+                      placeholder="e.g. Our Illustrious History"
+                      className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xl font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                    />
+                    <p className="text-[9px] text-school-ink/30 font-bold uppercase tracking-widest">This appears as the main title on the history page.</p>
+                  </div>
+
+                  <div className="space-y-6">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Detailed History (Main Content)</label>
+                    <RichTextEditor 
+                      value={data.school_history?.[0]?.content || ''}
+                      onChange={(val) => handleUpdate('main', 'content', val, 'school_history')}
+                    />
+                    <p className="text-[9px] text-school-ink/30 font-bold uppercase tracking-widest">The comprehensive story of the school since its inception.</p>
+                  </div>
+                </div>
+              </div>
+          ) : activeSection === 'lead_grace' ? (
+              <div className="space-y-12">
+                <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl relative overflow-hidden">
+                  <div className="relative z-10">
+                    <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4">Lead Grace Narrative</h2>
+                    <p className="text-sm text-white/40 leading-relaxed font-light max-w-xl">Manage the heading, biographical content, and portrait for the Lead Grace section.</p>
+                  </div>
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-school-neon opacity-5 rounded-full -mr-32 -mt-32 blur-[80px]" />
+                </div>
+
+                <div className="bg-white dark:bg-slate-900/50 p-10 rounded-[40px] border border-black/5 shadow-sm space-y-12">
+                  <div className="grid md:grid-cols-2 gap-12">
+                    <div className="space-y-6">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Inspirational Heading</label>
+                      <input 
+                        value={data.lead_grace?.[0]?.heading || ''}
+                        onChange={(e) => handleUpdate('lg1', 'heading', e.target.value, 'lead_grace')}
+                        placeholder="e.g. Lead with Grace"
+                        className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xl font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                      />
+                    </div>
+                    
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Portrait Image URL</label>
+                        <label className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
+                          {uploadingPath === 'lead_grace-lg1-image_url' ? 'Uploading...' : 'Upload Image'}
+                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'lg1', 'image_url', 'lead_grace')} disabled={!!uploadingPath} />
+                        </label>
+                      </div>
+                      <input 
+                        value={data.lead_grace?.[0]?.image_url || ''}
+                        onChange={(e) => handleUpdate('lg1', 'image_url', e.target.value, 'lead_grace')}
+                        className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                        placeholder="Image URL..."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">The Discourse (Detailed Content)</label>
+                    <RichTextEditor 
+                      value={data.lead_grace?.[0]?.content || ''}
+                      onChange={(val) => handleUpdate('lg1', 'content', val, 'lead_grace')}
+                    />
+                    <p className="text-[9px] text-school-ink/30 font-bold uppercase tracking-widest">Main message or profile content for the Lead Grace page.</p>
+                  </div>
+                </div>
+              </div>
+          ) : activeSection === 'digital_campus' ? (
+              <div className="space-y-12">
+                <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl relative overflow-hidden">
+                  <div className="relative z-10">
+                    <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4">Digital Campus Experience</h2>
+                    <p className="text-sm text-white/40 leading-relaxed font-light max-w-xl">Manage the 3D campus model, title, and visibility status.</p>
+                  </div>
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-school-accent opacity-5 rounded-full -mr-32 -mt-32 blur-[80px]" />
+                </div>
+
+                <div className="bg-white p-10 rounded-[40px] border border-black/5 shadow-sm space-y-12">
+                  <div className="grid md:grid-cols-2 gap-12">
+                    <div className="space-y-6">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Section Title</label>
+                      <input 
+                        value={data.digital_campus?.title || 'Legacy in Motion'}
+                        onChange={(e) => handleUpdate('current', 'title', e.target.value, 'digital_campus')}
+                        className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xl font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                      />
+                    </div>
+                    
+                    <div className="space-y-6">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">3D Interaction Status</label>
+                      <div className="flex items-center gap-4">
+                        <button 
+                          onClick={() => handleUpdate('current', 'is_enabled', !data.digital_campus?.is_enabled, 'digital_campus')}
+                          className={`w-20 h-10 rounded-full relative transition-all ${data.digital_campus?.is_enabled ? 'bg-school-accent' : 'bg-school-ink/10'}`}
+                        >
+                          <motion.div 
+                            animate={{ x: data.digital_campus?.is_enabled ? 44 : 4 }}
+                            className="w-8 h-8 rounded-full bg-white shadow-lg absolute top-1 left-0"
+                          />
+                        </button>
+                        <span className="text-xs font-black text-school-ink uppercase tracking-widest">
+                          {data.digital_campus?.is_enabled ? 'Active' : 'Disabled'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6 pt-12 border-t border-school-ink/5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">3D Model File (OBJ/GLB)</label>
+                      <label className="px-6 py-2 bg-school-gold text-school-navy rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/90 transition-all shadow-lg active:scale-95">
+                        {uploadingPath === 'digital_campus-current-model_url' ? 'Uploading Model...' : 'Upload 3D Asset'}
+                        <input type="file" className="hidden" accept=".obj,.glb" onChange={(e) => handleFileUpload(e, 'current', 'model_url', 'digital_campus')} disabled={!!uploadingPath} />
+                      </label>
+                    </div>
+                    <input 
+                      value={data.digital_campus?.model_url || ''}
+                      onChange={(e) => {
+                        const updated = { ...(data.digital_campus || { id: 'current', title: 'Legacy in Motion', is_enabled: true }), model_url: e.target.value };
+                        setData({ ...data, digital_campus: updated });
+                        handleUpdate('current', 'model_url', e.target.value, 'digital_campus');
+                      }}
+                      className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                      placeholder="Public URL to the .glb or .obj file"
+                    />
+                    <p className="text-[9px] text-school-ink/30 font-bold uppercase tracking-widest">Current Support: GLB (Recommended) or OBJ files.</p>
+                  </div>
+                </div>
+              </div>
+          ) : activeSection === 'settings' ? (
             <div className="bg-school-paper p-10 rounded-[40px] shadow-2xl border border-school-ink/10 space-y-12">
                <div>
                  <h2 className="text-3xl font-serif font-black text-school-navy italic tracking-tight mb-4">Global Site Settings</h2>
@@ -1651,6 +1885,38 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                     )}
                   </div>
 
+                  <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight mb-8 mt-16 pt-16 border-t border-school-ink/5">Homepage Section Visibility</h2>
+                  <p className="text-xs text-school-navy/60 mb-10 max-w-xl">Toggle which major sections appear on the homepage. Changes reflect instantly upon saving.</p>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {[
+                      { key: 'showCarousel', label: 'Main Carousel' },
+                      { key: 'showMarquee', label: 'Scrolling Marquee' },
+                      { key: 'showAbout', label: 'About Narrative' },
+                      { key: 'showFeature', label: 'Feature Banner' },
+                      { key: 'showVision', label: 'Mission & Vision' },
+                      { key: 'showInsights', label: 'Insights Section' },
+                      { key: 'showPrincipalMessage', label: 'Principal Message' },
+                      { key: 'showDistinction', label: 'Distinction Badges' },
+                      { key: 'showGallery', label: 'Photo Gallery' },
+                      { key: 'showLeadership', label: 'Current Leadership' },
+                      { key: 'showHonors', label: 'Student Honors' }
+                    ].map((section) => (
+                      <div key={section.key} className="bg-white p-6 rounded-3xl border border-school-ink/5 shadow-sm flex items-center justify-between group hover:border-school-gold/30 transition-all">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/70">{section.label}</span>
+                        <button 
+                          onClick={() => handleUpdate('global', section.key, !data.settings[section.key as keyof typeof data.settings], 'settings')}
+                          className={`w-12 h-6 rounded-full relative transition-all ${data.settings[section.key as keyof typeof data.settings] ? 'bg-emerald-500' : 'bg-school-ink/10'}`}
+                        >
+                          <motion.div 
+                            animate={{ x: data.settings[section.key as keyof typeof data.settings] ? 26 : 2 }}
+                            className="w-4 h-4 rounded-full bg-white shadow-md absolute top-1 left-0"
+                          />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
                   <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight mb-8 mt-16 pt-16 border-t border-school-ink/5">Institutional Popup Notice</h2>
                   <div className="grid md:grid-cols-2 gap-12">
                     <div className="space-y-6">
@@ -1672,13 +1938,41 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                     </div>
                     <div className="space-y-6">
                       <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Message Content</label>
-                      <textarea 
+                      <RichTextEditor 
                         value={data.settings.popupMessage || ''}
-                        onChange={(e) => handleUpdate('global', 'popupMessage', e.target.value, 'settings')}
-                        placeholder="Enter the message that will pop up for all visitors..."
-                        className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all h-32 resize-none"
+                        onChange={(val) => handleUpdate('global', 'popupMessage', val, 'settings')}
                       />
                     </div>
+                  </div>
+
+                  <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight mb-8 mt-16 pt-16 border-t border-school-ink/5">Digital Section Visibility</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                     {[
+                       { key: 'showCarousel', label: 'Primary Carousel' },
+                       { key: 'showMarquee', label: 'News Marquee' },
+                       { key: 'showAbout', label: 'Front Introduction' },
+                       { key: 'showFeature', label: 'Modernity Feature' },
+                       { key: 'showVision', label: 'Motto & Vision' },
+                       { key: 'showInsights', label: 'Updates & Events' },
+                       { key: 'showPrincipalMessage', label: 'Editorial Message' },
+                       { key: 'showDistinction', label: 'Institutional Pillar' },
+                       { key: 'showGallery', label: 'Campus Gallery' },
+                       { key: 'showLeadership', label: 'Regency Personnel' },
+                       { key: 'showHonors', label: 'Student Triumphs' }
+                     ].map((item) => (
+                       <div key={item.key} className="bg-school-ink/5 p-6 rounded-3xl border border-school-ink/5 flex items-center justify-between">
+                         <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">{item.label}</span>
+                         <button 
+                           onClick={() => handleUpdate('global', item.key, !data.settings[item.key as keyof typeof data.settings], 'settings')}
+                           className={`w-14 h-8 rounded-full relative transition-all ${data.settings[item.key as keyof typeof data.settings] !== false ? 'bg-emerald-500' : 'bg-rose-500/20'}`}
+                         >
+                           <motion.div 
+                             animate={{ x: data.settings[item.key as keyof typeof data.settings] !== false ? 26 : 4 }}
+                             className="w-6 h-6 rounded-full bg-white shadow-md absolute top-1 left-0"
+                           />
+                         </button>
+                       </div>
+                     ))}
                   </div>
 
                 </div>
@@ -1712,10 +2006,15 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                               <button 
                                 onClick={() => {
                                   if (confirm(`Delete content key "${key}"?`)) {
-                                    const newContent = { ...data.content };
-                                    delete newContent[key];
-                                    setData({ ...data, content: newContent });
-                                    supabaseService.saveItem('content', { id: 'global', ...newContent }).catch(() => {});
+                                    setData(prev => {
+                                      const newContent = { ...prev.content };
+                                      delete newContent[key];
+                                      
+                                      // Side effect: save to supabase
+                                      supabaseService.saveItem('content', { id: 'global', ...newContent }).catch(() => {});
+                                      
+                                      return { ...prev, content: newContent };
+                                    });
                                   }
                                 }}
                                 className="text-red-500 opacity-0 group-hover:opacity-50 hover:opacity-100 transition-all text-[8px] font-black uppercase tracking-widest"
@@ -1740,11 +2039,10 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                               </label>
                             </div>
                           )}
-                          {data.content[key].length > 100 ? (
-                            <textarea 
+                          {data.content[key].length > 100 || key.toLowerCase().includes('description') || key.toLowerCase().includes('content') ? (
+                            <RichTextEditor 
                               value={data.content[key]}
-                              onChange={(e) => handleUpdate('global', key, e.target.value, 'content')}
-                              className="w-full bg-school-ink/5 border-none rounded-2xl p-6 text-sm font-medium text-school-ink focus:ring-2 focus:ring-school-gold/20 outline-none transition-all h-32 resize-none"
+                              onChange={(val) => handleUpdate('global', key, val, 'content')}
                             />
                           ) : (
                             <input 
@@ -1787,7 +2085,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
               </div>
             )
           ) : (
-            Array.isArray(data[activeSection]) && (data[activeSection] as any[]).map((item: any) => renderItemCard(item, activeSection))
+            Array.isArray(data[activeSection as keyof AppData]) && (data[activeSection as keyof AppData] as any[]).map((item: any) => renderItemCard(item, activeSection as keyof AppData))
           )}
         </div>
       </main>
