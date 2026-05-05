@@ -130,7 +130,7 @@ DECLARE
     tables_to_update TEXT[] := ARRAY[
         'notices', 'staff', 'gallery', 'links', 'events', 'achievements', 'studentHonors', 
         'navigation_menu', 'carousel', 'faqs', 'custom_content', 'former_leaders',
-        'former_principals', 'former_rectors', 'former_managers', 'student_leaders', 
+        'former_principals', 'former_rectors', 'former_managers', 'student_leaders', 'former_student_leaders', 
         'streamwise_toppers', 'xavierite_of_the_year', 'lead_grace'
     ];
 BEGIN

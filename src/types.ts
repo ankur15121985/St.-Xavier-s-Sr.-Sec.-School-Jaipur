@@ -130,6 +130,16 @@ export interface DigitalCampus {
   updated_at?: string;
 }
 
+export interface FormerStudentLeader {
+  id: string;
+  name: string;
+  role: 'Head Boy' | 'Head Girl';
+  academic_year: string;
+  image?: string;
+  order_index: number;
+  is_enabled?: boolean;
+}
+
 export interface AppData {
   notices: Notice[];
   staff: StaffMember[];
@@ -150,7 +160,7 @@ export interface AppData {
   former_principals: FormerLeader[];
   former_rectors: FormerLeader[];
   former_managers: FormerLeader[];
-  student_leaders: StudentLeader[];
+  former_student_leaders: FormerStudentLeader[];
   streamwise_toppers: StreamwiseTopper[];
   xavierite_of_the_year: XavieriteOfYear[];
   useful_links: QuickLink[];
@@ -162,6 +172,7 @@ export interface AppData {
   content: Record<string, string>;
   admins: AdminCredential[];
   logs: AuditLog[];
+  student_leaders?: any[]; // Keep for legacy but we will remove usage
 }
 
 export interface AdminCredential {

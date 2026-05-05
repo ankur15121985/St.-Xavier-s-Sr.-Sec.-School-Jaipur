@@ -48,6 +48,7 @@ import FormerPrincipalsPage from './pages/FormerPrincipalsPage';
 import StreamToppersPage from './pages/StreamToppersPage';
 import XavieriteOfTheYearPage from './pages/XavieriteOfTheYearPage';
 import LeadGracePage from './pages/LeadGracePage';
+import StudentLeadershipPage from './pages/StudentLeadershipPage';
 import ExplorePage from './pages/ExplorePage';
 import SitemapPage from './pages/SitemapPage';
 
@@ -275,6 +276,7 @@ export const DEFAULT_DATA: AppData = {
     { id: '2-8', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 6 },
     { id: '2-9', label: 'Xavierite of the Year', href: '/xavierite-of-the-year', parent_id: '2', order_index: 7 },
     { id: '2-10', label: 'Stream Toppers', href: '/stream-toppers', parent_id: '2', order_index: 8 },
+    { id: '2-11', label: 'Former Head Boy & Girls', href: '/former-student-leaders', parent_id: '2', order_index: 9 },
     { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
     { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
     { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
@@ -337,6 +339,10 @@ export const DEFAULT_DATA: AppData = {
     { id: 'm1', text: 'St. Xavier\'s School, Jaipur - A Legacy of Excellence since 1941.', link: '#', isActive: true, order_index: 0 },
     { id: 'm2', text: 'Admissions Open for Academic Session 2026-27. Apply now!', link: '/admission-policy', isActive: true, order_index: 1 },
   ],
+  former_student_leaders: [
+    { id: 'fsl1', name: 'Master Aryan Pareek', role: 'Head Boy', academic_year: '2023-24', order_index: 0 },
+    { id: 'fsl2', name: 'Miss Sarah Khan', role: 'Head Girl', academic_year: '2023-24', order_index: 1 },
+  ],
   transfer_certificates: [
     { id: 'tc1', admission_number: 'TC01', dob: '2026-04-27', student_name: 'Institutional Test Student', attachmentUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf' }
   ],
@@ -354,7 +360,6 @@ export const DEFAULT_DATA: AppData = {
     { id: 'm1', name: 'Fr. Joseph Kochupura, S.J.', tenure: '2005 - 2012', order_index: 1 },
     { id: 'm2', name: 'Fr. Glenn Menezes, S.J.', tenure: '2012 - 2018', order_index: 2 },
   ],
-  student_leaders: [],
   streamwise_toppers: [],
   xavierite_of_the_year: [],
   custom_content: [
@@ -625,6 +630,7 @@ export default function App() {
                 <Route path="/transfer-certificate" element={<PageTransition><TransferCertificatePage data={data} /></PageTransition>} />
                 <Route path="/stream-toppers" element={<PageTransition><StreamToppersPage data={data} /></PageTransition>} />
                 <Route path="/xavierite-of-the-year" element={<PageTransition><XavieriteOfTheYearPage data={data} /></PageTransition>} />
+                <Route path="/former-student-leaders" element={<PageTransition><StudentLeadershipPage data={data} /></PageTransition>} />
                 <Route path="/lead-grace" element={<PageTransition><LeadGracePage data={data} /></PageTransition>} />
                 <Route path="/explore" element={<PageTransition><ExplorePage data={data} /></PageTransition>} />
                 <Route path="/contact" element={<PageTransition><ContactPage data={data} /></PageTransition>} />
