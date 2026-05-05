@@ -93,12 +93,18 @@ export const supabaseService = {
         if (!supabase) throw new Error('Supabase client not initialized');
         
         if (section === 'content') {
+          // Optimization: When saving content, we use the 'key' as the primary identifier
           const contentUpserts = Object.entries(item)
             .filter(([k]) => k !== 'id')
-            .map(([key, value]) => ({ id: 'global', key, value: String(value) }));
+            .map(([key, value]) => ({ key, value: String(value) }));
+          
           if (contentUpserts.length > 0) {
-            const { error } = await supabase.from('content').upsert(contentUpserts);
-            if (error) throw error;
+            console.log(`[Supabase Content Upsert] Keys: ${contentUpserts.map(c => c.key).join(', ')}`);
+            const { error } = await supabase.from('content').upsert(contentUpserts, { onConflict: 'key' });
+            if (error) {
+              console.error(`[Supabase Content Failure] Code: ${error.code}, Message: ${error.message}`);
+              throw error;
+            }
           }
         } else {
           // Convert types for Supabase and STRIP deprecated fields
@@ -124,9 +130,16 @@ export const supabaseService = {
           let { error } = await supabase.from(section).upsert(sanitized);
           
           // Handle missing columns or stale cache gracefully by dynamic recursive stripping or retry
-          if (error && (error.code === 'PGRST204' || error.code === 'PGRST205' || error.code === '42703')) {
+          if (error && (error.code === 'PGRST204' || error.code === 'PGRST205' || error.code === '42703' || error.code === 'PGRST204')) {
             console.warn(`[Supabase Sync] Schema issue in ${section} (Code: ${error.code}), attempting recovery...`);
             
+            // If it's a missing relation (PGRST204), we can't strip fields, we must inform the user
+            if (error.code === 'PGRST204' || error.message.includes('relation "public.')) {
+               const tableMatch = error.message.match(/relation "public\.(.+?)"/i);
+               const tableName = tableMatch ? tableMatch[1] : section;
+               throw new Error(`Supabase Table '${tableName}' is missing. Please run the SQL setup script in your Supabase dashboard.`);
+            }
+
             let currentSanitized = { ...sanitized };
             let currentError = error;
             let retryCount = 0;
@@ -209,7 +222,8 @@ export const supabaseService = {
     try {
       // 1. Delete from Supabase
       try {
-        const { error } = await supabase.from(section).delete().eq('id', id);
+        const matchField = section === 'content' ? 'key' : 'id';
+        const { error } = await supabase.from(section).delete().eq(matchField, id);
         if (error) throw error;
         console.log(`[Supabase Sync] ${section} item deleted`);
       } catch (err: any) {

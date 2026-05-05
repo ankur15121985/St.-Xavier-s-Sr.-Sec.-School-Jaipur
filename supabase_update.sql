@@ -33,6 +33,18 @@ CREATE TABLE IF NOT EXISTS navigation_menu (
     "attachmentUrl" TEXT
 );
 
+CREATE TABLE IF NOT EXISTS former_leaders (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    role TEXT,
+    tenure TEXT,
+    image TEXT,
+    order_index INTEGER DEFAULT 0,
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true,
+    type TEXT DEFAULT 'Principal'
+);
+
 -- 2. Add missing columns to settings table
 DO $$
 BEGIN

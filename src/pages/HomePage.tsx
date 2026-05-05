@@ -95,7 +95,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                   )}
                 </h2>
                 <div 
-                  className="text-lg text-slate-700 font-medium leading-relaxed whitespace-pre-wrap prose prose-slate max-w-none shadow-none bg-transparent"
+                  className="text-lg text-slate-700 font-medium leading-relaxed whitespace-pre-wrap prose prose-slate max-w-none shadow-none bg-transparent line-clamp-4"
                   dangerouslySetInnerHTML={{ __html: data.settings?.aboutContent || data.content?.aboutDescription || 'Established in 1941, St. Xavier\'s School, Jaipur, is a premier Jesuit institution dedicated to the holistic development of its students.' }}
                 />
                 <div className="pt-4">
@@ -281,8 +281,10 @@ const HomePage = ({ data }: { data: AppData }) => {
                   {data.lead_grace?.[0]?.heading?.split(' ')[0] || 'Lead'} <br />
                   <span className="text-school-accent italic">{data.lead_grace?.[0]?.heading?.split(' ').slice(1).join(' ') || 'Grace.'}</span>
                 </h2>
-                <div className="space-y-8 text-slate-800 font-bold text-lg md:text-2xl leading-relaxed italic whitespace-pre-wrap prose prose-slate max-w-none shadow-none bg-transparent prose-p:my-4">
-                  <div dangerouslySetInnerHTML={{ __html: data.lead_grace?.[0]?.content || 'We cultivate individuals of character, resilient in spirit and enlightened in soul. Education is the journey of becoming.' }} />
+                <div className="space-y-8 text-slate-800 font-bold text-lg md:text-2xl leading-relaxed italic whitespace-pre-wrap max-w-none shadow-none bg-transparent">
+                  <div className="line-clamp-3">
+                    "We cultivate individuals of character, resilient in spirit and enlightened in soul. Education is the journey of becoming."
+                  </div>
                   <div className="pt-4 not-italic">
                      <Link to="/lead-grace" className="inline-flex items-center gap-3 px-8 py-3 bg-school-navy text-white rounded-full font-bold hover:bg-school-accent transition-all shadow-xl">
                        Read The Full Message <ArrowRight size={18} />
@@ -551,7 +553,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                   </div>
                   {s.bio && (
                     <div 
-                      className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-sm prose prose-slate prose-sm max-w-none shadow-none bg-transparent"
+                      className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-sm prose prose-slate prose-sm max-w-none shadow-none bg-transparent line-clamp-2"
                       dangerouslySetInnerHTML={{ __html: s.bio }}
                     />
                   )}

@@ -262,7 +262,24 @@ CREATE TABLE IF NOT EXISTS marquee (
     "attachmentUrl" TEXT
 );
 
--- LEADERSHIP HISTORY
+CREATE TABLE IF NOT EXISTS former_leaders (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    role TEXT,
+    tenure TEXT,
+    image TEXT,
+    order_index INTEGER DEFAULT 0,
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true,
+    type TEXT DEFAULT 'Principal'
+);
+
+-- Reset RLS for former_leaders
+ALTER TABLE former_leaders ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public Full Access" ON former_leaders;
+CREATE POLICY "Public Full Access" ON former_leaders FOR ALL TO public USING (true) WITH CHECK (true);
+GRANT ALL ON TABLE former_leaders TO anon, authenticated, postgres, service_role;
+
 CREATE TABLE IF NOT EXISTS former_principals (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);
 CREATE TABLE IF NOT EXISTS former_rectors (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);
 CREATE TABLE IF NOT EXISTS former_managers (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);

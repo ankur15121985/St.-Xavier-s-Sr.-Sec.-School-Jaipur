@@ -405,7 +405,8 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         (window as any)[timerId] = setTimeout(async () => {
           setSavePending(true);
           try {
-            await supabaseService.saveItem('content', updatedContent);
+            // Optimization: Only sync the specific key that changed
+            await supabaseService.saveItem('content', { [field]: value });
             try {
               await supabaseService.saveItem('logs', {
                 id: `log_cont_${Date.now()}`,
@@ -2010,8 +2011,8 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                                       const newContent = { ...prev.content };
                                       delete newContent[key];
                                       
-                                      // Side effect: save to supabase
-                                      supabaseService.saveItem('content', { id: 'global', ...newContent }).catch(() => {});
+                                      // Side effect: delete from supabase
+                                      supabaseService.deleteItem('content', key).catch(() => {});
                                       
                                       return { ...prev, content: newContent };
                                     });
