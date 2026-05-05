@@ -12,7 +12,7 @@ export interface FeeStructure {
   attachmentUrl?: string; 
 }
 export interface QuickLink { id: string; title: string; url: string; isPriority?: boolean; icon?: string; attachmentUrl?: string; noticeId?: string; is_enabled?: boolean; }
-export interface Event { id: string; title: string; date: string; time: string; location: string; attachmentUrl?: string; is_enabled?: boolean; }
+export interface Event { id: string; title: string; date: string; time: string; location: string; attachmentUrl?: string; is_enabled?: boolean; parsedDate?: Date; }
 export interface Achievement { id: string; title: string; year: string; description: string; attachmentUrl?: string; is_enabled?: boolean; }
 export interface TransferCertificate {
   id: string;

@@ -81,19 +81,19 @@ const PageTransition = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const DEFAULT_DATA: AppData = {
+export const DEFAULT_DATA: AppData = {
   notices: [
     { id: '1', title: 'Summer Holiday Closure Notice', content: 'Dear parents, In view of the summer holidays (from 18-05-2024 to 30-06-2024) the school will be closed. Students will report to school on 01-07-2024 @ 07:30 a.m. Principal SXS, C-Scheme', date: 'May 18, 2024 10:52 AM', category: 'Circular' },
     { id: '2', title: 'Class Timetable 6 to 12 (2026_27)', date: 'March 30, 2026 5:50 PM', category: 'Circular' },
     { id: '3', title: 'Revised Provisional List of Std. XI (2026-27)', date: 'March 30, 2026 5:49 PM', category: 'Circular' },
   ],
   staff: [
-    { id: '1', name: "FR. NELSON A. D'SILVA, SJ", role: 'MANAGER, TREASURER', bio: 'Appointed: 01-05-2021. Overseeing financial stewardship and institutional management.', image: 'https://picsum.photos/seed/nelson/400/400', type: 'Management' },
-    { id: '2', name: 'FR. M. AROCKIAM, SJ', role: 'PRINCIPAL', bio: 'Appointed: 01-07-2018. Leading the academic vision and spiritual growth of the institution.', image: 'https://picsum.photos/seed/arockiam/400/400', type: 'Management' },
-    { id: '3', name: 'FR. MADALAIMUTHU ANTHONIAPPAN, SJ ( Fr. BRITTO )', role: 'COORDINATOR ( MIDDLE SCHOOL )', bio: 'Appointed: 01-07-2024. Ensuring academic excellence and discipline in the middle school wing.', image: 'https://picsum.photos/seed/britto/400/400', type: 'Administration' },
-    { id: '4', name: 'SR. RUTH MARIAM, SCJM', role: 'COORDINATOR ( JUNIOR SCHOOL )', bio: 'Appointed: 01-04-2025. Dedicated to the holistic primary education and foundational growth.', image: 'https://picsum.photos/seed/ruth/400/400', type: 'Administration' },
-    { id: '5', name: 'MRS. KSHAMA SHARMA', role: 'COORDINATOR-ACADEMICS ( SENIOR SCHOOL )', bio: 'Appointed: 01-04-2002. Senior academic lead ensuring curriculum standards in senior secondary.', image: 'https://picsum.photos/seed/kshama/400/400', type: 'Administration' },
-    { id: '6', name: 'MR. ALEX THOMAS', role: 'COORDINATOR-ACTIVITIES ( SENIOR SCHOOL )', bio: 'Appointed: 01-08-1996. Overseeing extracurricular engagement and senior school activities.', image: 'https://picsum.photos/seed/alex/400/400', type: 'Administration' },
+    { id: '1', name: "FR. NELSON A. D'SILVA, SJ", role: 'MANAGER, TREASURER', bio: 'Appointed: 01-05-2021. Status: Confirmed. Full Time. Trained.', image: 'https://picsum.photos/seed/nelson/400/400', type: 'Management' },
+    { id: '2', name: 'FR. M. AROCKIAM, SJ', role: 'PRINCIPAL', bio: 'Appointed: 01-07-2018. Status: Confirmed. Full Time. Trained.', image: 'https://picsum.photos/seed/arockiam/400/400', type: 'Management' },
+    { id: '3', name: 'FR. MADALAIMUTHU ANTHONIAPPAN, SJ ( Fr. BRITTO )', role: 'COORDINATOR ( MIDDLE SCHOOL )', bio: 'Appointed: 01-07-2024. Status: Confirmed. Full Time. Trained.', image: 'https://picsum.photos/seed/britto/400/400', type: 'Administration' },
+    { id: '4', name: 'SR. RUTH MARIAM, SCJM', role: 'COORDINATOR ( JUNIOR SCHOOL )', bio: 'Appointed: 01-04-2025. Status: Confirmed. Full Time. Trained.', image: 'https://picsum.photos/seed/ruth/400/400', type: 'Administration' },
+    { id: '5', name: 'MRS. KSHAMA SHARMA', role: 'COORDINATOR-ACADEMICS ( SENIOR SCHOOL )', bio: 'Appointed: 01-04-2002. Status: Confirmed. Full Time. Trained.', image: 'https://picsum.photos/seed/kshama/400/400', type: 'Administration' },
+    { id: '6', name: 'MR. ALEX THOMAS', role: 'COORDINATOR-ACTIVITIES ( SENIOR SCHOOL )', bio: 'Appointed: 01-08-1996. Status: Confirmed. Full Time. Trained.', image: 'https://picsum.photos/seed/alex/400/400', type: 'Administration' },
     // PGT (7-25)
     { id: '7', name: 'ABHISHEK MATHUR', role: 'PGT', bio: 'Appointed: 01-07-2023. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '8', name: 'R. TRIVEDI', role: 'PGT', bio: 'Appointed: 01-07-1994. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
@@ -430,7 +430,7 @@ const DEFAULT_DATA: AppData = {
   }
 };
 
-const DataLoader = ({ children, data, setData, loading, setLoading }: { children: React.ReactNode, data: AppData, setData: (d: AppData) => void, loading: boolean, setLoading: (l: boolean) => void }) => {
+const DataLoader = ({ children, data, setData, loading, setLoading }: { children: React.ReactNode, data: AppData, setData: React.Dispatch<React.SetStateAction<AppData>>, loading: boolean, setLoading: (l: boolean) => void }) => {
   const { isAdmin, loading: authLoading } = useSupabase();
 
   useEffect(() => {
@@ -451,13 +451,19 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
           const merged = { ...DEFAULT_DATA };
           Object.keys(fetchedData).forEach(key => {
             const k = key as keyof AppData;
-            let val = fetchedData[k];
+            const val = fetchedData[k];
+            
             if (val) {
               if (Array.isArray(val)) {
-                if (val.length > 0) {
+                // IMPORTANT: Only overwrite if the fetched array actually has items,
+                // OR if it's a section where an empty list is a valid user-defined state
+                // (like messages or logs). For content tables, empty often means sync failure.
+                const isContentTable = ['staff', 'notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'marquee', 'popups'].includes(k);
+                
+                if (val.length > 0 || !isContentTable) {
                   if (k === 'navigation_menu') {
                     // Filter out deprecated or duplicate menu items
-                    val = (val as any[]).filter(m => 
+                    const filteredVal = (val as any[]).filter(m => 
                       m.label !== 'Staff Directory' && 
                       m.label !== 'Our Patron' && 
                       m.label !== 'School ANthem' &&
@@ -470,17 +476,17 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
                     
                     // Deduplicate by label to prevent key collisions even if IDs differ
                     const seenLabels = new Set();
-                    val = (val as any[]).filter(m => {
+                    const deduplicated = filteredVal.filter(m => {
                       if (seenLabels.has(m.label)) return false;
                       seenLabels.add(m.label);
                       return true;
                     });
 
-                    const fetchedIds = new Set((val as any[]).map(m => m.id));
+                    const fetchedIds = new Set(deduplicated.map(m => m.id));
                     const missing = DEFAULT_DATA.navigation_menu.filter(m => {
                       return !fetchedIds.has(m.id) && !seenLabels.has(m.label);
                     });
-                    merged[k] = [...(val as any[]), ...missing] as any;
+                    merged[k] = [...deduplicated, ...missing] as any;
                   } else {
                     merged[k] = val as any;
                   }
@@ -496,43 +502,28 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
             }
           });
           
-          if (fetchedData.navigation_menu?.length > 0 && isAdmin) {
-            const fetchedIds = new Set(fetchedData.navigation_menu.map((m: any) => m.id));
-            const missing = DEFAULT_DATA.navigation_menu.filter(m => !fetchedIds.has(m.id));
-            
-            if (missing.length > 0 && isAdmin) {
-              for (const item of missing) {
-                await supabaseService.saveItem('navigation_menu', item);
-              }
-              const refresh = await supabaseService.fetchAllData();
-              const latest = { ...DEFAULT_DATA };
-              if (refresh) {
-                Object.keys(refresh).forEach(k => {
-                  const key = k as keyof AppData;
-                  const val = refresh[key];
-                  if (val) {
-                    if (Array.isArray(val)) {
-                      if (val.length > 0) latest[key] = val as any;
-                    } else {
-                      latest[key] = val as any;
-                    }
-                  }
-                });
-              }
-              setData(latest);
-            } else {
-              setData(merged);
-            }
-          } else {
-            setData(merged);
-          }
+          setData(merged);
         } else if (isAdmin) {
           console.log('Fresh Supabase detected and user is admin. Starting seeding in background...');
           // Seed in background but don't block the UI
           supabaseService.syncAll(DEFAULT_DATA).then(async () => {
              console.log('[Seeding] Initial seed completed');
              const finalData = await supabaseService.fetchAllData();
-             if (finalData) setData({ ...DEFAULT_DATA, ...finalData } as AppData);
+             if (finalData) {
+               setData(prev => {
+                 const updated = { ...prev };
+                 Object.keys(finalData).forEach(key => {
+                   const k = key as keyof AppData;
+                   const val = finalData[k];
+                   if (Array.isArray(val) && val.length > 0) {
+                     updated[k] = val as any;
+                   } else if (val && typeof val === 'object' && !Array.isArray(val)) {
+                     updated[k] = { ...updated[k], ...val } as any;
+                   }
+                 });
+                 return updated;
+               });
+             }
           }).catch(e => console.error('[Seeding] Error:', e));
           
           setData(DEFAULT_DATA);

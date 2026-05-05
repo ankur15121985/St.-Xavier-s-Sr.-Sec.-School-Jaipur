@@ -67,12 +67,10 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, isOpen, onClose, title = 'Do
 
           {/* PDF Frame */}
           <div className="flex-1 bg-[#2b2b2b] relative group">
-            {/* Using embed or iframe with #toolbar=0 to minimize native controls if possible, but standard browser viewer is good */}
             <iframe
-              src={`${url}#toolbar=0&navpanes=0&scrollbar=1`}
+              src={`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`}
               className="w-full h-full border-none bg-white"
               title="PDF Viewer"
-              // Adding some transparency to the background of the iframe if supported by browser/PDF
             />
             
             {/* Loading state / Overlay for interaction hint */}

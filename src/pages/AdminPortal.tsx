@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
-  Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus,
+  Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, RefreshCw,
   Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink,
   Type, Palette, Bold, Italic
 } from 'lucide-react';
-import { AppData } from '../types';
+import { AppData, GalleryItem } from '../types';
+import { DEFAULT_DATA } from '../App';
 import { useSupabase } from '../components/SupabaseProvider';
 import { supabaseService } from '../lib/supabaseService';
 import { storageService } from '../lib/storageService';
@@ -15,6 +16,7 @@ import { supabase } from '../supabaseClient';
 
 import SidebarLinks from '../components/layout/SidebarLinks';
 import RichTextEditor from '../components/ui/RichTextEditor';
+import GalleryBulkUpload from '../components/admin/GalleryBulkUpload';
 
 interface PendingGalleryItem {
   id: string;
@@ -39,6 +41,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
   const [savePending, setSavePending] = useState(false);
   const [isBulkEditing, setIsBulkEditing] = useState(false);
+  const [isBulkGalleryOpen, setIsBulkGalleryOpen] = useState(false);
   const [bulkEditField, setBulkEditField] = useState<string>('');
   const [bulkEditValue, setBulkEditValue] = useState<string>('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -619,6 +622,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.bio = 'Staff biography goes here...';
       newItem.type = 'Faculty';
       newItem.image = 'https://picsum.photos/seed/new/400/400';
+      newItem.is_enabled = true;
     } else if (tableStr === 'gallery' || tableStr === 'carousel') {
       newItem.url = tableStr === 'gallery' 
         ? 'https://picsum.photos/seed/new_gallery/1200/800' 
@@ -797,17 +801,20 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     console.log(`[Upload] Starting upload for ${section}/${id}/${field} - File: ${file.name} (${file.size} bytes)`);
     setUploadingPath(`${section}-${id}-${field}`);
     
-    // Determine folder based on section display label
+    // Determine folder based on section
+    let folder = (section as string);
     const activeMenuSection = sections.find(s => s.id === section);
-    let folder = activeMenuSection ? activeMenuSection.label.replace(/\s+/g, '_') : (section as string);
     
-    // For the specific 'navigation_menu' section, use the label of the menu item as the folder
-    if (section === 'navigation_menu') {
+    if (section === 'settings' || id === 'global') {
+      folder = 'global';
+    } else if (section === 'navigation_menu') {
       const items = data[section] as any[];
       const item = items.find(i => i.id === id);
       if (item && item.label) {
-        folder = item.label.replace(/\s+/g, '_');
+        folder = item.label.replace(/\s+/g, '_').toLowerCase();
       }
+    } else if (activeMenuSection) {
+      folder = activeMenuSection.label.replace(/\s+/g, '_').toLowerCase();
     }
 
     try {
@@ -986,7 +993,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'popups', label: 'Popups', icon: <Maximize2 size={18} className="text-school-accent" /> },
     { id: 'marquee', label: 'Marquee', icon: <ChevronRight size={18} className="text-school-neon" /> },
     { id: 'events', label: 'Events', icon: <Calendar size={18} /> },
-    { id: 'staff', label: 'Faculty', icon: <Users2 size={18} /> },
+    { id: 'staff', label: 'Staff Management', icon: <Users2 size={18} /> },
     { id: 'carousel', label: 'Carousel', icon: <ImagePlus size={18} className="text-school-accent" /> },
     { id: 'gallery', label: 'Gallery', icon: <ImageIcon size={18} /> },
     { id: 'fees', label: 'Fees', icon: <CreditCard size={18} /> },
@@ -1335,6 +1342,14 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 />
               </label>
             )}
+            {activeSection === 'gallery' && (
+              <button 
+                onClick={() => setIsBulkGalleryOpen(!isBulkGalleryOpen)}
+                className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 ${isBulkGalleryOpen ? 'bg-school-navy text-white' : 'bg-school-gold text-school-navy'} rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none whitespace-nowrap`}
+              >
+                <UploadCloud size={16} /> Session-wise Bulk Sync
+              </button>
+            )}
             <button onClick={handleAdd} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none whitespace-nowrap">
               <Plus size={16} /> New Item
             </button>
@@ -1382,6 +1397,23 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
             </motion.div>
           )}
         </AnimatePresence>
+
+        {activeSection === 'gallery' && isBulkGalleryOpen && (
+          <div className="mb-16">
+            <GalleryBulkUpload 
+              currentSession={data.settings.currentSession || '2024-25'}
+              onCancel={() => setIsBulkGalleryOpen(false)}
+              onComplete={(newItems) => {
+                setData(prev => ({
+                  ...prev,
+                  gallery: [...newItems, ...prev.gallery]
+                }));
+                setIsBulkGalleryOpen(false);
+                showToast(`Successfully synchronized ${newItems.length} assets to active session`);
+              }}
+            />
+          </div>
+        )}
 
         <AnimatePresence>
           {activeSection === 'gallery' && pendingGalleryItems.length > 0 && (
@@ -1526,9 +1558,9 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
               </div>
               
               {data.settings.feesPdfUrl && (
-                <div className="aspect-[16/6] w-full bg-white rounded-3xl overflow-hidden shadow-inner border border-white/10 relative group bg-school-paper">
+                <div className="aspect-[16/10] w-full bg-white rounded-[40px] overflow-hidden shadow-2xl border border-white/10 relative group bg-school-paper">
                   <iframe 
-                    src={`${data.settings.feesPdfUrl}#toolbar=0`}
+                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(data.settings.feesPdfUrl)}&embedded=true`}
                     className="w-full h-full border-none"
                     title="Fee Documentation Preview"
                   />
@@ -1718,7 +1750,41 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 </div>
               </div>
           ) : activeSection === 'settings' ? (
-            <div className="bg-school-paper p-10 rounded-[40px] shadow-2xl border border-school-ink/10 space-y-12">
+            <div className="space-y-12">
+               <div className="bg-red-500/5 border border-red-500/10 rounded-[40px] p-10 space-y-8 mb-12">
+                 <div className="flex items-center gap-6">
+                   <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-2xl flex items-center justify-center">
+                     <AlertCircle size={32} />
+                   </div>
+                   <div>
+                     <h3 className="text-2xl font-serif font-black text-red-500 italic">Emergency Recovery Zone</h3>
+                     <p className="text-sm text-school-ink/60 font-light mt-1 max-w-xl">If data appears missing or corrupted (e.g. after a partial sync failure), you can re-synchronize all cloud tables with institutional defaults.</p>
+                   </div>
+                   <button 
+                       onClick={async () => {
+                         if (confirm('Are you sure you want to re-seed all tables with default data? Existing items will be updated, but not deleted.')) {
+                           try {
+                             setUploadingPath('reseed');
+                             await supabaseService.syncAll(DEFAULT_DATA);
+                             showToast('Database recovery sync completed!');
+                             window.location.reload();
+                           } catch (err: any) {
+                             showToast(`Recovery failed: ${err.message}`, 'error');
+                           } finally {
+                             setUploadingPath(null);
+                           }
+                         }
+                       }}
+                       disabled={!!uploadingPath}
+                       className="ml-auto px-10 py-5 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black transition-all flex items-center gap-3 shadow-xl disabled:opacity-50"
+                    >
+                       {uploadingPath === 'reseed' ? <Loader2 className="animate-spin" size={16} /> : <RefreshCw size={16} />}
+                       Trigger Recovery Sync
+                    </button>
+                 </div>
+               </div>
+
+               <div className="bg-school-paper p-10 rounded-[40px] shadow-2xl border border-school-ink/10 space-y-12">
                <div>
                  <h2 className="text-3xl font-serif font-black text-school-navy italic tracking-tight mb-4">Global Site Settings</h2>
                  <p className="text-sm text-school-navy/60 leading-relaxed font-light">Site-wide configurations, contact information, and main branding assets.</p>
@@ -1978,6 +2044,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
 
                 </div>
               </div>
+            </div>
           ) : activeSection === 'content' ? (
             <div className="space-y-12">
               <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl flex items-center justify-between">
@@ -2061,21 +2128,23 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
             </div>
           ) : searchQuery ? (
             globalResults.length > 0 ? (
-              globalResults.map(({ section, items }) => (
-                <div key={section} className="space-y-6">
-                  <div className="flex items-center gap-4 px-4">
-                    <div className="w-10 h-10 bg-school-gold/10 rounded-xl flex items-center justify-center text-school-gold">
-                      <LayoutGrid size={20} />
+              <div className="space-y-12">
+                {globalResults.map(({ section, items }) => (
+                  <div key={section} className="space-y-6">
+                    <div className="flex items-center gap-4 px-4">
+                      <div className="w-10 h-10 bg-school-gold/10 rounded-xl flex items-center justify-center text-school-gold">
+                        <LayoutGrid size={20} />
+                      </div>
+                      <h2 className="text-xl font-black text-school-ink uppercase tracking-widest">{section}</h2>
+                      <div className="h-px flex-1 bg-school-ink/5" />
+                      <span className="text-[10px] font-black text-school-ink/30 uppercase tracking-widest">{items.length} Matches</span>
                     </div>
-                    <h2 className="text-xl font-black text-school-ink uppercase tracking-widest">{section}</h2>
-                    <div className="h-px flex-1 bg-school-ink/5" />
-                    <span className="text-[10px] font-black text-school-ink/30 uppercase tracking-widest">{items.length} Matches</span>
+                    <div className="grid gap-6">
+                      {items.map(item => renderItemCard(item, section))}
+                    </div>
                   </div>
-                  <div className="grid gap-6">
-                    {items.map(item => renderItemCard(item, section))}
-                  </div>
-                </div>
-              ))
+                ))}
+              </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-24 text-center">
                 <div className="w-20 h-20 bg-school-ink/5 rounded-full flex items-center justify-center text-school-ink/20 mb-6">
@@ -2086,7 +2155,9 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
               </div>
             )
           ) : (
-            Array.isArray(data[activeSection as keyof AppData]) && (data[activeSection as keyof AppData] as any[]).map((item: any) => renderItemCard(item, activeSection as keyof AppData))
+            <div className="grid gap-6">
+              {Array.isArray(data[activeSection as keyof AppData]) && (data[activeSection as keyof AppData] as any[]).map((item: any) => renderItemCard(item, activeSection as keyof AppData))}
+            </div>
           )}
         </div>
       </main>

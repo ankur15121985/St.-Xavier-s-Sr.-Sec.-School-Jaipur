@@ -251,12 +251,41 @@ export const supabaseService = {
     const collections = Object.keys(data) as (keyof AppData)[];
     for (const section of collections) {
       const value = data[section];
+      
+      // Skip non-persistent or large system tables that shouldn't be bulk-synced
+      if (['logs', 'messages', 'admins'].includes(section)) continue;
+
       if (Array.isArray(value)) {
-        for (const item of value) {
-          await this.saveItem(section, item);
+        if (value.length === 0) continue;
+        
+        // Batch upsert for performance (limit to 50 at a time to avoid request size limits)
+        const CHUNK_SIZE = 50;
+        for (let i = 0; i < value.length; i += CHUNK_SIZE) {
+          const chunk = value.slice(i, i + CHUNK_SIZE);
+          const sanitizedChunk = chunk.map(item => {
+            const { isVital, is_vital, ...rest } = item as any;
+            return rest;
+          });
+          
+          const { error } = await supabase.from(section).upsert(sanitizedChunk);
+          if (error) {
+            console.warn(`[SyncAll] Error syncing chunk for ${section}:`, error.message);
+            if (error.code === 'PGRST204' || error.message.includes('relation "public.')) {
+               throw new Error(`Supabase Table '${section}' is missing. Please run the SQL setup script.`);
+            }
+          }
         }
-      } else if (value && typeof value === 'object') {
+      } else if (value && typeof value === 'object' && section !== 'content' && section !== 'digital_campus') {
+        // Handle single object tables (settings, etc)
         await this.saveItem(section, value);
+      } else if (section === 'digital_campus' && value && typeof value === 'object') {
+        await supabase.from('digital_campus').upsert(value);
+      } else if (section === 'content' && value && typeof value === 'object') {
+        // Handle the Key-Value content store
+        const contentEntries = Object.entries(value as Record<string, string>);
+        for (const [key, val] of contentEntries) {
+          await supabase.from('content').upsert({ key, value: val });
+        }
       }
     }
   },

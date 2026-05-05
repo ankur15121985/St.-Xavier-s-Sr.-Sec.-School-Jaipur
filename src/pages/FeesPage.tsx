@@ -106,41 +106,56 @@ const FeesPage = ({ data }: { data: AppData }) => {
           />
 
           {/* Integrated PDF Viewer Section */}
-          {(data.settings.feesPdfUrl || data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl) && (
-            <div className="mt-24 mb-16">
-              <div className="flex items-center gap-6 mb-12 group cursor-default">
-                <div className="h-[2px] bg-school-gold/30 flex-1 group-hover:bg-school-gold transition-colors"></div>
-                <h3 className="text-3xl font-serif font-black text-school-navy italic tracking-tight">Official Fee Documentation</h3>
-                <div className="h-[2px] bg-school-gold/30 flex-1 group-hover:bg-school-gold transition-colors"></div>
+          {(() => {
+            const pdfUrl = data.settings.feesPdfUrl || data.fees.find(f => f.attachmentUrl)?.attachmentUrl;
+            if (!pdfUrl) return null;
+
+            return (
+              <div className="mt-24 mb-16">
+                <div className="flex items-center gap-6 mb-12 group cursor-default">
+                  <div className="h-[2px] bg-school-gold/30 flex-1 group-hover:bg-school-gold transition-colors"></div>
+                  <h3 className="text-3xl font-serif font-black text-school-navy italic tracking-tight">Official Fee Documentation</h3>
+                  <div className="h-[2px] bg-school-gold/30 flex-1 group-hover:bg-school-gold transition-colors"></div>
+                </div>
+                
+                <div className="aspect-[16/10] w-full bg-school-navy rounded-[40px] overflow-hidden shadow-2xl border border-school-ink/10 relative group">
+                  <iframe 
+                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`} 
+                    className="w-full h-full border-none bg-white"
+                    title="Integrated Fee PDF"
+                  />
+                  <button 
+                    onClick={() => setActivePdf(pdfUrl)}
+                    className="absolute top-6 right-6 p-4 bg-school-gold text-school-navy rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95"
+                  >
+                    <Maximize2 size={24} />
+                  </button>
+                </div>
+                <div className="mt-6 flex justify-between items-center px-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-school-ink/30 italic">Synchronized with Institutional Registry</p>
+                  <div className="flex gap-6">
+                    <a 
+                       href={pdfUrl} 
+                       download
+                       className="text-[10px] font-black uppercase tracking-widest text-school-gold hover:text-school-navy transition-colors flex items-center gap-2"
+                    >
+                       <Download size={14} />
+                       Download PDF
+                    </a>
+                    <a 
+                      href={pdfUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-[10px] font-black uppercase tracking-widest text-school-gold hover:text-school-navy transition-colors flex items-center gap-2"
+                    >
+                      <FileText size={14} />
+                      Open in New Tab
+                    </a>
+                  </div>
+                </div>
               </div>
-              
-              <div className="aspect-[16/10] w-full bg-school-navy rounded-[40px] overflow-hidden shadow-2xl border border-school-ink/10 relative group">
-                <iframe 
-                   src={`${data.settings.feesPdfUrl || data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl}#toolbar=0`} 
-                  className="w-full h-full border-none bg-white"
-                  title="Integrated Fee PDF"
-                />
-                <button 
-                  onClick={() => setActivePdf(data.settings.feesPdfUrl || data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl)}
-                  className="absolute top-6 right-6 p-4 bg-school-gold text-school-navy rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95"
-                >
-                  <Maximize2 size={24} />
-                </button>
-              </div>
-              <div className="mt-6 flex justify-between items-center px-4">
-                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-school-ink/30 italic">Synchronized with Institutional Registry</p>
-                 <a 
-                   href={data.settings.feesPdfUrl || data.fees.find(f => f.attachmentUrl)?.attachmentUrl || data.settings.applyNowUrl} 
-                   target="_blank" 
-                   rel="noopener noreferrer"
-                   className="text-[10px] font-black uppercase tracking-widest text-school-gold hover:text-school-navy transition-colors flex items-center gap-2"
-                 >
-                   <FileText size={14} />
-                   Open in New Tab
-                 </a>
-              </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
 
         <PdfViewer 

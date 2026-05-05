@@ -181,10 +181,11 @@ const SchoolCalendar = ({ events }: SchoolCalendarProps) => {
     return parsedEvents.filter(e => isSameDay(e.parsedDate, selectedDate));
   }, [selectedDate, parsedEvents]);
 
-  const addToCalendar = (event: any) => {
+  const addToCalendar = (event: Event) => {
     const title = encodeURIComponent(event.title);
-    const details = encodeURIComponent(`School Event at ${event.location}`);
-    const location = encodeURIComponent(event.location);
+    const eventLocation = event.location || 'St. Xavier\'s School, Jaipur';
+    const details = encodeURIComponent(`School Event at ${eventLocation}`);
+    const location = encodeURIComponent(eventLocation);
     
     // Use the already parsed date
     let eventDate: Date;
@@ -262,7 +263,7 @@ const SchoolCalendar = ({ events }: SchoolCalendarProps) => {
                           </div>
                           <div className="flex items-center gap-3 text-school-ink/60 text-sm font-medium">
                             <MapPin size={16} className="text-school-gold" />
-                            <span>{event.location}</span>
+                            <span>{event.location || 'Main Campus'}</span>
                           </div>
                         </div>
                         <button 
