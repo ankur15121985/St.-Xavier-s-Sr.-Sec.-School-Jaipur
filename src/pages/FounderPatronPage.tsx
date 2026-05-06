@@ -23,11 +23,11 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
               transition={{ duration: 1 }}
               className="max-w-4xl"
             >
-              <div className="w-12 md:w-20 h-1.5 bg-school-gold mx-auto mb-8 rounded-full shadow-[0_0_20px_rgba(255,0,146,0.5)]"></div>
-              <h1 className="text-5xl sm:text-6xl md:text-8xl font-serif font-black text-white tracking-tighter mb-6 italic leading-none drop-shadow-2xl">
-                Our Founder <span className="text-school-gold">&</span> <br className="hidden sm:block" /> Patron
+              <div className="w-12 md:w-20 h-1.5 bg-school-gold mx-auto mb-10 rounded-full shadow-[0_0_20px_rgba(226,180,80,0.4)]"></div>
+              <h1 className="text-5xl sm:text-6xl md:text-8xl font-serif font-black text-white tracking-tight mb-8 italic leading-[1.1] drop-shadow-2xl">
+                Our Founder <span className="text-school-gold">&</span> Patron
               </h1>
-              <p className="text-white/90 bg-school-gold/20 backdrop-blur-sm border border-white/10 px-6 py-2 rounded-full inline-block text-xs sm:text-base md:text-lg font-black tracking-[0.2em] uppercase leading-relaxed mx-auto">
+              <p className="text-white/90 bg-school-navy/40 backdrop-blur-md border border-white/20 px-8 py-3 rounded-full inline-block text-xs sm:text-base md:text-lg font-bold tracking-[0.3em] uppercase leading-relaxed mx-auto shadow-xl">
                 The Pillars of the Society of Jesus
               </p>
             </motion.div>

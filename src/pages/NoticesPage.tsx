@@ -7,7 +7,7 @@ import { Bell, ArrowRight } from 'lucide-react';
 const NoticesPage = ({ data }: { data: AppData }) => {
   return (
     <Layout data={data}>
-      <section className="pt-48 pb-40 bg-school-paper min-h-screen">
+      <section className="pt-10 pb-40 bg-school-paper min-h-screen">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-24">
            <h2 className="text-7xl font-serif font-black text-school-ink mb-8">Official <span className="text-school-gold italic">Announcements.</span></h2>
            <p className="text-xl text-school-ink/50 font-light max-w-2xl">Digital circulars, examination updates, and administrative bulletins.</p>

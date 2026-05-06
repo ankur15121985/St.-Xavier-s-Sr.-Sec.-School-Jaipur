@@ -333,6 +333,9 @@ BEGIN
             USING (true) 
             WITH CHECK (true)
         ', t_name);
+        
+        -- Grant permissions
+        EXECUTE format('GRANT ALL ON TABLE %I TO anon, authenticated, postgres, service_role', t_name);
     END LOOP;
 
     -- Handle case-sensitive table if it persists

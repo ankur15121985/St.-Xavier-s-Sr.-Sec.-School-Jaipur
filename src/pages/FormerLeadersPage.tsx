@@ -27,7 +27,7 @@ const FormerLeadersPage = ({ data, type, title, description }: Props) => {
     <Layout data={data}>
       <div className="bg-school-paper min-h-screen selection:bg-school-gold/30">
         {/* Banner Section - Editorial Style */}
-        <section className="pt-32 pb-20 px-6 overflow-hidden relative">
+        <section className="pt-24 pb-12 px-6 overflow-hidden relative">
           <div className="absolute top-10 left-10 text-[12vw] font-black text-school-ink/[0.03] select-none pointer-events-none uppercase">
             Legacy
           </div>
@@ -59,7 +59,7 @@ const FormerLeadersPage = ({ data, type, title, description }: Props) => {
             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-school-ink/5 hidden md:block"></div>
 
             {leaders.length > 0 ? (
-              <div className="space-y-12 md:space-y-0">
+              <div className="space-y-4 md:space-y-0">
                 {leaders.map((leader, i) => (
                   <motion.div
                     key={leader.id}
@@ -67,15 +67,15 @@ const FormerLeadersPage = ({ data, type, title, description }: Props) => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.2 }}
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className={`flex flex-col md:flex-row items-center gap-8 md:gap-24 ${
+                    className={`flex flex-col md:flex-row items-center gap-6 md:gap-12 ${
                       i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
-                    } md:min-h-[300px]`}
+                    } md:min-h-[140px]`}
                   >
                     {/* Content Side */}
                     <div className="flex-1 w-full text-center">
                       <div className="space-y-4 max-w-2xl mx-auto">
                         <span className="text-school-gold font-serif italic text-2xl opacity-40">#{String(i + 1).padStart(2, '0')}</span>
-                        <h3 className="text-4xl md:text-6xl font-serif text-school-ink leading-tight hover:text-school-gold transition-colors duration-500 cursor-default">
+                        <h3 className="text-3xl md:text-5xl font-serif text-school-ink leading-tight hover:text-school-gold transition-colors duration-500 cursor-default">
                           {leader.name}
                         </h3>
                         <div className="flex items-center gap-3 w-fit mx-auto bg-green-50/50 px-6 py-3 rounded-2xl border border-school-gold/20 shadow-sm backdrop-blur-sm">

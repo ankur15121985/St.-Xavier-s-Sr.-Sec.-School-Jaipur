@@ -152,6 +152,30 @@ CREATE TABLE IF NOT EXISTS school_history (
     updated_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- Ensure former_student_leaders has all columns
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'former_student_leaders') THEN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'former_student_leaders' AND column_name = 'attachmentUrl') THEN
+            ALTER TABLE former_student_leaders ADD COLUMN "attachmentUrl" TEXT;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'former_student_leaders' AND column_name = 'order_index') THEN
+            ALTER TABLE former_student_leaders ADD COLUMN order_index INTEGER DEFAULT 0;
+        END IF;
+    ELSE
+        CREATE TABLE former_student_leaders (
+            id TEXT PRIMARY KEY, 
+            name TEXT, 
+            role TEXT, 
+            academic_year TEXT, 
+            image TEXT, 
+            order_index INTEGER DEFAULT 0, 
+            "attachmentUrl" TEXT, 
+            is_enabled BOOLEAN DEFAULT true
+        );
+    END IF;
+END $$;
+
 -- digital_campus table
 CREATE TABLE IF NOT EXISTS digital_campus (
     id TEXT PRIMARY KEY DEFAULT 'current',
@@ -191,6 +215,9 @@ BEGIN
             USING (true) 
             WITH CHECK (true)
         ', t_name);
+        
+        -- Grant permissions
+        EXECUTE format('GRANT ALL ON TABLE %I TO anon, authenticated, postgres, service_role', t_name);
     END LOOP;
 
     -- Handle studentHonors explicitly due to case sensitivity in some environments

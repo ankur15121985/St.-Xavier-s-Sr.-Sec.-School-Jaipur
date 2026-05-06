@@ -7,7 +7,7 @@ import { BookOpen, Award, ShieldAlert, GraduationCap, Users, Clock, CheckCircle2
 const JesuitEducationPage = ({ data }: { data: AppData }) => {
   return (
     <Layout data={data}>
-      <div className="pt-32 bg-school-paper min-h-screen">
+      <div className="bg-school-paper min-h-screen">
         {/* Hero Section */}
         <section className="py-20 bg-school-navy relative overflow-hidden">
           <div className="absolute inset-0">

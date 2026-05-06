@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import Layout from '../components/layout/Layout';
 import { AppData, StreamwiseTopper } from '../types';
-import { Award, Star, BookOpen, Calculator, Globe } from 'lucide-react';
+import { Award, BookOpen, Calculator, Globe } from 'lucide-react';
 
 const StreamToppersPage = ({ data }: { data: AppData }) => {
   const enabledToppers = data.streamwise_toppers.filter(t => t.is_enabled !== false);
@@ -25,9 +25,9 @@ const StreamToppersPage = ({ data }: { data: AppData }) => {
         </div>
 
         {/* Score Badge */}
-        <div className="relative mb-8 pt-4">
-          <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-school-navy/5 border-2 border-dashed border-school-gold/30 flex items-center justify-center relative z-10 group-hover:bg-school-gold transition-all duration-500">
-            <Star size={40} className="text-school-gold group-hover:text-white transition-colors" />
+        <div className="relative mb-6">
+          <div className="w-20 h-20 rounded-full bg-school-navy/5 border-2 border-dashed border-school-gold/30 flex items-center justify-center relative z-10 group-hover:bg-school-gold transition-all duration-500">
+             <Award size={24} className="text-school-gold group-hover:text-white transition-colors" />
           </div>
         </div>
 
@@ -78,7 +78,7 @@ const StreamToppersPage = ({ data }: { data: AppData }) => {
         ) : (
           <div className="p-20 bg-school-paper border-2 border-dashed border-school-ink/10 rounded-[64px] text-center">
              <div className="w-20 h-20 rounded-full bg-school-ink/5 flex items-center justify-center mx-auto mb-8">
-                <Star size={32} className="text-school-ink/20" />
+                <Award size={32} className="text-school-ink/20" />
              </div>
              <h4 className="text-2xl font-serif font-black text-school-ink opacity-30 italic">Records for this session are currently being processed.</h4>
           </div>
@@ -89,7 +89,7 @@ const StreamToppersPage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
-      <div className="pt-48 bg-school-paper min-h-screen">
+      <div className="bg-school-paper min-h-screen">
         {/* Page Header */}
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center mb-12">
            <motion.div
@@ -137,7 +137,7 @@ const StreamToppersPage = ({ data }: { data: AppData }) => {
                 className="relative z-10"
               >
                 <div className="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center text-school-gold mx-auto mb-10 border border-white/5 shadow-inner">
-                   <Star size={48} />
+                   <Award size={48} />
                 </div>
                 <h3 className="text-5xl md:text-7xl font-serif font-black text-white italic mb-8 italic leading-tight">Beyond Academic Borders.</h3>
                 <p className="text-xl text-white/40 font-light max-w-2xl mx-auto mb-16">

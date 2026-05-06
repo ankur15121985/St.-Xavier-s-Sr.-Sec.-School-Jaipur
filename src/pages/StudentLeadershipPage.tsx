@@ -1,45 +1,107 @@
-import React from 'react';
-import { motion } from 'motion/react';
-import { Canvas } from '@react-three/fiber';
-import { Stars } from '@react-three/drei';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'motion/react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Float, MeshDistortMaterial, Sphere, Points, PointMaterial } from '@react-three/drei';
+import * as THREE from 'three';
 import Layout from '../components/layout/Layout';
 import { AppData, FormerStudentLeader } from '../types';
-import { GraduationCap, Calendar, ShieldCheck } from 'lucide-react';
+import { GraduationCap, Calendar, ShieldCheck, Award } from 'lucide-react';
 
-// Three.js Background Component
+// Three.js Background Component with more active effects
+const ParticleField = () => {
+  const points = useRef<THREE.Points>(null);
+  
+  useFrame((state) => {
+    if (points.current) {
+      points.current.rotation.y = state.clock.getElapsedTime() * 0.05;
+      points.current.rotation.x = state.clock.getElapsedTime() * 0.02;
+    }
+  });
+
+  const count = 2000;
+  const positions = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 15;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 15;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 15;
+  }
+
+  return (
+    <Points positions={positions} ref={points}>
+      <PointMaterial
+        transparent
+        color="#d4af37"
+        size={0.015}
+        sizeAttenuation={true}
+        depthWrite={false}
+        opacity={0.3}
+      />
+    </Points>
+  );
+};
+
 const BackgroundScene = () => {
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none">
-      <Canvas camera={{ position: [0, 0, 5], fov: 60 }}>
-        <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1.5} />
+    <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
+      <Canvas camera={{ position: [0, 0, 5] }}>
         <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} intensity={1} color="#d4af37" />
+        <pointLight position={[10, 10, 10]} intensity={2} color="#ffffff" />
+        <ParticleField />
+        <Float speed={2} rotationIntensity={1} floatIntensity={2}>
+          <Sphere args={[1, 100, 200]} scale={1.5} position={[-4, 2, -2]}>
+            <MeshDistortMaterial color="#002147" speed={3} distort={0.4} />
+          </Sphere>
+        </Float>
+        <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1.5}>
+          <Sphere args={[1, 100, 200]} scale={1} position={[4, -2, -3]}>
+            <MeshDistortMaterial color="#d4af37" speed={2} distort={0.3} />
+          </Sphere>
+        </Float>
       </Canvas>
     </div>
   );
 };
 
 const TimelineItem = ({ leader, index, side }: { leader: FormerStudentLeader, index: number, side: 'left' | 'right' }) => {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
+
   return (
     <motion.div
-      initial={{ opacity: 0, x: side === 'left' ? -50 : 50, y: 20 }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 1, delay: index * 0.1, ease: "easeOut" }}
-      className={`relative mb-8 flex w-full ${side === 'left' ? 'justify-end pr-8' : 'justify-start pl-8'}`}
+      ref={containerRef}
+      style={{ y, opacity }}
+      className={`relative mb-4 flex w-full ${side === 'left' ? 'justify-start md:pr-12' : 'justify-end md:pl-12'}`}
     >
-      <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl w-full max-w-sm px-8 py-6 border-l-4 border-school-gold hover:shadow-school-gold/20 transition-all duration-500 hover:-translate-y-1 relative group overflow-hidden">
-        <div className="absolute -top-4 -right-4 p-4 opacity-[0.03] group-hover:opacity-[0.1] transition-opacity rotate-12">
-           <ShieldCheck size={100} className="text-school-navy" />
+      <div className="bg-white/90 backdrop-blur-xl rounded-[32px] shadow-2xl w-full max-w-lg px-8 py-6 border border-white/40 ring-1 ring-black/5 hover:ring-school-gold/50 transition-all duration-700 hover:-translate-y-2 group relative overflow-hidden">
+        {/* Decorative background accent */}
+        <div className={`absolute top-0 ${side === 'left' ? 'right-0' : 'left-0'} w-32 h-32 bg-school-gold/5 rounded-full blur-3xl group-hover:bg-school-gold/10 transition-colors`}></div>
+        
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 rounded-xl bg-school-gold/10 flex items-center justify-center text-school-gold group-hover:bg-school-gold group-hover:text-white transition-all">
+                <Award size={20} />
+             </div>
+             <div className="flex flex-col">
+                <span className="text-school-gold font-black text-[11px] uppercase tracking-[0.3em]">{leader.academic_year}</span>
+                <p className="text-school-ink/30 text-[9px] font-black uppercase tracking-[0.2em] line-clamp-1">{leader.role}</p>
+             </div>
+          </div>
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+             <ShieldCheck size={20} className="text-school-gold" />
+          </div>
         </div>
-        <div className="flex items-center gap-2 mb-3">
-          <Calendar size={14} className="text-school-gold" />
-          <span className="text-school-gold font-black text-[11px] uppercase tracking-[0.2em]">{leader.academic_year}</span>
-        </div>
-        <h3 className="font-serif text-2xl text-school-ink mb-1 group-hover:text-school-gold transition-colors duration-300">
+        
+        <h3 className="font-serif text-4xl text-school-navy mb-4 leading-tight group-hover:text-school-gold transition-colors duration-300">
           {leader.name}
         </h3>
-        <p className="text-school-ink/40 text-[10px] font-bold uppercase tracking-widest">{leader.role}</p>
+        
+        <div className="h-1 w-12 bg-linear-to-r from-school-gold to-transparent rounded-full opacity-30 group-hover:w-24 group-hover:opacity-100 transition-all duration-500"></div>
       </div>
     </motion.div>
   );
@@ -58,13 +120,21 @@ const StudentLeadershipPage = ({ data }: { data: AppData }) => {
   const headBoys = formerLeadersList.filter(l => l.role === 'Head Boy');
   const headGirls = formerLeadersList.filter(l => l.role === 'Head Girl');
 
+  // Interleave the leaders by year
+  const combinedLeaders: FormerStudentLeader[] = [];
+  const maxLen = Math.max(headBoys.length, headGirls.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (headBoys[i]) combinedLeaders.push(headBoys[i]);
+    if (headGirls[i]) combinedLeaders.push(headGirls[i]);
+  }
+
   return (
     <Layout data={data}>
       <div className="bg-school-paper min-h-screen selection:bg-school-gold/30 relative overflow-hidden">
         <BackgroundScene />
         
         {/* Banner Section */}
-        <section className="pt-40 pb-24 px-6 relative z-10">
+        <section className="pt-10 pb-16 px-6 relative z-10">
           <div className="max-w-7xl mx-auto flex flex-col items-center">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
@@ -87,43 +157,20 @@ const StudentLeadershipPage = ({ data }: { data: AppData }) => {
           </div>
         </section>
 
-        {/* Timeline Columns Section */}
+        {/* Timeline List Section */}
         <section className="pb-32 px-6 relative z-10">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative">
-              {/* Vertical Divider Line for Desktop */}
-              <div className="hidden md:block absolute left-1/2 -top-10 -bottom-10 w-px bg-linear-to-b from-transparent via-school-gold/20 to-transparent"></div>
-
-              {/* Head Boys Column */}
-              <div className="space-y-12">
-                <div className="flex items-center justify-center md:justify-end gap-4 mb-12 pr-0 md:pr-12">
-                   <h2 className="text-3xl md:text-5xl font-serif italic text-school-ink">Head Boys</h2>
-                   <div className="w-12 h-px bg-school-gold"></div>
-                </div>
-                {headBoys.length > 0 ? (
-                  headBoys.map((leader, index) => (
-                    <TimelineItem key={leader.id} leader={leader} index={index} side="left" />
+          <div className="max-w-4xl mx-auto relative">
+             <div className="absolute left-1/2 top-10 bottom-10 w-px bg-linear-to-b from-transparent via-school-gold/20 to-transparent hidden md:block"></div>
+             
+             <div className="space-y-4">
+                {combinedLeaders.length > 0 ? (
+                  combinedLeaders.map((leader, index) => (
+                    <TimelineItem key={leader.id} leader={leader} index={index} side={index % 2 === 0 ? 'left' : 'right'} />
                   ))
                 ) : (
                   <div className="text-center py-20 text-school-ink/30 italic">Records being updated...</div>
                 )}
-              </div>
-
-              {/* Head Girls Column */}
-              <div className="space-y-12 pt-20 md:pt-0">
-                <div className="flex items-center justify-center md:justify-start gap-4 mb-12 pl-0 md:pl-12">
-                   <div className="w-12 h-px bg-school-gold"></div>
-                   <h2 className="text-3xl md:text-5xl font-serif italic text-school-ink">Head Girls</h2>
-                </div>
-                {headGirls.length > 0 ? (
-                  headGirls.map((leader, index) => (
-                    <TimelineItem key={leader.id} leader={leader} index={index} side="right" />
-                  ))
-                ) : (
-                  <div className="text-center py-20 text-school-ink/30 italic">Records being updated...</div>
-                )}
-              </div>
-            </div>
+             </div>
           </div>
         </section>
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import Layout from '../components/layout/Layout';
 import { AppData, XavieriteOfYear } from '../types';
-import { Award, Star, Quote } from 'lucide-react';
+import { Award, Quote } from 'lucide-react';
 
 const XavieriteOfTheYearPage = ({ data }: { data: AppData }) => {
   const enabledWinners = (data.xavierite_of_the_year || []).filter(x => x.is_enabled !== false);
@@ -64,7 +64,7 @@ const XavieriteOfTheYearPage = ({ data }: { data: AppData }) => {
                     <div className="flex-none text-center">
                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-school-gold block mb-2">Institutional Badge</span>
                        <div className="w-24 h-24 rounded-full bg-school-gold/10 flex items-center justify-center text-school-gold mx-auto">
-                          <Star size={40} className="fill-current" />
+                          <Award size={40} />
                        </div>
                     </div>
                   </div>

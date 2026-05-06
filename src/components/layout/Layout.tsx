@@ -265,23 +265,6 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
 
           {/* Spacer if sticky */}
           {isScrolled && <div className="h-40" />} 
-
-          {/* Breadcrumbs Section */}
-          <div className="bg-slate-50 dark:bg-slate-900 border-b border-black/5 py-4">
-             <div className="max-w-[1440px] mx-auto px-4 lg:px-8">
-                <nav className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                   <Link to="/" className="hover:text-school-accent transition-colors">HOME</Link>
-                   {location.pathname.split('/').filter(x => x).map((path, i, arr) => (
-                      <React.Fragment key={path}>
-                         <ChevronRight size={10} className="text-slate-300" />
-                         <span className={i === arr.length - 1 ? "text-school-navy dark:text-white" : "hover:text-school-accent transition-colors"}>
-                            {path.replace(/-/g, ' ').toUpperCase()}
-                         </span>
-                      </React.Fragment>
-                   ))}
-                </nav>
-             </div>
-          </div>
         </div>
       ) : (
         /* Original Home Header */

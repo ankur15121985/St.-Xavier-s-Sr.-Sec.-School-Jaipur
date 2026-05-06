@@ -10,7 +10,7 @@ const EventsPage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
-      <section className="pt-48 pb-40 bg-school-paper min-h-screen">
+      <section className="pt-10 pb-40 bg-school-paper min-h-screen">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-16 flex flex-col md:flex-row justify-between items-end gap-8">
           <div>
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-school-gold mb-4 block">Institutional Diary</span>
