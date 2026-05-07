@@ -73,9 +73,10 @@ const NoticeBoardPage = ({ data }: { data: AppData }) => {
                     </div>
                     <h3 className="text-2xl md:text-3xl font-serif font-black text-school-ink group-hover:text-school-gold transition-colors duration-300 mb-4">{notice.title}</h3>
                     {notice.content && (
-                      <p className="text-sm text-school-ink/60 leading-relaxed max-w-2xl font-medium mb-4 italic">
-                        {notice.content}
-                      </p>
+                      <div 
+                        className="text-sm text-school-ink/60 leading-relaxed max-w-2xl font-medium mb-4 italic"
+                        dangerouslySetInnerHTML={{ __html: notice.content }}
+                      />
                     )}
                   </div>
 

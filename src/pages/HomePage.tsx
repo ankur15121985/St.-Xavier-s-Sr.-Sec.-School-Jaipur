@@ -21,6 +21,8 @@ import { HonorsSlider } from '../components/ui/HonorsSlider';
 import { AnnouncementModal } from '../components/ui/AnnouncementModal';
 import { Marquee } from '../components/ui/Marquee';
 
+import { Helmet } from 'react-helmet-async';
+
 const HomePage = ({ data }: { data: AppData }) => {
   const carouselImages = data.carousel && data.carousel.length > 0 
     ? data.carousel.filter(c => c.is_enabled !== false).map(c => c.url) 
@@ -49,6 +51,11 @@ const HomePage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
+      <Helmet>
+        <title>Home | St. Xavier's Sr. Sec. School, Jaipur</title>
+        <meta name="description" content="Official website of St. Xavier's Senior Secondary School, Jaipur. A legacy of Jesuit excellence, shaping leaders since 1941." />
+        <link rel="canonical" href="https://stxaviersjaipur.edu.in/" />
+      </Helmet>
       {/* Spacer for fixed navbar on Home page */}
       <div className="h-[120px] md:h-[180px]" />
 

@@ -4,7 +4,6 @@ import Layout from '../components/layout/Layout';
 import { motion } from 'motion/react';
 import SidebarLinks from '../components/layout/SidebarLinks';
 import { FileText, ArrowRight } from 'lucide-react';
-import Markdown from 'react-markdown';
 
 interface ExplorePageProps {
   data: AppData;

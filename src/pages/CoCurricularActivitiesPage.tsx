@@ -18,7 +18,6 @@ import {
   Zap,
   ShieldCheck
 } from 'lucide-react';
-import Markdown from 'react-markdown';
 
 const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
   const dynamicActivities = data.activities || [];
@@ -92,9 +91,10 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
                     </p>
                   )}
 
-                  <div className="markdown-body prose prose-sm max-w-none text-school-ink/60 font-light leading-relaxed flex-1">
-                    <Markdown>{section.content}</Markdown>
-                  </div>
+                  <div 
+                    className="markdown-body prose prose-sm max-w-none text-school-ink/60 font-light leading-relaxed flex-1"
+                    dangerouslySetInnerHTML={{ __html: section.content }}
+                  />
 
                   {section.image_url && (
                     <div className="mt-8 rounded-[24px] overflow-hidden aspect-video border border-school-ink/10">

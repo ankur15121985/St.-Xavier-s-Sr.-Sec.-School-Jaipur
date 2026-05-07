@@ -14,7 +14,6 @@ import {
   FileText
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import Markdown from 'react-markdown';
 
 const AlumniPage = ({ data }: { data: AppData }) => {
   const alumniSections = data.alumni || [];
@@ -70,9 +69,10 @@ const AlumniPage = ({ data }: { data: AppData }) => {
                           {section.heading}
                         </p>
                       )}
-                      <div className="markdown-body prose prose-lg max-w-none text-school-ink/70 font-light leading-relaxed text-justify">
-                        <Markdown>{section.content}</Markdown>
-                      </div>
+                      <div 
+                        className="markdown-body prose prose-lg max-w-none text-school-ink/70 font-light leading-relaxed text-justify"
+                        dangerouslySetInnerHTML={{ __html: section.content }}
+                      />
                     </div>
 
                     {section.attachmentUrl && (

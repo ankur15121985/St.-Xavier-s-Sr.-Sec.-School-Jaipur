@@ -1,22 +1,21 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { Helmet } from 'react-helmet-async';
 import Layout from '../components/layout/Layout';
 import { AppData } from '../types';
 
 const FounderPatronPage = ({ data }: { data: AppData }) => {
   return (
     <Layout data={data}>
+      <Helmet>
+        <title>Founder & Patron | St. Xavier's Sr. Sec. School, Jaipur</title>
+        <meta name="description" content="Learn about St. Ignatius of Loyola and St. Francis Xavier, the pillars of the Society of Jesus and the inspiration behind St. Xavier's School." />
+      </Helmet>
       <div className="bg-school-paper min-h-screen">
         {/* Banner Section */}
-        <section className="relative h-[70vh] md:h-[60vh] overflow-hidden group">
-          <img 
-            src="https://picsum.photos/seed/xavier_patron_banner/1920/1080?blur=5" 
-            className="w-full h-full object-cover brightness-40 scale-105 group-hover:scale-100 transition-transform duration-1000"
-            alt="Spiritual Heritage"
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-school-navy via-school-navy/80 to-school-navy/40"></div>
-          <div className="absolute inset-0 flex items-center justify-center text-center px-6 pt-20">
+        <section className="relative h-[40vh] md:h-[50vh] overflow-hidden bg-school-navy">
+          <div className="absolute inset-0 bg-gradient-to-br from-school-navy to-school-navy/80"></div>
+          <div className="absolute inset-0 flex items-center justify-center text-center px-6">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -27,7 +26,7 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
               <h1 className="text-5xl sm:text-6xl md:text-8xl font-serif font-black text-white tracking-tight mb-8 italic leading-[1.1] drop-shadow-2xl">
                 Our Founder <span className="text-school-gold">&</span> Patron
               </h1>
-              <p className="text-white/90 bg-school-navy/40 backdrop-blur-md border border-white/20 px-8 py-3 rounded-full inline-block text-xs sm:text-base md:text-lg font-bold tracking-[0.3em] uppercase leading-relaxed mx-auto shadow-xl">
+              <p className="text-white/90 bg-white/5 backdrop-blur-md border border-white/10 px-8 py-3 rounded-full inline-block text-xs sm:text-base md:text-lg font-bold tracking-[0.3em] uppercase leading-relaxed mx-auto">
                 The Pillars of the Society of Jesus
               </p>
             </motion.div>
@@ -35,7 +34,7 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Content Section */}
-        <section className="py-20 md:py-32 bg-school-paper relative z-10 -mt-12 md:-mt-24 rounded-t-[40px] md:rounded-t-[80px] shadow-2xl border-t border-white/20">
+        <section className="py-20 md:py-32 bg-school-paper relative z-10 rounded-t-[40px] md:rounded-t-[80px] shadow-2xl border-t border-white/20">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             
             {/* Saint Ignatius of Loyola Section (Our Founder) - TOP SECTION per historical precedence and user request */}

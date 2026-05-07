@@ -14,7 +14,6 @@ import {
   ShieldCheck,
   BookOpen
 } from 'lucide-react';
-import Markdown from 'react-markdown';
 
 const ParentObligationsPage = ({ data }: { data: AppData }) => {
   const sections = data.parent_obligations || [];
@@ -86,9 +85,10 @@ const ParentObligationsPage = ({ data }: { data: AppData }) => {
                       )}
                     </div>
 
-                    <div className="markdown-body prose prose-xl max-w-none text-school-ink/80 font-normal leading-loose text-justify space-y-4">
-                      <Markdown>{section.content}</Markdown>
-                    </div>
+                    <div 
+                      className="markdown-body prose prose-xl max-w-none text-school-ink/80 font-normal leading-loose text-justify space-y-4"
+                      dangerouslySetInnerHTML={{ __html: section.content }}
+                    />
 
                     {section.attachmentUrl && (
                       <div className="mt-16 pt-10 border-t border-school-ink/5 flex justify-center">

@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   ChevronRight
 } from 'lucide-react';
-import Markdown from 'react-markdown';
 
 const MandatoryDisclosuresPage = ({ data }: { data: AppData }) => {
   const disclosures = data.mandatory_disclosures || [];
@@ -74,9 +73,10 @@ const MandatoryDisclosuresPage = ({ data }: { data: AppData }) => {
                       {item.title}
                     </h3>
                     
-                    <div className="text-sm text-school-ink/60 font-light mb-8 flex-1 prose prose-sm line-clamp-4">
-                      <Markdown>{item.content}</Markdown>
-                    </div>
+                    <div 
+                      className="text-sm text-school-ink/60 font-light mb-8 flex-1 prose prose-sm line-clamp-4"
+                      dangerouslySetInnerHTML={{ __html: item.content }}
+                    />
 
                     {item.attachmentUrl ? (
                       <a 

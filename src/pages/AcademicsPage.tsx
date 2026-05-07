@@ -12,7 +12,6 @@ import {
   FileText,
   ChevronRight
 } from 'lucide-react';
-import Markdown from 'react-markdown';
 
 const AcademicsPage = ({ data }: { data: AppData }) => {
   const sections = data.academics || [];
@@ -81,9 +80,10 @@ const AcademicsPage = ({ data }: { data: AppData }) => {
                         </div>
                       </div>
                       <div className="w-24 h-1.5 bg-school-gold rounded-full"></div>
-                      <div className="markdown-body prose prose-lg max-w-none text-school-ink/70 font-light leading-relaxed text-justify">
-                        <Markdown>{section.content}</Markdown>
-                      </div>
+                      <div 
+                        className="markdown-body prose prose-lg max-w-none text-school-ink/70 font-light leading-relaxed text-justify"
+                        dangerouslySetInnerHTML={{ __html: section.content }}
+                      />
                     </div>
 
                     {section.attachmentUrl && (

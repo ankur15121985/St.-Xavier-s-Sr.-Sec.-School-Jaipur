@@ -16,7 +16,6 @@ import {
   FileText
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import Markdown from 'react-markdown';
 
 const SchoolInformationPage = ({ data }: { data: AppData }) => {
   // Use dynamic sections if available, fallback to empty or default
@@ -106,9 +105,10 @@ const SchoolInformationPage = ({ data }: { data: AppData }) => {
                     </div>
                   </div>
                   <div className="p-8 space-y-4">
-                    <div className="markdown-body prose prose-sm max-w-none text-school-ink/70">
-                      <Markdown>{section.content}</Markdown>
-                    </div>
+                    <div 
+                      className="markdown-body prose prose-sm max-w-none text-school-ink/70"
+                      dangerouslySetInnerHTML={{ __html: section.content }}
+                    />
                     {section.attachmentUrl && (
                       <div className="mt-4 pt-4 border-t border-school-ink/5">
                         <a 

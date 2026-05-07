@@ -12,7 +12,6 @@ import {
   Sparkles,
   FileText
 } from 'lucide-react';
-import Markdown from 'react-markdown';
 
 const CareersPage = ({ data }: { data: AppData }) => {
   const jobs = data.careers || [];
@@ -101,9 +100,10 @@ const CareersPage = ({ data }: { data: AppData }) => {
                         </div>
                       </div>
                       
-                      <div className="markdown-body prose prose-sm max-w-none text-school-ink/60 font-light leading-relaxed">
-                        <Markdown>{job.content}</Markdown>
-                      </div>
+                      <div 
+                        className="markdown-body prose prose-sm max-w-none text-school-ink/60 font-light leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: job.content }}
+                      />
                     </div>
 
                     <div className="flex flex-col gap-4">

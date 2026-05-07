@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Phone, MapPin, Send, MessageSquare, ChevronDown, CheckCircle2, Loader2, Calendar, Clock, ArrowRight, AlertTriangle } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import Layout from '../components/layout/Layout';
 import { AppData, ContactMessage } from '../types';
 import { supabaseService } from '../lib/supabaseService';
@@ -44,6 +45,10 @@ const ContactPage = ({ data }: { data: AppData }) => {
 
   return (
     <Layout data={data}>
+      <Helmet>
+        <title>Contact Us | St. Xavier's Sr. Sec. School, Jaipur</title>
+        <meta name="description" content="Get in touch with St. Xavier's Senior Secondary School, Jaipur. Address, phone numbers, and official email for inquiries." />
+      </Helmet>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden bg-school-navy text-white rounded-b-[60px] md:rounded-b-[100px]">
         <div className="absolute inset-0 bg-school-gold/5 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2" />

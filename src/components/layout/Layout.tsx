@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, Phone, Mail, MapPin, Key, Settings, ArrowRight, ChevronRight, Users2, ImageIcon, ExternalLink, Facebook, Instagram, Youtube, Twitter, ArrowUp, ArrowDown, MessageSquare, Sun, Moon, Search } from 'lucide-react';
 import { AppData, QuickLink } from '../../types';
 
+import { Helmet } from 'react-helmet-async';
 import ScrollButtons from '../ui/ScrollButtons';
 import PopupMessage from '../ui/PopupMessage';
 import { GlobalSearch } from '../ui/GlobalSearch';
@@ -107,6 +108,11 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
       backgroundColor: isDark ? '#020617' : '#fcfbf7', // Unified Refined off-white
       position: 'relative'
     }}>
+      <Helmet>
+        <title>St. Xavier's Sr. Sec. School, Jaipur | Excellence in Education Since 1941</title>
+        <meta name="description" content="St. Xavier's Senior Secondary School, Jaipur - A premier Jesuit institution dedicated to holistic development and educational excellence since 1941." />
+        <meta name="keywords" content="St. Xavier's Jaipur, Xaviers Jaipur, Best School in Jaipur, Jesuit School, St. Xavier's Sr. Sec. School Bhagwan Das Road" />
+      </Helmet>
       {/* Admin Institutional Popup - High level */}
       {data.settings && <PopupMessage settings={data.settings} />}
 
@@ -131,7 +137,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         /* Subpage Header - Institutional Style */
         <div className="relative">
           {/* Top Info Bar */}
-          <div className="bg-school-navy text-white py-2 relative z-[120]">
+          <div className="hidden md:block bg-school-navy text-white py-2 relative z-[120]">
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
               <div className="flex items-center gap-6">
                 <span className="flex items-center gap-2"><Phone size={12} /> {data.settings?.contactPhone}</span>
@@ -174,8 +180,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-6">
-                   <IndianFlag src={data.settings?.flagImage} className={isScrolled ? 'w-8 h-5' : 'w-14 h-9'} />
+                <div className="hidden lg:flex items-center gap-6">
+                   {data.settings?.flagEnabled && <IndianFlag src={data.settings?.flagImage} className={isScrolled ? 'w-8 h-5' : 'w-14 h-9'} />}
                    <div className="flex items-center gap-2">
                      <span className={`font-black uppercase tracking-widest text-[9px] hidden xl:block ${isScrolled ? 'text-school-navy/30' : 'text-school-navy/60'}`}>Language</span>
                      <LanguageSelector isScrolled={isScrolled} />
@@ -197,13 +203,13 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                    </Link>
                 </div>
 
-                <div className="lg:hidden flex items-center gap-2">
-                   <IndianFlag src={data.settings?.flagImage} className="w-8 h-5" />
+                <div className="lg:hidden flex items-center gap-4">
                    <button 
                      onClick={() => setIsNavOpen(true)} 
-                     className="w-10 h-10 rounded-full flex items-center justify-center bg-school-navy text-white shadow-lg ml-2"
+                     className="w-12 h-12 rounded-xl flex items-center justify-center bg-school-navy text-white shadow-xl hover:bg-school-accent transition-all active:scale-95"
+                     aria-label="Open Menu"
                    >
-                     <Menu size={20} />
+                     <Menu size={28} />
                    </button>
                 </div>
               </div>
@@ -212,7 +218,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             {/* Row 2: Nav Bar */}
             <div className={`bg-white dark:bg-slate-900 transition-all duration-500 ${isScrolled ? 'py-0' : 'py-0'}`}>
               <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center">
-                <nav className="flex-1 hidden lg:flex items-center">
+                <nav className="flex-1 hidden lg:flex items-center flex-wrap">
                   {navLinks.map(l => (
                     <div 
                       key={l.id} 
@@ -223,7 +229,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       {l.subLinks ? (
                         <>
                           <button 
-                            className={`px-4 xl:px-5 py-4 text-[12px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all border-b-2 border-transparent hover:text-school-accent whitespace-nowrap ${activeDropdown === l.label ? 'text-school-accent border-school-accent bg-slate-50 dark:bg-slate-800' : 'text-school-navy dark:text-white'}`}
+                            className={`px-3 xl:px-5 py-4 text-[10px] xl:text-[12px] font-bold uppercase tracking-wider flex items-center gap-1 transition-all border-b-2 border-transparent hover:text-school-accent whitespace-nowrap ${activeDropdown === l.label ? 'text-school-accent border-school-accent bg-slate-50 dark:bg-slate-800' : 'text-school-navy dark:text-white'}`}
                           >
                             {l.label.toUpperCase()}
                             <ArrowDown size={10} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180' : 'opacity-40'}`} />
@@ -248,7 +254,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       ) : (
                         <Link 
                           to={l.href}
-                          className={`px-4 xl:px-5 py-4 text-[12px] font-bold uppercase tracking-wider transition-all border-b-2 border-transparent hover:text-school-accent whitespace-nowrap ${location.pathname === l.href ? 'text-school-accent border-school-accent' : 'text-school-navy dark:text-white'}`}
+                          className={`px-3 xl:px-5 py-4 text-[10px] xl:text-[12px] font-bold uppercase tracking-wider transition-all border-b-2 border-transparent hover:text-school-accent whitespace-nowrap ${location.pathname === l.href ? 'text-school-accent border-school-accent' : 'text-school-navy dark:text-white'}`}
                         >
                           {l.label.toUpperCase()}
                         </Link>
@@ -257,7 +263,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   ))}
                 </nav>
 
-                <div className="ml-auto hidden lg:flex items-center gap-4">
+                <div className="ml-auto hidden md:flex lg:flex items-center gap-4">
                 </div>
               </div>
             </div>
@@ -325,13 +331,13 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 </div>
 
                 {/* Mobile/Tablet Actions */}
-                <div className="lg:hidden flex items-center gap-2">
-                  {data.settings?.flagEnabled && <IndianFlag src={data.settings?.flagImage} className="w-8 h-5" />}
+                <div className="lg:hidden flex items-center gap-4">
                   <button 
                     onClick={() => setIsNavOpen(true)}
-                    className="w-10 h-10 rounded-full flex items-center justify-center bg-school-navy text-white shadow-lg ml-2"
+                    className="w-12 h-12 rounded-xl flex items-center justify-center bg-school-navy text-white shadow-xl hover:bg-school-accent transition-all active:scale-95"
+                    aria-label="Open Menu"
                   >
-                    <Menu size={20} />
+                    <Menu size={28} />
                   </button>
                 </div>
               </div>
@@ -341,7 +347,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           {/* Row 2: Navigation Bar */}
           <div className={`bg-white dark:bg-slate-900/50 backdrop-blur-md transition-all duration-500 ${isScrolled ? 'py-1' : 'py-0'}`}>
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8">
-              <nav className="hidden lg:flex items-center justify-between">
+              <nav className="hidden lg:flex items-center justify-between flex-wrap">
                 {navLinks.map(l => (
                   <div 
                     key={l.id} 
@@ -352,7 +358,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                     {l.subLinks ? (
                       <>
                         <button 
-                          className={`py-4 text-[12px] xl:text-[13px] font-black uppercase tracking-wider flex items-center gap-1 transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent whitespace-nowrap ${activeDropdown === l.label ? 'text-school-accent border-school-accent' : ''}`}
+                          className={`py-4 px-2 xl:px-0 text-[10px] xl:text-[13px] font-black uppercase tracking-wider flex items-center gap-1 transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent whitespace-nowrap ${activeDropdown === l.label ? 'text-school-accent border-school-accent' : ''}`}
                         >
                           {l.label.toUpperCase()}
                           <ArrowDown size={10} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180' : 'opacity-40'}`} />
@@ -379,7 +385,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                     ) : (
                       <Link 
                         to={l.href}
-                        className={`py-4 text-[12px] xl:text-[13px] font-black uppercase tracking-wider transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent whitespace-nowrap ${location.pathname === l.href ? 'text-school-accent border-school-accent' : ''}`}
+                        className={`py-4 px-2 xl:px-0 text-[10px] xl:text-[13px] font-black uppercase tracking-wider transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent whitespace-nowrap ${location.pathname === l.href ? 'text-school-accent border-school-accent' : ''}`}
                       >
                         {l.label.toUpperCase()}
                       </Link>
@@ -431,24 +437,31 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               </div>
               
               <div className="flex-1 overflow-y-auto px-6 py-8 relative z-10">
-                {/* Mobile Top Actions (Language, Theme, Search) */}
+                {/* Mobile Top Actions (Language, Theme, Search, Jobs) */}
                 <div className="flex items-center justify-between gap-2 mb-8 p-4 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-black/5 dark:border-white/5 shadow-sm">
                    <LanguageSelector isScrolled={false} align="left" />
                    <div className="flex items-center gap-2">
+                      <Link 
+                        to="/careers" 
+                        onClick={() => setIsNavOpen(false)}
+                        className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-white dark:bg-slate-800 text-school-navy dark:text-white shadow-sm font-black text-[9px] uppercase"
+                      >
+                        Jobs
+                      </Link>
                       <button 
                         onClick={() => setIsDark(!isDark)}
-                        className="w-12 h-12 rounded-full flex items-center justify-center transition-all bg-white dark:bg-slate-800 text-school-navy dark:text-white shadow-sm"
+                        className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-white dark:bg-slate-800 text-school-navy dark:text-white shadow-sm"
                       >
-                        {isDark ? <Sun size={20} /> : <Moon size={20} />}
+                        {isDark ? <Sun size={18} /> : <Moon size={18} />}
                       </button>
                       <button 
                         onClick={() => {
                           setIsNavOpen(false);
                           setIsSearchOpen(true);
                         }}
-                        className="w-12 h-12 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 text-school-navy dark:text-white shadow-sm"
+                        className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 text-school-navy dark:text-white shadow-sm"
                       >
-                        <Search size={20} />
+                        <Search size={18} />
                       </button>
                    </div>
                 </div>
@@ -487,11 +500,23 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                     }}
                     className="mt-8 pt-8 border-t border-black/5 dark:border-white/5 space-y-4"
                   >
+                     <button 
+                        onClick={() => {
+                          setIsDark(!isDark);
+                          setIsNavOpen(false);
+                        }} 
+                        className="flex items-center gap-3 text-slate-600 dark:text-slate-400 font-bold hover:text-school-accent transition-colors"
+                     >
+                        {isDark ? <Sun size={18} /> : <Moon size={18} />} Switch to {isDark ? 'Light' : 'Dark'} Mode
+                     </button>
                      <Link to="/admin" onClick={() => setIsNavOpen(false)} className="flex items-center gap-3 text-slate-600 dark:text-slate-400 font-bold hover:text-school-accent transition-colors">
                         <Key size={18} /> Admin Portal
                      </Link>
                      <Link to="/contact" onClick={() => setIsNavOpen(false)} className="flex items-center gap-3 text-slate-600 dark:text-slate-400 font-bold hover:text-school-accent transition-colors">
                         <MessageSquare size={18} /> Connect With Us
+                     </Link>
+                     <Link to="/careers" onClick={() => setIsNavOpen(false)} className="flex items-center gap-3 text-slate-600 dark:text-slate-400 font-bold hover:text-school-accent transition-colors">
+                        <Users2 size={18} /> Join Our Faculty (Careers)
                      </Link>
                   </motion.div>
                 </motion.div>
