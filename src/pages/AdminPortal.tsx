@@ -1831,6 +1831,20 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                        className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
                      />
                   </div>
+                  <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Favicon URL (16x16 or 32x32)</label>
+                        <label className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
+                          {uploadingPath === 'settings-global-faviconUrl' ? 'Uploading...' : 'Upload Icon'}
+                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'global', 'faviconUrl', 'settings')} disabled={!!uploadingPath} />
+                        </label>
+                      </div>
+                      <input 
+                       value={data.settings.faviconUrl || ''}
+                       onChange={(e) => handleUpdate('global', 'faviconUrl', e.target.value, 'settings')}
+                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                     />
+                  </div>
                </div>
 
                <div className="grid md:grid-cols-3 gap-12 pt-12 border-t border-school-ink/5">

@@ -411,6 +411,7 @@ export const DEFAULT_DATA: AppData = {
     showGallery: true,
     showLeadership: true,
     showHonors: true,
+    faviconUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
     flagEnabled: true
   },
   content: {
@@ -630,6 +631,18 @@ export default function App() {
       document.removeEventListener('contextmenu', handleContextMenu);
     };
   }, []);
+
+  useEffect(() => {
+    if (data.settings?.faviconUrl) {
+      let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
+      link.href = data.settings.faviconUrl;
+    }
+  }, [data.settings?.faviconUrl]);
 
   return (
     <SupabaseProvider>

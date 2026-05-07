@@ -21,6 +21,9 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='settings' AND column_name='showVirtualCampus') THEN
         ALTER TABLE settings ADD COLUMN "showVirtualCampus" BOOLEAN DEFAULT true;
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='settings' AND column_name='faviconUrl') THEN
+        ALTER TABLE settings ADD COLUMN "faviconUrl" TEXT DEFAULT 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png';
+    END IF;
 END $$;
 
 -- Enable RLS and set policies

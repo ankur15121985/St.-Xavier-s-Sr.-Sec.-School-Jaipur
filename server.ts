@@ -584,7 +584,8 @@ db.exec(`
     showVirtualCampus INTEGER DEFAULT 1,
     showGallery INTEGER DEFAULT 1,
     showLeadership INTEGER DEFAULT 1,
-    showHonors INTEGER DEFAULT 1
+    showHonors INTEGER DEFAULT 1,
+    faviconUrl TEXT DEFAULT 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png'
   )
 `);
 
@@ -654,6 +655,9 @@ try {
 } catch (e) {}
 try {
   db.prepare("ALTER TABLE settings ADD COLUMN showHonors INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN faviconUrl TEXT DEFAULT 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png'").run();
 } catch (e) {}
 
 db.exec(`

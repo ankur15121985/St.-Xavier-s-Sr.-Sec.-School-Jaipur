@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS settings (
     "showVirtualCampus" BOOLEAN DEFAULT true,
     "showGallery" BOOLEAN DEFAULT true,
     "showLeadership" BOOLEAN DEFAULT true,
-    "showHonors" BOOLEAN DEFAULT true
+    "showHonors" BOOLEAN DEFAULT true,
+    "faviconUrl" TEXT DEFAULT 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png'
 );
 
 CREATE TABLE IF NOT EXISTS school_history (

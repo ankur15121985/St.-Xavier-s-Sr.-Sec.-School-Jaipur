@@ -102,6 +102,7 @@ export interface AppSettings {
   showGallery?: boolean;
   showLeadership?: boolean;
   showHonors?: boolean;
+  faviconUrl?: string;
 }
 
 export interface StudentLeader {
