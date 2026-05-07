@@ -407,6 +407,7 @@ export const DEFAULT_DATA: AppData = {
     showInsights: true,
     showPrincipalMessage: true,
     showDistinction: true,
+    showVirtualCampus: true,
     showGallery: true,
     showLeadership: true,
     showHonors: true,

@@ -581,6 +581,7 @@ db.exec(`
     showInsights INTEGER DEFAULT 1,
     showPrincipalMessage INTEGER DEFAULT 1,
     showDistinction INTEGER DEFAULT 1,
+    showVirtualCampus INTEGER DEFAULT 1,
     showGallery INTEGER DEFAULT 1,
     showLeadership INTEGER DEFAULT 1,
     showHonors INTEGER DEFAULT 1
@@ -641,6 +642,9 @@ try {
 } catch (e) {}
 try {
   db.prepare("ALTER TABLE settings ADD COLUMN showDistinction INTEGER DEFAULT 1").run();
+} catch (e) {}
+try {
+  db.prepare("ALTER TABLE settings ADD COLUMN showVirtualCampus INTEGER DEFAULT 1").run();
 } catch (e) {}
 try {
   db.prepare("ALTER TABLE settings ADD COLUMN showGallery INTEGER DEFAULT 1").run();

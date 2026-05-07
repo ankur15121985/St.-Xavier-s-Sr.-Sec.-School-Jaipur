@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS settings (
     "showInsights" BOOLEAN DEFAULT true,
     "showPrincipalMessage" BOOLEAN DEFAULT true,
     "showDistinction" BOOLEAN DEFAULT true,
+    "showVirtualCampus" BOOLEAN DEFAULT true,
     "showGallery" BOOLEAN DEFAULT true,
     "showLeadership" BOOLEAN DEFAULT true,
     "showHonors" BOOLEAN DEFAULT true

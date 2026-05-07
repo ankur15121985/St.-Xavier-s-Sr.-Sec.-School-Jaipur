@@ -98,6 +98,7 @@ export interface AppSettings {
   showInsights?: boolean;
   showPrincipalMessage?: boolean;
   showDistinction?: boolean;
+  showVirtualCampus?: boolean;
   showGallery?: boolean;
   showLeadership?: boolean;
   showHonors?: boolean;
