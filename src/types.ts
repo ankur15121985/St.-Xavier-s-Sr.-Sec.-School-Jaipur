@@ -25,6 +25,18 @@ export interface TransferCertificate {
 export interface StudentHonor { id: string; name: string; category: string; result: string; subtext: string; image: string; order_index: number; attachmentUrl?: string; is_enabled?: boolean; }
 export interface MenuItem { id: string; label: string; href: string; parent_id?: string | null; order_index: number; attachmentUrl?: string; is_enabled?: boolean; }
 export interface FAQ { id: string; question: string; answer: string; category?: string; order_index: number; is_enabled?: boolean; }
+export interface PageSection {
+  id: string;
+  page_id: string;
+  section_key?: string;
+  title: string;
+  heading?: string;
+  content: string;
+  image_url?: string;
+  attachmentUrl?: string;
+  is_enabled?: boolean;
+  order_index: number;
+}
 export interface CustomContent { id: string; title: string; heading: string; content: string; order_index: number; attachmentUrl?: string; is_enabled?: boolean; }
 export interface ContactMessage { id: string; name: string; email: string; subject?: string; message: string; timestamp: string; status: 'new' | 'read' | 'replied'; }
 export interface AnnouncementPopup {
@@ -168,6 +180,15 @@ export interface AppData {
   school_history: any[];
   lead_grace: LeadGrace[];
   digital_campus?: DigitalCampus;
+  page_sections: PageSection[];
+  academics: PageSection[];
+  activities: PageSection[];
+  alumni: PageSection[];
+  school_info: PageSection[];
+  parent_obligations: PageSection[];
+  careers: PageSection[];
+  mandatory_disclosures: PageSection[];
+  contact_content: PageSection[];
   settings: AppSettings;
   content: Record<string, string>;
   admins: AdminCredential[];

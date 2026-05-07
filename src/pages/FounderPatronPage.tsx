@@ -36,16 +36,16 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
 
         {/* Content Section */}
         <section className="py-20 md:py-32 bg-school-paper relative z-10 -mt-12 md:-mt-24 rounded-t-[40px] md:rounded-t-[80px] shadow-2xl border-t border-white/20">
-          <div className="max-w-6xl mx-auto px-6 lg:px-12">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12">
             
             {/* Saint Ignatius of Loyola Section (Our Founder) - TOP SECTION per historical precedence and user request */}
-            <div id="founder" className="grid lg:grid-cols-12 gap-16 items-start mb-40">
+            <div id="founder" className="flex flex-col gap-12 mb-40">
               <motion.div 
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1 }}
-                className="lg:col-span-5 relative"
+                className="max-w-xl mx-auto relative w-full"
               >
                 <div className="aspect-[3/4] rounded-[40px] overflow-hidden shadow-2xl border-8 border-white group">
                    <img 
@@ -62,22 +62,23 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
               </motion.div>
 
               <motion.div 
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1 }}
-                className="lg:col-span-7 space-y-8"
+                className="space-y-12"
               >
-                <div className="space-y-4">
-                  <h2 className="text-school-accent font-black uppercase text-sm tracking-[0.3em] flex items-center gap-3">
+                <div className="space-y-4 text-center">
+                  <h2 className="text-school-accent font-black uppercase text-sm tracking-[0.3em] flex items-center justify-center gap-3">
                     <span className="w-8 h-[2px] bg-school-accent/30"></span>
                     Our Founder
+                    <span className="w-8 h-[2px] bg-school-accent/30"></span>
                   </h2>
                   <h3 className="text-5xl md:text-8xl font-serif font-black text-school-navy tracking-tight leading-none">The Visionary.</h3>
                 </div>
 
-                <div className="space-y-6 text-xl md:text-2xl text-school-navy leading-relaxed font-light">
-                   <p className="first-letter:text-7xl first-letter:font-serif first-letter:font-black first-letter:text-school-accent first-letter:mr-4 first-letter:float-left">
+                <div className="space-y-8 text-base md:text-xl text-school-navy leading-relaxed font-light selection:bg-school-gold/20 text-justify">
+                   <p className="first-letter:text-8xl first-letter:font-serif first-letter:font-black first-letter:text-school-accent first-letter:mr-6 first-letter:float-left">
                     St. Ignatius grew up in Spain and lived a rather plush life. He frequented the court and developed a taste for that life style, especially the ladies. Ignatius was involved with gambling and was a very confrontational man. After some legal issues in his youth he found himself at age 30 in the Spanish army defending the Spanish town of Pamplona against the French. During this battle, his commander wanted to retreat because they were outnumbered, but Ignatius convinced the commander to stay out of honor. During this battle a cannon ball struck Ignatius' legs. The French soldiers, impressed with his courage, carried him back to his home rather than into prison. In the hospital, Ignatius needed to have his leg re-broke without anesthesia. Due to an infection the doctors told him to prepare for death. On the feast day of Saints Peter and Paul, Ignatius miraculously got better. The leg healed in such a way as to cause a big bump which prevented him from wearing the long fitted boots that Spanish soldiers wore. So he told the doctors to fix it, all without anesthesia. In the end, the operation didn't fully work since Ignatius always walked with a limp.
                   </p>
                   <p>
@@ -86,22 +87,25 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
                   <p>
                     St. Ignatius is a model of passion for us. So many world religions involve the removal of desires or emotions and the ignoring of personal experience. It's easy to fall into this trap by thinking that spirituality is about getting rid of the bodily dimension of our existence. But for St. Ignatius and the Catholic tradition God took on human nature in Jesus and by doing so affirmed all that is authentically human. In fact, throughout the gospels Jesus invites us to tell him our desires: "What are you seeking?" (Jn 1:38), "What do you want me to do for you?" (Mk 10:51), "Do you want to be well?" (Jn 5:6). So with the help of St. Ignatius, let us tell God what we desire for Him to do for us. It doesn't need to be "religious" just honest.
                   </p>
-                  <p className="font-black italic text-school-navy text-2xl border-t border-slate-100 pt-8 flex items-center gap-4">
-                    <span className="w-12 h-[1px] bg-slate-200"></span>
+                </div>
+                <div className="pt-8 flex items-center justify-center">
+                  <p className="font-black italic text-school-navy text-3xl border-t border-slate-100 pt-12 w-full flex items-center justify-center gap-6">
+                    <span className="w-20 h-[1.5px] bg-school-accent opacity-20"></span>
                     St. Ignatius, pray for us.
+                    <span className="w-20 h-[1.5px] bg-school-accent opacity-20"></span>
                   </p>
                 </div>
               </motion.div>
             </div>
 
             {/* Saint Francis Xavier Section (Our Patron) */}
-            <div id="patron" className="grid lg:grid-cols-12 gap-16 items-start pt-32 border-t border-slate-100">
+            <div id="patron" className="flex flex-col gap-12 pt-32 border-t border-slate-100">
               <motion.div 
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1 }}
-                className="lg:order-2 lg:col-span-5 relative"
+                className="max-w-xl mx-auto relative w-full"
               >
                 <div className="aspect-[3/4] rounded-[40px] overflow-hidden shadow-2xl border-8 border-white group">
                    <img 
@@ -118,27 +122,30 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
               </motion.div>
 
               <motion.div 
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1 }}
-                className="lg:order-1 lg:col-span-7 space-y-8"
+                className="space-y-12"
               >
-                <div className="space-y-4">
-                  <h2 className="text-school-gold font-black uppercase text-sm tracking-[0.3em] flex items-center gap-3">
+                <div className="space-y-4 text-center">
+                  <h2 className="text-school-gold font-black uppercase text-sm tracking-[0.3em] flex items-center justify-center gap-3">
                     <span className="w-8 h-[2px] bg-school-gold/30"></span>
                     Our Patron
+                    <span className="w-8 h-[2px] bg-school-gold/30"></span>
                   </h2>
                   <h3 className="text-5xl md:text-8xl font-serif font-black text-school-navy tracking-tight leading-none">A Journey of Faith.</h3>
                 </div>
 
-                <div className="bg-slate-50 p-12 rounded-[50px] border border-slate-100 italic font-black text-2xl text-school-navy leading-relaxed relative text-justify shadow-inner">
-                   <span className="absolute -top-8 -left-2 text-9xl text-school-gold opacity-30 select-none font-serif">"</span>
-                   Jesus asked, "What profit would there be for one to gain the whole world and forfeit his soul?" (Matthew 16:26a).
-                   <p className="mt-6 text-[11px] font-sans font-black uppercase tracking-[0.2em] not-italic text-school-gold text-left">— The call to Francis Xavier</p>
+                <div className="bg-slate-50 p-16 rounded-[40px] md:rounded-[80px] border border-slate-100 italic font-black text-3xl md:text-4xl text-school-navy leading-relaxed relative text-center shadow-inner max-w-5xl mx-auto">
+                   <span className="absolute -top-10 left-1/2 -translate-x-1/2 text-[180px] text-school-gold opacity-10 select-none font-serif leading-none mt-4">"</span>
+                   <p className="relative z-10">
+                    Jesus asked, "What profit would there be for one to gain the whole world and forfeit his soul?" (Matthew 16:26a).
+                   </p>
+                   <p className="mt-8 text-sm md:text-base font-sans font-black uppercase tracking-[0.4em] not-italic text-school-gold">— The call to Francis Xavier</p>
                 </div>
 
-                <div className="space-y-6 text-xl md:text-2xl text-school-navy leading-relaxed font-light">
+                <div className="space-y-8 text-base md:text-xl text-school-navy leading-relaxed font-light selection:bg-school-gold/20 text-justify">
                    <p>
                     These words were repeated to a young teacher of philosophy who had a highly promising career in academics, with success and a life of prestige and honor before him. Francis Xavier, 24 at the time, and living and teaching in Paris, did not heed these words at once. They came from a good friend, Ignatius of Loyola (July 31), whose tireless persuasion finally won the young man to Christ. 
                   </p>

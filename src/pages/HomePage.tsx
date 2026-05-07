@@ -523,7 +523,7 @@ const HomePage = ({ data }: { data: AppData }) => {
               className="mb-20 border-b border-black/5 dark:border-white/5 pb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
             >
               <div>
-                <h2 className="text-4xl md:text-7xl font-bold text-school-navy dark:text-white tracking-tight">
+                <h2 className="text-3xl md:text-6xl font-bold text-school-navy dark:text-white tracking-tight">
                   {data.content?.regencyTitle || 'The Regency.'}
                 </h2>
                 <p className="text-slate-400 font-medium mt-4 max-w-xl">
@@ -544,7 +544,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                   className="group flex flex-col gap-4 border-l-2 border-slate-100 dark:border-slate-800 pl-8 hover:border-school-accent transition-colors py-2"
                 >
                   <div className="space-y-1">
-                    <h4 className="text-2xl md:text-3xl font-bold text-school-navy dark:text-white leading-none group-hover:text-school-accent transition-colors">
+                    <h4 className="text-xl md:text-2xl font-bold text-school-navy dark:text-white leading-none group-hover:text-school-accent transition-colors">
                       {s.name}
                     </h4>
                     <p className="text-sm font-black text-school-accent uppercase tracking-[0.2em]">

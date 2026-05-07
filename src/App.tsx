@@ -38,6 +38,8 @@ import AlumniPage from './pages/AlumniPage';
 import SchoolInformationPage from './pages/SchoolInformationPage';
 import ParentObligationsPage from './pages/ParentObligationsPage';
 import CareersPage from './pages/CareersPage';
+import MandatoryDisclosuresPage from './pages/MandatoryDisclosuresPage';
+import AcademicsPage from './pages/AcademicsPage';
 import NoticeBoardPage from './pages/NoticeBoardPage';
 import ContactPage from './pages/ContactPage';
 import AdminPortal from './pages/AdminPortal';
@@ -280,7 +282,6 @@ export const DEFAULT_DATA: AppData = {
     { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
     { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
     { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
-    { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: '3', order_index: 2 },
     { id: '3-4', label: 'Studybase Mobile App', href: '/studybase-app', parent_id: '3', order_index: 3 },
     { id: '3-5', label: 'Other Association & Committee', href: '#', parent_id: '3', order_index: 4 },
     { id: '3-5-1', label: 'Internal Complaints Committee (POSH)', href: '#', parent_id: '3-5', order_index: 0 },
@@ -288,30 +289,32 @@ export const DEFAULT_DATA: AppData = {
     { id: '3-5-3', label: 'POCSO Committee', href: '#', parent_id: '3-5', order_index: 2 },
     { id: '3-5-4', label: 'School Level Fee Committee (SLFC)', href: '#', parent_id: '3-5', order_index: 3 },
     { id: '3-5-5', label: 'Parent Teacher Association (PTA)', href: '#', parent_id: '3-5', order_index: 4 },
-    { id: '4', label: 'Academics', href: '#', parent_id: null, order_index: 3 },
-    { id: '4-1', label: 'Jesuit Education Objectives', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
-    { id: '4-2', label: 'Examinations & Premotions', href: '#', parent_id: '4', order_index: 1 },
-    { id: '4-3', label: 'Rules & Discipline', href: '#', parent_id: '4', order_index: 2 },
-    { id: '5', label: 'Activities', href: '#', parent_id: null, order_index: 4 },
+    { id: '3-3', label: 'Fees', href: '/fees', parent_id: null, order_index: 3 },
+    { id: '4', label: 'Academics', href: '/academics', parent_id: null, order_index: 4 },
+    { id: '4-1', label: 'Instructional Values', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
+    { id: '4-2', label: 'Academics Directory', href: '/academics', parent_id: '4', order_index: 1 },
+    { id: '4-3', label: 'Examinations & Promotions', href: '/jesuit-education-objectives#examinations', parent_id: '4', order_index: 2 },
+    { id: '4-4', label: 'Rules & Discipline', href: '/jesuit-education-objectives#discipline', parent_id: '4', order_index: 3 },
+    { id: '5', label: 'Activities', href: '#', parent_id: null, order_index: 5 },
     { id: '5-1', label: 'Co-Curricular Activities', href: '/co-curricular', parent_id: '5', order_index: 0 },
     { id: '5-2', label: 'Fr. Batson Sports Complex', href: '/sports-complex', parent_id: '5', order_index: 1 },
     { id: '5-3', label: 'Xavier’s Alumni', href: '/alumni', parent_id: '5', order_index: 2 },
     { id: '5-4', label: 'Media Gallery', href: '/gallery', parent_id: '5', order_index: 3 },
     { id: '5-5', label: 'Event Calendar', href: '/events', parent_id: '5', order_index: 4 },
     { id: '5-6', label: 'Student Achievements', href: '/achievements', parent_id: '5', order_index: 5 },
-    { id: '6', label: 'CBSE Corner', href: '#', parent_id: null, order_index: 5 },
+    { id: '6', label: 'CBSE Corner', href: '#', parent_id: null, order_index: 6 },
     { id: '6-1', label: 'School Information', href: '/school-info', parent_id: '6', order_index: 0 },
     { id: '6-2', label: 'Fire safety', href: '#', parent_id: '6', order_index: 1 },
-    { id: '7', label: 'For Parents', href: '#', parent_id: null, order_index: 6 },
+    { id: '7', label: 'For Parents', href: '#', parent_id: null, order_index: 7 },
     { id: '7-1', label: 'Obligations of Parents', href: '/parent-obligations', parent_id: '7', order_index: 0 },
-    { id: '8', label: 'Career', href: '#', parent_id: null, order_index: 7 },
+    { id: '8', label: 'Career', href: '#', parent_id: null, order_index: 8 },
     { id: '8-1', label: 'Careers', href: '/careers', parent_id: '8', order_index: 0 },
-    { id: '9', label: 'More', href: '#', parent_id: null, order_index: 8 },
+    { id: '9', label: 'More', href: '#', parent_id: null, order_index: 9 },
     { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
-    { id: '9-3', label: 'Mandatory disclosure', href: '#', parent_id: '9', order_index: 1 },
+    { id: '9-3', label: 'Mandatory disclosure', href: '/mandatory-disclosures', parent_id: '9', order_index: 1 },
     { id: '9-4', label: 'Transfer Certificate', href: '/transfer-certificate', parent_id: '9', order_index: 2 },
     { id: '9-5', label: 'INSIGHTS', href: '/explore', parent_id: '9', order_index: 3 },
-    { id: '10', label: 'Contact', href: '/contact', parent_id: null, order_index: 9 },
+    { id: '10', label: 'Contact', href: '/contact', parent_id: null, order_index: 10 },
   ],
   carousel: [
     { id: 'c1', url: 'https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600', caption: 'Legacy of Excellence' },
@@ -370,7 +373,17 @@ export const DEFAULT_DATA: AppData = {
   lead_grace: [
     { id: 'lg1', heading: 'Lead with Grace', content: 'We cultivate individuals of character, resilient in spirit and enlightened in soul. Education is the journey of becoming.', image_url: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png' }
   ],
-  former_leaders: [], // Keeping for compatibility with any existing reference
+  digital_campus: { id: 'current', title: 'St. Xavier\'s Virtual Campus', is_enabled: true },
+  page_sections: [],
+  academics: [],
+  activities: [],
+  alumni: [],
+  school_info: [],
+  parent_obligations: [],
+  careers: [],
+  mandatory_disclosures: [],
+  contact_content: [],
+  former_leaders: [],
   admins: [],
   logs: [],
   settings: {
@@ -582,6 +595,28 @@ export default function App() {
   const [data, setData] = useState<AppData>(DEFAULT_DATA);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    // Suppress MetaMask specific connection errors that might be coming from browser extensions
+    // or external scripts in the sandbox environment.
+    const originalError = console.error;
+    console.error = (...args) => {
+      const msg = typeof args[0] === 'string' ? args[0] : '';
+      if (msg.includes('Failed to connect to MetaMask') || msg.includes('MetaMask:')) {
+        return;
+      }
+      originalError.apply(console, args);
+    };
+
+    // Global click handler to suppress certain Web3-related events if needed
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data?.type?.includes('metamask') || e.data?.msg?.includes('MetaMask')) {
+        e.stopImmediatePropagation();
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
   // Disable right click on the entire website
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => {
@@ -626,6 +661,8 @@ export default function App() {
                 <Route path="/school-info" element={<PageTransition><SchoolInformationPage data={data} /></PageTransition>} />
                 <Route path="/parent-obligations" element={<PageTransition><ParentObligationsPage data={data} /></PageTransition>} />
                 <Route path="/careers" element={<PageTransition><CareersPage data={data} /></PageTransition>} />
+                <Route path="/mandatory-disclosures" element={<PageTransition><MandatoryDisclosuresPage data={data} /></PageTransition>} />
+                <Route path="/academics" element={<PageTransition><AcademicsPage data={data} /></PageTransition>} />
                 <Route path="/notice-board" element={<PageTransition><NoticeBoardPage data={data} /></PageTransition>} />
                 <Route path="/transfer-certificate" element={<PageTransition><TransferCertificatePage data={data} /></PageTransition>} />
                 <Route path="/stream-toppers" element={<PageTransition><StreamToppersPage data={data} /></PageTransition>} />

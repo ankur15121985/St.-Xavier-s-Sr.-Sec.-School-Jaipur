@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Phone, MapPin, Send, MessageSquare, ChevronDown, CheckCircle2, Loader2, Calendar, Clock, ArrowRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageSquare, ChevronDown, CheckCircle2, Loader2, Calendar, Clock, ArrowRight, AlertTriangle } from 'lucide-react';
+import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import Layout from '../components/layout/Layout';
 import { AppData, ContactMessage } from '../types';
 import { supabaseService } from '../lib/supabaseService';
+
+const API_KEY = 
+  process.env.GOOGLE_MAPS_PLATFORM_KEY || 
+  (import.meta as any).env?.VITE_GOOGLE_MAPS_PLATFORM_KEY || 
+  '';
+const hasValidKey = Boolean(API_KEY) && API_KEY !== 'YOUR_API_KEY';
 
 const ContactPage = ({ data }: { data: AppData }) => {
   const [formData, setFormData] = useState({
@@ -161,14 +168,14 @@ const ContactPage = ({ data }: { data: AppData }) => {
                {/* Contact Info Pills */}
                <div className="grid gap-6">
                   {[
-                    { icon: <Phone />, label: 'Senior School', value: '0141-2372336', sub: 'Main Office' },
-                    { icon: <Phone />, label: 'Junior School', value: '0141-2367792, 2376569', sub: 'Information Desk' },
-                    { icon: <Mail />, label: 'Official Email', value: 'xavier41jaipur@gmail.com', sub: 'Correspondence' },
-                    { icon: <ArrowRight />, label: 'Official Website', value: 'www.xaviersjaipur.edu.in', sub: 'Online Portal' },
-                    { icon: <MapPin />, label: 'Visit Campus', value: 'Bhagwan Das Road', sub: 'Jaipur, Rajasthan' }
+                    { icon: <Phone />, label: 'Senior School', value: data.content.seniorSchoolPhone || '0141-2372336', sub: 'Main Office' },
+                    { icon: <Phone />, label: 'Junior School', value: data.content.juniorSchoolPhone || '0141-2367792, 2376569', sub: 'Information Desk' },
+                    { icon: <Mail />, label: 'Official Email', value: data.content.schoolEmail || 'xavier41jaipur@gmail.com', sub: 'Correspondence' },
+                    { icon: <ArrowRight />, label: 'Official Website', value: data.content.schoolWebsite || 'www.xaviersjaipur.edu.in', sub: 'Online Portal' },
+                    { icon: <MapPin />, label: 'Visit Campus', value: data.content.schoolAddress || 'Bhagwan Das Road', sub: 'Jaipur, Rajasthan' }
                   ].map((info, i) => (
                     <motion.div 
-                      key={i}
+                      key={info.label}
                       whileHover={{ scale: 1.02 }}
                       className="flex items-center gap-8 p-8 bg-school-paper rounded-[40px] shadow-sm border border-school-ink/10 transition-all"
                     >
@@ -258,15 +265,36 @@ const ContactPage = ({ data }: { data: AppData }) => {
           </div>
           <div className="lg:col-span-8">
             <div className="aspect-video w-full rounded-[40px] overflow-hidden bg-school-paper shadow-2xl relative border-8 border-school-ink/10">
-               <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3557.88602237072!2d75.8049591761884!3d26.90793746033878!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db421f148e6c7%3A0x6e76cf0e353279c1!2sSt.%20Xavier&#39;s%20School!5e0!3m2!1sen!2sin!4v1713968265432!5m2!1sen!2sin" 
-                width="100%" 
-                height="100%" 
-                style={{ border: 0 }} 
-                allowFullScreen={true} 
-                loading="lazy" 
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+               {!hasValidKey ? (
+                 <div className="w-full h-full flex items-center justify-center p-12 bg-slate-50 text-center">
+                    <div className="max-w-md space-y-4">
+                      <AlertTriangle className="mx-auto text-school-gold" size={48} />
+                      <h3 className="text-xl font-black text-school-navy">Google Maps API Key Required</h3>
+                      <p className="text-sm text-school-ink/60 font-medium">To enable the interactive map, please add your API key in AI Studio Secrets as <code>GOOGLE_MAPS_PLATFORM_KEY</code>.</p>
+                      <div className="pt-4 text-xs text-school-ink/40 text-left space-y-1">
+                        <p>1. Open <strong>Settings</strong> (⚙️ icon)</p>
+                        <p>2. Go to <strong>Secrets</strong></p>
+                        <p>3. Add <strong>GOOGLE_MAPS_PLATFORM_KEY</strong></p>
+                      </div>
+                    </div>
+                 </div>
+               ) : (
+                 <APIProvider apiKey={API_KEY} version="weekly">
+                    <Map
+                      defaultCenter={{ lat: 26.907937, lng: 75.804959 }}
+                      defaultZoom={16}
+                      mapId="SCHOOL_MAP_ID"
+                      internalUsageAttributionIds={['gmp_mcp_codeassist_v1_aistudio']}
+                      style={{ width: '100%', height: '100%' }}
+                      gestureHandling={'greedy'}
+                      disableDefaultUI={false}
+                    >
+                      <AdvancedMarker position={{ lat: 26.907937, lng: 75.804959 }}>
+                        <Pin background={'#002147'} glyphColor={'#D4AF37'} borderColor={'#D4AF37'} />
+                      </AdvancedMarker>
+                    </Map>
+                 </APIProvider>
+               )}
             </div>
           </div>
         </div>

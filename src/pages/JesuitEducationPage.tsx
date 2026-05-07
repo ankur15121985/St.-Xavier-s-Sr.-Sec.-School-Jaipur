@@ -78,7 +78,7 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Academic Standards Section */}
-        <section className="py-24 bg-school-paper/50">
+        <section id="examinations" className="py-24 bg-school-paper/50">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className="flex flex-col md:flex-row gap-4 items-end justify-between mb-16">
               <div>
@@ -138,7 +138,7 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Discipline Section */}
-        <section className="py-24 max-w-7xl mx-auto px-6 lg:px-12">
+        <section id="discipline" className="py-24 max-w-7xl mx-auto px-6 lg:px-12">
           <div className="bg-school-paper rounded-[64px] p-12 lg:p-20 shadow-2xl relative overflow-hidden border border-school-ink/10">
              <div className="flex flex-col lg:flex-row gap-16">
                 <div className="lg:w-1/3">

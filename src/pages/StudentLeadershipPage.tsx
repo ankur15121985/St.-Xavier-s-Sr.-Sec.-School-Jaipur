@@ -128,6 +128,13 @@ const StudentLeadershipPage = ({ data }: { data: AppData }) => {
     if (headGirls[i]) combinedLeaders.push(headGirls[i]);
   }
 
+  // Snake Timeline Logic: Row by Row
+  // We'll group items into rows of 3 for desktop
+  const rows: FormerStudentLeader[][] = [];
+  for (let i = 0; i < combinedLeaders.length; i += 3) {
+    rows.push(combinedLeaders.slice(i, i + 3));
+  }
+
   return (
     <Layout data={data}>
       <div className="bg-school-paper min-h-screen selection:bg-school-gold/30 relative overflow-hidden">
@@ -157,20 +164,73 @@ const StudentLeadershipPage = ({ data }: { data: AppData }) => {
           </div>
         </section>
 
-        {/* Timeline List Section */}
+        {/* Snake Timeline Section */}
         <section className="pb-32 px-6 relative z-10">
-          <div className="max-w-4xl mx-auto relative">
-             <div className="absolute left-1/2 top-10 bottom-10 w-px bg-linear-to-b from-transparent via-school-gold/20 to-transparent hidden md:block"></div>
-             
-             <div className="space-y-4">
-                {combinedLeaders.length > 0 ? (
-                  combinedLeaders.map((leader, index) => (
-                    <TimelineItem key={leader.id} leader={leader} index={index} side={index % 2 === 0 ? 'left' : 'right'} />
-                  ))
-                ) : (
-                  <div className="text-center py-20 text-school-ink/30 italic">Records being updated...</div>
-                )}
-             </div>
+          <div className="max-w-6xl mx-auto space-y-12">
+             {rows.length > 0 ? (
+               rows.map((row, rowIndex) => (
+                 <div key={rowIndex} className="relative">
+                   {/* Connection Line to next row */}
+                   {rowIndex < rows.length - 1 && (
+                     <div className={`absolute -bottom-12 ${rowIndex % 2 === 0 ? 'right-10 md:right-32' : 'left-10 md:left-32'} w-px h-12 bg-school-gold/20`} />
+                   )}
+                   
+                   <div className={`flex flex-col md:flex-row gap-6 ${rowIndex % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
+                     {row.map((leader, itemIndex) => {
+                       const globalIndex = rowIndex * 3 + itemIndex;
+                       return (
+                         <motion.div 
+                           key={leader.id}
+                           initial={{ opacity: 0, y: 20 }}
+                           whileInView={{ opacity: 1, y: 0 }}
+                           viewport={{ once: true }}
+                           transition={{ delay: itemIndex * 0.1 }}
+                           className="flex-1"
+                         >
+                           <div className="bg-white/90 backdrop-blur-xl rounded-[32px] shadow-xl p-8 border border-white/40 h-full relative group hover:ring-2 hover:ring-school-gold/30 transition-all duration-500">
+                             {/* Flow Indicator Arrow for desktop */}
+                             {itemIndex < row.length - 1 && (
+                               <div className={`hidden md:block absolute top-1/2 -translate-y-1/2 ${rowIndex % 2 === 0 ? '-right-4' : '-left-4'} z-20`}>
+                                 <motion.div 
+                                   animate={{ x: rowIndex % 2 === 0 ? [0, 5, 0] : [0, -5, 0] }}
+                                   transition={{ repeat: Infinity, duration: 2 }}
+                                   className={`w-8 h-px bg-school-gold/40 relative`}
+                                 >
+                                   <div className={`absolute top-1/2 -translate-y-1/2 ${rowIndex % 2 === 0 ? 'right-0' : 'left-0'} w-1.5 h-1.5 border-t border-r border-school-gold/40 rotate-${rowIndex % 2 === 0 ? '45' : '225'}`} />
+                                 </motion.div>
+                               </div>
+                             )}
+
+                             <div className="flex items-center justify-between mb-6">
+                               <div className="flex items-center gap-3">
+                                 <div className="w-10 h-10 rounded-xl bg-school-gold/10 flex items-center justify-center text-school-gold group-hover:bg-school-gold group-hover:text-white transition-all">
+                                   <Award size={20} />
+                                 </div>
+                                 <div className="flex flex-col">
+                                   <span className="text-school-gold font-black text-[10px] uppercase tracking-[0.3em]">{leader.academic_year}</span>
+                                   <p className="text-school-ink/30 text-[8px] font-black uppercase tracking-[0.2em]">{leader.role}</p>
+                                 </div>
+                               </div>
+                               <span className="text-school-ink/10 font-serif italic text-3xl">#{globalIndex + 1}</span>
+                             </div>
+
+                             <h3 className="font-serif text-3xl text-school-navy mb-4 leading-tight group-hover:text-school-gold transition-colors">
+                               {leader.name}
+                             </h3>
+                             
+                             <div className="h-1 w-12 bg-linear-to-r from-school-gold/30 to-transparent rounded-full group-hover:w-full transition-all duration-700"></div>
+                           </div>
+                         </motion.div>
+                       );
+                     })}
+                     {/* Fill empty slots in the last row to keep alignment */}
+                     {row.length < 3 && [...Array(3 - row.length)].map((_, i) => <div key={`empty-${i}`} className="flex-1 hidden md:block" />)}
+                   </div>
+                 </div>
+               ))
+             ) : (
+               <div className="text-center py-20 text-school-ink/30 italic">Records being updated...</div>
+             )}
           </div>
         </section>
 

@@ -5,7 +5,7 @@ import {
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
   Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, RefreshCw,
   Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink,
-  Type, Palette, Bold, Italic
+  Type, Palette, Bold, Italic, Briefcase, ShieldCheck
 } from 'lucide-react';
 import { AppData, GalleryItem } from '../types';
 import { DEFAULT_DATA } from '../App';
@@ -143,13 +143,14 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.entries({
           ...item,
-          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
+          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
         }).filter(([k]) => {
-          if (k === 'id') return false;
+          if (k === 'id' || k === 'page_id' || k === 'section_key') return false;
           const handledAtBottom = 
-            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content'].includes(section) && k === 'attachmentUrl') ||
+            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'].includes(section) && k === 'attachmentUrl') ||
             (['staff', 'studentHonors', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section) && k === 'image') ||
-            (['gallery', 'carousel'].includes(section) && k === 'url');
+            (['gallery', 'carousel'].includes(section) && k === 'url') ||
+            (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'].includes(section) && k === 'image_url');
           return !handledAtBottom;
         }).map(([field, value]) => (
           <div key={field} className="space-y-2">
@@ -286,6 +287,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         {(() => {
           const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content'].includes(section)) ? 'attachmentUrl' : 
                               (['staff', 'gallery', 'carousel', 'studentHonors', 'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
+                              (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'].includes(section)) ? 'image_url' :
                               'attachmentUrl';
           const isUploading = uploadingPath === `${section}-${item.id}-${targetField}`;
           const currentVal = item[targetField];
@@ -731,6 +733,14 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.password = 'change_me_123';
       newItem.role = 'staff';
       newItem.created_at = new Date().toISOString();
+    } else if (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'].includes(tableStr)) {
+      newItem.title = 'New Section Title';
+      newItem.heading = '';
+      newItem.content = 'Write content here...';
+      newItem.image_url = '';
+      newItem.attachmentUrl = '';
+      newItem.order_index = (data[activeSection as keyof AppData] as any[] || []).length;
+      newItem.is_enabled = true;
     }
 
     setSavePending(true);
@@ -1008,6 +1018,14 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'digital_campus', label: 'Digital Campus', icon: <Maximize2 size={18} className="text-school-neon" /> },
     { id: 'custom_content', label: 'Insights Content', icon: <FileText size={18} className="text-school-gold" /> },
     { id: 'lead_grace', label: 'Lead Grace', icon: <Award size={18} className="text-school-neon" /> },
+    { id: 'academics', label: 'Academics', icon: <Award size={18} className="text-school-accent" /> },
+    { id: 'activities', label: 'Co-curricular', icon: <LayoutGrid size={18} className="text-school-neon" /> },
+    { id: 'alumni', label: 'Alumni Content', icon: <Users2 size={18} className="text-school-accent" /> },
+    { id: 'school_info', label: 'School Information', icon: <FileText size={18} className="text-school-gold" /> },
+    { id: 'parent_obligations', label: 'Parent Obligations', icon: <FileText size={18} className="text-school-accent" /> },
+    { id: 'careers', label: 'Careers', icon: <Briefcase size={18} className="text-school-gold" /> },
+    { id: 'mandatory_disclosures', label: 'Mandatory Disclosures', icon: <ShieldCheck size={18} className="text-school-neon" /> },
+    { id: 'contact_content', label: 'Contact Page Info', icon: <Mail size={18} className="text-school-accent" /> },
     { id: 'former_principals', label: 'Principals History', icon: <Award size={18} className="text-school-accent" /> },
     { id: 'former_rectors', label: 'Rectors History', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'former_managers', label: 'Managers History', icon: <Award size={18} className="text-school-neon" /> },

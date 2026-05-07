@@ -4,7 +4,6 @@ import Layout from '../components/layout/Layout';
 import { AppData } from '../types';
 import { 
   Users, 
-  ShieldCheck, 
   Trophy, 
   Music, 
   Palette, 
@@ -12,47 +11,33 @@ import {
   Camera, 
   Microscope,
   Award,
-  Heart
+  Heart,
+  FileText,
+  Star,
+  Activity,
+  Zap,
+  ShieldCheck
 } from 'lucide-react';
+import Markdown from 'react-markdown';
 
 const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
-  const sportsActivities = [
-    "Hand Ball", "Basketball", "Volleyball", "Football", "Baseball", 
-    "Tennis", "Table Tennis", "Swimming", "Cricket", "Squash", 
-    "Shooting", "Badminton"
-  ];
+  const dynamicActivities = data.activities || [];
 
-  const culturalActivities = [
-    "Debate", "Elocution", "Music Contest", "Dance Festival", 
-    "Dramatics", "Painting", "Snooker", "Aerobics"
-  ];
-
-  const clubsAndSocieties = [
-    "Xavier Literature Club",
-    "Xavier Philatelic Club",
-    "Xavier Interact Club",
-    "Xavier Inquisitive Club (Senior)",
-    "Xavier Inquisitive Club (Junior)",
-    "Xavier Orchestra",
-    "Xavier Dance Club",
-    "Xavier Creative Artist’s Club",
-    "Xavier Science Club",
-    "Xavier Debating Society",
-    "Xavier Photography Club",
-    "Taru Mitra"
-  ];
-
-  const serviceAndPrograms = [
-    "Program for the spread of literacy",
-    "Social Service Program",
-    "N.C.C.",
-    "Scout",
-    "L.T.S.",
-    "The School Magazine",
-    "Exhibition",
-    "The Annual Sports Meet",
-    "The Xavier Fair"
-  ];
+  // Icon mapping helper
+  const getIcon = (title: string, index: number) => {
+    const t = title.toLowerCase();
+    if (t.includes('sport') || t.includes('athletic') || t.includes('game')) return <Trophy size={32} className="text-school-gold" />;
+    if (t.includes('music') || t.includes('dance') || t.includes('cultural')) return <Music size={32} className="text-school-gold" />;
+    if (t.includes('art') || t.includes('creative') || t.includes('palette')) return <Palette size={32} className="text-school-gold" />;
+    if (t.includes('club') || t.includes('society') || t.includes('inquisitive')) return <Users size={32} className="text-school-gold" />;
+    if (t.includes('science') || t.includes('microscope') || t.includes('lab')) return <Microscope size={32} className="text-school-gold" />;
+    if (t.includes('service') || t.includes('social') || t.includes('heart')) return <Heart size={32} className="text-school-gold" />;
+    if (t.includes('ncc') || t.includes('scout') || t.includes('shield')) return <ShieldCheck size={32} className="text-school-gold" />;
+    
+    // Cycle through icons for variety if no keyword matches
+    const icons = [<Star size={32} />, <Activity size={32} />, <Zap size={32} />, <Award size={32} />, <Globe size={32} />, <Camera size={32} />];
+    return React.cloneElement(icons[index % icons.length] as React.ReactElement<any>, { className: "text-school-gold" });
+  };
 
   return (
     <Layout data={data}>
@@ -67,191 +52,106 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <h1 className="text-5xl md:text-7xl font-serif font-black text-white tracking-tighter mb-6 italic">Co-Curricular <br /> <span className="text-school-gold not-italic uppercase text-3xl md:text-4xl tracking-[0.3em]">Activities</span></h1>
-              <p className="text-white/50 text-xl font-light max-w-3xl mx-auto italic">Developing sound principles of conduct and action through steady supervision and guidance.</p>
+              <h1 className="text-5xl md:text-7xl font-serif font-black text-white tracking-tighter mb-6 italic uppercase">
+                {data.content.activitiesHeroTitle || "Co-Curricular"} <br /> 
+                <span className="text-school-gold not-italic uppercase text-3xl md:text-4xl tracking-[0.3em]">
+                  {data.content.activitiesHeroSubtitle || "Activities"}
+                </span>
+              </h1>
+              <p className="text-white/50 text-xl font-light max-w-3xl mx-auto italic">
+                {data.content.activitiesHeroDescription || "Developing sound principles of conduct and action through steady supervision and guidance."}
+              </p>
             </motion.div>
           </div>
         </section>
 
-        {/* Philosophy Section */}
-        <section className="py-24 max-w-4xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="space-y-8"
-          >
-            <p className="text-2xl md:text-3xl font-serif font-black text-school-ink italic leading-tight">
-              "Honesty, trust, cooperation, self-reliance, and hard work are inculcated through various school activities. In these, the student learns to do things for themselves under guidance."
-            </p>
-            <div className="w-24 h-1 bg-school-gold mx-auto"></div>
-          </motion.div>
-        </section>
-
-        {/* Systems Section */}
-        <section className="py-16 max-w-7xl mx-auto px-6 lg:px-12 grid md:grid-cols-2 gap-12">
-          {/* House System */}
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="glass-surface bg-school-paper/50 p-12 rounded-[48px] border border-school-ink/10 shadow-xl space-y-8"
-          >
-            <div className="w-16 h-16 bg-school-gold/10 rounded-2xl flex items-center justify-center text-school-gold">
-              <Users size={32} />
-            </div>
-            <h2 className="text-3xl font-serif font-black text-school-ink italic uppercase">House System</h2>
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                {['Blues', 'Golds', 'Greens', 'Reds'].map(h => (
-                  <span key={h} className="px-4 py-1 bg-school-paper/50 border border-school-ink/5 rounded-full text-[10px] uppercase font-black tracking-widest text-school-ink">{h}</span>
-                ))}
-              </div>
-              <p className="text-school-ink/70 leading-relaxed font-light">
-                Activities like dramatics, elocution, sports and games are conducted under the guidance of the Vice-Principals and House Moderators assisted by Captains and Cultural Secretaries.
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Prefect System */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="glass-surface bg-school-navy p-12 rounded-[48px] shadow-xl text-white space-y-8"
-          >
-            <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-school-gold">
-              <ShieldCheck size={32} />
-            </div>
-            <h2 className="text-3xl font-serif font-black italic uppercase text-school-gold">Prefect System</h2>
-            <p className="text-white/70 leading-relaxed font-light">
-              It is a body of students appointed by the Principal, functioning under the guidance of the Vice-Principals to maintain the high standards of discipline and order within the school.
-            </p>
-          </motion.div>
-        </section>
-
-        {/* Office Bearers Section */}
+        {/* Dynamic Activity Sections */}
         <section className="py-24 max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="mb-16 text-center">
-            <h2 className="text-4xl md:text-5xl font-serif font-black text-school-ink italic tracking-tight uppercase">School Office Bearers</h2>
-            <div className="w-24 h-1 bg-school-gold mx-auto mt-6 rounded-full"></div>
-          </div>
+          {dynamicActivities.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+              {dynamicActivities.map((section, idx) => (
+                <motion.div
+                  key={section.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="group bg-white rounded-[40px] p-10 border border-school-ink/5 shadow-sm hover:shadow-2xl hover:border-school-gold/20 transition-all duration-500 flex flex-col"
+                >
+                  <div className="w-16 h-16 bg-school-ink/5 rounded-2xl flex items-center justify-center text-school-navy mb-8 group-hover:bg-school-navy group-hover:text-white transition-all shadow-sm">
+                    {getIcon(section.title, idx)}
+                  </div>
+                  
+                  <h3 className="text-2xl font-serif font-black text-school-ink italic mb-4 uppercase group-hover:text-school-gold transition-colors">
+                    {section.title}
+                  </h3>
+                  
+                  {section.heading && (
+                    <p className="text-[10px] font-black uppercase text-school-gold tracking-widest mb-6">
+                      {section.heading}
+                    </p>
+                  )}
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { 
-                category: "Sports", 
-                roles: ["General Captain", "Asst. General Captain", "House Captains"],
-                icon: <Trophy size={20} className="text-school-gold" />
-              },
-              { 
-                category: "Cultural", 
-                roles: ["Gen. Cultural Secretary", "Asst. Gen. Cultural Secretary", "House Cult. Secretary"],
-                icon: <Music size={20} className="text-school-gold" />
-              },
-              { 
-                category: "Discipline", 
-                roles: ["Head Prefects (Boy & Girl)", "Prefects"],
-                icon: <ShieldCheck size={20} className="text-school-gold" />
-              }
-            ].map((dept, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className="p-10 border border-school-ink/5 bg-school-paper/50 rounded-[40px] shadow-lg hover:shadow-2xl transition-all"
-              >
-                <div className="flex items-center gap-4 mb-8">
-                   {dept.icon}
-                   <h3 className="text-xl font-serif font-black text-school-ink italic uppercase">{dept.category}</h3>
-                </div>
-                <ul className="space-y-4 text-sm text-school-ink/60 font-light italic">
-                  {dept.roles.map(r => <li key={r} className="border-b border-school-ink/5 pb-2 last:border-0">{r}</li>)}
-                </ul>
-              </motion.div>
-            ))}
-          </div>
-        </section>
+                  <div className="markdown-body prose prose-sm max-w-none text-school-ink/60 font-light leading-relaxed flex-1">
+                    <Markdown>{section.content}</Markdown>
+                  </div>
 
-        {/* Comprehensive Activities Grid */}
-        <section className="py-24 bg-school-paper border-y border-school-ink/5">
-          <div className="max-w-7xl mx-auto px-6 lg:px-12">
-            <div className="grid lg:grid-cols-4 gap-16">
-              
-              {/* Sports Column */}
-              <div className="space-y-8">
-                <div className="flex items-center gap-3">
-                  <Trophy size={20} className="text-school-ink" />
-                  <h4 className="text-lg font-serif font-black text-school-ink italic uppercase">Athletics</h4>
-                </div>
-                <div className="grid gap-3">
-                  {sportsActivities.map(a => (
-                    <div key={a} className="text-xs font-black uppercase tracking-widest text-school-ink/50">{a}</div>
-                  ))}
-                </div>
-              </div>
+                  {section.image_url && (
+                    <div className="mt-8 rounded-[24px] overflow-hidden aspect-video border border-school-ink/10">
+                      <img 
+                        src={section.image_url} 
+                        alt={section.title} 
+                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  )}
 
-              {/* Cultural Column */}
-              <div className="space-y-8">
-                <div className="flex items-center gap-3">
-                  <Palette size={20} className="text-school-ink" />
-                  <h4 className="text-lg font-serif font-black text-school-ink italic uppercase">Arts & Culture</h4>
-                </div>
-                <div className="grid gap-3">
-                  {culturalActivities.map(a => (
-                    <div key={a} className="text-xs font-black uppercase tracking-widest text-school-ink/50">{a}</div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Clubs Column */}
-              <div className="space-y-8">
-                <div className="flex items-center gap-3">
-                  <Microscope size={20} className="text-school-ink" />
-                  <h4 className="text-lg font-serif font-black text-school-ink italic uppercase">Societies</h4>
-                </div>
-                <div className="grid gap-3">
-                  {clubsAndSocieties.map(a => (
-                    <div key={a} className="text-xs font-black uppercase tracking-widest text-school-ink/50">{a}</div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Programs Column */}
-              <div className="space-y-8">
-                <div className="flex items-center gap-3">
-                  <Heart size={20} className="text-school-ink" />
-                  <h4 className="text-lg font-serif font-black text-school-ink italic uppercase">Service</h4>
-                </div>
-                <div className="grid gap-3">
-                  {serviceAndPrograms.map(a => (
-                    <div key={a} className="text-xs font-black uppercase tracking-widest text-school-ink/50">{a}</div>
-                  ))}
-                </div>
-              </div>
-
+                  {section.attachmentUrl && (
+                    <div className="mt-6 pt-6 border-t border-school-ink/5">
+                      <a 
+                        href={section.attachmentUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-school-gold font-black uppercase tracking-widest text-[10px] hover:underline"
+                      >
+                        View Resource <FileText size={12} />
+                      </a>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="py-40 text-center glass-surface rounded-[60px] border border-dashed border-school-ink/10">
+               <div className="w-20 h-20 bg-school-ink/5 rounded-full flex items-center justify-center text-school-ink/10 mx-auto mb-8">
+                 <Zap size={40} />
+               </div>
+               <h3 className="text-2xl font-serif font-black text-school-ink italic mb-2 uppercase">Activities Portal Updating</h3>
+               <p className="text-school-ink/40 font-light max-w-sm mx-auto">We are currently migrating our extensive co-curricular directory to the digital campus portal.</p>
+            </div>
+          )}
         </section>
 
-        {/* Closing Image Grid */}
-        <section className="py-24">
-           <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="aspect-video bg-school-ink/5 rounded-[32px] overflow-hidden group">
-                 <img src="https://picsum.photos/seed/debate/800/600" alt="Debate" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
+        {/* Philosophy Section */}
+        <section className="py-24 border-t border-school-ink/5 bg-school-ink/5">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="space-y-10"
+            >
+              <div className="flex justify-center">
+                <Heart className="text-school-gold" size={40} />
               </div>
-              <div className="aspect-video bg-school-ink/5 rounded-[32px] overflow-hidden group md:mt-12">
-                 <img src="https://picsum.photos/seed/music/800/600" alt="Music" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
-              </div>
-              <div className="aspect-video bg-school-ink/5 rounded-[32px] overflow-hidden group">
-                 <img src="https://picsum.photos/seed/science/800/600" alt="Science" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
-              </div>
-              <div className="aspect-video bg-school-ink/5 rounded-[32px] overflow-hidden group md:mt-12">
-                 <img src="https://picsum.photos/seed/social/800/600" alt="Social Service" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
-              </div>
-           </div>
+              <p className="text-2xl md:text-3xl font-serif font-black text-school-ink italic leading-tight">
+                {data.content.activitiesPhilosophyText || "\"Honesty, trust, cooperation, self-reliance, and hard work are inculcated through various school activities. In these, the student learns to do things for themselves under guidance.\""}
+              </p>
+              <div className="w-24 h-1.5 bg-school-gold mx-auto rounded-full"></div>
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-school-ink/30">Jaipur Xavier Educational Association</p>
+            </motion.div>
+          </div>
         </section>
       </div>
     </Layout>
@@ -259,3 +159,4 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
 };
 
 export default CoCurricularActivitiesPage;
+

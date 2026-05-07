@@ -7,7 +7,8 @@ export const supabaseService = {
       const collections: (keyof AppData)[] = [
         'notices', 'staff', 'gallery', 'fees', 'links', 
         'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs', 'former_leaders',
-        'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content', 'lead_grace', 'digital_campus'
+        'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content', 'lead_grace', 'digital_campus',
+        'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'
       ];
 
       const results: Partial<AppData> = {};
@@ -92,6 +93,8 @@ export const supabaseService = {
       try {
         if (!supabase) throw new Error('Supabase client not initialized');
         
+        const targetTable = section as string;
+
         if (section === 'content') {
           // Optimization: When saving content, we use the 'key' as the primary identifier
           const contentUpserts = Object.entries(item)
@@ -126,17 +129,17 @@ export const supabaseService = {
             });
           }
           
-          console.log(`[Supabase Upsert] Table: ${section}, ID: ${item.id}`);
-          let { error } = await supabase.from(section).upsert(sanitized);
+          console.log(`[Supabase Upsert] Table: ${targetTable}, ID: ${item.id}`);
+          let { error } = await supabase.from(targetTable).upsert(sanitized);
           
           // Handle missing columns or stale cache gracefully by dynamic recursive stripping or retry
           if (error && (error.code === 'PGRST204' || error.code === 'PGRST205' || error.code === '42703' || error.code === 'PGRST204')) {
-            console.warn(`[Supabase Sync] Schema issue in ${section} (Code: ${error.code}), attempting recovery...`);
+            console.warn(`[Supabase Sync] Schema issue in ${targetTable} (Code: ${error.code}), attempting recovery...`);
             
             // If it's a missing relation (PGRST204), we can't strip fields, we must inform the user
             if (error.code === 'PGRST204' || error.message.includes('relation "public.')) {
                const tableMatch = error.message.match(/relation "public\.(.+?)"/i);
-               const tableName = tableMatch ? tableMatch[1] : section;
+               const tableName = tableMatch ? tableMatch[1] : targetTable;
                throw new Error(`Supabase Table '${tableName}' is missing. Please run the SQL setup script in your Supabase dashboard.`);
             }
 
@@ -149,7 +152,7 @@ export const supabaseService = {
             if (error.code === 'PGRST205') {
               console.log('[Supabase Sync] Stale schema cache detected (PGRST205). Retrying after schema notification...');
               await new Promise(resolve => setTimeout(resolve, 800));
-              const { error: retryError } = await supabase.from(section).upsert(sanitized);
+              const { error: retryError } = await supabase.from(targetTable).upsert(sanitized);
               currentError = retryError;
               if (!currentError) error = null;
             }
@@ -162,7 +165,7 @@ export const supabaseService = {
                 console.log(`[Supabase Sync Retry ${retryCount + 1}] Stripping field '${missingField}'...`);
                 const { [missingField]: _, ...nextSanitized } = currentSanitized;
                 currentSanitized = nextSanitized;
-                const { error: retryError } = await supabase.from(section).upsert(currentSanitized);
+                const { error: retryError } = await supabase.from(targetTable).upsert(currentSanitized);
                 currentError = retryError;
                 retryCount++;
               } else {
@@ -173,8 +176,8 @@ export const supabaseService = {
           }
 
           if (error) {
-            console.error(`[Supabase Sync Failure] Table: ${section}, Error: ${error.message}, Code: ${error.code}`);
-            let userMessage = `Supabase Table '${section}' error: ${error.message}`;
+            console.error(`[Supabase Sync Failure] Table: ${targetTable}, Error: ${error.message}, Code: ${error.code}`);
+            let userMessage = `Supabase Table '${targetTable}' error: ${error.message}`;
             
             if (error.message.includes('Failed to fetch')) {
               userMessage = `Network Error: Failed to reach Supabase. This usually means your connection is unstable, the Supabase project is paused, or an ad-blocker is interfering with the request.`;
@@ -222,10 +225,11 @@ export const supabaseService = {
     try {
       // 1. Delete from Supabase
       try {
+        const targetTable = section as string;
         const matchField = section === 'content' ? 'key' : 'id';
-        const { error } = await supabase.from(section).delete().eq(matchField, id);
+        const { error } = await supabase.from(targetTable).delete().eq(matchField, id);
         if (error) throw error;
-        console.log(`[Supabase Sync] ${section} item deleted`);
+        console.log(`[Supabase Sync] ${targetTable} item deleted`);
       } catch (err: any) {
         console.warn('[Supabase Sync Warning] Failed to delete from Supabase:', err.message);
       }

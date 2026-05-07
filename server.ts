@@ -1060,6 +1060,11 @@ const cleanMenu = () => {
         // Update TC link if it exists
         db.prepare("UPDATE menu SET href = '/transfer-certificate' WHERE label = 'TRANSFER CERTIFICATE' OR label = 'Transfer Certificate'").run();
 
+        // Update Academic sections links
+        db.prepare("UPDATE menu SET label = 'EXAMINATIONS & PROMOTIONS' WHERE label = 'EXAMINATIONS & PREMOTIONS'").run();
+        db.prepare("UPDATE menu SET href = '/jesuit-education-objectives#examinations' WHERE label = 'EXAMINATIONS & PROMOTIONS'").run();
+        db.prepare("UPDATE menu SET href = '/jesuit-education-objectives#discipline' WHERE label = 'RULES & DISCIPLINE'").run();
+
         // Forced re-alignment for Association Menu to About Us
         const associations = [
             { id: '2-6', label: 'OTHER ASSOCIATION & COMMITTEE', href: '#', parent_id: '2', order_index: 5 },
