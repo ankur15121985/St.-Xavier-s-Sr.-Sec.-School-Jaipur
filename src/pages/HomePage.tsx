@@ -465,7 +465,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* 3D Campus Animation / Virtual Tour */}
-      {data.settings?.showDistinction !== false && data.digital_campus?.is_enabled !== false && (
+      {data.settings?.showVirtualCampus !== false && data.digital_campus?.is_enabled !== false && (
         <section className="relative w-full h-screen overflow-hidden">
           <Campus3D config={data.digital_campus} />
         </section>

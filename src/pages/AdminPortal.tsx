@@ -2041,6 +2041,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                        { key: 'showInsights', label: 'Updates & Events' },
                        { key: 'showPrincipalMessage', label: 'Editorial Message' },
                        { key: 'showDistinction', label: 'Institutional Pillar' },
+                       { key: 'showVirtualCampus', label: 'Virtual Campus' },
                        { key: 'showGallery', label: 'Campus Gallery' },
                        { key: 'showLeadership', label: 'Regency Personnel' },
                        { key: 'showHonors', label: 'Student Triumphs' }
