@@ -158,8 +158,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             {/* Row 1: Logo Section */}
             <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
               <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
-                <div className="flex items-center gap-4 relative">
-                  <Link to="/" className={`shrink-0 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-20 h-20 md:w-[100px] md:h-[100px]'}`}>
+                <div className="flex items-center gap-4 relative pr-12 lg:pr-0">
+                  <Link to="/" className={`shrink-0 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-16 h-16 md:w-[100px] md:h-[100px]'}`}>
                     <img 
                       src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
                       alt="Logo" 
@@ -168,7 +168,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   </Link>
                   <div className="flex flex-col justify-center min-w-0">
                     <Link to="/">
-                      <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight transition-all duration-500 uppercase ${isScrolled ? 'text-sm sm:text-lg md:text-xl' : 'text-sm sm:text-xl md:text-[42px]'} whitespace-nowrap overflow-hidden text-ellipsis`}>
+                      <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight transition-all duration-500 uppercase ${isScrolled ? 'text-xs sm:text-base md:text-xl' : 'text-xs sm:text-xl md:text-[42px]'} whitespace-nowrap overflow-hidden text-ellipsis`}>
                         ST. XAVIER'S SR. SEC. SCHOOL
                       </h1>
                     </Link>
@@ -180,37 +180,40 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   </div>
                 </div>
                 
-                <div className="hidden lg:flex items-center gap-6">
-                   {data.settings?.flagEnabled && <IndianFlag src={data.settings?.flagImage} className={isScrolled ? 'w-8 h-5' : 'w-14 h-9'} />}
-                   <div className="flex items-center gap-2">
-                     <span className={`font-black uppercase tracking-widest text-[9px] hidden xl:block ${isScrolled ? 'text-school-navy/30' : 'text-school-navy/60'}`}>Language</span>
-                     <LanguageSelector isScrolled={isScrolled} />
+                <div className="flex items-center gap-2 md:gap-4 lg:gap-6">
+                   <div className="hidden lg:flex items-center gap-6">
+                      {data.settings?.flagEnabled && <IndianFlag src={data.settings?.flagImage} className={isScrolled ? 'w-8 h-5' : 'w-14 h-9'} />}
+                      <div className="flex items-center gap-2">
+                        <span className={`font-black uppercase tracking-widest text-[9px] hidden xl:block ${isScrolled ? 'text-school-navy/30' : 'text-school-navy/60'}`}>Language</span>
+                        <LanguageSelector isScrolled={isScrolled} />
+                      </div>
+                      <button 
+                        onClick={() => setIsSearchOpen(true)}
+                        className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white"
+                      >
+                        <Search size={isScrolled ? 16 : 20} />
+                      </button>
+                      {!isScrolled && (
+                        <div className="text-right">
+                           <p className="text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-widest leading-none">Established</p>
+                           <p className="text-3xl font-black text-school-navy dark:text-school-accent italic opacity-20">1941</p>
+                        </div>
+                      )}
+                      <Link to="/admin" className={`flex items-center gap-2 bg-school-navy text-white rounded-full uppercase tracking-widest font-black shadow-lg hover:scale-105 transition-all ${isScrolled ? 'px-4 py-2 text-[9px]' : 'px-6 py-2.5 text-[11px]'}`}>
+                        <Key size={isScrolled ? 12 : 14} /> Admin Login
+                      </Link>
                    </div>
-                   <button 
-                     onClick={() => setIsSearchOpen(true)}
-                     className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 dark:bg-slate-800 hover:scale-110 active:scale-95 text-school-navy dark:text-white"
-                   >
-                     <Search size={isScrolled ? 16 : 20} />
-                   </button>
-                   {!isScrolled && (
-                     <div className="text-right">
-                        <p className="text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-widest leading-none">Established</p>
-                        <p className="text-3xl font-black text-school-navy dark:text-school-accent italic opacity-20">1941</p>
-                     </div>
-                   )}
-                   <Link to="/admin" className={`flex items-center gap-2 bg-school-navy text-white rounded-full uppercase tracking-widest font-black shadow-lg hover:scale-105 transition-all ${isScrolled ? 'px-4 py-2 text-[9px]' : 'px-6 py-2.5 text-[11px]'}`}>
-                     <Key size={isScrolled ? 12 : 14} /> Admin Login
-                   </Link>
-                </div>
 
-                <div className="lg:hidden flex items-center gap-4">
-                   <button 
-                     onClick={() => setIsNavOpen(true)} 
-                     className="w-12 h-12 rounded-xl flex items-center justify-center bg-school-navy text-white shadow-xl hover:bg-school-accent transition-all active:scale-95"
-                     aria-label="Open Menu"
-                   >
-                     <Menu size={28} />
-                   </button>
+                   {/* Mobile Menu Button - High Visibility */}
+                   <div className="lg:hidden">
+                      <button 
+                        onClick={() => setIsNavOpen(true)} 
+                        className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center bg-school-navy text-white shadow-xl hover:bg-school-accent transition-all active:scale-95"
+                        aria-label="Open Menu"
+                      >
+                        <Menu size={24} />
+                      </button>
+                   </div>
                 </div>
               </div>
             </div>
@@ -279,8 +282,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
               {/* Brand Area - Left Defined */}
-              <div className="flex items-center gap-4 relative">
-                <Link to="/" className={`shrink-0 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-12 h-12 md:w-[80px] md:h-[80px]'}`}>
+              <div className="flex items-center gap-4 relative pr-12 lg:pr-0">
+                <Link to="/" className={`shrink-0 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-10 h-10 md:w-[70px] md:h-[70px]'}`}>
                   <img 
                     src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
                     alt="Logo" 
@@ -289,7 +292,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 </Link>
                 <div className="flex flex-col min-w-0">
                   <Link to="/">
-                    <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight transition-all duration-500 uppercase ${isScrolled ? 'text-sm sm:text-lg md:text-xl' : 'text-sm sm:text-xl md:text-[32px]'} whitespace-nowrap overflow-hidden text-ellipsis`}>
+                    <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight transition-all duration-500 uppercase ${isScrolled ? 'text-sm sm:text-base md:text-xl' : 'text-sm sm:text-lg md:text-[32px]'} whitespace-nowrap overflow-hidden text-ellipsis`}>
                       ST. XAVIER'S SR. SEC. SCHOOL
                     </span>
                   </Link>
@@ -331,13 +334,13 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 </div>
 
                 {/* Mobile/Tablet Actions */}
-                <div className="lg:hidden flex items-center gap-4">
+                <div className="lg:hidden flex items-center gap-2">
                   <button 
                     onClick={() => setIsNavOpen(true)}
-                    className="w-12 h-12 rounded-xl flex items-center justify-center bg-school-navy text-white shadow-xl hover:bg-school-accent transition-all active:scale-95"
+                    className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center bg-school-navy text-white shadow-xl hover:bg-school-accent transition-all active:scale-95"
                     aria-label="Open Menu"
                   >
-                    <Menu size={28} />
+                    <Menu size={24} />
                   </button>
                 </div>
               </div>

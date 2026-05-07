@@ -145,7 +145,14 @@ export const supabaseService = {
             if (error.code === 'PGRST204' || error.message.includes('relation "public.')) {
                const tableMatch = error.message.match(/relation "public\.(.+?)"/i);
                const tableName = tableMatch ? tableMatch[1] : targetTable;
-               throw new Error(`Supabase Table '${tableName}' is missing. Please run the SQL setup script in your Supabase dashboard.`);
+               console.warn(`[Supabase Sync] Table '${tableName}' is missing. Falling back to local-only sync for this session.`);
+               // Don't throw for the user if it's just a missing table during a session
+               // Let them know via console, but don't break the UI immediately if they are just testing
+               if (targetTable === 'settings') {
+                 // Special case: if settings fails, we still want to allow local updates
+                 return; 
+               }
+               throw new Error(`Supabase Table '${tableName}' is missing. Please run the SQL setup script in your Supabase dashboard to enable cloud sync.`);
             }
 
             let currentSanitized = { ...sanitized };
