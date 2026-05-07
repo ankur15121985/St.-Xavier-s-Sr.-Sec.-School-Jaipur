@@ -831,27 +831,27 @@ if ((menuCountResult?.count || 0) === 0) {
         { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
         { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
         { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
-        { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: '3', order_index: 2 },
-        { id: '3-4', label: 'Studybase Mobile App', href: '/studybase-app', parent_id: '3', order_index: 3 },
-        { id: '4', label: 'Academics', href: '#', parent_id: null, order_index: 3 },
+        { id: '3-4', label: 'Studybase Mobile App', href: '/studybase-app', parent_id: '3', order_index: 2 },
+        { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: null, order_index: 3 },
+        { id: '4', label: 'Academics', href: '#', parent_id: null, order_index: 4 },
         { id: '4-1', label: 'Jesuit Education Objectives', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
         { id: '4-2', label: 'Examinations & Premotions', href: '#', parent_id: '4', order_index: 1 },
         { id: '4-3', label: 'Rules & Discipline', href: '#', parent_id: '4', order_index: 2 },
-        { id: '5', label: 'Activities', href: '#', parent_id: null, order_index: 4 },
+        { id: '5', label: 'Activities', href: '#', parent_id: null, order_index: 5 },
         { id: '5-1', label: 'Co-Curricular Activities', href: '/co-curricular', parent_id: '5', order_index: 0 },
         { id: '5-2', label: 'Fr. Batson Sports Complex', href: '/sports-complex', parent_id: '5', order_index: 1 },
         { id: '5-3', label: 'Xavier’s Alumni', href: '/alumni', parent_id: '5', order_index: 2 },
         { id: '5-4', label: 'Media Gallery', href: '/gallery', parent_id: '5', order_index: 3 },
         { id: '5-5', label: 'Event Calendar', href: '/events', parent_id: '5', order_index: 4 },
         { id: '5-6', label: 'Student Achievements', href: '/achievements', parent_id: '5', order_index: 5 },
-        { id: '6', label: 'CBSE Corner', href: '#', parent_id: null, order_index: 5 },
+        { id: '6', label: 'CBSE Corner', href: '#', parent_id: null, order_index: 6 },
         { id: '6-1', label: 'School Information', href: '/school-info', parent_id: '6', order_index: 0 },
         { id: '6-2', label: 'Fire safety', href: '#', parent_id: '6', order_index: 1 },
-        { id: '7', label: 'For Parents', href: '#', parent_id: null, order_index: 6 },
+        { id: '7', label: 'For Parents', href: '#', parent_id: null, order_index: 7 },
         { id: '7-1', label: 'Obligations of Parents', href: '/parent-obligations', parent_id: '7', order_index: 0 },
-        { id: '8', label: 'Career', href: '#', parent_id: null, order_index: 7 },
+        { id: '8', label: 'Career', href: '#', parent_id: null, order_index: 8 },
         { id: '8-1', label: 'Careers', href: '/careers', parent_id: '8', order_index: 0 },
-        { id: '9', label: 'More', href: '#', parent_id: null, order_index: 8 },
+        { id: '9', label: 'More', href: '#', parent_id: null, order_index: 9 },
         { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
         { id: '9-3', label: 'Mandatory disclosure', href: '#', parent_id: '9', order_index: 1 },
         { id: '9-4', label: 'Transfer Certificate', href: '#', parent_id: '9', order_index: 2 },
@@ -1052,6 +1052,18 @@ const cleanMenu = () => {
         // Force all existing menu items to uppercase labels
         db.prepare("UPDATE menu SET label = UPPER(label)").run();
         
+        // Move Fees to top level
+        db.prepare("UPDATE menu SET parent_id = NULL, order_index = 3, label = 'FEES STRUCTURE' WHERE id = '3-3' OR label = 'FEES' OR label = 'FEES STRUCTURE'").run();
+        
+        // Adjust other top-level menu order indices
+        db.prepare("UPDATE menu SET order_index = 4 WHERE id = '4'").run();
+        db.prepare("UPDATE menu SET order_index = 5 WHERE id = '5'").run();
+        db.prepare("UPDATE menu SET order_index = 6 WHERE id = '6'").run();
+        db.prepare("UPDATE menu SET order_index = 7 WHERE id = '7'").run();
+        db.prepare("UPDATE menu SET order_index = 8 WHERE id = '8'").run();
+        db.prepare("UPDATE menu SET order_index = 9 WHERE id = '9'").run();
+        db.prepare("UPDATE menu SET order_index = 10 WHERE id = '10'").run();
+
         // Remove "Other Association & Committee" from Admission (parent '3') if it exists
         db.prepare("DELETE FROM menu WHERE label LIKE 'OTHER ASSOCIATION%' AND parent_id = '3'").run();
         

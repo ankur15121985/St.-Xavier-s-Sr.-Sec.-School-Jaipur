@@ -212,7 +212,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             {/* Row 2: Nav Bar */}
             <div className={`bg-white dark:bg-slate-900 transition-all duration-500 ${isScrolled ? 'py-0' : 'py-0'}`}>
               <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center">
-                <nav className="flex-1 hidden lg:flex items-center gap-1">
+                <nav className="flex-1 hidden lg:flex items-center">
                   {navLinks.map(l => (
                     <div 
                       key={l.id} 
@@ -223,7 +223,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       {l.subLinks ? (
                         <>
                           <button 
-                            className={`px-5 py-4 text-[12px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all border-b-2 border-transparent hover:text-school-accent ${activeDropdown === l.label ? 'text-school-accent border-school-accent bg-slate-50 dark:bg-slate-800' : 'text-school-navy dark:text-white'}`}
+                            className={`px-4 xl:px-5 py-4 text-[12px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all border-b-2 border-transparent hover:text-school-accent whitespace-nowrap ${activeDropdown === l.label ? 'text-school-accent border-school-accent bg-slate-50 dark:bg-slate-800' : 'text-school-navy dark:text-white'}`}
                           >
                             {l.label.toUpperCase()}
                             <ArrowDown size={10} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180' : 'opacity-40'}`} />
@@ -248,7 +248,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       ) : (
                         <Link 
                           to={l.href}
-                          className={`px-5 py-4 text-[12px] font-bold uppercase tracking-wider transition-all border-b-2 border-transparent hover:text-school-accent ${location.pathname === l.href ? 'text-school-accent border-school-accent' : 'text-school-navy dark:text-white'}`}
+                          className={`px-4 xl:px-5 py-4 text-[12px] font-bold uppercase tracking-wider transition-all border-b-2 border-transparent hover:text-school-accent whitespace-nowrap ${location.pathname === l.href ? 'text-school-accent border-school-accent' : 'text-school-navy dark:text-white'}`}
                         >
                           {l.label.toUpperCase()}
                         </Link>
@@ -341,7 +341,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           {/* Row 2: Navigation Bar */}
           <div className={`bg-white dark:bg-slate-900/50 backdrop-blur-md transition-all duration-500 ${isScrolled ? 'py-1' : 'py-0'}`}>
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8">
-              <nav className="hidden lg:flex items-center gap-8">
+              <nav className="hidden lg:flex items-center justify-between">
                 {navLinks.map(l => (
                   <div 
                     key={l.id} 
@@ -352,7 +352,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                     {l.subLinks ? (
                       <>
                         <button 
-                          className={`py-4 text-[13px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent ${activeDropdown === l.label ? 'text-school-accent border-school-accent' : ''}`}
+                          className={`py-4 text-[12px] xl:text-[13px] font-black uppercase tracking-wider flex items-center gap-1 transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent whitespace-nowrap ${activeDropdown === l.label ? 'text-school-accent border-school-accent' : ''}`}
                         >
                           {l.label.toUpperCase()}
                           <ArrowDown size={10} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180' : 'opacity-40'}`} />
@@ -379,7 +379,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                     ) : (
                       <Link 
                         to={l.href}
-                        className={`py-4 text-[13px] font-black uppercase tracking-wider transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent ${location.pathname === l.href ? 'text-school-accent border-school-accent' : ''}`}
+                        className={`py-4 text-[12px] xl:text-[13px] font-black uppercase tracking-wider transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent whitespace-nowrap ${location.pathname === l.href ? 'text-school-accent border-school-accent' : ''}`}
                       >
                         {l.label.toUpperCase()}
                       </Link>

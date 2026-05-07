@@ -250,11 +250,11 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
             ) : field === 'parent_id' && section === 'navigation_menu' ? (
               <select 
                 value={item[field] || ''} 
-                onChange={(e) => handleUpdate(item.id, field as string, e.target.value || '', section)} 
+                onChange={(e) => handleUpdate(item.id, field as string, e.target.value || null, section)} 
                 className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
               >
                 <option value="">None (Top Level)</option>
-                {data.navigation_menu.filter(m => m.id !== item.id).map(m => (
+                {data.navigation_menu.filter(m => m.id !== item.id).sort((a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)).map(m => (
                   <option key={m.id} value={m.id}>{m.label} {m.parent_id ? `(under ${data.navigation_menu.find(p => p.id === m.parent_id)?.label})` : ''}</option>
                 ))}
               </select>

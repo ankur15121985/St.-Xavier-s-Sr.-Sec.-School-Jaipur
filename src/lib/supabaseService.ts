@@ -121,6 +121,11 @@ export const supabaseService = {
           if (section === 'popups' && 'isActive' in sanitized) sanitized.isActive = !!sanitized.isActive;
           if (section === 'digital_campus' && 'is_enabled' in sanitized) sanitized.is_enabled = !!sanitized.is_enabled;
           
+          // CRITICAL: Ensure parent_id is NULL, not empty string, for top-level items
+          if (section === 'navigation_menu' && (sanitized.parent_id === '' || sanitized.parent_id === undefined)) {
+            sanitized.parent_id = null;
+          }
+          
           if (section === 'settings') {
             Object.keys(sanitized).forEach(key => {
               if (key.startsWith('show') || key.endsWith('Enabled')) {

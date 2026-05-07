@@ -1,16 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Phone, MapPin, Send, MessageSquare, ChevronDown, CheckCircle2, Loader2, Calendar, Clock, ArrowRight, AlertTriangle } from 'lucide-react';
-import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import Layout from '../components/layout/Layout';
 import { AppData, ContactMessage } from '../types';
 import { supabaseService } from '../lib/supabaseService';
-
-const API_KEY = 
-  process.env.GOOGLE_MAPS_PLATFORM_KEY || 
-  (import.meta as any).env?.VITE_GOOGLE_MAPS_PLATFORM_KEY || 
-  '';
-const hasValidKey = Boolean(API_KEY) && API_KEY !== 'YOUR_API_KEY';
 
 const ContactPage = ({ data }: { data: AppData }) => {
   const [formData, setFormData] = useState({
@@ -45,6 +38,9 @@ const ContactPage = ({ data }: { data: AppData }) => {
       setStatus('error');
     }
   };
+
+  const mapQuery = "St. Xavier's Senior Secondary School, Bhagwan Das Rd, C Scheme, Jaipur, Rajasthan 302001";
+  const encodedQuery = encodeURIComponent(mapQuery);
 
   return (
     <Layout data={data}>
@@ -235,67 +231,57 @@ const ContactPage = ({ data }: { data: AppData }) => {
       </section>
 
       {/* Map Section */}
-      <section className="py-20 bg-school-paper relative overflow-hidden">
+      <section className="py-20 bg-school-paper relative overflow-hidden text-school-ink">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 items-center">
           <div className="lg:col-span-4 space-y-8">
-            <h2 className="text-5xl font-black text-school-ink tracking-tighter leading-none italic">
-              Institutional <br /><span className="text-school-accent">Terrain.</span>
+            <h2 className="text-5xl font-black tracking-tighter leading-none italic">
+               Institutional <br /><span className="text-school-gold">Terrain.</span>
             </h2>
-            <p className="text-lg text-school-ink/60 font-medium leading-relaxed">
+            <p className="text-lg opacity-60 font-medium leading-relaxed">
               Located in the heart of C-Scheme, our campus is easily accessible from any part of the Pink City.
             </p>
             <div className="flex flex-col gap-4">
-               <div className="flex items-center gap-4 text-school-ink font-bold">
+               <div className="flex items-center gap-4 font-bold">
                  <Clock className="text-school-gold" size={20} />
                  <span>Office: 8:00 AM - 2:00 PM</span>
                </div>
-               <div className="flex items-center gap-4 text-school-ink font-bold">
+               <div className="flex items-center gap-4 font-bold">
                  <Calendar className="text-school-gold" size={20} />
                  <span>Monday — Saturday</span>
                </div>
             </div>
             <a 
-              href="https://maps.google.com" 
+              href={`https://www.google.com/maps/dir/?api=1&destination=${encodedQuery}`} 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="inline-flex items-center gap-4 text-school-ink font-bold group"
+              className="inline-flex items-center gap-4 font-bold group hover:text-school-gold transition-colors"
             >
-              Get Directions <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+              Get Directions <ArrowRight className="group-hover:translate-x-2 transition-transform" strokeWidth={3} />
             </a>
           </div>
           <div className="lg:col-span-8">
-            <div className="aspect-video w-full rounded-[40px] overflow-hidden bg-school-paper shadow-2xl relative border-8 border-school-ink/10">
-               {!hasValidKey ? (
-                 <div className="w-full h-full flex items-center justify-center p-12 bg-slate-50 text-center">
-                    <div className="max-w-md space-y-4">
-                      <AlertTriangle className="mx-auto text-school-gold" size={48} />
-                      <h3 className="text-xl font-black text-school-navy">Google Maps API Key Required</h3>
-                      <p className="text-sm text-school-ink/60 font-medium">To enable the interactive map, please add your API key in AI Studio Secrets as <code>GOOGLE_MAPS_PLATFORM_KEY</code>.</p>
-                      <div className="pt-4 text-xs text-school-ink/40 text-left space-y-1">
-                        <p>1. Open <strong>Settings</strong> (⚙️ icon)</p>
-                        <p>2. Go to <strong>Secrets</strong></p>
-                        <p>3. Add <strong>GOOGLE_MAPS_PLATFORM_KEY</strong></p>
-                      </div>
-                    </div>
+            <div className="aspect-video w-full rounded-[40px] overflow-hidden bg-white shadow-2xl relative border-8 border-school-ink/5 group">
+               {/* Embed Map Logic */}
+               <iframe 
+                 title="School Location Map"
+                 src={`https://maps.google.com/maps?q=${encodedQuery}&t=&z=14&ie=UTF8&iwloc=B&output=embed`} 
+                 width="100%" 
+                 height="100%" 
+                 style={{ border: 0 }} 
+                 allowFullScreen={true} 
+                 loading="lazy"
+                 className="grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
+               />
+               
+               <div className="absolute bottom-6 right-6 flex gap-3">
+                 <div className="px-4 py-2 bg-white/90 backdrop-blur shadow-lg rounded-full text-[10px] font-black uppercase tracking-widest border border-school-ink/5">
+                   Interactive Campus Map
                  </div>
-               ) : (
-                 <APIProvider apiKey={API_KEY} version="weekly">
-                    <Map
-                      defaultCenter={{ lat: 26.907937, lng: 75.804959 }}
-                      defaultZoom={16}
-                      mapId="SCHOOL_MAP_ID"
-                      internalUsageAttributionIds={['gmp_mcp_codeassist_v1_aistudio']}
-                      style={{ width: '100%', height: '100%' }}
-                      gestureHandling={'greedy'}
-                      disableDefaultUI={false}
-                    >
-                      <AdvancedMarker position={{ lat: 26.907937, lng: 75.804959 }}>
-                        <Pin background={'#002147'} glyphColor={'#D4AF37'} borderColor={'#D4AF37'} />
-                      </AdvancedMarker>
-                    </Map>
-                 </APIProvider>
-               )}
+               </div>
             </div>
+            <p className="mt-4 text-[10px] text-center uppercase tracking-widest font-bold opacity-30">
+              Note: If map doesn't load, ensure your Google Maps API Key has correct HTTP Referrer restrictions.
+            </p>
           </div>
         </div>
       </section>

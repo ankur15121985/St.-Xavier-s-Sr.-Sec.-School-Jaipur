@@ -289,7 +289,7 @@ export const DEFAULT_DATA: AppData = {
     { id: '3-5-3', label: 'POCSO Committee', href: '#', parent_id: '3-5', order_index: 2 },
     { id: '3-5-4', label: 'School Level Fee Committee (SLFC)', href: '#', parent_id: '3-5', order_index: 3 },
     { id: '3-5-5', label: 'Parent Teacher Association (PTA)', href: '#', parent_id: '3-5', order_index: 4 },
-    { id: '3-3', label: 'Fees', href: '/fees', parent_id: null, order_index: 3 },
+    { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: null, order_index: 3 },
     { id: '4', label: 'Academics', href: '/academics', parent_id: null, order_index: 4 },
     { id: '4-1', label: 'Instructional Values', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
     { id: '4-2', label: 'Academics Directory', href: '/academics', parent_id: '4', order_index: 1 },
