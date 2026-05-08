@@ -589,6 +589,32 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS school_info (
+    id TEXT PRIMARY KEY,
+    title TEXT,
+    heading TEXT,
+    content TEXT,
+    order_index INTEGER,
+    attachmentUrl TEXT
+  )
+`);
+
+const pageTables = ['academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'];
+pageTables.forEach(table => {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS "${table}" (
+      id TEXT PRIMARY KEY,
+      title TEXT,
+      heading TEXT,
+      content TEXT,
+      order_index INTEGER,
+      attachmentUrl TEXT,
+      image_url TEXT
+    )
+  `);
+});
+
 // Migration for settings
 try {
   db.prepare("ALTER TABLE settings ADD COLUMN currentSession TEXT").run();
@@ -889,10 +915,16 @@ if ((carouselCountResult?.count || 0) === 0) {
 }
 
 // General Seeding for missing tables
-const tablesToSeed = ['notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors'];
+const tablesToSeed = ['notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'];
 tablesToSeed.forEach(table => {
     const countResult = db.prepare(`SELECT COUNT(*) as count FROM "${table}"`).get() as any;
-    if ((countResult?.count || 0) === 0) {
+    const placeholderCheck = db.prepare(`SELECT COUNT(*) as count FROM "${table}" WHERE title = 'NEW SECTION TITLE'`).get() as any;
+    
+    if ((countResult?.count || 0) === 0 || (placeholderCheck?.count || 0) > 0) {
+        if ((placeholderCheck?.count || 0) > 0) {
+            db.prepare(`DELETE FROM "${table}" WHERE title = 'NEW SECTION TITLE'`).run();
+        }
+        
         console.log(`Seeding default ${table} items...`);
         let defaultData: any[] = [];
         if (table === 'notices') {
@@ -942,6 +974,16 @@ tablesToSeed.forEach(table => {
                 { id: '1', name: 'Rijul Jain', category: 'JEE Mains Aspirant', result: 'Qualified', subtext: 'SCIENCE CLUB (JOINT SECRETARY), RAJYA PURASKAR AWARDEE (SCOUTS AND GUIDES)', image: 'https://picsum.photos/seed/student1/300/300', order_index: 0 },
                 { id: '2', name: 'Ameyatman Roy', category: 'JEE Mains Merit', result: 'Qualified', subtext: 'ACADEMIC MERIT SCHOLAR', image: 'https://picsum.photos/seed/student2/300/300', order_index: 1 },
                 { id: '3', name: 'Aryan Sharma', category: 'JEE Mains Achiever', result: 'Qualified', subtext: 'ACADEMIC EXCELLENCE AWARD WINNER', image: 'https://picsum.photos/seed/student3/300/300', order_index: 2 },
+            ];
+        } else if (table === 'school_info') {
+            defaultData = [
+              { id: 'si-1', title: 'General Details', heading: 'Institutional Identity', content: 'Name of the School: St. Xavier\'s Sr. Sec. School<br />Address: Bhagwan Das Road, C-Scheme, Jaipur - 302 001 (Rajasthan)<br />Year of Foundation: 1941<br />School Management: Jaipur Xavier Educational Association', order_index: 0 },
+              { id: 'si-2', title: 'Contact Information', heading: 'Connect With Us', content: 'Phone Nos.: 0141-2370296, 2372336, 2367792<br />Email: xavier41jaipur@gmail.com<br />Website: www.stxaviersschooljaipur.com', order_index: 1 },
+              { id: 'si-3', title: 'Statutory Records', heading: 'CBSE & Statutory Codes', content: 'Affiliation No.: 1730003<br />School Code: 16003<br />Medium of Instruction: English<br />Student Type: Co-educational<br />Classes: Prep to XII', order_index: 2 },
+            ];
+        } else if (table === 'mandatory_disclosures') {
+            defaultData = [
+              { id: 'md-1', title: 'General Information', heading: 'A. General Information', content: '<strong>Name of the School:</strong> St. Xavier\'s Sr. Sec. School<br /><strong>Affiliation No.:</strong> 1730003<br /><strong>School Code:</strong> 16003<br /><strong>Complete Address with PIN code:</strong> Bhagwan Das Road, C-Scheme, Jaipur - 301001<br /><strong>Principal Name & Qualification:</strong> Fr. M. Arockiam, SJ<br /><strong>School email id:</strong> xavier41jaipur@gmail.com<br /><strong>Contact Details (Landline/Mobile):</strong> 0141-2372336, 2367792', order_index: 0 },
             ];
         }
 
@@ -1287,7 +1329,7 @@ const targetStaff = [
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};
-    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups', 'school_history', 'lead_grace'];
+    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups', 'school_history', 'lead_grace', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'];
 
     tables.forEach(table => {
       let rows = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
@@ -1339,6 +1381,14 @@ const SCHEMA: Record<string, string[]> = {
   faqs: ['id', 'question', 'answer', 'category', 'order_index', 'attachmentUrl'],
   messages: ['id', 'name', 'email', 'subject', 'message', 'timestamp', 'status', 'attachmentUrl'],
   popups: ['id', 'title', 'type', 'content', 'buttonText', 'buttonLink', 'isActive', 'order_index', 'attachmentUrl'],
+  school_info: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl'],
+  academics: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
+  activities: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
+  alumni: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
+  parent_obligations: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
+  careers: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
+  mandatory_disclosures: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
+  contact_content: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   school_history: ['id', 'title', 'content', 'updated_at'],
   lead_grace: ['id', 'heading', 'content', 'image_url', 'updated_at'],
   settings: ['id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 'contactEmail', 'contactPhone', 'contactAddress', 'currentSession', 'feesPdfUrl', 'popupMessage', 'popupEnabled'],

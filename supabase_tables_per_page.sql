@@ -59,8 +59,9 @@ INSERT INTO alumni (id, title, heading, content, order_index) VALUES
 
 -- SCHOOL INFO
 INSERT INTO school_info (id, title, heading, content, order_index) VALUES
-('si-1', 'Basic Details', 'Statutory Disclosure', 'Name: St. Xavier''s Sr. Sec. School\nAddress: Bhagwan Das Road, C-Scheme, Jaipur\nEstablished: 1941\nAffiliation: CBSE', 0),
-('si-2', 'Affiliation Status', 'CBSE Permanent', 'Affiliation No: 1730003\nStatus: Permanent Affiliation\nPeriod: Since August 1984', 1);
+('si-1', 'General Details', 'Institutional Identity', 'Name of the School: St. Xavier''s Sr. Sec. School<br />Address: Bhagwan Das Road, C-Scheme, Jaipur - 302 001 (Rajasthan)<br />Year of Foundation: 1941<br />School Management: Jaipur Xavier Educational Association', 0),
+('si-2', 'Contact Information', 'Connect With Us', 'Phone Nos.: 0141-2370296, 2372336, 2367792<br />Email: stxaviersschooljaipur@gmail.com<br />Website: www.stxaviersschooljaipur.com', 1),
+('si-3', 'Statutory Records', 'CBSE & Statutory Codes', 'Affiliation No.: 1730003<br />School Code: 16003<br />Medium of Instruction: English<br />Student Type: Co-educational<br />Classes: Prep to XII', 2);
 
 -- PARENT OBLIGATIONS
 INSERT INTO parent_obligations (id, title, heading, content, order_index) VALUES

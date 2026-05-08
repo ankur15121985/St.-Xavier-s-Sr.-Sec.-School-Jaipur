@@ -378,10 +378,22 @@ export const DEFAULT_DATA: AppData = {
   academics: [],
   activities: [],
   alumni: [],
-  school_info: [],
+  school_info: [
+    { id: 'si-1', title: 'General Details', heading: 'Institutional Identity', content: 'Name of the School: St. Xavier\'s Sr. Sec. School<br />Address: Bhagwan Das Road, C-Scheme, Jaipur - 302 001 (Rajasthan)<br />Year of Foundation: 1941<br />School Management: Jaipur Xavier Educational Association', order_index: 0 },
+    { id: 'si-2', title: 'Contact Information', heading: 'Connect With Us', content: 'Phone Nos.: 0141-2370296, 2372336, 2367792<br />Email: xavier41jaipur@gmail.com<br />Website: www.stxaviersschooljaipur.com', order_index: 1 },
+    { id: 'si-3', title: 'Statutory Records', heading: 'CBSE & Statutory Codes', content: 'Affiliation No.: 1730003<br />School Code: 16003<br />Medium of Instruction: English<br />Student Type: Co-educational<br />Classes: Prep to XII', order_index: 2 },
+  ],
   parent_obligations: [],
   careers: [],
-  mandatory_disclosures: [],
+  mandatory_disclosures: [
+    { 
+      id: 'md-1', 
+      title: 'General Information', 
+      heading: 'A. General Information', 
+      content: '<strong>Name of the School:</strong> St. Xavier\'s Sr. Sec. School<br /><strong>Affiliation No.:</strong> 1730003<br /><strong>School Code:</strong> 16003<br /><strong>Complete Address with PIN code:</strong> Bhagwan Das Road, C-Scheme, Jaipur - 301001<br /><strong>Principal Name & Qualification:</strong> Fr. M. Arockiam, SJ<br /><strong>School email id:</strong> xavier41jaipur@gmail.com<br /><strong>Contact Details (Landline/Mobile):</strong> 0141-2372336, 2367792', 
+      order_index: 0 
+    }
+  ],
   contact_content: [],
   former_leaders: [],
   admins: [],
@@ -478,7 +490,7 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
                 // IMPORTANT: Only overwrite if the fetched array actually has items,
                 // OR if it's a section where an empty list is a valid user-defined state
                 // (like messages or logs). For content tables, empty often means sync failure.
-                const isContentTable = ['staff', 'notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'marquee', 'popups'].includes(k);
+                const isContentTable = ['staff', 'notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'marquee', 'popups', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'].includes(k);
                 
                 if (val.length > 0 || !isContentTable) {
                   if (k === 'navigation_menu') {
