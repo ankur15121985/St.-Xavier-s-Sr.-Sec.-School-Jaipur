@@ -154,7 +154,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           </div>
 
       {/* Unified Sticky Header for Subpages */}
-          <header className={`z-[110] transition-all duration-500 bg-white dark:bg-slate-950 border-b border-black/5 ${isScrolled ? 'fixed top-0 inset-x-0 shadow-lg' : 'relative'}`} style={{ position: isScrolled ? '-webkit-sticky' : 'relative', top: isScrolled ? 0 : 'auto' }}>
+          <header className={`z-[110] transition-all duration-500 bg-white dark:bg-slate-950 border-b border-black/5 ${isScrolled ? 'fixed top-0 inset-x-0 shadow-lg' : 'relative'}`}>
             {/* Row 1: Logo Section */}
             <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
               <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
@@ -277,7 +277,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         </div>
       ) : (
         /* Original Home Header */
-        <header className={`fixed top-0 inset-x-0 z-[100] transition-all duration-500 ${isScrolled ? 'bg-white shadow-lg' : 'bg-white shadow-sm'}`} style={{ position: '-webkit-sticky', top: 0 }}>
+        <header className={`fixed top-0 inset-x-0 z-[100] transition-all duration-500 ${isScrolled ? 'bg-white shadow-lg' : 'bg-white shadow-sm'}`}>
           {/* Row 1: Brand & Actions */}
           <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
@@ -650,7 +650,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Contact & Info</h4>
                   <ul className="space-y-3">
                     <li><Link to="/contact" className="text-white/40 hover:text-white transition-all text-sm font-medium">Contact Us</Link></li>
-                    <li><Link to="/school-info" className="text-white/40 hover:text-white transition-all text-sm font-medium">Mandatory Disclosure</Link></li>
+                    <li><Link to="/mandatory-disclosures" className="text-white/40 hover:text-white transition-all text-sm font-medium">Mandatory Disclosure</Link></li>
                     <li><Link to="/careers" className="text-white/40 hover:text-white transition-all text-sm font-medium">Careers</Link></li>
                     <li><Link to="/transfer-certificate" className="text-white/40 hover:text-white transition-all text-sm font-medium">TC Search</Link></li>
                     <li><Link to="/notice-board" className="text-white/40 hover:text-white transition-all text-sm font-medium">Digital Notice Board</Link></li>

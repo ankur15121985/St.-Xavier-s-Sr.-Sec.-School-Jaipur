@@ -27,7 +27,7 @@ export interface MenuItem { id: string; label: string; href: string; parent_id?:
 export interface FAQ { id: string; question: string; answer: string; category?: string; order_index: number; is_enabled?: boolean; }
 export interface PageSection {
   id: string;
-  page_id: string;
+  page_id?: string;
   section_key?: string;
   title: string;
   heading?: string;

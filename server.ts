@@ -977,13 +977,23 @@ tablesToSeed.forEach(table => {
             ];
         } else if (table === 'school_info') {
             defaultData = [
-              { id: 'si-1', title: 'General Details', heading: 'Institutional Identity', content: 'Name of the School: St. Xavier\'s Sr. Sec. School<br />Address: Bhagwan Das Road, C-Scheme, Jaipur - 302 001 (Rajasthan)<br />Year of Foundation: 1941<br />School Management: Jaipur Xavier Educational Association', order_index: 0 },
-              { id: 'si-2', title: 'Contact Information', heading: 'Connect With Us', content: 'Phone Nos.: 0141-2370296, 2372336, 2367792<br />Email: xavier41jaipur@gmail.com<br />Website: www.stxaviersschooljaipur.com', order_index: 1 },
-              { id: 'si-3', title: 'Statutory Records', heading: 'CBSE & Statutory Codes', content: 'Affiliation No.: 1730003<br />School Code: 16003<br />Medium of Instruction: English<br />Student Type: Co-educational<br />Classes: Prep to XII', order_index: 2 },
+              { id: 'si-1', title: 'General Institution Details', heading: 'Official Identification', content: 'Name of the School: St. Xavier\'s Sr. Sec. School<br />Address: Bhagwan Das Road, C-Scheme, Jaipur - 302 001 (Rajasthan)<br />Affiliation Number: 1730003<br />School Code: 16001<br />Year of Foundation: 1941<br />School Management: Jaipur Xavier Educational Association', order_index: 0 },
+              { id: 'si-2', title: 'Contact Information', heading: 'Reach Out To Us', content: 'Email: info@stxaviersjaipur.edu.in<br />Phone: 0141-2372336, 2367792<br />Website: www.stxaviersjaipur.edu.in', order_index: 1 }
             ];
         } else if (table === 'mandatory_disclosures') {
             defaultData = [
-              { id: 'md-1', title: 'General Information', heading: 'A. General Information', content: '<strong>Name of the School:</strong> St. Xavier\'s Sr. Sec. School<br /><strong>Affiliation No.:</strong> 1730003<br /><strong>School Code:</strong> 16003<br /><strong>Complete Address with PIN code:</strong> Bhagwan Das Road, C-Scheme, Jaipur - 301001<br /><strong>Principal Name & Qualification:</strong> Fr. M. Arockiam, SJ<br /><strong>School email id:</strong> xavier41jaipur@gmail.com<br /><strong>Contact Details (Landline/Mobile):</strong> 0141-2372336, 2367792', order_index: 0 },
+              { id: 'md-1', title: 'Affiliation / Upgradation Letter', content: 'Copies of Affiliation / Upgradation letter and recent extension of affiliation.', attachmentUrl: '', order_index: 0 },
+              { id: 'md-2', title: 'Society/Trust Registration', content: 'Copies of Societies / Trust / Company Registration / Renewal certificate.', attachmentUrl: '', order_index: 1 },
+              { id: 'md-3', title: 'No Objection Certificate (NOC)', content: 'Copy of No Objection Certificate (NOC) issued by the State Govt / UT.', attachmentUrl: '', order_index: 2 },
+              { id: 'md-4', title: 'Recognition Certificate', content: 'Copies of Recognition Certificate under RTE Act, 2009 and its renewal.', attachmentUrl: '', order_index: 3 },
+              { id: 'md-5', title: 'Building Safety Certificate', content: 'Copy of valid Building Safety Certificate as per National Building Code.', attachmentUrl: '', order_index: 4 },
+              { id: 'md-6', title: 'Fire Safety Certificate', content: 'Copy of valid Fire Safety Certificate issued by the competent authority.', attachmentUrl: '', order_index: 5 },
+              { id: 'md-7', title: 'Self Certification', content: 'Copy of the Self Certification submitted by the school for affiliation.', attachmentUrl: '', order_index: 6 },
+              { id: 'md-8', title: 'Health & Sanitation Certificate', content: 'Copies of valid Water, Health and Sanitation certificates.', attachmentUrl: '', order_index: 7 }
+            ];
+        } else if (table === 'parent_obligations') {
+            defaultData = [
+              { id: 'po-pta', title: 'Parent Teacher Association (PTA)', content: 'Note: Every parent and teacher is a member of the Parent Teacher Association', order_index: 0 }
             ];
         }
 
