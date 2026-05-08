@@ -5,6 +5,13 @@ import { AppData } from '../types';
 import { BookOpen, Award, ShieldAlert, GraduationCap, Users, Clock, CheckCircle2 } from 'lucide-react';
 
 const JesuitEducationPage = ({ data }: { data: AppData }) => {
+  const jesuitData = data.jesuit_page_content?.[0] || {
+    objectives_html: '',
+    examinations_html: '',
+    promotions_html: '',
+    discipline_html: ''
+  };
+
   return (
     <Layout data={data}>
       <div className="bg-school-paper min-h-screen">
@@ -58,30 +65,27 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-12 -mt-12 blur-3xl"></div>
               <h3 className="text-2xl font-serif font-black italic text-school-gold mb-8">Integral Formation Aims:</h3>
-              <ul className="space-y-6">
-                {(data.jesuit_objectives || []).filter(o => o.is_enabled !== false).sort((a, b) => (a.order_index || 0) - (b.order_index || 0)).map((item) => (
-                  <li key={item.id} className="flex gap-4 items-start group">
-                    <CheckCircle2 className="text-school-gold shrink-0 mt-1 transition-transform group-hover:scale-110" size={18} />
-                    <div className="space-y-1">
-                      <p className="text-sm font-bold text-white leading-relaxed">{item.title}</p>
-                      {item.content && <div className="text-xs font-light text-white/60 leading-relaxed prose-invert prose-p:m-0" dangerouslySetInnerHTML={{ __html: item.content }} />}
-                    </div>
-                  </li>
-                ))}
-                {(!data.jesuit_objectives || data.jesuit_objectives.length === 0) && [
-                  "Help students become mature, spiritually oriented men and women of character.",
-                  "Encourage continual striving after excellence in every field.",
-                  "Value and judiciously use their freedom.",
-                  "Be clear and firm on principles and courageous in action.",
-                  "Be unselfish in the service of their fellow human beings.",
-                  "Become agents of needed social change in the country."
-                ].map((item, i) => (
-                  <li key={i} className="flex gap-4 items-start group">
-                    <CheckCircle2 className="text-school-gold shrink-0 mt-1 transition-transform group-hover:scale-110" size={18} />
-                    <p className="text-sm font-light text-white/80 leading-relaxed">{item}</p>
-                  </li>
-                ))}
-              </ul>
+              <div className="prose prose-invert prose-p:text-white/80 prose-li:text-white/80 prose-strong:text-school-gold prose-li:my-1 prose-ul:list-none prose-ul:p-0">
+                {jesuitData.objectives_html ? (
+                  <div dangerouslySetInnerHTML={{ __html: jesuitData.objectives_html }} className="space-y-6 [&>ul]:space-y-6 [&>ul>li]:flex [&>ul>li]:gap-4 [&>ul>li]:items-start [&>ul>li]:group [&>ul>li:before]:content-['✓'] [&>ul>li:before]:text-school-gold [&>ul>li:before]:font-bold [&>ul>li:before]:shrink-0" />
+                ) : (
+                  <ul className="space-y-6">
+                    {[
+                      "Help students become mature, spiritually oriented men and women of character.",
+                      "Encourage continual striving after excellence in every field.",
+                      "Value and judiciously use their freedom.",
+                      "Be clear and firm on principles and courageous in action.",
+                      "Be unselfish in the service of their fellow human beings.",
+                      "Become agents of needed social change in the country."
+                    ].map((item, i) => (
+                      <li key={i} className="flex gap-4 items-start group text-sm font-light leading-relaxed">
+                        <CheckCircle2 className="text-school-gold shrink-0 mt-1 transition-transform group-hover:scale-110" size={18} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </motion.div>
           </div>
         </section>
@@ -111,13 +115,17 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
                   </div>
                   <h3 className="text-2xl font-serif font-black italic text-school-ink">Examinations</h3>
                 </div>
-                <div className="space-y-4 text-sm text-school-ink/70 leading-relaxed font-light">
-                  <p>• Two Semesters per year with Internal Assessments in each.</p>
-                  <p>• <span className="font-bold text-school-ink">40% Minimum marks</span> in each subject for every grade (1 to 12).</p>
-                  <p>• <span className="font-bold text-school-ink">90% Attendance</span> is mandatory to appear for the final examination.</p>
-                  <p>• No re-examinations for absence. Medical certificates required for illness-related absence from tests.</p>
-                  <p className="italic bg-school-paper/50 p-4 rounded-xl border border-school-ink/10">"Sufficient reasons like unsatisfactory progress or serious misconduct may debar a pupil from examination."</p>
-                </div>
+                {jesuitData.examinations_html ? (
+                  <div className="text-sm text-school-ink/70 leading-relaxed font-light prose prose-p:m-0 max-w-none" dangerouslySetInnerHTML={{ __html: jesuitData.examinations_html }} />
+                ) : (
+                  <div className="space-y-4 text-sm text-school-ink/70 leading-relaxed font-light">
+                    <p>• Two Semesters per year with Internal Assessments in each.</p>
+                    <p>• <span className="font-bold text-school-ink">40% Minimum marks</span> in each subject for every grade (1 to 12).</p>
+                    <p>• <span className="font-bold text-school-ink">90% Attendance</span> is mandatory to appear for the final examination.</p>
+                    <p>• No re-examinations for absence. Medical certificates required for illness-related absence from tests.</p>
+                    <p className="italic bg-school-paper/50 p-4 rounded-xl border border-school-ink/10">"Sufficient reasons like unsatisfactory progress or serious misconduct may debar a pupil from examination."</p>
+                  </div>
+                )}
               </motion.div>
 
               {/* Promotions */}
@@ -134,13 +142,17 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
                   </div>
                   <h3 className="text-2xl font-serif font-black italic text-school-ink">Promotions</h3>
                 </div>
-                <div className="space-y-4 text-sm text-school-ink/70 leading-relaxed font-light">
-                  <p>• Decisions based on the <span className="font-bold text-school-ink uppercase">Whole Year’s Work</span> and steady performance.</p>
-                  <p>• Failure in two or more subjects renders a pupil liable to repeat the class.</p>
-                  <p>• Results declared at year-end are final; retests or reconsiderations are not possible.</p>
-                  <p>• <span className="font-bold text-school-ink">Class XII Criteria:</span> Minimum 33% required per subject. Failure in any two subjects in Class XI results in overall failure.</p>
-                  <p className="text-[10px] uppercase font-black tracking-widest text-school-ink/30">Note: Answer sheets of final exams are not shown to parents/guardians.</p>
-                </div>
+                {jesuitData.promotions_html ? (
+                  <div className="text-sm text-school-ink/70 leading-relaxed font-light prose prose-p:m-0 max-w-none" dangerouslySetInnerHTML={{ __html: jesuitData.promotions_html }} />
+                ) : (
+                  <div className="space-y-4 text-sm text-school-ink/70 leading-relaxed font-light">
+                    <p>• Decisions based on the <span className="font-bold text-school-ink uppercase">Whole Year’s Work</span> and steady performance.</p>
+                    <p>• Failure in two or more subjects renders a pupil liable to repeat the class.</p>
+                    <p>• Results declared at year-end are final; retests or reconsiderations are not possible.</p>
+                    <p>• <span className="font-bold text-school-ink">Class XII Criteria:</span> Minimum 33% required per subject. Failure in any two subjects in Class XI results in overall failure.</p>
+                    <p className="text-[10px] uppercase font-black tracking-widest text-school-ink/30">Note: Answer sheets of final exams are not shown to parents/guardians.</p>
+                  </div>
+                )}
               </motion.div>
             </div>
           </div>
@@ -162,49 +174,34 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
                   </div>
                 </div>
 
-                <div className="lg:w-2/3 grid sm:grid-cols-2 gap-12">
-                  {(data.discipline_rules || []).filter(r => r.is_enabled !== false).sort((a, b) => (a.order_index || 0) - (b.order_index || 0)).map((rule, idx) => (
-                    <motion.div
-                      key={rule.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: idx * 0.05 }}
-                      className="p-8 border border-school-ink/5 rounded-[32px] hover:bg-school-paper/50 transition-colors group"
-                    >
-                      <div className="text-school-gold mb-4 group-hover:scale-110 transition-transform">
-                        {rule.title?.toLowerCase().includes('clock') || rule.title?.toLowerCase().includes('punctuality') ? <Clock size={20} /> :
-                         rule.title?.toLowerCase().includes('user') || rule.title?.toLowerCase().includes('uniform') ? <Users size={20} /> :
-                         rule.title?.toLowerCase().includes('book') || rule.title?.toLowerCase().includes('diary') ? <BookOpen size={20} /> :
-                         rule.title?.toLowerCase().includes('conduct') || rule.title?.toLowerCase().includes('grad') ? <GraduationCap size={20} /> :
-                         rule.title?.toLowerCase().includes('shield') || rule.title?.toLowerCase().includes('property') ? <ShieldAlert size={20} /> :
-                         <Zap size={20} />}
-                      </div>
-                      <h4 className="text-lg font-serif font-black text-school-ink mb-2 italic uppercase">{rule.title}</h4>
-                      {rule.content && <div className="text-sm text-school-ink/60 leading-relaxed font-light prose-p:m-0" dangerouslySetInnerHTML={{ __html: rule.content }} />}
-                    </motion.div>
-                  ))}
-                  {(!data.discipline_rules || data.discipline_rules.length === 0) && [
-                    { icon: <Clock size={20} />, title: "Punctuality", desc: "Arrive at least five minutes before the first bell. Prompt assembly is mandatory." },
-                    { icon: <Users size={20} />, title: "Uniform", desc: "Habitually clean and neat dress. Uniform is mandatory for all school functions." },
-                    { icon: <BookOpen size={20} />, title: "Student Diary", desc: "The official school diary must be brought to school every single day." },
-                    { icon: <GraduationCap size={20} />, title: "Conduct", desc: "Excel in manners and cleanliness. patronizing street vendors is forbidden for health." },
-                    { icon: <ShieldAlert size={20} />, title: "Property", desc: "Damages must be made good. Personal vehicles require valid licences; 4-wheelers not allowed." },
-                    { icon: <Zap size={20} /> as any, title: "Class Order", desc: "Monitors assume responsibility for order if a teacher is delayed." }
-                  ].map((rule, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: idx * 0.05 }}
-                      className="p-8 border border-school-ink/5 rounded-[32px] hover:bg-school-paper/50 transition-colors group"
-                    >
-                      <div className="text-school-gold mb-4 group-hover:scale-110 transition-transform">{rule.icon}</div>
-                      <h4 className="text-lg font-serif font-black text-school-ink mb-2 italic uppercase">{rule.title}</h4>
-                      <p className="text-sm text-school-ink/60 leading-relaxed font-light">{rule.desc}</p>
-                    </motion.div>
-                  ))}
+                <div className="lg:w-2/3">
+                  {jesuitData.discipline_html ? (
+                    <div className="p-8 border border-school-ink/5 rounded-[32px] bg-school-paper/50 prose prose-ink max-w-none prose-p:text-sm prose-li:text-sm" dangerouslySetInnerHTML={{ __html: jesuitData.discipline_html }} />
+                  ) : (
+                    <div className="grid sm:grid-cols-2 gap-12">
+                      {[
+                        { icon: <Clock size={20} />, title: "Punctuality", desc: "Arrive at least five minutes before the first bell. Prompt assembly is mandatory." },
+                        { icon: <Users size={20} />, title: "Uniform", desc: "Habitually clean and neat dress. Uniform is mandatory for all school functions." },
+                        { icon: <BookOpen size={20} />, title: "Student Diary", desc: "The official school diary must be brought to school every single day." },
+                        { icon: <GraduationCap size={20} />, title: "Conduct", desc: "Excel in manners and cleanliness. patronizing street vendors is forbidden for health." },
+                        { icon: <ShieldAlert size={20} />, title: "Property", desc: "Damages must be made good. Personal vehicles require valid licences; 4-wheelers not allowed." },
+                        { icon: <Zap size={20} /> as any, title: "Class Order", desc: "Monitors assume responsibility for order if a teacher is delayed." }
+                      ].map((rule, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, y: 10 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: idx * 0.05 }}
+                          className="p-8 border border-school-ink/5 rounded-[32px] hover:bg-school-paper/50 transition-colors group"
+                        >
+                          <div className="text-school-gold mb-4 group-hover:scale-110 transition-transform">{rule.icon}</div>
+                          <h4 className="text-lg font-serif font-black text-school-ink mb-2 italic uppercase">{rule.title}</h4>
+                          <p className="text-sm text-school-ink/60 leading-relaxed font-light">{rule.desc}</p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
                 </div>
              </div>
           </div>

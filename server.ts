@@ -600,7 +600,7 @@ db.exec(`
   )
 `);
 
-const pageTables = ['academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_objectives', 'discipline_rules'];
+const pageTables = ['academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'];
 pageTables.forEach(table => {
   db.exec(`
     CREATE TABLE IF NOT EXISTS "${table}" (
@@ -614,6 +614,34 @@ pageTables.forEach(table => {
     )
   `);
 });
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS jesuit_page_content (
+     id TEXT PRIMARY KEY,
+     objectives_html TEXT,
+     examinations_html TEXT,
+     promotions_html TEXT,
+     discipline_html TEXT,
+     updated_at TEXT
+  )
+`);
+
+// Seed Jesuit Page Content if empty
+const jesuitCount = db.prepare("SELECT COUNT(*) as count FROM jesuit_page_content").get() as any;
+if ((jesuitCount?.count || 0) === 0) {
+    console.log("Seeding jesuit_page_content...");
+    db.prepare(`
+        INSERT INTO jesuit_page_content (id, objectives_html, examinations_html, promotions_html, discipline_html, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+    `).run(
+        'primary',
+        '<ul><li>Help students become mature, spiritually oriented men and women of character.</li><li>Encourage continual striving after excellence in every field.</li><li>Value and judiciously use their freedom.</li><li>Be clear and firm on principles and courageous in action.</li><li>Be unselfish in the service of their fellow human beings.</li><li>Become agents of needed social change in the country.</li></ul>',
+        '<p>Information about examinations will be updated soon.</p>',
+        '<p>Information about promotions will be updated soon.</p>',
+        '<ul><li>Arrive at least five minutes before the first bell.</li><li>Habitually clean and neat dress.</li><li>Official school diary is mandatory daily.</li><li>Excel in conduct and cleanliness.</li><li>Damages to property must be made good.</li><li>Personal vehicles require valid licences.</li></ul>',
+        new Date().toISOString()
+    );
+}
 
 // Migration for settings
 try {
@@ -994,24 +1022,6 @@ tablesToSeed.forEach(table => {
         } else if (table === 'parent_obligations') {
             defaultData = [
               { id: 'po-pta', title: 'Parent Teacher Association (PTA)', content: 'Note: Every parent and teacher is a member of the Parent Teacher Association', order_index: 0 }
-            ];
-        } else if (table === 'jesuit_objectives') {
-            defaultData = [
-                { id: 'jo-1', title: 'Maturity', content: 'Help students become mature, spiritually oriented men and women of character.', order_index: 0 },
-                { id: 'jo-2', title: 'Excellence', content: 'Encourage continual striving after excellence in every field.', order_index: 1 },
-                { id: 'jo-3', title: 'Freedom', content: 'Value and judiciously use their freedom.', order_index: 2 },
-                { id: 'jo-4', title: 'Principles', content: 'Be clear and firm on principles and courageous in action.', order_index: 3 },
-                { id: 'jo-5', title: 'Service', content: 'Be unselfish in the service of their fellow human beings.', order_index: 4 },
-                { id: 'jo-6', title: 'Social Change', content: 'Become agents of needed social change in the country.', order_index: 5 }
-            ];
-        } else if (table === 'discipline_rules') {
-            defaultData = [
-                { id: 'dr-1', title: "Punctuality", content: "Arrive at least five minutes before the first bell. Prompt assembly is mandatory.", order_index: 0 },
-                { id: 'dr-2', title: "Uniform", content: "Habitually clean and neat dress. Uniform is mandatory for all school functions.", order_index: 1 },
-                { id: 'dr-3', title: "Student Diary", content: "The official school diary must be brought to school every single day.", order_index: 2 },
-                { id: 'dr-4', title: "Conduct", content: "Excel in manners and cleanliness. patronizing street vendors is forbidden for health.", order_index: 3 },
-                { id: 'dr-5', title: "Property", content: "Damages must be made good. Personal vehicles require valid licences; 4-wheelers not allowed.", order_index: 4 },
-                { id: 'dr-6', title: "Class Order", content: "Monitors assume responsibility for order if a teacher is delayed.", order_index: 5 }
             ];
         }
 

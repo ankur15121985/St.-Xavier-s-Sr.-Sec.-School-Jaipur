@@ -61,6 +61,15 @@ export interface MarqueeItem {
   order_index: number;
 }
 
+export interface JesuitPageContent {
+  id: string;
+  objectives_html: string;
+  examinations_html: string;
+  promotions_html: string;
+  discipline_html: string;
+  updated_at?: string;
+}
+
 export interface LeadGrace {
   id: string;
   heading: string;
@@ -191,8 +200,7 @@ export interface AppData {
   careers: PageSection[];
   mandatory_disclosures: PageSection[];
   contact_content: PageSection[];
-  jesuit_objectives: PageSection[];
-  discipline_rules: PageSection[];
+  jesuit_page_content: JesuitPageContent[];
   settings: AppSettings;
   content: Record<string, string>;
   admins: AdminCredential[];
