@@ -46,13 +46,14 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
               viewport={{ once: true }}
               className="space-y-8 xl:sticky xl:top-32"
             >
-              <div className="inline-block px-4 py-1.5 bg-school-gold/10 rounded-full text-[10px] font-black uppercase tracking-widest text-school-gold mb-2">Our Vision</div>
-              <h2 className="text-4xl font-serif font-black text-school-navy italic tracking-tight">Inspired by Divine Wisdom</h2>
-              <div className="space-y-6 text-lg text-slate-800 font-medium leading-relaxed text-justify">
-                <p className="first-letter:text-4xl first-letter:font-black first-letter:text-school-gold first-letter:mr-2 first-letter:float-left">
-                  Jesuit Education is inspired by a vision drawn from the life and teachings of Jesus Christ and the principles of CHARACTER formation elaborated by <span className="font-bold text-school-navy">Ignatius Loyola</span>, the founder of the Society of Jesus.
+              <div className="inline-block px-5 py-2 bg-school-gold/10 rounded-full text-[10px] font-black uppercase tracking-widest text-school-gold mb-10 border border-school-gold/20 shadow-sm shadow-school-gold/5">Our Vision</div>
+              <h2 className="text-4xl md:text-5xl lg:text-7xl font-serif font-black text-school-navy italic tracking-tight leading-[1.1] mb-12">Inspired by <br className="hidden md:block" /> Divine Wisdom</h2>
+              
+              <div className="space-y-10 text-xl text-slate-800 font-medium leading-relaxed text-justify relative z-10 bg-white/40 backdrop-blur-sm p-8 md:p-12 rounded-[40px] border border-white/60 shadow-xl shadow-school-navy/5">
+                <p className="first-letter:text-6xl first-letter:font-black first-letter:text-school-accent first-letter:mr-4 first-letter:float-left first-letter:leading-none first-letter:mt-2">
+                  Jesuit Education is inspired by a vision drawn from the life and teachings of Jesus Christ and the principles of CHARACTER formation elaborated by <span className="font-bold text-school-navy decoration-school-gold decoration-2 underline-offset-4 underline">Ignatius Loyola</span>, the founder of the Society of Jesus.
                 </p>
-                <p>
+                <p className="pt-4 border-t border-school-ink/5">
                   This vision sets before our staff, students, and parents high ideals of humanism and service. We believe in a Christian Social Ethics whereby justice is an absolute requirement of faith in God and the acceptance of each other as brothers and sisters.
                 </p>
               </div>

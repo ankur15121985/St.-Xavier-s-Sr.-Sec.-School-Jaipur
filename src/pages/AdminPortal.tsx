@@ -142,7 +142,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
           )}
         </div>
       )}
-      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 w-full">
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16 lg:gap-20 w-full pb-20">
         {Object.entries({
           ...item,
           ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
@@ -155,9 +155,10 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
             (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content'].includes(section) && k === 'image_url');
           return !handledAtBottom;
         }).map(([field, value]) => (
-          <div key={field} className="space-y-2">
-            <label className="text-[10px] font-serif font-bold uppercase tracking-widest text-school-ink/40">
-              {field === 'objectives_html' ? 'OBJECTIVES OF JESUIT EDUCATION' :
+          <div key={field} className="space-y-6 md:space-y-8 bg-white/30 backdrop-blur-xs p-6 rounded-3xl border border-white/20 shadow-sm">
+            <div className="flex flex-col gap-4">
+              <label className="text-[10px] font-serif font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 pb-2 inline-block">
+                {field === 'objectives_html' ? 'OBJECTIVES OF JESUIT EDUCATION' :
                field === 'examinations_html' ? 'EXAMINATIONS' :
                field === 'promotions_html' ? 'PROMOTIONS' :
                field === 'discipline_html' ? 'Rules of Discipline' :
