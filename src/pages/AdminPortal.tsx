@@ -156,7 +156,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
           return !handledAtBottom;
         }).map(([field, value]) => (
           <div key={field} className="space-y-2">
-            <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30">
+            <label className="text-[10px] font-serif font-bold uppercase tracking-widest text-school-ink/40">
               {field === 'objectives_html' ? 'OBJECTIVES OF JESUIT EDUCATION' :
                field === 'examinations_html' ? 'EXAMINATIONS' :
                field === 'promotions_html' ? 'PROMOTIONS' :
@@ -1226,7 +1226,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
              >
                <div className="flex items-center gap-3">
                  <div className="w-2 h-2 bg-school-gold rounded-full animate-pulse" />
-                 <p className="text-[9px] font-black uppercase tracking-widest text-school-gold truncate max-w-[150px]">
+                 <p className="text-[9px] font-serif font-bold uppercase tracking-widest text-school-gold truncate max-w-[150px]">
                    Dev Active: {user.email}
                  </p>
                </div>
@@ -1235,7 +1235,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
            )}
            {savePending && (
               <div className="px-6 py-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                <p className="text-[9px] font-black uppercase tracking-widest text-emerald-500 mb-1">Unsaved Changes</p>
+                <p className="text-[9px] font-serif font-bold uppercase tracking-widest text-emerald-500 mb-1">Unsaved Changes</p>
                 <p className="text-[10px] text-emerald-500/60 font-light leading-relaxed">Changes made here are not permanent until saved.</p>
               </div>
            )}
@@ -1507,7 +1507,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                       </div>
                       
                       <div className="mt-6">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-white/30 mb-2 px-1">Caption Entry</p>
+                        <p className="text-[9px] font-serif font-bold uppercase tracking-widest text-white/30 mb-2 px-1">Caption Entry</p>
                         <input 
                           type="text"
                           placeholder={item.status === 'completed' ? "Add detailed caption..." : "Waiting for upload..."}
@@ -1519,7 +1519,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                       </div>
 
                       <div className="mt-4">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-white/30 mb-2 px-1">Session / Year (e.g. 2024-25)</p>
+                        <p className="text-[9px] font-serif font-bold uppercase tracking-widest text-white/30 mb-2 px-1">Session / Year (e.g. 2024-25)</p>
                         <input 
                           type="text"
                           placeholder="e.g. 2024-25"

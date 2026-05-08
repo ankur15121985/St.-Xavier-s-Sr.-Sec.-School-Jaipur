@@ -38,5 +38,30 @@ DROP POLICY IF EXISTS "Public Full Access" ON settings;
 CREATE POLICY "Public Full Access" ON settings FOR ALL TO public USING (true) WITH CHECK (true);
 GRANT ALL ON TABLE settings TO anon, authenticated, postgres, service_role;
 
+-- JESUIT PAGE CONTENT TABLE
+CREATE TABLE IF NOT EXISTS jesuit_page_content (
+     id TEXT PRIMARY KEY DEFAULT 'primary',
+     objectives_html TEXT,
+     examinations_html TEXT,
+     promotions_html TEXT,
+     discipline_html TEXT,
+     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+ALTER TABLE jesuit_page_content ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public Full Access" ON jesuit_page_content;
+CREATE POLICY "Public Full Access" ON jesuit_page_content FOR ALL TO public USING (true) WITH CHECK (true);
+GRANT ALL ON TABLE jesuit_page_content TO anon, authenticated, postgres, service_role;
+
+-- Seed Jesuit Page Content if empty
+INSERT INTO jesuit_page_content (id, objectives_html, examinations_html, promotions_html, discipline_html)
+VALUES (
+    'primary',
+    '<ul><li>Help students become mature, spiritually oriented men and women of character.</li><li>Encourage continual striving after excellence in every field.</li><li>Value and judiciously use their freedom.</li><li>Be clear and firm on principles and courageous in action.</li><li>Be unselfish in the service of their fellow human beings.</li><li>Become agents of needed social change in the country.</li></ul>',
+    '<p>Information about examinations will be updated soon.</p>',
+    '<p>Information about promotions will be updated soon.</p>',
+    '<ul><li>Arrive at least five minutes before the first bell.</li><li>Habitually clean and neat dress.</li><li>Official school diary is mandatory daily.</li><li>Excel in conduct and cleanliness.</li><li>Damages to property must be made good.</li><li>Personal vehicles require valid licences.</li></ul>'
+) ON CONFLICT (id) DO NOTHING;
+
 -- Notify schema reload
 NOTIFY pgrst, 'reload schema';

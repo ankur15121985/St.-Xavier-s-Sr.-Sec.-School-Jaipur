@@ -1367,7 +1367,7 @@ const targetStaff = [
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};
-    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups', 'school_history', 'lead_grace', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'];
+    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups', 'school_history', 'lead_grace', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content'];
 
     tables.forEach(table => {
       let rows = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
@@ -1427,6 +1427,7 @@ const SCHEMA: Record<string, string[]> = {
   careers: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   mandatory_disclosures: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   contact_content: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
+  jesuit_page_content: ['id', 'objectives_html', 'examinations_html', 'promotions_html', 'discipline_html', 'updated_at'],
   school_history: ['id', 'title', 'content', 'updated_at'],
   lead_grace: ['id', 'heading', 'content', 'image_url', 'updated_at'],
   settings: ['id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 'contactEmail', 'contactPhone', 'contactAddress', 'currentSession', 'feesPdfUrl', 'popupMessage', 'popupEnabled'],
