@@ -172,7 +172,18 @@ const StudentLeadershipPage = ({ data }: { data: AppData }) => {
                  <div key={rowIndex} className="relative">
                    {/* Connection Line to next row */}
                    {rowIndex < rows.length - 1 && (
-                     <div className={`absolute -bottom-12 ${rowIndex % 2 === 0 ? 'right-10 md:right-32' : 'left-10 md:left-32'} w-px h-12 bg-school-gold/20`} />
+                     <motion.div 
+                       initial={{ scaleY: 0 }}
+                       whileInView={{ scaleY: 1 }}
+                       viewport={{ once: true }}
+                       className={`absolute -bottom-12 ${rowIndex % 2 === 0 ? 'right-10 md:right-32' : 'left-10 md:left-32'} w-2 md:w-3 h-12 bg-linear-to-b from-school-gold/60 to-school-gold/10 origin-top overflow-hidden shadow-[0_0_15px_rgba(255,0,146,0.3)]`}
+                     >
+                       <motion.div 
+                         animate={{ y: [0, 48] }}
+                         transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                         className="w-full h-4 bg-white/30 blur-xs"
+                       />
+                     </motion.div>
                    )}
                    
                    <div className={`flex flex-col md:flex-row gap-6 ${rowIndex % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
@@ -187,16 +198,28 @@ const StudentLeadershipPage = ({ data }: { data: AppData }) => {
                            transition={{ delay: itemIndex * 0.1 }}
                            className="flex-1"
                          >
-                           <div className="bg-white/90 backdrop-blur-xl rounded-[32px] shadow-xl p-8 border border-white/40 h-full relative group hover:ring-2 hover:ring-school-gold/30 transition-all duration-500">
+                           <div className="bg-white/90 backdrop-blur-xl rounded-[32px] shadow-xl p-8 border border-white/40 h-full relative group hover:ring-4 hover:ring-school-gold/20 transition-all duration-500">
                              {/* Flow Indicator Arrow for desktop */}
                              {itemIndex < row.length - 1 && (
-                               <div className={`hidden md:block absolute top-1/2 -translate-y-1/2 ${rowIndex % 2 === 0 ? '-right-4' : '-left-4'} z-20`}>
+                               <div className={`hidden md:block absolute top-1/2 -translate-y-1/2 ${rowIndex % 2 === 0 ? '-right-6' : '-left-6'} z-20 w-12`}>
                                  <motion.div 
-                                   animate={{ x: rowIndex % 2 === 0 ? [0, 5, 0] : [0, -5, 0] }}
-                                   transition={{ repeat: Infinity, duration: 2 }}
-                                   className={`w-8 h-px bg-school-gold/40 relative`}
+                                    initial={{ scaleX: 0 }}
+                                    whileInView={{ scaleX: 1 }}
+                                    viewport={{ once: true }}
+                                    className="w-full h-2 md:h-3 bg-school-gold/30 relative overflow-hidden shadow-[0_0_10px_rgba(255,0,146,0.3)]"
                                  >
-                                   <div className={`absolute top-1/2 -translate-y-1/2 ${rowIndex % 2 === 0 ? 'right-0' : 'left-0'} w-1.5 h-1.5 border-t border-r border-school-gold/40 rotate-${rowIndex % 2 === 0 ? '45' : '225'}`} />
+                                    <motion.div 
+                                      animate={{ x: rowIndex % 2 === 0 ? [-48, 48] : [48, -48] }}
+                                      transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+                                      className="w-8 h-full bg-white/70 blur-[2px]"
+                                    />
+                                 </motion.div>
+                                 <motion.div 
+                                   animate={{ x: rowIndex % 2 === 0 ? [0, 3, 0] : [0, -3, 0] }}
+                                   transition={{ repeat: Infinity, duration: 2 }}
+                                   className={`absolute top-1/2 -translate-y-1/2 ${rowIndex % 2 === 0 ? 'right-0' : 'left-0'} z-30`}
+                                 >
+                                   <div className={`w-2 h-2 border-t-2 border-r-2 border-school-gold/60 rotate-${rowIndex % 2 === 0 ? '45' : '225'}`} />
                                  </motion.div>
                                </div>
                              )}

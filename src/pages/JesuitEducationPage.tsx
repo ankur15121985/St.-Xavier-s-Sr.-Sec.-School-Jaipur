@@ -22,6 +22,7 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
               src="https://lh3.googleusercontent.com/d/1t9vcyHXbu3KjpG-YClHk1BNsT_Rk9qZz" 
               className="w-full h-full object-cover brightness-40" 
               alt="Jesuit Education"
+              loading="lazy"
             />
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-school-navy/90 via-school-navy/60 to-school-navy/90"></div>
           </div>
@@ -37,13 +38,13 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Vision & Objectives Section */}
-        <section className="py-24 max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
+        <section className="py-40 max-w-7xl mx-auto px-6 lg:px-12 overflow-hidden">
+          <div className="grid xl:grid-cols-2 gap-12 xl:gap-20 items-start">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="space-y-8"
+              className="space-y-8 xl:sticky xl:top-32"
             >
               <div className="inline-block px-4 py-1.5 bg-school-gold/10 rounded-full text-[10px] font-black uppercase tracking-widest text-school-gold mb-2">Our Vision</div>
               <h2 className="text-4xl font-serif font-black text-school-navy italic tracking-tight">Inspired by Divine Wisdom</h2>
@@ -58,10 +59,10 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="bg-school-navy rounded-[48px] p-10 md:p-12 text-white shadow-2xl relative overflow-hidden"
+              className="bg-school-navy rounded-[48px] p-8 md:p-12 lg:p-16 text-white shadow-2xl relative overflow-hidden ring-1 ring-white/10"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-12 -mt-12 blur-3xl"></div>
               <h3 className="text-2xl font-serif font-black italic text-school-gold mb-8">Integral Formation Aims:</h3>

@@ -50,6 +50,7 @@ const LeadGracePage: React.FC<LeadGracePageProps> = ({ data }) => {
                   src={content.image_url || 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png'} 
                   alt="Lead Grace" 
                   className="w-full h-full object-cover"
+                  loading="lazy"
                 />
               </div>
             </motion.div>

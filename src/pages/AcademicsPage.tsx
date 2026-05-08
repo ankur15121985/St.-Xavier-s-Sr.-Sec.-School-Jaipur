@@ -110,6 +110,7 @@ const AcademicsPage = ({ data }: { data: AppData }) => {
                           src={section.image_url} 
                           alt={section.title} 
                           className="relative z-10 w-full aspect-[4/3] object-cover rounded-[60px] shadow-2xl border-2 border-white/10"
+                          loading="lazy"
                         />
                         <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-school-gold rounded-[40px] z-0 blur-2xl opacity-20"></div>
                       </div>

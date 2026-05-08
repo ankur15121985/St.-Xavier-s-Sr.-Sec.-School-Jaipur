@@ -65,7 +65,19 @@ const FormerLeadersPage = ({ data, type, title, description }: Props) => {
                 <div key={rowIndex} className="relative">
                   {/* Connection Line to next row */}
                   {rowIndex < rows.length - 1 && (
-                    <div className={`absolute -bottom-12 ${rowIndex % 2 === 0 ? 'right-20' : 'left-20'} w-px h-12 bg-school-gold/20 hidden md:block`} />
+                    <motion.div 
+                      initial={{ scaleY: 0 }}
+                      whileInView={{ scaleY: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1, delay: 0.5 }}
+                      className={`absolute -bottom-12 ${rowIndex % 2 === 0 ? 'right-20' : 'left-20'} w-2 md:w-3 h-12 bg-linear-to-b from-school-gold via-school-gold/50 to-school-gold/20 origin-top hidden md:block shadow-[0_0_15px_rgba(255,0,146,0.3)]`}
+                    >
+                      <motion.div 
+                        animate={{ y: [-48, 48] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                        className="w-full h-8 bg-white/60 blur-[2px]"
+                      />
+                    </motion.div>
                   )}
 
                   <div className={`flex flex-col md:flex-row gap-8 ${rowIndex % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
@@ -80,11 +92,23 @@ const FormerLeadersPage = ({ data, type, title, description }: Props) => {
                           transition={{ delay: itemIndex * 0.1 }}
                           className="flex-1"
                         >
-                          <div className="bg-white/80 backdrop-blur-xl rounded-[40px] p-10 shadow-xl border border-white/40 h-full group hover:shadow-2xl transition-all duration-500 relative">
+                          <div className="bg-white/80 backdrop-blur-xl rounded-[40px] p-10 shadow-xl border border-white/40 h-full group hover:shadow-2xl transition-all duration-500 relative ring-1 ring-black/5 hover:ring-school-gold/30">
                              {/* Flow indicator */}
-                             {itemIndex === 0 && row.length > 1 && (
+                              {itemIndex === 0 && row.length > 1 && (
                                <div className={`hidden md:block absolute top-1/2 -translate-y-1/2 ${rowIndex % 2 === 0 ? '-right-6' : '-left-6'} z-20`}>
-                                 <div className="w-12 h-px bg-school-gold/30" />
+                                 <motion.div 
+                                    initial={{ scaleX: 0 }}
+                                    whileInView={{ scaleX: 1 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.8, delay: 0.3 }}
+                                    className="w-12 h-2 md:h-3 bg-school-gold/40 origin-center overflow-hidden shadow-[0_0_10px_rgba(255,0,146,0.2)]"
+                                 >
+                                   <motion.div 
+                                     animate={{ x: rowIndex % 2 === 0 ? [-60, 60] : [60, -60] }}
+                                     transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+                                     className="w-8 h-full bg-white/80 blur-[2px]"
+                                   />
+                                 </motion.div>
                                </div>
                              )}
 

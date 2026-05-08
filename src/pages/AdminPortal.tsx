@@ -142,7 +142,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
           )}
         </div>
       )}
-      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 w-full">
         {Object.entries({
           ...item,
           ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
@@ -1816,6 +1816,41 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                <div className="bg-school-paper p-10 rounded-[40px] shadow-2xl border border-school-ink/10 space-y-12">
                <div>
                  <h2 className="text-3xl font-serif font-black text-school-navy italic tracking-tight mb-4">Global Site Settings</h2>
+                 
+                 {/* Font Branding Context */}
+                 <div className="mb-12 p-8 bg-school-gold/5 rounded-[32px] border border-school-gold/10">
+                   <div className="flex items-center gap-4 mb-6">
+                     <div className="w-12 h-12 bg-school-gold rounded-2xl flex items-center justify-center text-school-navy">
+                       <Type size={24} />
+                     </div>
+                     <div>
+                       <h3 className="text-xl font-serif font-bold text-school-navy italic">Typography Branding</h3>
+                       <p className="text-xs text-school-navy/40 font-medium">Manage the institutional font patterns across the portal</p>
+                     </div>
+                   </div>
+                   
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div className="p-6 bg-white rounded-2xl border border-school-ink/5 shadow-sm">
+                       <span className="text-[10px] font-serif font-bold uppercase tracking-widest text-school-gold mb-3 block">Primary Serif (Headings)</span>
+                       <h4 className="text-2xl font-serif font-bold text-school-navy mb-2 italic">Cormorant Garamond</h4>
+                       <p className="text-xs text-school-ink/50 font-light italic leading-relaxed">
+                         Used for high-impact biological titles, institutional quotes, and rhythmic headers. Provides a legacy, academic atmosphere.
+                       </p>
+                     </div>
+                     <div className="p-6 bg-white rounded-2xl border border-school-ink/5 shadow-sm">
+                       <span className="text-[10px] font-serif font-bold uppercase tracking-widest text-school-gold mb-3 block">Primary Sans (Interface)</span>
+                       <h1 className="text-2xl font-sans font-black text-school-navy mb-2 tracking-tight">Inter Prototype</h1>
+                       <p className="text-xs text-school-ink/50 font-light leading-relaxed">
+                         Used for utility text, labels, and administrative data. Provides clarity, precision, and modern accessibility.
+                       </p>
+                     </div>
+                   </div>
+
+                   <div className="mt-8 pt-8 border-t border-school-gold/10 flex flex-wrap gap-4">
+                     <button className="px-6 py-3 bg-school-navy text-white rounded-xl text-[10px] font-serif font-bold uppercase tracking-widest hover:bg-black transition-all">Apply Legacy Serif Theme</button>
+                     <button className="px-6 py-3 bg-white border border-school-ink/10 text-school-ink rounded-xl text-[10px] font-serif font-bold uppercase tracking-widest hover:bg-school-ink/5 transition-all">Reset to Modern Sans</button>
+                   </div>
+                 </div>
                  <p className="text-sm text-school-navy/60 leading-relaxed font-light">Site-wide configurations, contact information, and main branding assets.</p>
                </div>
 

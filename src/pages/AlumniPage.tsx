@@ -29,6 +29,7 @@ const AlumniPage = ({ data }: { data: AppData }) => {
               alt="Alumni Gathering Background" 
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
+              loading="lazy"
             />
             <div className="absolute inset-0 bg-school-navy/60 backdrop-blur-[2px]"></div>
           </div>
@@ -98,6 +99,7 @@ const AlumniPage = ({ data }: { data: AppData }) => {
                           src={section.image_url} 
                           alt={section.title} 
                           className="relative z-10 w-full aspect-[4/5] object-cover rounded-[40px] shadow-2xl border-4 border-white"
+                          loading="lazy"
                         />
                       </div>
                     </div>
