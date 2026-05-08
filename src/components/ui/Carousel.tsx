@@ -106,12 +106,14 @@ export const Carousel = ({ images, autoPlayInterval = 5000 }: CarouselProps) => 
         <button
           onClick={prevStep}
           className="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/40 transition-all pointer-events-auto"
+          style={{ WebkitBackdropFilter: 'blur(12px)' }}
         >
           <ChevronLeft size={20} />
         </button>
         <button
           onClick={nextStep}
           className="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/40 transition-all pointer-events-auto"
+          style={{ WebkitBackdropFilter: 'blur(12px)' }}
         >
           <ChevronRight size={20} />
         </button>

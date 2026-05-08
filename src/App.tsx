@@ -564,7 +564,7 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
   }, [isAdmin, authLoading]);
 
   if (loading || authLoading) return (
-    <div className="h-screen w-screen flex flex-col items-center justify-center bg-school-navy overflow-hidden">
+    <div className="h-[100dvh] w-screen flex flex-col items-center justify-center bg-school-navy overflow-hidden">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

@@ -153,8 +153,8 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             </div>
           </div>
 
-          {/* Unified Sticky Header for Subpages */}
-          <header className={`z-[110] transition-all duration-500 bg-white dark:bg-slate-950 border-b border-black/5 ${isScrolled ? 'fixed top-0 inset-x-0 shadow-lg' : 'relative'}`}>
+      {/* Unified Sticky Header for Subpages */}
+          <header className={`z-[110] transition-all duration-500 bg-white dark:bg-slate-950 border-b border-black/5 ${isScrolled ? 'fixed top-0 inset-x-0 shadow-lg' : 'relative'}`} style={{ position: isScrolled ? '-webkit-sticky' : 'relative', top: isScrolled ? 0 : 'auto' }}>
             {/* Row 1: Logo Section */}
             <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
               <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
@@ -277,7 +277,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         </div>
       ) : (
         /* Original Home Header */
-        <header className={`fixed top-0 inset-x-0 z-[100] transition-all duration-500 ${isScrolled ? 'bg-white shadow-lg' : 'bg-white shadow-sm'}`}>
+        <header className={`fixed top-0 inset-x-0 z-[100] transition-all duration-500 ${isScrolled ? 'bg-white shadow-lg' : 'bg-white shadow-sm'}`} style={{ position: '-webkit-sticky', top: 0 }}>
           {/* Row 1: Brand & Actions */}
           <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
@@ -348,7 +348,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           </div>
 
           {/* Row 2: Navigation Bar */}
-          <div className={`bg-white dark:bg-slate-900/50 backdrop-blur-md transition-all duration-500 ${isScrolled ? 'py-1' : 'py-0'}`}>
+          <div className={`bg-white dark:bg-slate-900/50 backdrop-blur-md transition-all duration-500 ${isScrolled ? 'py-1' : 'py-0'}`} style={{ WebkitBackdropFilter: 'blur(12px)' }}>
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8">
               <nav className="hidden lg:flex items-center justify-between flex-wrap">
                 {navLinks.map(l => (
@@ -411,6 +411,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[600] bg-black/40 backdrop-blur-md lg:hidden"
+            style={{ WebkitBackdropFilter: 'blur(12px)' }}
             onClick={() => setIsNavOpen(false)}
           >
             <motion.div 
@@ -425,7 +426,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 <NavThreeBackground />
               </div>
 
-              <div className="flex justify-between items-center p-6 border-b border-black/5 dark:border-white/5 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md sticky top-0 z-10">
+              <div className="flex justify-between items-center p-6 border-b border-black/5 dark:border-white/5 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md sticky top-0 z-10" style={{ position: '-webkit-sticky', WebkitBackdropFilter: 'blur(12px)' }}>
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 bg-white dark:bg-slate-800 p-2 rounded-2xl shadow-sm border border-black/5 dark:border-white/5">
                     <img src={data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} alt="Logo" className="w-full h-full object-contain" />
@@ -441,7 +442,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               
               <div className="flex-1 overflow-y-auto px-6 py-8 relative z-10">
                 {/* Mobile Top Actions (Language, Theme, Search, Jobs) */}
-                <div className="flex items-center justify-between gap-2 mb-8 p-4 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-black/5 dark:border-white/5 shadow-sm">
+                <div className="flex items-center justify-between gap-2 mb-8 p-4 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-black/5 dark:border-white/5 shadow-sm" style={{ WebkitBackdropFilter: 'blur(12px)' }}>
                    <LanguageSelector isScrolled={false} align="left" />
                    <div className="flex items-center gap-2">
                       <Link 
@@ -550,7 +551,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           {/* Institutional Signature Section - Refined for Prestige */}
           <div className="mb-24 relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-school-accent/20 via-school-gold/20 to-school-accent/20 rounded-[40px] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-            <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-[40px] flex flex-col md:flex-row items-center gap-8 md:gap-12">
+            <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-[40px] flex flex-col md:flex-row items-center gap-8 md:gap-12" style={{ WebkitBackdropFilter: 'blur(24px)' }}>
               <div className="w-24 h-24 md:w-32 md:h-32 shrink-0 bg-white p-4 rounded-3xl shadow-inner">
                  <img 
                    src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
@@ -587,15 +588,19 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               </div>
               
               <div className="flex gap-4">
-                {[Facebook, Instagram, Youtube].map((Icon, i) => (
+                {[
+                  { Icon: Facebook, href: "https://www.facebook.com/stxaviersjaipur/" },
+                  { Icon: Instagram, href: "https://www.instagram.com/xaviers_jaipur/" },
+                  { Icon: Youtube, href: "https://www.youtube.com/@st.xaviersc-schemejaipur2421" }
+                ].map((item, i) => (
                   <a 
                     key={i} 
-                    href="#" 
+                    href={item.href} 
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-slate-950 hover:border-white transition-all duration-500 group"
                   >
-                    <Icon size={20} className="group-hover:scale-110 transition-transform" />
+                    <item.Icon size={20} className="group-hover:scale-110 transition-transform" />
                   </a>
                 ))}
               </div>

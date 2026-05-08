@@ -42,6 +42,8 @@ html {
 @layer base {
   body {
     @apply font-sans antialiased text-school-ink overflow-x-hidden transition-colors duration-500 bg-school-paper;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .dark body {
@@ -51,6 +53,11 @@ html {
   h1, h2, h3, h4, h5, h6 {
     @apply font-sans font-black tracking-tight;
   }
+
+  /* 📱 Safari iOS Input Zoom Fix: Force 16px font-size on focusable elements */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
 }
 
 /* Institutional Magical Overlay */
@@ -58,21 +65,52 @@ html {
   @apply absolute blur-[120px] rounded-full opacity-20 pointer-events-none;
 }
 
-/* Zenda-Inspired Modern Surface */
+/* Zenda-Inspired Modern Surface with Safari 12 Fallback & Prefix */
 .glass-surface {
-  @apply bg-school-paper/80 backdrop-blur-2xl border border-school-ink/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)];
+  @apply bg-school-paper/80 border border-school-ink/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)];
+  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(40px);
+}
+
+@supports not (backdrop-filter: blur(10px)) {
+  .glass-surface {
+    @apply bg-school-paper; /* Fallback for Safari 12 */
+  }
 }
 
 .glass-nav {
-  @apply bg-school-paper/90 backdrop-blur-xl border-b border-school-ink/10;
+  @apply bg-school-paper/90 border-b border-school-ink/10;
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+}
+
+@supports not (backdrop-filter: blur(10px)) {
+  .glass-nav {
+    @apply bg-white; /* Light fallback */
+  }
+  .dark .glass-nav {
+    @apply bg-slate-950; /* Dark fallback */
+  }
 }
 
 .glass-dark {
-  @apply bg-school-paper/95 backdrop-blur-3xl border border-school-ink/10 shadow-2xl;
+  @apply bg-school-paper/95 border border-school-ink/10 shadow-2xl;
+  -webkit-backdrop-filter: blur(60px);
+  backdrop-filter: blur(60px);
 }
 
 .glass-card {
   @apply bg-school-paper border border-school-ink/10 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-500 rounded-[40px];
+}
+
+/* 📱 Safari iOS Safari momentum scrolling fix */
+.ios-momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 🍎 Universal Safari 12 Grid Gap Fallback */
+.grid {
+  grid-gap: var(--grid-gap, 0px);
 }
 
 /* Immersive Decorative Elements */

@@ -65,7 +65,7 @@ const HomePage = ({ data }: { data: AppData }) => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="w-full h-[calc(100vh-120px)] md:h-[calc(100vh-180px)] overflow-hidden relative shadow-2xl"
+          className="w-full h-[calc(100dvh-120px)] md:h-[calc(100dvh-180px)] overflow-hidden relative shadow-2xl"
         >
           <Carousel images={carouselImages} />
         </motion.section>
@@ -473,7 +473,7 @@ const HomePage = ({ data }: { data: AppData }) => {
 
       {/* 3D Campus Animation / Virtual Tour */}
       {data.settings?.showVirtualCampus !== false && data.digital_campus?.is_enabled !== false && (
-        <section className="relative w-full h-screen overflow-hidden">
+        <section className="relative w-full h-[100dvh] overflow-hidden">
           <Campus3D config={data.digital_campus} />
         </section>
       )}
