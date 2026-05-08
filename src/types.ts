@@ -191,6 +191,8 @@ export interface AppData {
   careers: PageSection[];
   mandatory_disclosures: PageSection[];
   contact_content: PageSection[];
+  jesuit_objectives: PageSection[];
+  discipline_rules: PageSection[];
   settings: AppSettings;
   content: Record<string, string>;
   admins: AdminCredential[];

@@ -143,14 +143,14 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.entries({
           ...item,
-          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
+          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_objectives', 'discipline_rules'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
         }).filter(([k]) => {
           if (k === 'id' || k === 'page_id' || k === 'section_key') return false;
           const handledAtBottom = 
-            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'].includes(section) && k === 'attachmentUrl') ||
+            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_objectives', 'discipline_rules'].includes(section) && k === 'attachmentUrl') ||
             (['staff', 'studentHonors', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section) && k === 'image') ||
             (['gallery', 'carousel'].includes(section) && k === 'url') ||
-            (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'].includes(section) && k === 'image_url');
+            (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_objectives', 'discipline_rules'].includes(section) && k === 'image_url');
           return !handledAtBottom;
         }).map(([field, value]) => (
           <div key={field} className="space-y-2">
@@ -285,9 +285,9 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         
         {/* Consolidated Primary Action Button */}
         {(() => {
-          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content'].includes(section)) ? 'attachmentUrl' : 
+          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'jesuit_objectives', 'discipline_rules'].includes(section)) ? 'attachmentUrl' : 
                               (['staff', 'gallery', 'carousel', 'studentHonors', 'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
-                              (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'].includes(section)) ? 'image_url' :
+                              (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_objectives', 'discipline_rules'].includes(section)) ? 'image_url' :
                               'attachmentUrl';
           const isUploading = uploadingPath === `${section}-${item.id}-${targetField}`;
           const currentVal = item[targetField];
@@ -733,7 +733,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.password = 'change_me_123';
       newItem.role = 'staff';
       newItem.created_at = new Date().toISOString();
-    } else if (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'].includes(tableStr)) {
+    } else if (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_objectives', 'discipline_rules'].includes(tableStr)) {
       newItem.title = 'New Section Title';
       newItem.heading = '';
       newItem.content = 'Write content here...';
@@ -1019,6 +1019,8 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'custom_content', label: 'Insights Content', icon: <FileText size={18} className="text-school-gold" /> },
     { id: 'lead_grace', label: 'Lead Grace', icon: <Award size={18} className="text-school-neon" /> },
     { id: 'academics', label: 'Academics', icon: <Award size={18} className="text-school-accent" /> },
+    { id: 'jesuit_objectives', label: 'OBJECTIVES OF JESUIT EDUCATION', icon: <FileText size={18} className="text-school-gold" /> },
+    { id: 'discipline_rules', label: 'Rules of Discipline', icon: <ShieldCheck size={18} className="text-school-neon" /> },
     { id: 'activities', label: 'Co-curricular', icon: <LayoutGrid size={18} className="text-school-neon" /> },
     { id: 'alumni', label: 'Alumni Content', icon: <Users2 size={18} className="text-school-accent" /> },
     { id: 'school_info', label: 'School Information', icon: <FileText size={18} className="text-school-gold" /> },

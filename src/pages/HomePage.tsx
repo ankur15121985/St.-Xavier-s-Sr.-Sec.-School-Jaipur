@@ -251,7 +251,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       {data.settings?.showPrincipalMessage !== false && (
         <section className="py-32 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="grid lg:grid-cols-2 gap-24 items-center">
+            <div className="grid lg:grid-cols-2 gap-24 lg:gap-32 items-center">
               <motion.div 
                  initial={{ opacity: 0, x: -50 }}
                  whileInView={{ opacity: 1, x: 0 }}
@@ -279,7 +279,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ amount: 0.1 }}
                 transition={{ duration: 1 }}
-                className="space-y-10"
+                className="space-y-10 lg:pl-12"
               >
                 <span className="text-[10px] font-bold uppercase tracking-widest text-school-accent">
                   {data.content?.principalBadge || "Guardian's Vision"}

@@ -59,7 +59,16 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-12 -mt-12 blur-3xl"></div>
               <h3 className="text-2xl font-serif font-black italic text-school-gold mb-8">Integral Formation Aims:</h3>
               <ul className="space-y-6">
-                {[
+                {(data.jesuit_objectives || []).filter(o => o.is_enabled !== false).sort((a, b) => (a.order_index || 0) - (b.order_index || 0)).map((item) => (
+                  <li key={item.id} className="flex gap-4 items-start group">
+                    <CheckCircle2 className="text-school-gold shrink-0 mt-1 transition-transform group-hover:scale-110" size={18} />
+                    <div className="space-y-1">
+                      <p className="text-sm font-bold text-white leading-relaxed">{item.title}</p>
+                      {item.content && <div className="text-xs font-light text-white/60 leading-relaxed prose-invert prose-p:m-0" dangerouslySetInnerHTML={{ __html: item.content }} />}
+                    </div>
+                  </li>
+                ))}
+                {(!data.jesuit_objectives || data.jesuit_objectives.length === 0) && [
                   "Help students become mature, spiritually oriented men and women of character.",
                   "Encourage continual striving after excellence in every field.",
                   "Value and judiciously use their freedom.",
@@ -153,8 +162,29 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
                   </div>
                 </div>
 
-                <div className="lg:w-2/3 grid sm:grid-cols-2 gap-8">
-                  {[
+                <div className="lg:w-2/3 grid sm:grid-cols-2 gap-12">
+                  {(data.discipline_rules || []).filter(r => r.is_enabled !== false).sort((a, b) => (a.order_index || 0) - (b.order_index || 0)).map((rule, idx) => (
+                    <motion.div
+                      key={rule.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="p-8 border border-school-ink/5 rounded-[32px] hover:bg-school-paper/50 transition-colors group"
+                    >
+                      <div className="text-school-gold mb-4 group-hover:scale-110 transition-transform">
+                        {rule.title?.toLowerCase().includes('clock') || rule.title?.toLowerCase().includes('punctuality') ? <Clock size={20} /> :
+                         rule.title?.toLowerCase().includes('user') || rule.title?.toLowerCase().includes('uniform') ? <Users size={20} /> :
+                         rule.title?.toLowerCase().includes('book') || rule.title?.toLowerCase().includes('diary') ? <BookOpen size={20} /> :
+                         rule.title?.toLowerCase().includes('conduct') || rule.title?.toLowerCase().includes('grad') ? <GraduationCap size={20} /> :
+                         rule.title?.toLowerCase().includes('shield') || rule.title?.toLowerCase().includes('property') ? <ShieldAlert size={20} /> :
+                         <Zap size={20} />}
+                      </div>
+                      <h4 className="text-lg font-serif font-black text-school-ink mb-2 italic uppercase">{rule.title}</h4>
+                      {rule.content && <div className="text-sm text-school-ink/60 leading-relaxed font-light prose-p:m-0" dangerouslySetInnerHTML={{ __html: rule.content }} />}
+                    </motion.div>
+                  ))}
+                  {(!data.discipline_rules || data.discipline_rules.length === 0) && [
                     { icon: <Clock size={20} />, title: "Punctuality", desc: "Arrive at least five minutes before the first bell. Prompt assembly is mandatory." },
                     { icon: <Users size={20} />, title: "Uniform", desc: "Habitually clean and neat dress. Uniform is mandatory for all school functions." },
                     { icon: <BookOpen size={20} />, title: "Student Diary", desc: "The official school diary must be brought to school every single day." },
