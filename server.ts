@@ -511,6 +511,62 @@ db.exec(`
 `);
 
 db.exec(`
+  CREATE TABLE IF NOT EXISTS digital_campus (
+    id TEXT PRIMARY KEY,
+    title TEXT,
+    is_enabled INTEGER DEFAULT 1,
+    model_url TEXT
+  )
+`);
+
+const legacyTables = ['former_principals', 'former_rectors', 'former_managers'];
+legacyTables.forEach(table => {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS "${table}" (
+      id TEXT PRIMARY KEY,
+      name TEXT,
+      tenure TEXT,
+      image TEXT,
+      order_index INTEGER
+    )
+  `);
+});
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS former_student_leaders (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    role TEXT,
+    academic_year TEXT,
+    image TEXT,
+    order_index INTEGER
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS streamwise_toppers (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    stream TEXT,
+    percentage TEXT,
+    academic_year TEXT,
+    image TEXT,
+    order_index INTEGER
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS xavierite_of_the_year (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    academic_year TEXT,
+    citation TEXT,
+    image TEXT,
+    order_index INTEGER
+  )
+`);
+
+db.exec(`
   CREATE TABLE IF NOT EXISTS marquee (
     id TEXT PRIMARY KEY,
     text TEXT NOT NULL,
@@ -600,7 +656,7 @@ db.exec(`
   )
 `);
 
-const pageTables = ['academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'];
+const pageTables = ['academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships'];
 pageTables.forEach(table => {
   db.exec(`
     CREATE TABLE IF NOT EXISTS "${table}" (
@@ -946,10 +1002,21 @@ if ((carouselCountResult?.count || 0) === 0) {
 const tablesToSeed = ['notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'];
 tablesToSeed.forEach(table => {
     const countResult = db.prepare(`SELECT COUNT(*) as count FROM "${table}"`).get() as any;
-    const placeholderCheck = db.prepare(`SELECT COUNT(*) as count FROM "${table}" WHERE title = 'NEW SECTION TITLE'`).get() as any;
+    const tableInfo = db.pragma(`table_info("${table}")`) as any[];
+    const hasTitle = tableInfo.some(c => c.name === 'title');
+    let hasPlaceholder = false;
+
+    if (hasTitle) {
+        try {
+            const placeholderCheck = db.prepare(`SELECT COUNT(*) as count FROM "${table}" WHERE title = 'NEW SECTION TITLE'`).get() as any;
+            hasPlaceholder = (placeholderCheck?.count || 0) > 0;
+        } catch (e) {
+            console.warn(`[SEED] Could not check placeholder for ${table}:`, e);
+        }
+    }
     
-    if ((countResult?.count || 0) === 0 || (placeholderCheck?.count || 0) > 0) {
-        if ((placeholderCheck?.count || 0) > 0) {
+    if ((countResult?.count || 0) === 0 || hasPlaceholder) {
+        if (hasPlaceholder) {
             db.prepare(`DELETE FROM "${table}" WHERE title = 'NEW SECTION TITLE'`).run();
         }
         
@@ -1367,7 +1434,7 @@ const targetStaff = [
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};
-    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups', 'school_history', 'lead_grace', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content'];
+    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups', 'school_history', 'lead_grace', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'];
 
     tables.forEach(table => {
       let rows = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
@@ -1427,11 +1494,26 @@ const SCHEMA: Record<string, string[]> = {
   careers: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   mandatory_disclosures: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   contact_content: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
+  scholarships: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   jesuit_page_content: ['id', 'objectives_html', 'examinations_html', 'promotions_html', 'discipline_html', 'updated_at'],
   school_history: ['id', 'title', 'content', 'updated_at'],
   lead_grace: ['id', 'heading', 'content', 'image_url', 'updated_at'],
+  digital_campus: ['id', 'title', 'is_enabled', 'model_url'],
+  former_principals: ['id', 'name', 'tenure', 'image', 'order_index'],
+  former_rectors: ['id', 'name', 'tenure', 'image', 'order_index'],
+  former_managers: ['id', 'name', 'tenure', 'image', 'order_index'],
+  former_student_leaders: ['id', 'name', 'role', 'academic_year', 'image', 'order_index'],
+  streamwise_toppers: ['id', 'name', 'stream', 'percentage', 'academic_year', 'image', 'order_index'],
+  xavierite_of_the_year: ['id', 'name', 'academic_year', 'citation', 'image', 'order_index'],
   settings: ['id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 'contactEmail', 'contactPhone', 'contactAddress', 'currentSession', 'feesPdfUrl', 'popupMessage', 'popupEnabled'],
-  content: ['id', 'key', 'value']
+  content: [
+    'id', 'heroTitle1', 'heroTitle2', 'heroBadge', 'heroDescription', 'carouselBranding',
+    'aboutBadge', 'aboutTitle1', 'aboutTitle2', 'aboutDescription', 'mottoTitle', 'mottoDescription',
+    'historyButton', 'principalBadge', 'principalTitle1', 'principalTitle2', 'principalTitle3',
+    'principalQuote', 'principalButton', 'oeuvreTitle1', 'oeuvreTitle2', 'oeuvreDescription',
+    'regencyBadge', 'regencyTitle', 'regencyDescription', 'nodesTitle1', 'nodesTitle2', 'nodesDescription',
+    'helpdeskLabel', 'wiredTitle', 'wiredBadge', 'exploreButton', 'footerDescription'
+  ]
 };
 
 app.post('/api/save', authenticateToken, express.json(), async (req, res) => {
@@ -1461,13 +1543,8 @@ app.post('/api/save', authenticateToken, express.json(), async (req, res) => {
             if (table === 'settings' && 'applyNowEnabled' in sanitizedForSupabase) sanitizedForSupabase.applyNowEnabled = !!sanitizedForSupabase.applyNowEnabled;
             if (table === 'settings' && 'popupEnabled' in sanitizedForSupabase) sanitizedForSupabase.popupEnabled = !!sanitizedForSupabase.popupEnabled;
 
-            if (table === 'content') {
-              const { error } = await supabaseServer.from('content').upsert({ id: item.id || 'global', key: item.key, value: item.value });
-              if (error) console.error('[SUPABASE SYNC ERROR] Content:', error.message);
-            } else {
-              const { error } = await supabaseServer.from(table).upsert(sanitizedForSupabase);
-              if (error) console.error(`[SUPABASE SYNC ERROR] ${table}:`, error.message);
-            }
+            const { error } = await supabaseServer.from(table).upsert(sanitizedForSupabase);
+            if (error) console.error(`[SUPABASE SYNC ERROR] ${table}:`, error.message);
         } catch (e: any) {
             console.warn('[SUPABASE SYNC EXCEPTION]', e.message);
         }

@@ -48,10 +48,28 @@ CREATE TABLE IF NOT EXISTS jesuit_page_content (
      updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
+-- SCHOLARSHIPS TABLE
+CREATE TABLE IF NOT EXISTS scholarships (
+    id TEXT PRIMARY KEY,
+    title TEXT,
+    heading TEXT,
+    content TEXT,
+    order_index INTEGER DEFAULT 0,
+    "attachmentUrl" TEXT,
+    "image_url" TEXT,
+    is_enabled BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
 ALTER TABLE jesuit_page_content ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public Full Access" ON jesuit_page_content;
 CREATE POLICY "Public Full Access" ON jesuit_page_content FOR ALL TO public USING (true) WITH CHECK (true);
 GRANT ALL ON TABLE jesuit_page_content TO anon, authenticated, postgres, service_role;
+
+ALTER TABLE scholarships ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public Full Access" ON scholarships;
+CREATE POLICY "Public Full Access" ON scholarships FOR ALL TO public USING (true) WITH CHECK (true);
+GRANT ALL ON TABLE scholarships TO anon, authenticated, postgres, service_role;
 
 -- Seed Jesuit Page Content if empty
 INSERT INTO jesuit_page_content (id, objectives_html, examinations_html, promotions_html, discipline_html)

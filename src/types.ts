@@ -200,6 +200,7 @@ export interface AppData {
   careers: PageSection[];
   mandatory_disclosures: PageSection[];
   contact_content: PageSection[];
+  scholarships: PageSection[];
   jesuit_page_content: JesuitPageContent[];
   settings: AppSettings;
   content: Record<string, string>;

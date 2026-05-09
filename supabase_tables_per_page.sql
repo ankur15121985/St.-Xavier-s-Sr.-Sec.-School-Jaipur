@@ -37,6 +37,7 @@ SELECT create_page_table('parent_obligations');
 SELECT create_page_table('careers');
 SELECT create_page_table('mandatory_disclosures');
 SELECT create_page_table('contact_content');
+SELECT create_page_table('scholarships');
 
 -- 4. SEED DATA
 

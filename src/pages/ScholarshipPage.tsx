@@ -5,7 +5,7 @@ import { AppData } from '../types';
 import { GraduationCap, Heart, Clock, AlertCircle } from 'lucide-react';
 
 const ScholarshipPage = ({ data }: { data: AppData }) => {
-  const scholarships = [
+  const hardcodedScholarships = [
     "Piyush Kasliwal Memorial Scholarship for a needy student of grade III in memory of Piyush who passed away in 1977, while he was in grade II. This has been instituted by his parents.",
     "Rev. Fr. Joe Willmes Scholarship instituted by the ex-hostelers of St. Xavier’s Jaipur.",
     "Rakesh Pande Memorial Scholarship instituted by his father.",
@@ -31,7 +31,7 @@ const ScholarshipPage = ({ data }: { data: AppData }) => {
     "Scholarship by Jaidev Totlani.",
     "Merit Scholarship in memory of Dr. Leela Sen to the topper of Std. XII.",
     "Scholarship by Mrs. Kailash Devi Ajmera in memory of Late Sukumar Ajmera.",
-    "Scholarship by Nabhi Bax & Co.",
+    "Scholarship by Nabhi Bax & co.",
     "Scholarship by Nitin Ahuja (1995 batch)",
     "Scholarship by Rajeev Bafna.",
     "Scholarship by Krishna Kumari Gupta Scholarship.",
@@ -49,131 +49,166 @@ const ScholarshipPage = ({ data }: { data: AppData }) => {
     "Scholarship in memory of Lt. Col. V.S. Lather."
   ];
 
+  const dynamicScholarships = (data.scholarships || []).filter(s => s.is_enabled !== false).sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+  
+  // Logic to render different display types
+  const renderScholarshipContent = () => {
+    if (dynamicScholarships.length === 0) {
+      return (
+        <div className="text-center py-32 border-2 border-dashed border-school-ink/10 rounded-[64px]">
+          <div className="w-16 h-16 bg-school-ink/5 rounded-3xl flex items-center justify-center text-school-ink/20 mx-auto mb-6">
+            <AlertCircle size={32} />
+          </div>
+          <h3 className="text-xl font-serif font-black italic text-school-ink/40">No scholarships available at the moment.</h3>
+          <p className="text-sm text-school-ink/30 mt-2">Please check back later for updates.</p>
+        </div>
+      );
+    }
+
+    const items = [];
+    let currentTileGroup = [];
+
+    const flushTiles = (group: any[]) => {
+      if (group.length === 0) return null;
+      const result = (
+        <div key={`group-${group[0].id}`} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {group.map((s, idx) => (
+            <motion.div 
+              key={s.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.05 }}
+              className="bg-white rounded-[32px] p-10 border border-school-ink/5 shadow-xl hover:shadow-2xl transition-all group flex flex-col justify-between h-full"
+            >
+              <div>
+                <h3 className="text-2xl font-serif font-black text-school-navy italic mb-2 leading-tight">{s.title}</h3>
+                {s.heading && <p className="text-[10px] font-black uppercase tracking-widest text-school-gold mb-6">{s.heading}</p>}
+                
+                <div 
+                  className="prose prose-sm prose-school text-school-ink/70 leading-relaxed font-light line-clamp-6 mb-8 group-hover:text-school-ink transition-colors" 
+                  dangerouslySetInnerHTML={{ __html: s.content }} 
+                />
+              </div>
+
+              {(s.attachmentUrl || s.image_url) && (
+                <div className="pt-6 border-t border-school-ink/5 flex items-center justify-between mt-auto">
+                  {s.attachmentUrl && (
+                    <a 
+                      href={s.attachmentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-school-navy hover:text-school-gold transition-all"
+                    >
+                      View Details
+                    </a>
+                  )}
+                  
+                  <div className="w-8 h-8 bg-school-gold/10 rounded-lg flex items-center justify-center text-school-gold group-hover:scale-110 transition-transform">
+                    <Award size={18} />
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      );
+      currentTileGroup = [];
+      return result;
+    };
+
+    for (const s of dynamicScholarships) {
+      if (s.display_type === 'heading') {
+        const tiled = flushTiles(currentTileGroup);
+        if (tiled) items.push(tiled);
+        
+        items.push(
+          <motion.div 
+            key={s.id} 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-16 mt-8"
+          >
+            <h2 className="text-4xl md:text-5xl font-serif font-black text-school-navy italic tracking-tight mb-4">{s.title}</h2>
+            {s.heading && <p className="text-[10px] font-black uppercase tracking-[0.4em] text-school-gold mb-4">{s.heading}</p>}
+            <div className="w-24 h-1 bg-school-gold rounded-full"></div>
+            {s.content && <div className="mt-8 prose prose-lg prose-school text-school-ink/60 font-light" dangerouslySetInnerHTML={{ __html: s.content }} />}
+          </motion.div>
+        );
+      } else if (s.display_type === 'text') {
+        const tiled = flushTiles(currentTileGroup);
+        if (tiled) items.push(tiled);
+
+        items.push(
+          <motion.div 
+            key={s.id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-white rounded-[40px] p-12 md:p-16 border border-school-ink/5 shadow-lg mb-16"
+          >
+            <h3 className="text-3xl font-serif font-black text-school-navy italic mb-6">{s.title}</h3>
+            {s.heading && <p className="text-[10px] font-black uppercase tracking-widest text-school-gold mb-8">{s.heading}</p>}
+            <div className="prose prose-lg prose-school max-w-none text-school-ink/70 leading-relaxed font-light" dangerouslySetInnerHTML={{ __html: s.content }} />
+            
+            {s.attachmentUrl && (
+              <div className="mt-12 pt-8 border-t border-school-ink/5">
+                <a 
+                  href={s.attachmentUrl}
+                  target="_blank"
+                  className="inline-flex items-center gap-4 px-8 py-4 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-school-gold hover:text-school-navy transition-all"
+                >
+                  Download Supporting Document
+                </a>
+              </div>
+            )}
+          </motion.div>
+        );
+      } else {
+        // Default to tile
+        currentTileGroup.push(s);
+      }
+    }
+
+    const tiled = flushTiles(currentTileGroup);
+    if (tiled) items.push(tiled);
+
+    return items;
+  };
+
   return (
     <Layout data={data}>
-      <div className="pt-32 bg-school-paper min-h-screen">
-        {/* Banner Section */}
-        <section className="py-20 bg-school-navy relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent"></div>
-          </div>
-          <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <h1 className="text-5xl md:text-7xl font-serif font-black text-white tracking-tighter mb-6 italic">Scholarship <br /> <span className="text-school-gold not-italic uppercase text-3xl md:text-4xl tracking-[0.3em]">& Fee Concessions</span></h1>
-              <p className="text-white/50 text-xl font-light max-w-2xl mx-auto italic">Empowering excellence and supporting those in need.</p>
+      <div className="min-h-screen bg-school-paper font-sans selection:bg-school-gold/30 pb-24">
+        {/* Header Section */}
+        <section className="relative pt-40 pb-24 overflow-hidden border-b border-school-ink/5">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(196,161,85,0.05),transparent_50%)]"></div>
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-school-gold mb-6 block">Support System</span>
+              <h1 className="text-6xl md:text-8xl font-serif font-black text-school-navy italic leading-[0.9] tracking-tighter mb-8 lowercase">
+                Scholarship <br/>& <span className="text-school-ink/20">Concessions</span>
+              </h1>
+              <p className="text-xl text-school-ink/60 font-light leading-relaxed">
+                St. Xavier's Jaipur provides various scholarships and fee concessions to support meritorious and deserving students in their educational journey.
+              </p>
             </motion.div>
           </div>
         </section>
 
-        {/* Policy Section */}
-        <section className="py-16 max-w-5xl mx-auto px-6 lg:px-12 relative z-10 -mt-12">
-          <div className="grid md:grid-cols-2 gap-8">
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="glass-surface bg-school-paper p-10 rounded-[48px] border border-school-ink/10 shadow-xl flex flex-col gap-6"
-            >
-              <div className="w-12 h-12 bg-school-gold/10 rounded-2xl flex items-center justify-center text-school-gold">
-                <GraduationCap size={24} />
-              </div>
-              <h2 className="text-2xl font-serif font-black text-school-ink italic">General Provisions</h2>
-              <div className="space-y-4 text-school-ink/70 font-light leading-relaxed">
-                <p>
-                  The School provides scholarships to the socially and economically disadvantaged students selected from the Balwadi run by the school.
-                </p>
-                <p>
-                  Concession in fees is awarded in very deserving cases, the amount depending on individual circumstances. Parents may apply to the Principal in case of financial stringency.
-                </p>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="glass-surface bg-school-paper p-10 rounded-[48px] border border-school-ink/10 shadow-xl flex flex-col gap-6"
-            >
-              <div className="w-12 h-12 bg-blue-50/10 rounded-2xl flex items-center justify-center text-school-ink">
-                <Clock size={24} />
-              </div>
-              <h2 className="text-2xl font-serif font-black text-school-ink italic">Terms and Deadlines</h2>
-              <div className="space-y-4 text-school-ink/70 font-light leading-relaxed">
-                <p>
-                  All concessions and scholarships cease at the end of each academic year. Grant or renewal is subject to satisfactory progress and good conduct.
-                </p>
-                <div className="bg-red-50/10 p-4 rounded-2xl flex items-start gap-4 text-red-600 border border-red-100/10">
-                  <AlertCircle size={20} className="shrink-0 mt-1" />
-                  <p className="text-sm font-medium italic">
-                    A student who does not secure at least 50 per cent marks or fails in a term, forfeits his/her concession/scholarship.
-                  </p>
-                </div>
-                <p className="font-bold text-school-ink">
-                  Deadline: All applications (including renewals) must be made before 15 April.
-                </p>
-              </div>
-            </motion.div>
-          </div>
+        {/* Dynamic Content Rendering */}
+        <section className="py-24 max-w-7xl mx-auto px-6 lg:px-12">
+          {renderScholarshipContent()}
         </section>
 
-        {/* Scholarships List */}
-        <section className="py-16 max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="mb-12">
-            <h2 className="text-4xl font-serif font-black text-school-ink italic tracking-tight mb-4">Instituted Scholarships</h2>
-            <p className="text-school-ink/50 font-light italic">By our generous parents and well-wishers</p>
-            <div className="w-24 h-1 bg-school-gold mt-6 rounded-full"></div>
+        {/* Management Note */}
+        <section className="py-24 bg-school-navy text-white mt-12">
+          <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
+            <h2 className="text-3xl font-serif font-black italic mb-8">General Note</h2>
+            <p className="text-xl text-white/50 font-light leading-relaxed italic">
+              "The award of all fee concessions and instituted scholarships is at the sole discretion of the Management and is not a matter of right. Applications should be made at the beginning of the academic year."
+            </p>
           </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {scholarships.map((s, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: (idx % 10) * 0.05 }}
-                className="p-8 bg-school-paper border border-school-ink/5 rounded-[32px] hover:shadow-lg transition-all group"
-              >
-                <p className="text-sm text-school-ink/70 leading-relaxed font-light group-hover:text-school-ink transition-colors">
-                  {s}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* Call to Action Section */}
-        <section className="py-24 max-w-5xl mx-auto px-6 lg:px-12">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="bg-school-navy rounded-[64px] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl"
-          >
-            <div className="absolute inset-0 bg-school-gold/5 blur-3xl rounded-full"></div>
-            <div className="relative z-10 space-y-8">
-              <div className="w-16 h-16 bg-school-gold rounded-full flex items-center justify-center text-school-navy mx-auto mb-6">
-                <Heart size={32} />
-              </div>
-              <h2 className="text-3xl md:text-5xl font-serif font-black text-white italic">Invitation to Support</h2>
-              <div className="max-w-2xl mx-auto space-y-6 text-white/70 text-lg font-light leading-relaxed italic">
-                <p>
-                  Parents are invited to establish Memorial scholarships, thus perpetuating the memory of a cherished one as well as helping in the education of someone who otherwise would not have had the chance.
-                </p>
-                <p>
-                  You are also invited to aid the school in the education of poor children. Contributions can be made quarterly with your child's fees.
-                </p>
-              </div>
-              <div className="pt-8">
-                <button className="px-10 py-5 bg-school-gold text-school-navy rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-xl">
-                  Obtain Commitment Form
-                </button>
-              </div>
-            </div>
-          </motion.div>
         </section>
       </div>
     </Layout>

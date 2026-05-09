@@ -182,6 +182,29 @@ CREATE TABLE IF NOT EXISTS achievements (
     is_enabled BOOLEAN DEFAULT true
 );
 
+CREATE TABLE IF NOT EXISTS page_sections (
+    id TEXT PRIMARY KEY,
+    page_id TEXT NOT NULL,
+    section_key TEXT,
+    title TEXT,
+    heading TEXT,
+    content TEXT,
+    image_url TEXT,
+    "attachmentUrl" TEXT,
+    is_enabled BOOLEAN DEFAULT true,
+    order_index INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+CREATE TABLE IF NOT EXISTS academics (id TEXT PRIMARY KEY, title TEXT, heading TEXT, content TEXT, image_url TEXT, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true, order_index INTEGER DEFAULT 0, created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()));
+CREATE TABLE IF NOT EXISTS activities (id TEXT PRIMARY KEY, title TEXT, heading TEXT, content TEXT, image_url TEXT, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true, order_index INTEGER DEFAULT 0, created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()));
+CREATE TABLE IF NOT EXISTS alumni (id TEXT PRIMARY KEY, title TEXT, heading TEXT, content TEXT, image_url TEXT, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true, order_index INTEGER DEFAULT 0, created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()));
+CREATE TABLE IF NOT EXISTS school_info (id TEXT PRIMARY KEY, title TEXT, heading TEXT, content TEXT, image_url TEXT, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true, order_index INTEGER DEFAULT 0, created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()));
+CREATE TABLE IF NOT EXISTS parent_obligations (id TEXT PRIMARY KEY, title TEXT, heading TEXT, content TEXT, image_url TEXT, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true, order_index INTEGER DEFAULT 0, created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()));
+CREATE TABLE IF NOT EXISTS careers (id TEXT PRIMARY KEY, title TEXT, heading TEXT, content TEXT, image_url TEXT, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true, order_index INTEGER DEFAULT 0, created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()));
+CREATE TABLE IF NOT EXISTS mandatory_disclosures (id TEXT PRIMARY KEY, title TEXT, heading TEXT, content TEXT, image_url TEXT, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true, order_index INTEGER DEFAULT 0, created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()));
+CREATE TABLE IF NOT EXISTS contact_content (id TEXT PRIMARY KEY, title TEXT, heading TEXT, content TEXT, image_url TEXT, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true, order_index INTEGER DEFAULT 0, created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()));
+
 CREATE TABLE IF NOT EXISTS "studentHonors" (
     id TEXT PRIMARY KEY,
     name TEXT,
@@ -289,6 +312,27 @@ CREATE TABLE IF NOT EXISTS student_leaders (id TEXT PRIMARY KEY, name TEXT, role
 CREATE TABLE IF NOT EXISTS former_student_leaders (id TEXT PRIMARY KEY, name TEXT, role TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);
 CREATE TABLE IF NOT EXISTS streamwise_toppers (id TEXT PRIMARY KEY, name TEXT, stream TEXT, percentage TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);
 CREATE TABLE IF NOT EXISTS xavierite_of_the_year (id TEXT PRIMARY KEY, name TEXT, academic_year TEXT, citation TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);
+
+CREATE TABLE IF NOT EXISTS scholarships (
+    id TEXT PRIMARY KEY,
+    title TEXT,
+    heading TEXT,
+    content TEXT,
+    order_index INTEGER DEFAULT 0,
+    "attachmentUrl" TEXT,
+    "image_url" TEXT,
+    is_enabled BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+CREATE TABLE IF NOT EXISTS jesuit_page_content (
+     id TEXT PRIMARY KEY DEFAULT 'primary',
+     objectives_html TEXT,
+     examinations_html TEXT,
+     promotions_html TEXT,
+     discipline_html TEXT,
+     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
 
 CREATE TABLE IF NOT EXISTS custom_content (
     id TEXT PRIMARY KEY,

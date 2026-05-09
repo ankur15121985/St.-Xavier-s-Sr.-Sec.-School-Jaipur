@@ -77,6 +77,11 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
   const [showSchemaError, setShowSchemaError] = useState(false);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    // Suppress MetaMask specific connection errors from appearing in toasts
+    if (typeof message === 'string' && (message.includes('Failed to connect to MetaMask') || message.includes('MetaMask:'))) {
+      return;
+    }
+    
     setToast({ message, type });
     if (type === 'error' && (message.includes('schema cache') || message.includes('find the table'))) {
        setShowSchemaError(true);
@@ -145,14 +150,14 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16 lg:gap-20 w-full pb-20">
         {Object.entries({
           ...item,
-          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content'].includes(section) ? { attachmentUrl: item.attachmentUrl || '' } : {})
+          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section) ? { attachmentUrl: item.attachmentUrl || '', display_type: item.display_type || 'tile' } : {})
         }).filter(([k]) => {
           if (k === 'id' || k === 'page_id' || k === 'section_key') return false;
           const handledAtBottom = 
-            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content'].includes(section) && k === 'attachmentUrl') ||
+            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section) && k === 'attachmentUrl') ||
             (['staff', 'studentHonors', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section) && k === 'image') ||
             (['gallery', 'carousel'].includes(section) && k === 'url') ||
-            (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content'].includes(section) && k === 'image_url');
+            (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section) && k === 'image_url');
           return !handledAtBottom;
         }).map(([field, value]) => (
           <div key={field} className="space-y-6 md:space-y-8 bg-white/30 backdrop-blur-xs p-6 rounded-3xl border border-white/20 shadow-sm">
@@ -237,6 +242,16 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                   </>
                 )}
               </select>
+            ) : (field === 'display_type' && section === 'scholarships') ? (
+              <select 
+                value={item[field] || 'tile'} 
+                onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
+                className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
+              >
+                <option value="tile">Card Tile (Small Card)</option>
+                <option value="text">Normal Text (Full Width)</option>
+                <option value="heading">Heading (Section Title)</option>
+              </select>
             ) : field === 'category' && section === 'fees' ? (
               <select 
                 value={item[field] ?? 'School Fee'} 
@@ -290,13 +305,14 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
               </div>
             )}
           </div>
-        ))}
-        
-        {/* Consolidated Primary Action Button */}
+        </div>
+      ))}
+      
+      {/* Consolidated Primary Action Button */}
         {(() => {
-          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'jesuit_page_content'].includes(section)) ? 'attachmentUrl' : 
+          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'scholarships', 'jesuit_page_content'].includes(section)) ? 'attachmentUrl' : 
                               (['staff', 'gallery', 'carousel', 'studentHonors', 'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
-                              (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content'].includes(section)) ? 'image_url' :
+                              (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section)) ? 'image_url' :
                               'attachmentUrl';
           const isUploading = uploadingPath === `${section}-${item.id}-${targetField}`;
           const currentVal = item[targetField];
@@ -742,10 +758,11 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.password = 'change_me_123';
       newItem.role = 'staff';
       newItem.created_at = new Date().toISOString();
-    } else if (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content'].includes(tableStr)) {
-      newItem.title = 'New Section Title';
+    } else if (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(tableStr)) {
+      newItem.title = tableStr === 'scholarships' ? 'New Scholarship/Concession' : 'New Section Title';
       newItem.heading = '';
-      newItem.content = 'Write content here...';
+      newItem.content = 'Write description here...';
+      if (tableStr === 'scholarships') newItem.display_type = 'tile';
       newItem.image_url = '';
       newItem.attachmentUrl = '';
       newItem.order_index = (data[activeSection as keyof AppData] as any[] || []).length;
@@ -1036,6 +1053,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'careers', label: 'Careers', icon: <Briefcase size={18} className="text-school-gold" /> },
     { id: 'mandatory_disclosures', label: 'Mandatory Disclosures', icon: <ShieldCheck size={18} className="text-school-neon" /> },
     { id: 'contact_content', label: 'Contact Page Info', icon: <Mail size={18} className="text-school-accent" /> },
+    { id: 'scholarships', label: 'Scholarship & Concessions', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'former_principals', label: 'Principals History', icon: <Award size={18} className="text-school-accent" /> },
     { id: 'former_rectors', label: 'Rectors History', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'former_managers', label: 'Managers History', icon: <Award size={18} className="text-school-neon" /> },
@@ -1267,39 +1285,65 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
           )}
         </AnimatePresence>
 
-        <AnimatePresence>
-          {showSchemaError && (
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 bg-red-500 rounded-[32px] p-8 text-white shadow-2xl relative overflow-hidden">
-               <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
-                 <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
-                       <AlertCircle size={32} />
-                    </div>
-                    <div>
-                       <h3 className="text-xl font-serif font-black italic">Database Update Required</h3>
-                       <p className="text-white/70 text-sm font-medium">Wait! Your database is missing new features. Run the <b>UPDATE script</b> (Additive, No Data Loss) to fix this.</p>
-                    </div>
-                 </div>
-                 <div className="flex gap-4">
-                    <a 
-                      href="/supabase_update.sql" 
-                      target="_blank"
-                      className="px-8 py-4 bg-white text-red-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/90 transition-all shadow-xl font-bold"
-                    >
-                      View Update SQL
-                    </a>
-                    <button 
-                      onClick={() => setShowSchemaError(false)}
-                      className="px-8 py-4 bg-black/20 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black/30 transition-all"
-                    >
-                      Dismiss
-                    </button>
-                 </div>
+      <AnimatePresence>
+        {showSchemaError && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 bg-red-500 rounded-[32px] p-8 text-white shadow-2xl relative overflow-hidden">
+             <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+               <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
+                     <AlertCircle size={32} />
+                  </div>
+                  <div>
+                     <h3 className="text-xl font-serif font-black italic">Database Cache Mismatch</h3>
+                     <p className="text-white/70 text-sm font-medium">Your database schema has changed but the system still sees the old structure. Running the <b>NOTIFY</b> command in SQL editor or clicking below might help.</p>
+                  </div>
                </div>
-               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+               <div className="flex gap-4">
+                  <button 
+                    onClick={async () => {
+                      try {
+                        setSavePending(true);
+                        // Trigger a schema reload notify directly from client if we have a function for it
+                        // Or just try a sync all which might force a retry
+                        await supabaseService.fetchAllData();
+                        showToast('Schema cache refresh requested', 'success');
+                        setShowSchemaError(false);
+                      } catch (err) {
+                        showToast('Refresh failed. Please use SQL Editor.', 'error');
+                      } finally {
+                        setSavePending(false);
+                      }
+                    }}
+                    className="px-8 py-4 bg-white text-red-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/90 transition-all shadow-xl font-bold"
+                  >
+                    Refresh App State
+                  </button>
+                  <a 
+                    href="/supabase_scholarships_display_type.sql" 
+                    target="_blank"
+                    className="px-8 py-4 bg-black/20 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black/30 transition-all font-bold"
+                  >
+                    Add Columns SQL
+                  </a>
+                  <a 
+                    href="/supabase_scholarships_final_fix.sql" 
+                    target="_blank"
+                    className="px-8 py-4 bg-black/20 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black/30 transition-all"
+                  >
+                    Recreate Table SQL
+                  </a>
+                  <button 
+                    onClick={() => setShowSchemaError(false)}
+                    className="px-8 py-4 bg-black/20 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black/30 transition-all"
+                  >
+                    Dismiss
+                  </button>
+               </div>
+             </div>
+             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
         <header className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-12 mb-16">
           <div className="flex-1 space-y-6">

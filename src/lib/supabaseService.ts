@@ -8,7 +8,7 @@ export const supabaseService = {
         'notices', 'staff', 'gallery', 'fees', 'links', 
         'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs', 'former_leaders',
         'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content', 'lead_grace', 'digital_campus',
-        'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content'
+        'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content', 'scholarships'
       ];
 
       const results: Partial<AppData> = {};
@@ -138,21 +138,31 @@ export const supabaseService = {
           let { error } = await supabase.from(targetTable).upsert(sanitized);
           
           // Handle missing columns or stale cache gracefully by dynamic recursive stripping or retry
-          if (error && (error.code === 'PGRST204' || error.code === 'PGRST205' || error.code === '42703' || error.code === 'PGRST204')) {
+          if (error && (error.code === 'PGRST204' || error.code === 'PGRST205' || error.code === '42703')) {
             console.warn(`[Supabase Sync] Schema issue in ${targetTable} (Code: ${error.code}), attempting recovery...`);
+            console.warn(`[Supabase Sync] Raw Error Details:`, JSON.stringify(error));
             
-            // If it's a missing relation (PGRST204), we can't strip fields, we must inform the user
+            // If it's a missing relation (PGRST204), check if it's specifically for a table
             if (error.code === 'PGRST204' || error.message.includes('relation "public.')) {
                const tableMatch = error.message.match(/relation "public\.(.+?)"/i);
                const tableName = tableMatch ? tableMatch[1] : targetTable;
-               console.warn(`[Supabase Sync] Table '${tableName}' is missing. Falling back to local-only sync for this session.`);
-               // Don't throw for the user if it's just a missing table during a session
-               // Let them know via console, but don't break the UI immediately if they are just testing
-               if (targetTable === 'settings') {
-                 // Special case: if settings fails, we still want to allow local updates
-                 return; 
+               
+               // Double check if table might actually exist but cache is stale
+               console.log(`[Supabase Sync] Probing table '${tableName}'...`);
+               const { error: probeError } = await supabase.from(tableName).select('count').limit(0);
+               
+               if (probeError && (probeError.code === 'PGRST204' || probeError.message.includes('relation "public.'))) {
+                  console.warn(`[Supabase Sync] Table '${tableName}' is confirmed missing.`);
+                  throw new Error(`Supabase Table '${tableName}' is missing. Please run the SQL setup script in your Supabase dashboard to enable cloud sync.`);
+               } else if (!probeError) {
+                  console.log(`[Supabase Sync] Table '${tableName}' exists in probe. Retrying original upsert...`);
+                  const { error: retryError } = await supabase.from(targetTable).upsert(sanitized);
+                  if (!retryError) {
+                    console.log(`[Supabase Sync] Retry success for ${targetTable}`);
+                    return; 
+                  }
+                  error = retryError;
                }
-               throw new Error(`Supabase Table '${tableName}' is missing. Please run the SQL setup script in your Supabase dashboard to enable cloud sync.`);
             }
 
             let currentSanitized = { ...sanitized };
@@ -161,20 +171,23 @@ export const supabaseService = {
             const MAX_RETRIES = 5;
 
             // If it's a stale cache error (PGRST205), try a single raw retry after a short delay
-            if (error.code === 'PGRST205') {
-              console.log('[Supabase Sync] Stale schema cache detected (PGRST205). Retrying after schema notification...');
-              await new Promise(resolve => setTimeout(resolve, 800));
+            if (error && error.code === 'PGRST205') {
+              console.log('[Supabase Sync] Stale schema cache detected (PGRST205). Waiting then retrying...');
+              await new Promise(resolve => setTimeout(resolve, 1000));
               const { error: retryError } = await supabase.from(targetTable).upsert(sanitized);
               currentError = retryError;
-              if (!currentError) error = null;
+              if (!currentError) return;
             }
 
-            while (currentError && (currentError.code === 'PGRST204' || currentError.code === '42703' || currentError.message.includes('relation "public.digital_campus" does not exist')) && retryCount < MAX_RETRIES) {
-              const match = currentError.message.match(/column ['"](.+?)['"]/i);
+            while (currentError && (currentError.code === 'PGRST204' || currentError.code === '42703') && retryCount < MAX_RETRIES) {
+              // Extract field name from various PostgREST error formats
+              // Format 1: column "field" does not exist
+              // Format 2: Could not find the "field" column ... in the schema cache
+              const match = currentError.message.match(/column ['"](.+?)['"]/i) || currentError.message.match(/find the ['"](.+?)['"] column/i);
               const missingField = match ? match[1] : null;
               
               if (missingField && currentSanitized[missingField] !== undefined) {
-                console.log(`[Supabase Sync Retry ${retryCount + 1}] Stripping field '${missingField}'...`);
+                console.log(`[Supabase Sync Recovery] Stripping missing field '${missingField}' and retrying...`);
                 const { [missingField]: _, ...nextSanitized } = currentSanitized;
                 currentSanitized = nextSanitized;
                 const { error: retryError } = await supabase.from(targetTable).upsert(currentSanitized);

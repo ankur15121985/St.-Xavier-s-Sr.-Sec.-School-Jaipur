@@ -266,6 +266,7 @@ export const DEFAULT_DATA: AppData = {
     { id: '2', name: 'Ameyatman Roy', category: 'JEE Mains Merit', result: 'Qualified', subtext: 'ACADEMIC MERIT SCHOLAR', image: 'https://picsum.photos/seed/student2/300/300', order_index: 1 },
     { id: '3', name: 'Aryan Sharma', category: 'JEE Mains Achiever', result: 'Qualified', subtext: 'ACADEMIC EXCELLENCE AWARD WINNER', image: 'https://picsum.photos/seed/student3/300/300', order_index: 2 },
   ],
+  scholarships: [],
   navigation_menu: [
     { id: '1', label: 'Home', href: '/', parent_id: null, order_index: 0 },
     { id: '2', label: 'About Us', href: '#', parent_id: null, order_index: 1 },
@@ -625,12 +626,23 @@ export default function App() {
     // or external scripts in the sandbox environment.
     const originalError = console.error;
     console.error = (...args) => {
-      const msg = typeof args[0] === 'string' ? args[0] : '';
+      const msg = typeof args[0] === 'string' ? args[0] : (args[0]?.message || '');
       if (msg.includes('Failed to connect to MetaMask') || msg.includes('MetaMask:')) {
         return;
       }
       originalError.apply(console, args);
     };
+
+    const handleMetaMaskError = (event: any) => {
+      const msg = event.message || (event.reason && event.reason.message) || '';
+      if (msg.includes('Failed to connect to MetaMask') || msg.includes('MetaMask:')) {
+        if (event.preventDefault) event.preventDefault();
+        return true;
+      }
+    };
+
+    window.addEventListener('error', handleMetaMaskError);
+    window.addEventListener('unhandledrejection', handleMetaMaskError);
 
     // Global click handler to suppress certain Web3-related events if needed
     const handleMessage = (e: MessageEvent) => {
@@ -639,7 +651,11 @@ export default function App() {
       }
     };
     window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      window.removeEventListener('error', handleMetaMaskError);
+      window.removeEventListener('unhandledrejection', handleMetaMaskError);
+    };
   }, []);
 
   // Disable right click on the entire website

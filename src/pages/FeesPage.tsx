@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AppData } from '../types';
 import Layout from '../components/layout/Layout';
 import { motion, AnimatePresence } from 'motion/react';
-import { CreditCard, ChevronDown, ChevronUp, Info, ShieldCheck, FileText, Maximize2, Download } from 'lucide-react';
+import { CreditCard, ChevronDown, ChevronUp, Info, ShieldCheck, FileText, Maximize2, Download, Award } from 'lucide-react';
 import PdfViewer from '../components/PdfViewer';
 
 const FeesPage = ({ data }: { data: AppData }) => {
@@ -104,6 +104,7 @@ const FeesPage = ({ data }: { data: AppData }) => {
             columns={['Particulars', 'Amount', 'Remarks']} 
             data={admissionFees}
           />
+
 
           {/* Integrated PDF Viewer Section */}
           {(() => {
