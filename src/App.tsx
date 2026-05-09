@@ -8,6 +8,7 @@ import {
   BrowserRouter as Router, 
   Routes, 
   Route,
+  Navigate,
   useLocation
 } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -519,7 +520,13 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
                       m.label !== 'Prospectus' &&
                       m.label !== 'rules & Disciplin' &&
                       m.label !== 'Rules & Disciplin'
-                    );
+                    ).map(m => {
+                      // Fix academics directory link if it's stale in the DB
+                      if (m.label === 'Academics Directory' && (m.href === '/academics' || m.href.includes('#academic-regulations'))) {
+                        return { ...m, href: '/jesuit-education-objectives' };
+                      }
+                      return m;
+                    });
                     
                     // Deduplicate by label to prevent key collisions even if IDs differ
                     const seenLabels = new Set();
@@ -727,6 +734,8 @@ export default function App() {
                 <Route path="/scholarships" element={<PageTransition><ScholarshipPage data={data} /></PageTransition>} />
                 <Route path="/studybase-app" element={<PageTransition><StudybaseAppPage data={data} /></PageTransition>} />
                 <Route path="/jesuit-education-objectives" element={<PageTransition><JesuitEducationPage data={data} /></PageTransition>} />
+                {/* Redirect old academics route to the new Jesuit education objectives page */}
+                <Route path="/academics" element={<Navigate to="/jesuit-education-objectives" replace />} />
                 <Route path="/sports-complex" element={<PageTransition><SportsComplexPage data={data} /></PageTransition>} />
                 <Route path="/co-curricular" element={<PageTransition><CoCurricularActivitiesPage data={data} /></PageTransition>} />
                 <Route path="/alumni" element={<PageTransition><AlumniPage data={data} /></PageTransition>} />
