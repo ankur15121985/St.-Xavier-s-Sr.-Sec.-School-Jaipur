@@ -36,7 +36,24 @@ export interface PageSection {
   attachmentUrl?: string;
   is_enabled?: boolean;
   order_index: number;
+  display_type?: string;
+  category?: string;
 }
+
+export interface CoCurricularActivity {
+  id: string;
+  title: string;
+  heading?: string;
+  content: string;
+  display_type: 'tile' | 'text' | 'heading' | 'table' | 'list';
+  category?: string;
+  order_index: number;
+  attachmentUrl?: string;
+  image_url?: string;
+  is_enabled: boolean;
+  created_at?: string;
+}
+
 export interface CustomContent { id: string; title: string; heading: string; content: string; order_index: number; attachmentUrl?: string; is_enabled?: boolean; }
 export interface ContactMessage { id: string; name: string; email: string; subject?: string; message: string; timestamp: string; status: 'new' | 'read' | 'replied'; }
 export interface AnnouncementPopup {
@@ -192,8 +209,10 @@ export interface AppData {
   lead_grace: LeadGrace[];
   digital_campus?: DigitalCampus;
   page_sections: PageSection[];
+  fire_safety: PageSection[];
   academics: PageSection[];
   activities: PageSection[];
+  co_curricular_activities: CoCurricularActivity[];
   alumni: PageSection[];
   school_info: PageSection[];
   parent_obligations: PageSection[];

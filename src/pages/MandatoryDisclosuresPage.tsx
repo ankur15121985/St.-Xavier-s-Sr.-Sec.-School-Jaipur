@@ -59,6 +59,7 @@ const MandatoryDisclosuresPage = ({ data }: { data: AppData }) => {
                 {disclosures.map((item, idx) => (
                   <motion.div
                     key={item.id}
+                    id={item.id}
                     initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}

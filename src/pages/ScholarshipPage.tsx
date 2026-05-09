@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import Layout from '../components/layout/Layout';
 import { AppData } from '../types';
-import { GraduationCap, Heart, Clock, AlertCircle } from 'lucide-react';
+import { GraduationCap, Heart, Clock, AlertCircle, Award } from 'lucide-react';
 
 const ScholarshipPage = ({ data }: { data: AppData }) => {
   const hardcodedScholarships = [

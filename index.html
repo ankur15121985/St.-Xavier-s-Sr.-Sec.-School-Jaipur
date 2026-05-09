@@ -13,6 +13,21 @@
     <meta name="twitter:card" content="summary_large_image" />
     <title>St. Xavier's Sr. Sec. School, Jaipur | Excellence in Education</title>
     <link rel="icon" type="image/png" href="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" />
+    <script>
+      // Early suppression of MetaMask and Web3 related errors that might be injected by browser extensions
+      (function() {
+        var silence = function(e) {
+          var msg = (e.message || (e.reason && e.reason.message) || "").toLowerCase();
+          if (msg.indexOf('metamask') !== -1 || msg.indexOf('ethereum') !== -1 || msg.indexOf('web3') !== -1) {
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+            if (e.preventDefault) e.preventDefault();
+            return true;
+          }
+        };
+        window.addEventListener('error', silence, true);
+        window.addEventListener('unhandledrejection', silence, true);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

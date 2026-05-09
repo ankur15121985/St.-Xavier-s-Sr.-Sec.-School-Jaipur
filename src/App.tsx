@@ -39,6 +39,7 @@ import SchoolInformationPage from './pages/SchoolInformationPage';
 import ParentObligationsPage from './pages/ParentObligationsPage';
 import CareersPage from './pages/CareersPage';
 import MandatoryDisclosuresPage from './pages/MandatoryDisclosuresPage';
+import FireSafetyPage from './pages/FireSafetyPage';
 import AcademicsPage from './pages/AcademicsPage';
 import NoticeBoardPage from './pages/NoticeBoardPage';
 import ContactPage from './pages/ContactPage';
@@ -305,7 +306,7 @@ export const DEFAULT_DATA: AppData = {
     { id: '5-6', label: 'Student Achievements', href: '/achievements', parent_id: '5', order_index: 5 },
     { id: '6', label: 'CBSE Corner', href: '#', parent_id: null, order_index: 6 },
     { id: '6-1', label: 'School Information', href: '/school-info', parent_id: '6', order_index: 0 },
-    { id: '6-2', label: 'Fire safety', href: '#', parent_id: '6', order_index: 1 },
+    { id: '6-2', label: 'Fire safety', href: '/safety-guidelines', parent_id: '6', order_index: 1 },
     { id: '7', label: 'For Parents', href: '#', parent_id: null, order_index: 7 },
     { id: '7-1', label: 'Obligations of Parents', href: '/parent-obligations', parent_id: '7', order_index: 0 },
     { id: '8', label: 'Career', href: '#', parent_id: null, order_index: 8 },
@@ -366,6 +367,8 @@ export const DEFAULT_DATA: AppData = {
   ],
   streamwise_toppers: [],
   xavierite_of_the_year: [],
+  fire_safety: [],
+  co_curricular_activities: [],
   custom_content: [
     { id: 'cc1', title: 'Institutional Philosophy', heading: 'The Jesuit Vision', content: 'Our education is inspired by the vision of St. Ignatius of Loyola. We aim for academic excellence, character building, and social responsibility.', order_index: 0 },
     { id: 'cc2', title: 'Academic Excellence', heading: 'Modern Pedagogy', content: 'Integrating technology with traditional values to create future-ready leaders.', order_index: 1 }
@@ -395,7 +398,7 @@ export const DEFAULT_DATA: AppData = {
     { id: 'md-5', title: 'Building Safety Certificate', content: 'Copy of valid Building Safety Certificate as per National Building Code.', attachmentUrl: '', order_index: 4 },
     { id: 'md-6', title: 'Fire Safety Certificate', content: 'Copy of valid Fire Safety Certificate issued by the competent authority.', attachmentUrl: '', order_index: 5 },
     { id: 'md-7', title: 'Self Certification', content: 'Copy of the Self Certification submitted by the school for affiliation.', attachmentUrl: '', order_index: 6 },
-    { id: 'md-8', title: 'Health & Sanitation Certificate', content: 'Copies of valid Water, Health and Sanitation certificates.', attachmentUrl: '', order_index: 7 }
+    { id: 'md-8', title: 'Health & Sanitation Certificate', content: 'Copies of Water, Health and Sanitation certificates.', attachmentUrl: '', order_index: 7 }
   ],
   contact_content: [],
   jesuit_page_content: [
@@ -625,36 +628,52 @@ export default function App() {
     // Suppress MetaMask specific connection errors that might be coming from browser extensions
     // or external scripts in the sandbox environment.
     const originalError = console.error;
+    const originalWarn = console.warn;
+    
+    const isMetaMaskError = (msg: string) => {
+      const lower = msg.toLowerCase();
+      return lower.includes('metamask') || lower.includes('ethereum') || lower.includes('web3');
+    };
+
     console.error = (...args) => {
       const msg = typeof args[0] === 'string' ? args[0] : (args[0]?.message || '');
-      if (msg.includes('Failed to connect to MetaMask') || msg.includes('MetaMask:')) {
-        return;
-      }
+      if (isMetaMaskError(msg)) return;
       originalError.apply(console, args);
+    };
+    
+    console.warn = (...args) => {
+      const msg = typeof args[0] === 'string' ? args[0] : (args[0]?.message || '');
+      if (isMetaMaskError(msg)) return;
+      originalWarn.apply(console, args);
     };
 
     const handleMetaMaskError = (event: any) => {
       const msg = event.message || (event.reason && event.reason.message) || '';
-      if (msg.includes('Failed to connect to MetaMask') || msg.includes('MetaMask:')) {
+      if (isMetaMaskError(msg)) {
         if (event.preventDefault) event.preventDefault();
+        if (event.stopImmediatePropagation) event.stopImmediatePropagation();
         return true;
       }
     };
 
-    window.addEventListener('error', handleMetaMaskError);
-    window.addEventListener('unhandledrejection', handleMetaMaskError);
+    window.addEventListener('error', handleMetaMaskError, true);
+    window.addEventListener('unhandledrejection', handleMetaMaskError, true);
 
     // Global click handler to suppress certain Web3-related events if needed
     const handleMessage = (e: MessageEvent) => {
-      if (e.data?.type?.includes('metamask') || e.data?.msg?.includes('MetaMask')) {
+      const msg = e.data?.msg || e.data?.type || '';
+      if (typeof msg === 'string' && isMetaMaskError(msg)) {
         e.stopImmediatePropagation();
       }
     };
-    window.addEventListener('message', handleMessage);
+    window.addEventListener('message', handleMessage, true);
+    
     return () => {
       window.removeEventListener('message', handleMessage);
       window.removeEventListener('error', handleMetaMaskError);
       window.removeEventListener('unhandledrejection', handleMetaMaskError);
+      console.error = originalError;
+      console.warn = originalWarn;
     };
   }, []);
 
@@ -715,6 +734,7 @@ export default function App() {
                 <Route path="/parent-obligations" element={<PageTransition><ParentObligationsPage data={data} /></PageTransition>} />
                 <Route path="/careers" element={<PageTransition><CareersPage data={data} /></PageTransition>} />
                 <Route path="/mandatory-disclosures" element={<PageTransition><MandatoryDisclosuresPage data={data} /></PageTransition>} />
+                <Route path="/safety-guidelines" element={<PageTransition><FireSafetyPage data={data} /></PageTransition>} />
                 <Route path="/academics" element={<PageTransition><AcademicsPage data={data} /></PageTransition>} />
                 <Route path="/notice-board" element={<PageTransition><NoticeBoardPage data={data} /></PageTransition>} />
                 <Route path="/transfer-certificate" element={<PageTransition><TransferCertificatePage data={data} /></PageTransition>} />

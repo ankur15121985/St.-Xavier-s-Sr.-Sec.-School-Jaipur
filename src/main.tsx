@@ -3,6 +3,18 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
+// Global error suppression for MetaMask/Web3 injected errors
+const silencer = (e: any) => {
+  const msg = (e.message || (e.reason && e.reason.message) || "").toLowerCase();
+  if (msg.includes('metamask') || msg.includes('ethereum') || msg.includes('web3')) {
+    if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+    if (e.preventDefault) e.preventDefault();
+    return true;
+  }
+};
+window.addEventListener('error', silencer, true);
+window.addEventListener('unhandledrejection', silencer, true);
+
 // Use a persistent handle on the window or DOM element to prevent "multiple roots" errors
 const rootElement = document.getElementById('root');
 

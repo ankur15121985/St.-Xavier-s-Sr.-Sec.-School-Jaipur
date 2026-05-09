@@ -656,7 +656,7 @@ db.exec(`
   )
 `);
 
-const pageTables = ['academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships'];
+const pageTables = ['academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'fire_safety'];
 pageTables.forEach(table => {
   db.exec(`
     CREATE TABLE IF NOT EXISTS "${table}" (
@@ -666,9 +666,17 @@ pageTables.forEach(table => {
       content TEXT,
       order_index INTEGER,
       attachmentUrl TEXT,
-      image_url TEXT
+      image_url TEXT,
+      is_enabled INTEGER DEFAULT 1
     )
   `);
+});
+
+// Migration for is_enabled on fire_safety and others
+pageTables.forEach(table => {
+  try {
+    db.prepare(`ALTER TABLE "${table}" ADD COLUMN is_enabled INTEGER DEFAULT 1`).run();
+  } catch (e) {}
 });
 
 db.exec(`
@@ -964,7 +972,7 @@ if ((menuCountResult?.count || 0) === 0) {
         { id: '5-6', label: 'Student Achievements', href: '/achievements', parent_id: '5', order_index: 5 },
         { id: '6', label: 'CBSE Corner', href: '#', parent_id: null, order_index: 6 },
         { id: '6-1', label: 'School Information', href: '/school-info', parent_id: '6', order_index: 0 },
-        { id: '6-2', label: 'Fire safety', href: '#', parent_id: '6', order_index: 1 },
+        { id: '6-2', label: 'Fire safety', href: '/safety-guidelines', parent_id: '6', order_index: 1 },
         { id: '7', label: 'For Parents', href: '#', parent_id: null, order_index: 7 },
         { id: '7-1', label: 'Obligations of Parents', href: '/parent-obligations', parent_id: '7', order_index: 0 },
         { id: '8', label: 'Career', href: '#', parent_id: null, order_index: 8 },
@@ -999,7 +1007,7 @@ if ((carouselCountResult?.count || 0) === 0) {
 }
 
 // General Seeding for missing tables
-const tablesToSeed = ['notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'];
+const tablesToSeed = ['notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'fire_safety'];
 tablesToSeed.forEach(table => {
     const countResult = db.prepare(`SELECT COUNT(*) as count FROM "${table}"`).get() as any;
     const tableInfo = db.pragma(`table_info("${table}")`) as any[];
@@ -1086,9 +1094,11 @@ tablesToSeed.forEach(table => {
               { id: 'md-7', title: 'Self Certification', content: 'Copy of the Self Certification submitted by the school for affiliation.', attachmentUrl: '', order_index: 6 },
               { id: 'md-8', title: 'Health & Sanitation Certificate', content: 'Copies of valid Water, Health and Sanitation certificates.', attachmentUrl: '', order_index: 7 }
             ];
-        } else if (table === 'parent_obligations') {
+        } else if (table === 'fire_safety') {
             defaultData = [
-              { id: 'po-pta', title: 'Parent Teacher Association (PTA)', content: 'Note: Every parent and teacher is a member of the Parent Teacher Association', order_index: 0 }
+              { id: 'fs-1', title: 'Fire Safety Certificate (2024-25)', heading: 'Official Certification', content: 'Valid certificate issued by the competent regional authority for the current academic session.', attachmentUrl: '/placeholder.pdf', order_index: 0 },
+              { id: 'fs-2', title: 'Emergency Evacuation Plan', heading: 'School Blueprint', content: 'Detailed floor map showing exits, assembly points, and extinguisher locations.', attachmentUrl: '', order_index: 1 },
+              { id: 'fs-3', title: 'Mock Drill Sessions', heading: 'Practical Training', content: 'Regular drills conducted every quarter to ensure preparedness among students and staff.', attachmentUrl: '', order_index: 2 }
             ];
         }
 
@@ -1226,6 +1236,9 @@ const cleanMenu = () => {
         
         // Update TC link if it exists
         db.prepare("UPDATE menu SET href = '/transfer-certificate' WHERE label = 'TRANSFER CERTIFICATE' OR label = 'Transfer Certificate'").run();
+
+        // Update Fire Safety link
+        db.prepare("UPDATE menu SET href = '/safety-guidelines' WHERE label = 'FIRE SAFETY' OR label = 'Fire safety'").run();
 
         // Update Academic sections links
         db.prepare("UPDATE menu SET label = 'EXAMINATIONS & PROMOTIONS' WHERE label = 'EXAMINATIONS & PREMOTIONS'").run();
@@ -1434,7 +1447,7 @@ const targetStaff = [
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};
-    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups', 'school_history', 'lead_grace', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'];
+    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups', 'school_history', 'lead_grace', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content', 'fire_safety'];
 
     tables.forEach(table => {
       let rows = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
@@ -1495,6 +1508,7 @@ const SCHEMA: Record<string, string[]> = {
   mandatory_disclosures: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   contact_content: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   scholarships: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
+  fire_safety: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url', 'is_enabled'],
   jesuit_page_content: ['id', 'objectives_html', 'examinations_html', 'promotions_html', 'discipline_html', 'updated_at'],
   school_history: ['id', 'title', 'content', 'updated_at'],
   lead_grace: ['id', 'heading', 'content', 'image_url', 'updated_at'],

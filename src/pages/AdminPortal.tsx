@@ -5,7 +5,7 @@ import {
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
   Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, RefreshCw,
   Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink,
-  Type, Palette, Bold, Italic, Briefcase, ShieldCheck
+  Type, Palette, Bold, Italic, Briefcase, ShieldCheck, Activity
 } from 'lucide-react';
 import { AppData, GalleryItem } from '../types';
 import { DEFAULT_DATA } from '../App';
@@ -242,7 +242,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                   </>
                 )}
               </select>
-            ) : (field === 'display_type' && section === 'scholarships') ? (
+            ) : (field === 'display_type' && (section === 'scholarships' || section === 'co_curricular_activities')) ? (
               <select 
                 value={item[field] || 'tile'} 
                 onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
@@ -251,6 +251,12 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 <option value="tile">Card Tile (Small Card)</option>
                 <option value="text">Normal Text (Full Width)</option>
                 <option value="heading">Heading (Section Title)</option>
+                {section === 'co_curricular_activities' && (
+                  <>
+                    <option value="list">Bulleted List (Two Columns)</option>
+                    <option value="table">Data Table (Prefect System)</option>
+                  </>
+                )}
               </select>
             ) : field === 'category' && section === 'fees' ? (
               <select 
@@ -758,11 +764,11 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.password = 'change_me_123';
       newItem.role = 'staff';
       newItem.created_at = new Date().toISOString();
-    } else if (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(tableStr)) {
-      newItem.title = tableStr === 'scholarships' ? 'New Scholarship/Concession' : 'New Section Title';
+    } else if (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content', 'co_curricular_activities', 'fire_safety'].includes(tableStr)) {
+      newItem.title = tableStr === 'scholarships' ? 'New Scholarship/Concession' : tableStr === 'co_curricular_activities' ? 'New Activity Section' : tableStr === 'fire_safety' ? 'Fire Safety Heading/Link' : 'New Section Title';
       newItem.heading = '';
-      newItem.content = 'Write description here...';
-      if (tableStr === 'scholarships') newItem.display_type = 'tile';
+      newItem.content = tableStr === 'co_curricular_activities' ? 'Write content or JSON for table here...' : 'Write description here...';
+      if (['scholarships', 'co_curricular_activities', 'fire_safety'].includes(tableStr)) newItem.display_type = 'tile';
       newItem.image_url = '';
       newItem.attachmentUrl = '';
       newItem.order_index = (data[activeSection as keyof AppData] as any[] || []).length;
@@ -1024,49 +1030,53 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     }
   };
 
-  const sections = [
+  const rawSections = [
+    { id: 'academics', label: 'Academics', icon: <Award size={18} className="text-school-accent" /> },
+    { id: 'activities', label: 'Activities (Legacy)', icon: <Activity size={18} className="text-school-ink/30" /> },
+    { id: 'admins', label: 'Admin Accounts', icon: <Key size={18} className="text-school-neon" /> },
+    { id: 'alumni', label: 'Alumni Content', icon: <Users2 size={18} className="text-school-accent" /> },
+    { id: 'logs', label: 'Audit Logs', icon: <FileText size={18} className="text-school-ink opacity-50" /> },
+    { id: 'careers', label: 'Careers', icon: <Briefcase size={18} className="text-school-gold" /> },
+    { id: 'carousel', label: 'Carousel', icon: <ImagePlus size={18} className="text-school-accent" /> },
+    { id: 'co_curricular_activities', label: 'Co-curricular (New)', icon: <LayoutGrid size={18} className="text-school-neon" /> },
+    { id: 'contact_content', label: 'Contact Page Info', icon: <Mail size={18} className="text-school-accent" /> },
+    { id: 'digital_campus', label: 'Digital Campus', icon: <Maximize2 size={18} className="text-school-neon" /> },
+    { id: 'events', label: 'Events', icon: <Calendar size={18} /> },
+    { id: 'faqs', label: 'FAQs', icon: <MessageSquare size={18} className="text-school-gold" /> },
+    { id: 'fees', label: 'Fees', icon: <CreditCard size={18} /> },
+    { id: 'fire_safety', label: 'Fire Safety Portal', icon: <ShieldCheck size={18} className="text-red-500" /> },
+    { id: 'former_student_leaders', label: 'Former Head Boy & Girls', icon: <Users2 size={18} className="text-school-accent" /> },
+    { id: 'settings', label: 'Global Settings', icon: <Settings size={18} className="text-school-gold" /> },
+    { id: 'gallery', label: 'Gallery', icon: <ImageIcon size={18} /> },
+    { id: 'studentHonors', label: 'Honors', icon: <Award size={18} className="text-school-gold" /> },
+    { id: 'messages', label: 'Inquiries (Contact)', icon: <Mail size={18} className="text-school-accent" /> },
+    { id: 'custom_content', label: 'Insights Content', icon: <FileText size={18} className="text-school-gold" /> },
+    { id: 'jesuit_page_content', label: 'Jesuit Education Page', icon: <FileText size={18} className="text-school-gold" /> },
+    { id: 'lead_grace', label: 'Lead Grace', icon: <Award size={18} className="text-school-neon" /> },
+    { id: 'links', label: 'Links', icon: <LinkIcon size={18} /> },
+    { id: 'former_managers', label: 'Managers History', icon: <Award size={18} className="text-school-neon" /> },
+    { id: 'mandatory_disclosures', label: 'Mandatory Disclosures', icon: <ShieldCheck size={18} className="text-school-neon" /> },
+    { id: 'marquee', label: 'Marquee', icon: <ChevronRight size={18} className="text-school-neon" /> },
+    { id: 'navigation_menu', label: 'Menu Items', icon: <Menu size={18} /> },
     { id: 'notices', label: 'Notices', icon: <Bell size={18} /> },
     { id: 'popups', label: 'Popups', icon: <Maximize2 size={18} className="text-school-accent" /> },
-    { id: 'marquee', label: 'Marquee', icon: <ChevronRight size={18} className="text-school-neon" /> },
-    { id: 'events', label: 'Events', icon: <Calendar size={18} /> },
-    { id: 'staff', label: 'Staff Management', icon: <Users2 size={18} /> },
-    { id: 'carousel', label: 'Carousel', icon: <ImagePlus size={18} className="text-school-accent" /> },
-    { id: 'gallery', label: 'Gallery', icon: <ImageIcon size={18} /> },
-    { id: 'fees', label: 'Fees', icon: <CreditCard size={18} /> },
-    { id: 'links', label: 'Links', icon: <LinkIcon size={18} /> },
-    { id: 'achievements', label: 'Success', icon: <Award size={18} /> },
-    { id: 'studentHonors', label: 'Honors', icon: <Award size={18} className="text-school-gold" /> },
-    { id: 'faqs', label: 'FAQs', icon: <MessageSquare size={18} className="text-school-gold" /> },
-    { id: 'transfer_certificates', label: 'TC Records', icon: <FileText size={18} className="text-school-accent" /> },
-    { id: 'messages', label: 'Inquiries', icon: <Mail size={18} className="text-school-accent" /> },
-    { id: 'navigation_menu', label: 'Menu', icon: <Menu size={18} /> },
-    { id: 'useful_links', label: 'Resource Links', icon: <ExternalLink size={18} className="text-school-accent" /> },
-    { id: 'digital_campus', label: 'Digital Campus', icon: <Maximize2 size={18} className="text-school-neon" /> },
-    { id: 'custom_content', label: 'Insights Content', icon: <FileText size={18} className="text-school-gold" /> },
-    { id: 'lead_grace', label: 'Lead Grace', icon: <Award size={18} className="text-school-neon" /> },
-    { id: 'academics', label: 'Academics', icon: <Award size={18} className="text-school-accent" /> },
-    { id: 'jesuit_page_content', label: 'Jesuit Education Page', icon: <FileText size={18} className="text-school-gold" /> },
-    { id: 'activities', label: 'Co-curricular', icon: <LayoutGrid size={18} className="text-school-neon" /> },
-    { id: 'alumni', label: 'Alumni Content', icon: <Users2 size={18} className="text-school-accent" /> },
-    { id: 'school_info', label: 'School Information', icon: <FileText size={18} className="text-school-gold" /> },
     { id: 'parent_obligations', label: 'Parent Obligations', icon: <FileText size={18} className="text-school-accent" /> },
-    { id: 'careers', label: 'Careers', icon: <Briefcase size={18} className="text-school-gold" /> },
-    { id: 'mandatory_disclosures', label: 'Mandatory Disclosures', icon: <ShieldCheck size={18} className="text-school-neon" /> },
-    { id: 'contact_content', label: 'Contact Page Info', icon: <Mail size={18} className="text-school-accent" /> },
-    { id: 'scholarships', label: 'Scholarship & Concessions', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'former_principals', label: 'Principals History', icon: <Award size={18} className="text-school-accent" /> },
     { id: 'former_rectors', label: 'Rectors History', icon: <Award size={18} className="text-school-gold" /> },
-    { id: 'former_managers', label: 'Managers History', icon: <Award size={18} className="text-school-neon" /> },
-    { id: 'former_student_leaders', label: 'Former Head Boy & Girls', icon: <Users2 size={18} className="text-school-accent" /> },
-    { id: 'streamwise_toppers', label: 'Stream Toppers', icon: <Award size={18} className="text-school-accent" /> },
-    { id: 'xavierite_of_the_year', label: 'Xavierite of Year', icon: <Award size={18} className="text-school-neon" /> },
-    { id: 'admins', label: 'Admin Accounts', icon: <Key size={18} className="text-school-neon" /> },
-    { id: 'logs', label: 'Audit Logs', icon: <FileText size={18} className="text-school-ink opacity-50" /> },
-    { id: 'content', label: 'Site Content', icon: <LayoutGrid size={18} className="text-school-neon" /> },
-    { id: 'about', label: 'About Text', icon: <FileText size={18} className="text-school-accent" /> },
+    { id: 'useful_links', label: 'Resource Links', icon: <ExternalLink size={18} className="text-school-accent" /> },
+    { id: 'scholarships', label: 'Scholarship & Concessions', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'school_history', label: 'School History', icon: <FileText size={18} className="text-school-gold" /> },
-    { id: 'settings', label: 'Global Settings', icon: <Settings size={18} className="text-school-gold" /> }
+    { id: 'school_info', label: 'School Information', icon: <FileText size={18} className="text-school-gold" /> },
+    { id: 'content', label: 'Site General Text', icon: <LayoutGrid size={18} className="text-school-neon" /> },
+    { id: 'staff', label: 'Staff Management', icon: <Users2 size={18} /> },
+    { id: 'streamwise_toppers', label: 'Stream Toppers', icon: <Award size={18} className="text-school-accent" /> },
+    { id: 'achievements', label: 'Success Records', icon: <Award size={18} /> },
+    { id: 'transfer_certificates', label: 'TC Records', icon: <FileText size={18} className="text-school-accent" /> },
+    { id: 'about', label: 'Vision & Mission', icon: <FileText size={18} className="text-school-accent" /> },
+    { id: 'xavierite_of_the_year', label: 'Xavierite of Year', icon: <Award size={18} className="text-school-neon" /> },
   ];
+
+  const sections = [...rawSections].sort((a, b) => a.label.localeCompare(b.label));
 
   if (authLoading) return (
     <div className="min-h-screen bg-school-navy flex items-center justify-center">
@@ -1319,6 +1329,27 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                     Refresh App State
                   </button>
                   <a 
+                    href="/supabase_fire_safety_setup.sql" 
+                    target="_blank"
+                    className="px-8 py-4 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all font-bold"
+                  >
+                    Setup Fire Safety SQL
+                  </a>
+                  <a 
+                    href="/supabase_fire_safety_activity.sql" 
+                    target="_blank"
+                    className="px-8 py-4 bg-emerald-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all font-bold"
+                  >
+                    Fire Safety & Activity SQL
+                  </a>
+                  <a 
+                    href="/supabase_co_curricular_fix.sql" 
+                    target="_blank"
+                    className="px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all font-bold"
+                  >
+                    Setup Activities SQL
+                  </a>
+                  <a 
                     href="/supabase_scholarships_display_type.sql" 
                     target="_blank"
                     className="px-8 py-4 bg-black/20 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black/30 transition-all font-bold"
@@ -1348,11 +1379,11 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         <header className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-12 mb-16">
           <div className="flex-1 space-y-6">
             <div className="flex flex-col md:flex-row md:items-center gap-6">
-               <div className="flex items-center gap-4">
-                 <h1 className="text-3xl md:text-5xl font-serif font-black text-school-navy tracking-tight capitalize">
-                   {searchQuery ? 'Search Results' : `Manage ${activeSection}`}
-                 </h1>
-                 {!searchQuery && (
+                <div className="flex items-center gap-4">
+                  <h1 className="text-3xl md:text-5xl font-serif font-black text-school-navy tracking-tight capitalize">
+                    {searchQuery ? 'Search Results' : `Manage ${sections.find(s => s.id === activeSection)?.label || activeSection}`}
+                  </h1>
+                  {!searchQuery && (
                    <span className="px-3 py-1 bg-school-ink/10 text-school-ink/40 rounded-lg text-[8px] font-black uppercase tracking-widest self-center md:self-end mb-2">
                      Supabase Table: {activeSection}
                    </span>
