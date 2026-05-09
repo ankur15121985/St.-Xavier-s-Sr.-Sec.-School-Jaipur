@@ -180,6 +180,11 @@ export interface FormerStudentLeader {
   is_enabled?: boolean;
 }
 
+export interface SiteStats {
+  id: string;
+  visitor_count: number;
+}
+
 export interface AppData {
   notices: Notice[];
   staff: StaffMember[];
@@ -210,7 +215,6 @@ export interface AppData {
   digital_campus?: DigitalCampus;
   page_sections: PageSection[];
   fire_safety: PageSection[];
-  academics: PageSection[];
   activities: PageSection[];
   co_curricular_activities: CoCurricularActivity[];
   alumni: PageSection[];
@@ -220,6 +224,7 @@ export interface AppData {
   mandatory_disclosures: PageSection[];
   contact_content: PageSection[];
   scholarships: PageSection[];
+  site_stats: SiteStats[];
   jesuit_page_content: JesuitPageContent[];
   settings: AppSettings;
   content: Record<string, string>;

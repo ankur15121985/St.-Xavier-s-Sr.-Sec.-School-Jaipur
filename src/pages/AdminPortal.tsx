@@ -150,14 +150,14 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16 lg:gap-20 w-full pb-20">
         {Object.entries({
           ...item,
-          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section) ? { attachmentUrl: item.attachmentUrl || '', display_type: item.display_type || 'tile' } : {})
+          ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section) ? { attachmentUrl: item.attachmentUrl || '', display_type: item.display_type || 'tile' } : {})
         }).filter(([k]) => {
           if (k === 'id' || k === 'page_id' || k === 'section_key') return false;
           const handledAtBottom = 
-            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section) && k === 'attachmentUrl') ||
+            (['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section) && k === 'attachmentUrl') ||
             (['staff', 'studentHonors', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section) && k === 'image') ||
             (['gallery', 'carousel'].includes(section) && k === 'url') ||
-            (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section) && k === 'image_url');
+            (['activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section) && k === 'image_url');
           return !handledAtBottom;
         }).map(([field, value]) => (
           <div key={field} className="space-y-6 md:space-y-8 bg-white/30 backdrop-blur-xs p-6 rounded-3xl border border-white/20 shadow-sm">
@@ -318,7 +318,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         {(() => {
           const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'scholarships', 'jesuit_page_content'].includes(section)) ? 'attachmentUrl' : 
                               (['staff', 'gallery', 'carousel', 'studentHonors', 'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
-                              (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section)) ? 'image_url' :
+                              (['activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section)) ? 'image_url' :
                               'attachmentUrl';
           const isUploading = uploadingPath === `${section}-${item.id}-${targetField}`;
           const currentVal = item[targetField];
@@ -764,7 +764,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.password = 'change_me_123';
       newItem.role = 'staff';
       newItem.created_at = new Date().toISOString();
-    } else if (['academics', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content', 'co_curricular_activities', 'fire_safety'].includes(tableStr)) {
+    } else if (['activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content', 'co_curricular_activities', 'fire_safety'].includes(tableStr)) {
       newItem.title = tableStr === 'scholarships' ? 'New Scholarship/Concession' : tableStr === 'co_curricular_activities' ? 'New Activity Section' : tableStr === 'fire_safety' ? 'Fire Safety Heading/Link' : 'New Section Title';
       newItem.heading = '';
       newItem.content = tableStr === 'co_curricular_activities' ? 'Write content or JSON for table here...' : 'Write description here...';
@@ -1031,7 +1031,6 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
   };
 
   const rawSections = [
-    { id: 'academics', label: 'Academics', icon: <Award size={18} className="text-school-accent" /> },
     { id: 'activities', label: 'Activities (Legacy)', icon: <Activity size={18} className="text-school-ink/30" /> },
     { id: 'admins', label: 'Admin Accounts', icon: <Key size={18} className="text-school-neon" /> },
     { id: 'alumni', label: 'Alumni Content', icon: <Users2 size={18} className="text-school-accent" /> },
@@ -1067,6 +1066,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'scholarships', label: 'Scholarship & Concessions', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'school_history', label: 'School History', icon: <FileText size={18} className="text-school-gold" /> },
     { id: 'school_info', label: 'School Information', icon: <FileText size={18} className="text-school-gold" /> },
+    { id: 'site_stats', label: 'Site Statistics (Visitor Count)', icon: <Activity size={18} className="text-emerald-500" /> },
     { id: 'content', label: 'Site General Text', icon: <LayoutGrid size={18} className="text-school-neon" /> },
     { id: 'staff', label: 'Staff Management', icon: <Users2 size={18} /> },
     { id: 'streamwise_toppers', label: 'Stream Toppers', icon: <Award size={18} className="text-school-accent" /> },
@@ -1453,7 +1453,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 <UploadCloud size={16} /> Session-wise Bulk Sync
               </button>
             )}
-            {!['settings', 'content', 'jesuit_page_content', 'digital_campus', 'logs', 'messages'].includes(activeSection) && (
+            {!['settings', 'content', 'jesuit_page_content', 'digital_campus', 'logs', 'messages', 'site_stats'].includes(activeSection) && (
               <button onClick={handleAdd} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none whitespace-nowrap">
                 <Plus size={16} /> New Item
               </button>
@@ -1461,6 +1461,28 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
           </div>
         )}
         </header>
+
+        {activeSection === 'site_stats' && !searchQuery && (
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="grid md:grid-cols-3 gap-8 mb-16">
+            <div className="bg-school-navy p-8 rounded-[40px] shadow-2xl relative overflow-hidden group">
+              <div className="relative z-10 flex flex-col justify-between h-full">
+                <div className="flex justify-between items-start">
+                  <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-school-gold">
+                    <Activity size={28} />
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Total Visits</span>
+                </div>
+                <div className="mt-12">
+                  <h3 className="text-5xl font-serif font-black text-white leading-none tracking-tight">
+                    {Array.isArray(data.site_stats) && data.site_stats[0] ? data.site_stats[0].visitor_count?.toLocaleString() : '0'}
+                  </h3>
+                  <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.5em] mt-4">Verified Portal Traffic</p>
+                </div>
+              </div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-school-gold/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:scale-150 transition-transform duration-700" />
+            </div>
+          </motion.div>
+        )}
 
         <AnimatePresence>
           {isBulkEditing && (

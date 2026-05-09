@@ -30,6 +30,7 @@ interface NavLink {
 const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [visitorCount, setVisitorCount] = useState<number | null>(null);
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -55,6 +56,21 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/visit');
+        const rData = await response.json();
+        if (rData.success) {
+          setVisitorCount(rData.count);
+        }
+      } catch (err) {
+        console.error('Failed to fetch visitor count', err);
+      }
+    };
+    fetchStats();
   }, []);
 
   // Determine navbar text color based on scroll and theme
@@ -663,22 +679,37 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           <div className="pt-16 flex flex-col md:flex-row justify-between items-center gap-10">
             <div className="flex flex-col items-center md:items-start gap-4">
               <div className="flex items-center gap-6 text-white/40 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
-                <p>© 2024 St. Xavier’s Sr. Sec. School | All Rights Reserved.</p>
+                <p>© 2026 St. Xavier’s Sr. Sec. School | All Rights Reserved.</p>
               </div>
               <p className="text-[10px] text-white/60 tracking-[0.3em] font-black uppercase">
                 Designed with Precision by <span className="text-school-gold">ABHISHEK MATHUR</span>
               </p>
             </div>
             
-            <div className="flex items-center gap-12 text-[10px] font-black tracking-[0.3em] uppercase text-white/30">
-              <span className="text-white/10">|</span>
-              <Link 
-                to="/sitemap" 
-                className="hover:text-white transition-colors cursor-pointer"
-              >
-                Complete Sitemap
-              </Link>
-              <span className="text-white/10">|</span>
+            <div className="flex flex-col items-center md:items-end gap-6">
+              <div className="flex items-center gap-12 text-[10px] font-black tracking-[0.3em] uppercase text-white/30">
+                <span className="text-white/10">|</span>
+                <Link 
+                  to="/sitemap" 
+                  className="hover:text-white transition-colors cursor-pointer"
+                >
+                  Complete Sitemap
+                </Link>
+                <span className="text-white/10">|</span>
+              </div>
+
+              {visitorCount !== null && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="px-4 py-1.5 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-3 group hover:border-school-accent transition-colors"
+                >
+                  <div className="w-1.5 h-1.5 rounded-full bg-school-accent animate-pulse" />
+                  <span className="text-[9px] font-black text-white/40 tracking-[0.2em] uppercase group-hover:text-school-accent transition-colors">
+                    Visitor Count: <span className="text-white font-mono">{visitorCount.toLocaleString()}</span>
+                  </span>
+                </motion.div>
+              )}
             </div>
           </div>
         </div>

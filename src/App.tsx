@@ -40,7 +40,6 @@ import ParentObligationsPage from './pages/ParentObligationsPage';
 import CareersPage from './pages/CareersPage';
 import MandatoryDisclosuresPage from './pages/MandatoryDisclosuresPage';
 import FireSafetyPage from './pages/FireSafetyPage';
-import AcademicsPage from './pages/AcademicsPage';
 import NoticeBoardPage from './pages/NoticeBoardPage';
 import ContactPage from './pages/ContactPage';
 import AdminPortal from './pages/AdminPortal';
@@ -292,9 +291,9 @@ export const DEFAULT_DATA: AppData = {
     { id: '3-5-4', label: 'School Level Fee Committee (SLFC)', href: '#', parent_id: '3-5', order_index: 3 },
     { id: '3-5-5', label: 'Parent Teacher Association (PTA)', href: '#', parent_id: '3-5', order_index: 4 },
     { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: null, order_index: 3 },
-    { id: '4', label: 'Academics', href: '/academics', parent_id: null, order_index: 4 },
+    { id: '4', label: 'Academics', href: '#', parent_id: null, order_index: 4 },
     { id: '4-1', label: 'Instructional Values', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
-    { id: '4-2', label: 'Academics Directory', href: '/academics', parent_id: '4', order_index: 1 },
+    { id: '4-2', label: 'Academics Directory', href: '/jesuit-education-objectives', parent_id: '4', order_index: 1 },
     { id: '4-3', label: 'Examinations & Promotions', href: '/jesuit-education-objectives#examinations', parent_id: '4', order_index: 2 },
     { id: '4-4', label: 'Rules & Discipline', href: '/jesuit-education-objectives#discipline', parent_id: '4', order_index: 3 },
     { id: '5', label: 'Activities', href: '#', parent_id: null, order_index: 5 },
@@ -370,8 +369,7 @@ export const DEFAULT_DATA: AppData = {
   fire_safety: [],
   co_curricular_activities: [],
   custom_content: [
-    { id: 'cc1', title: 'Institutional Philosophy', heading: 'The Jesuit Vision', content: 'Our education is inspired by the vision of St. Ignatius of Loyola. We aim for academic excellence, character building, and social responsibility.', order_index: 0 },
-    { id: 'cc2', title: 'Academic Excellence', heading: 'Modern Pedagogy', content: 'Integrating technology with traditional values to create future-ready leaders.', order_index: 1 }
+    { id: 'cc1', title: 'Institutional Philosophy', heading: 'The Jesuit Vision', content: 'Our education is inspired by the vision of St. Ignatius of Loyola. We aim for academic excellence, character building, and social responsibility.', order_index: 0 }
   ],
   school_history: [],
   lead_grace: [
@@ -379,7 +377,6 @@ export const DEFAULT_DATA: AppData = {
   ],
   digital_campus: { id: 'current', title: 'St. Xavier\'s Virtual Campus', is_enabled: true },
   page_sections: [],
-  academics: [],
   activities: [],
   alumni: [],
   school_info: [
@@ -441,6 +438,9 @@ export const DEFAULT_DATA: AppData = {
     faviconUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
     flagEnabled: true
   },
+  site_stats: [
+    { id: 'main', visitor_count: 477706 }
+  ],
   content: {
     id: 'global',
     heroTitle1: 'Beyond',
@@ -735,7 +735,6 @@ export default function App() {
                 <Route path="/careers" element={<PageTransition><CareersPage data={data} /></PageTransition>} />
                 <Route path="/mandatory-disclosures" element={<PageTransition><MandatoryDisclosuresPage data={data} /></PageTransition>} />
                 <Route path="/safety-guidelines" element={<PageTransition><FireSafetyPage data={data} /></PageTransition>} />
-                <Route path="/academics" element={<PageTransition><AcademicsPage data={data} /></PageTransition>} />
                 <Route path="/notice-board" element={<PageTransition><NoticeBoardPage data={data} /></PageTransition>} />
                 <Route path="/transfer-certificate" element={<PageTransition><TransferCertificatePage data={data} /></PageTransition>} />
                 <Route path="/stream-toppers" element={<PageTransition><StreamToppersPage data={data} /></PageTransition>} />

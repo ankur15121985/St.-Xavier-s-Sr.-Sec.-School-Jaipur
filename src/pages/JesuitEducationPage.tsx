@@ -96,7 +96,7 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
         <section id="examinations" className="py-24 bg-school-paper/50">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className="flex flex-col md:flex-row gap-4 items-end justify-between mb-16">
-              <div>
+              <div id="academic-regulations">
                 <h2 className="text-4xl md:text-5xl font-serif font-black text-school-ink italic tracking-tight">Academic Regulations</h2>
                 <p className="text-school-ink/40 text-sm font-black uppercase tracking-widest mt-2">Examinations & Promotion Criteria</p>
               </div>

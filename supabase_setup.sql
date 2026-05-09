@@ -60,6 +60,12 @@ CREATE TABLE IF NOT EXISTS settings (
     "faviconUrl" TEXT DEFAULT 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png'
 );
 
+CREATE TABLE IF NOT EXISTS site_stats (
+    id TEXT PRIMARY KEY,
+    visitor_count INTEGER DEFAULT 0,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
 CREATE TABLE IF NOT EXISTS school_history (
     id TEXT PRIMARY KEY,
     title TEXT,

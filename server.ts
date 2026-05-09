@@ -203,6 +203,17 @@ app.post('/api/upload/', (req, res) => {
 });
 
 // 2. CONNECTIVITY & ROUTE DIAGNOSTICS
+app.get('/api/visit', (req, res) => {
+  try {
+    db.prepare("UPDATE site_stats SET visitor_count = visitor_count + 1 WHERE id = 'main'").run();
+    const stats = db.prepare("SELECT visitor_count FROM site_stats WHERE id = 'main'").get() as any;
+    res.json({ success: true, count: stats?.visitor_count || 0 });
+  } catch (err) {
+    console.error('[STATS] Visit recording error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.get('/api/connectivity-test', (req, res) => {
   const uploadDirExists = fs.existsSync(uploadDir);
   const writable = (() => {
@@ -656,7 +667,7 @@ db.exec(`
   )
 `);
 
-const pageTables = ['academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'fire_safety'];
+const pageTables = ['activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'fire_safety'];
 pageTables.forEach(table => {
   db.exec(`
     CREATE TABLE IF NOT EXISTS "${table}" (
@@ -777,6 +788,13 @@ try {
 try {
   db.prepare("ALTER TABLE settings ADD COLUMN faviconUrl TEXT DEFAULT 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png'").run();
 } catch (e) {}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS site_stats (
+    id TEXT PRIMARY KEY,
+    visitor_count INTEGER DEFAULT 0
+  )
+`);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS school_history (
@@ -961,7 +979,7 @@ if ((menuCountResult?.count || 0) === 0) {
         { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: null, order_index: 3 },
         { id: '4', label: 'Academics', href: '#', parent_id: null, order_index: 4 },
         { id: '4-1', label: 'Jesuit Education Objectives', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
-        { id: '4-2', label: 'Examinations & Premotions', href: '#', parent_id: '4', order_index: 1 },
+        { id: '4-2', label: 'Academics Directory', href: '/jesuit-education-objectives', parent_id: '4', order_index: 1 },
         { id: '4-3', label: 'Rules & Discipline', href: '#', parent_id: '4', order_index: 2 },
         { id: '5', label: 'Activities', href: '#', parent_id: null, order_index: 5 },
         { id: '5-1', label: 'Co-Curricular Activities', href: '/co-curricular', parent_id: '5', order_index: 0 },
@@ -1006,8 +1024,20 @@ if ((carouselCountResult?.count || 0) === 0) {
     transaction(defaultSlides);
 }
 
+// Seed site_stats
+const statsCount = db.prepare("SELECT COUNT(*) as count FROM site_stats").get() as any;
+if ((statsCount?.count || 0) === 0) {
+    db.prepare("INSERT INTO site_stats (id, visitor_count) VALUES (?, ?)").run('main', 477706); // Start from user requested value
+} else {
+    // If it was already seeded with the old placeholder 1000, update it to the new requested start
+    const currentStats = db.prepare("SELECT visitor_count FROM site_stats WHERE id = 'main'").get() as any;
+    if (currentStats?.visitor_count === 1000) {
+        db.prepare("UPDATE site_stats SET visitor_count = ? WHERE id = 'main'").run(477706);
+    }
+}
+
 // General Seeding for missing tables
-const tablesToSeed = ['notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'fire_safety'];
+const tablesToSeed = ['notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'school_info', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'fire_safety'];
 tablesToSeed.forEach(table => {
     const countResult = db.prepare(`SELECT COUNT(*) as count FROM "${table}"`).get() as any;
     const tableInfo = db.pragma(`table_info("${table}")`) as any[];
@@ -1244,6 +1274,7 @@ const cleanMenu = () => {
         db.prepare("UPDATE menu SET label = 'EXAMINATIONS & PROMOTIONS' WHERE label = 'EXAMINATIONS & PREMOTIONS'").run();
         db.prepare("UPDATE menu SET href = '/jesuit-education-objectives#examinations' WHERE label = 'EXAMINATIONS & PROMOTIONS'").run();
         db.prepare("UPDATE menu SET href = '/jesuit-education-objectives#discipline' WHERE label = 'RULES & DISCIPLINE'").run();
+        db.prepare("UPDATE menu SET href = '/jesuit-education-objectives' WHERE label = 'ACADEMICS DIRECTORY'").run();
 
         // Forced re-alignment for Association Menu to About Us
         const associations = [
@@ -1447,7 +1478,7 @@ const targetStaff = [
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};
-    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups', 'school_history', 'lead_grace', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content', 'fire_safety'];
+    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups', 'school_history', 'lead_grace', 'school_info', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content', 'fire_safety', 'site_stats'];
 
     tables.forEach(table => {
       let rows = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
@@ -1500,7 +1531,6 @@ const SCHEMA: Record<string, string[]> = {
   messages: ['id', 'name', 'email', 'subject', 'message', 'timestamp', 'status', 'attachmentUrl'],
   popups: ['id', 'title', 'type', 'content', 'buttonText', 'buttonLink', 'isActive', 'order_index', 'attachmentUrl'],
   school_info: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl'],
-  academics: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   activities: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   alumni: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   parent_obligations: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
