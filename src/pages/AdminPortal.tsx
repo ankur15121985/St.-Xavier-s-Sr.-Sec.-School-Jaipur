@@ -1226,9 +1226,16 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                   setActiveSection(s.id as keyof AppData);
                   setIsSidebarOpen(false);
                 }} 
-                className={`w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-all ${activeSection === s.id ? 'bg-school-gold text-school-navy font-black shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                className={`w-full flex items-center justify-between px-6 py-4 rounded-xl transition-all ${activeSection === s.id ? 'bg-school-gold text-school-navy font-black shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
               >
-                {s.icon} <span className="text-[11px] uppercase tracking-widest">{s.label}</span>
+                <div className="flex items-center gap-4">
+                  {s.icon} <span className="text-[11px] uppercase tracking-widest">{s.label}</span>
+                </div>
+                {s.id === 'messages' && data.messages?.filter(m => m.status === 'new').length > 0 && (
+                  <span className="bg-red-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full animate-bounce">
+                    {data.messages.filter(m => m.status === 'new').length}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -2302,6 +2309,101 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                   </div>
                 ))}
               </div>
+            </div>
+          ) : activeSection === 'messages' ? (
+            <div className="grid gap-8">
+              {Array.isArray(data.messages) && data.messages.length > 0 ? (
+                [...data.messages].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).map((msg) => (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    key={msg.id} 
+                    className={`p-8 md:p-10 rounded-[40px] border transition-all ${msg.status === 'new' ? 'bg-school-gold/5 border-school-gold shadow-lg shadow-school-gold/10 ring-1 ring-school-gold/20' : 'bg-white border-school-ink/10 shadow-sm'}`}
+                  >
+                    <div className="flex flex-col md:flex-row justify-between gap-8 mb-8 pb-8 border-b border-school-ink/5">
+                      <div className="flex-1 space-y-4">
+                        <div className="flex flex-wrap items-center gap-4">
+                           {msg.status === 'new' && (
+                             <span className="px-3 py-1 bg-school-gold text-school-navy text-[8px] font-black uppercase tracking-widest rounded-full animate-pulse shadow-lg shadow-school-gold/20">
+                               New Inquiry
+                             </span>
+                           )}
+                           <span className={`text-[10px] font-black uppercase tracking-widest ${msg.status === 'new' ? 'text-school-navy/60' : 'text-school-ink/30'}`}>
+                             {msg.status === 'replied' ? '✓ Replied' : msg.status === 'read' ? 'Seen' : 'Waiting for Action'}
+                           </span>
+                           <span className="text-[10px] font-black uppercase tracking-widest text-school-ink/20 flex items-center gap-2">
+                             <Calendar size={12} /> {new Date(msg.timestamp).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                           </span>
+                        </div>
+                        
+                        <div>
+                          <h3 className="text-2xl md:text-3xl font-black text-school-navy tracking-tight">{msg.name}</h3>
+                          <div className="flex flex-wrap gap-6 mt-2">
+                            <a href={`mailto:${msg.email}`} className="text-xs font-bold text-school-accent hover:text-school-gold flex items-center gap-2 transition-colors">
+                              <Mail size={14} /> {msg.email}
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-4 self-start">
+                         <div className="flex flex-col gap-2">
+                           <p className="text-[8px] font-black uppercase tracking-widest text-school-ink/30 ml-1">Status Control</p>
+                           <select 
+                             value={msg.status}
+                             onChange={(e) => handleUpdate(msg.id, 'status', e.target.value, 'messages')}
+                             className={`border-none rounded-2xl py-3 px-6 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-school-gold/20 transition-all ${msg.status === 'new' ? 'bg-school-gold text-school-navy' : 'bg-school-ink/5 text-school-navy'}`}
+                           >
+                             <option value="new">New / Unread</option>
+                             <option value="read">Mark as Read</option>
+                             <option value="replied">Mark as Replied</option>
+                           </select>
+                         </div>
+                         <button onClick={() => setItemToDelete(msg.id)} className="p-5 bg-red-400/10 text-red-500 rounded-2xl hover:bg-red-400/20 transition-all mt-4 md:mt-0 shadow-sm">
+                           <Trash2 size={20} />
+                         </button>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-6">
+                      <div className="bg-school-paper/50 p-8 rounded-[32px] border border-school-ink/5">
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-school-ink/30 mb-3">Topic / Subject</p>
+                        <p className="text-lg font-black text-school-navy italic">{msg.subject || 'Institutional Inquiry'}</p>
+                      </div>
+                      
+                      <div className="bg-school-paper p-8 rounded-[32px] border border-school-ink/5 relative group">
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-school-ink/30 mb-4">Transmission Content</p>
+                        <div className="text-base text-school-ink leading-relaxed font-medium whitespace-pre-wrap">
+                          {msg.message}
+                        </div>
+                        <div className="absolute top-8 right-8 text-school-ink/5 group-hover:text-school-gold/20 transition-colors">
+                          <MessageSquare size={48} />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end pt-4">
+                        <a 
+                          href={`mailto:${msg.email}?subject=Re: ${msg.subject || 'Inquiry'}`}
+                          onClick={() => {
+                            if (msg.status === 'new') handleUpdate(msg.id, 'status', 'read', 'messages');
+                          }}
+                          className="px-10 py-5 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-school-gold hover:text-school-navy transition-all shadow-xl shadow-school-navy/20 flex items-center gap-3"
+                        >
+                          Compose Response <ExternalLink size={14} />
+                        </a>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center py-40 text-center glass-surface rounded-[60px] border border-school-ink/5">
+                   <div className="w-24 h-24 bg-school-ink/5 rounded-full flex items-center justify-center text-school-ink/20 mb-8">
+                     <Mail size={48} />
+                   </div>
+                   <h3 className="text-2xl font-black text-school-navy mb-3 uppercase tracking-widest italic">Silent Inbox</h3>
+                   <p className="text-sm text-school-ink/30 max-w-xs mx-auto leading-relaxed">No inquiries have been received yet. New messages from the contact form will appear here.</p>
+                </div>
+              )}
             </div>
           ) : searchQuery ? (
             globalResults.length > 0 ? (
