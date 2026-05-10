@@ -316,7 +316,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       
       {/* Consolidated Primary Action Button */}
         {(() => {
-          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'scholarships', 'jesuit_page_content'].includes(section)) ? 'attachmentUrl' : 
+          const targetField = (['notices', 'fees', 'events', 'achievements', 'links', 'transfer_certificates', 'navigation_menu', 'marquee', 'popups', 'useful_links', 'custom_content', 'scholarships', 'jesuit_page_content', 'mandatory_disclosures', 'careers', 'parent_obligations', 'school_info', 'alumni', 'activities'].includes(section)) ? 'attachmentUrl' : 
                               (['staff', 'gallery', 'carousel', 'studentHonors', 'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year'].includes(section)) ? (item.image !== undefined ? 'image' : 'url') :
                               (['activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section)) ? 'image_url' :
                               'attachmentUrl';
