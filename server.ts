@@ -1013,6 +1013,22 @@ if ((menuCountResult?.count || 0) === 0) {
     transaction(navLinks);
 }
 
+// Ensure "Insights" and its submenus exist (for cases where DB already had data)
+const insightsExist = db.prepare("SELECT id FROM menu WHERE id = '11'").get();
+if (!insightsExist) {
+    console.log("Adding missing Insights menu...");
+    const insightsLinks = [
+        { id: '11', label: 'Insights', href: '#', parent_id: null, order_index: 9 },
+        { id: '11-1', label: 'Streamwise Toppers', href: '/stream-toppers', parent_id: '11', order_index: 0 },
+        { id: '11-2', label: 'Laurel & Distinction', href: '/laurel-distinction', parent_id: '11', order_index: 1 },
+        { id: '11-3', label: 'Xavierite of the Year', href: '/xavierite-of-the-year', parent_id: '11', order_index: 2 },
+        { id: '11-4', label: 'Former Student Leaders', href: '/former-student-leaders', parent_id: '11', order_index: 3 },
+    ];
+    const insert = db.prepare("INSERT OR IGNORE INTO menu (id, label, href, parent_id, order_index) VALUES (?, ?, ?, ?, ?)");
+    insightsLinks.forEach(l => insert.run(l.id, l.label, l.href, l.parent_id, l.order_index));
+}
+
+
 // Seed Carousel if empty
 const carouselCountResult = db.prepare("SELECT COUNT(*) as count FROM carousel").get() as any;
 if ((carouselCountResult?.count || 0) === 0) {
@@ -1266,8 +1282,9 @@ const cleanMenu = () => {
         db.prepare("UPDATE menu SET order_index = 6 WHERE id = '6'").run();
         db.prepare("UPDATE menu SET order_index = 7 WHERE id = '7'").run();
         db.prepare("UPDATE menu SET order_index = 8 WHERE id = '8'").run();
-        db.prepare("UPDATE menu SET order_index = 9 WHERE id = '9'").run();
-        db.prepare("UPDATE menu SET order_index = 10 WHERE id = '10'").run();
+        db.prepare("UPDATE menu SET order_index = 9 WHERE id = '11'").run(); // Insights
+        db.prepare("UPDATE menu SET order_index = 10 WHERE id = '9'").run(); // More
+        db.prepare("UPDATE menu SET order_index = 11 WHERE id = '10'").run(); // Contact
 
         // Remove "Other Association & Committee" from Admission (parent '3') if it exists
         db.prepare("DELETE FROM menu WHERE label LIKE 'OTHER ASSOCIATION%' AND parent_id = '3'").run();
@@ -1286,7 +1303,7 @@ const cleanMenu = () => {
         db.prepare("UPDATE menu SET href = '/jesuit-education-objectives#discipline' WHERE label = 'RULES & DISCIPLINE'").run();
         db.prepare("UPDATE menu SET href = '/jesuit-education-objectives' WHERE label = 'ACADEMICS DIRECTORY'").run();
 
-        // Forced re-alignment for Association Menu to About Us
+        // Forced re-alignment for Association Menu and Insights
         const associations = [
             { id: '2-6', label: 'OTHER ASSOCIATION & COMMITTEE', href: '#', parent_id: '2', order_index: 5 },
             { id: '2-6-1', label: 'INTERNAL COMPLAINTS COMMITTEE (POSH)', href: '#', parent_id: '2-6', order_index: 0 },
@@ -1294,6 +1311,11 @@ const cleanMenu = () => {
             { id: '2-6-3', label: 'POCSO COMMITTEE', href: '#', parent_id: '2-6', order_index: 2 },
             { id: '2-6-4', label: 'SCHOOL LEVEL FEE COMMITTEE (SLFC)', href: '#', parent_id: '2-6', order_index: 3 },
             { id: '2-6-5', label: 'PARENT TEACHER ASSOCIATION (PTA)', href: '#', parent_id: '2-6', order_index: 4 },
+            { id: '11', label: 'Insights', href: '#', parent_id: null, order_index: 9 },
+            { id: '11-1', label: 'Streamwise Toppers', href: '/stream-toppers', parent_id: '11', order_index: 0 },
+            { id: '11-2', label: 'Laurel & Distinction', href: '/laurel-distinction', parent_id: '11', order_index: 1 },
+            { id: '11-3', label: 'Xavierite of the Year', href: '/xavierite-of-the-year', parent_id: '11', order_index: 2 },
+            { id: '11-4', label: 'Former Student Leaders', href: '/former-student-leaders', parent_id: '11', order_index: 3 },
         ];
 
         associations.forEach(item => {
