@@ -62,12 +62,21 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
     const fetchStats = async () => {
       try {
         const response = await fetch('/api/visit');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const text = await response.text();
+          console.error("Expected JSON but received:", text.substring(0, 100));
+          throw new TypeError("Oops, we haven't got JSON!");
+        }
         const rData = await response.json();
         if (rData.success) {
           setVisitorCount(rData.count);
         }
       } catch (err) {
-        console.error('Failed to fetch visitor count', err);
+        console.error('Failed to fetch visitor count:', err);
       }
     };
     fetchStats();

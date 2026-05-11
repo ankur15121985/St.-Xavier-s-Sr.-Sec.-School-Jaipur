@@ -18,6 +18,56 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
+// 1. DATABASE INITIALIZATION (CRITICAL: MUST BE BEFORE ROUTES)
+const dbPath = path.join(__dirname, 'database.sqlite');
+const db = new Database(dbPath);
+
+// Create ALL tables immediately
+db.exec(`
+  CREATE TABLE IF NOT EXISTS admins (
+    id TEXT PRIMARY KEY,
+    username TEXT UNIQUE,
+    password TEXT,
+    role TEXT,
+    last_login TEXT
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS site_stats (
+    id TEXT PRIMARY KEY,
+    visitor_count INTEGER DEFAULT 0
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS settings (
+    id TEXT PRIMARY KEY,
+    applyNowEnabled INTEGER DEFAULT 1,
+    applyNowUrl TEXT,
+    applyNowLabel TEXT,
+    siteName TEXT,
+    siteLogo TEXT,
+    contactEmail TEXT,
+    contactPhone TEXT,
+    contactAddress TEXT,
+    currentSession TEXT,
+    showCarousel INTEGER DEFAULT 1,
+    showMarquee INTEGER DEFAULT 1,
+    showAbout INTEGER DEFAULT 1,
+    showFeature INTEGER DEFAULT 1,
+    showVision INTEGER DEFAULT 1,
+    showInsights INTEGER DEFAULT 1,
+    showPrincipalMessage INTEGER DEFAULT 1,
+    showDistinction INTEGER DEFAULT 1,
+    showGallery INTEGER DEFAULT 1,
+    showLeadership INTEGER DEFAULT 1,
+    showHonors INTEGER DEFAULT 1,
+    feesPdfUrl TEXT
+  )
+`);
+// ... rest of table creation will be moved up as well in a single block
+
 // Enable trust proxy for express-rate-limit to correctly identify IPs behind Cloud Run / Load Balancers
 app.set('trust proxy', 1);
 
@@ -204,13 +254,15 @@ app.post('/api/upload/', (req, res) => {
 
 // 2. CONNECTIVITY & ROUTE DIAGNOSTICS
 app.get('/api/visit', (req, res) => {
+  console.log(`[STATS] GET /api/visit - IP: ${req.ip}`);
   try {
-    db.prepare("UPDATE site_stats SET visitor_count = visitor_count + 1 WHERE id = 'main'").run();
+    const updateResult = db.prepare("UPDATE site_stats SET visitor_count = visitor_count + 1 WHERE id = 'main'").run();
     const stats = db.prepare("SELECT visitor_count FROM site_stats WHERE id = 'main'").get() as any;
+    console.log(`[STATS] Success. New count: ${stats?.visitor_count}, Changes: ${updateResult.changes}`);
     res.json({ success: true, count: stats?.visitor_count || 0 });
-  } catch (err) {
-    console.error('[STATS] Visit recording error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+  } catch (err: any) {
+    console.error('[STATS] Visit recording error:', err.message);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 });
 
@@ -244,9 +296,6 @@ app.use((req, res, next) => {
 });
 
 // Authentication Middleware (Moved up)
-// Setup Database
-const dbPath = path.join(__dirname, 'database.sqlite');
-const db = new Database(dbPath);
 
 // Seed Default Admin if empty
 const seedAdmin = () => {
@@ -1019,10 +1068,8 @@ if (!insightsExist) {
     console.log("Adding missing Insights menu...");
     const insightsLinks = [
         { id: '11', label: 'Insights', href: '#', parent_id: null, order_index: 9 },
-        { id: '11-1', label: 'Streamwise Toppers', href: '/stream-toppers', parent_id: '11', order_index: 0 },
-        { id: '11-2', label: 'Laurel & Distinction', href: '/laurel-distinction', parent_id: '11', order_index: 1 },
-        { id: '11-3', label: 'Xavierite of the Year', href: '/xavierite-of-the-year', parent_id: '11', order_index: 2 },
-        { id: '11-4', label: 'Former Student Leaders', href: '/former-student-leaders', parent_id: '11', order_index: 3 },
+        { id: '11-2', label: 'Laurel & Distinction', href: '/laurel-distinction', parent_id: '11', order_index: 0 },
+        { id: '11-3', label: 'Xavierite of the Year', href: '/xavierite-of-the-year', parent_id: '11', order_index: 1 },
     ];
     const insert = db.prepare("INSERT OR IGNORE INTO menu (id, label, href, parent_id, order_index) VALUES (?, ?, ?, ?, ?)");
     insightsLinks.forEach(l => insert.run(l.id, l.label, l.href, l.parent_id, l.order_index));
@@ -1286,6 +1333,9 @@ const cleanMenu = () => {
         db.prepare("UPDATE menu SET order_index = 10 WHERE id = '9'").run(); // More
         db.prepare("UPDATE menu SET order_index = 11 WHERE id = '10'").run(); // Contact
 
+        // Remove unwanted Insights items
+        db.prepare("DELETE FROM menu WHERE id IN ('11-1', '11-4')").run();
+
         // Remove "Other Association & Committee" from Admission (parent '3') if it exists
         db.prepare("DELETE FROM menu WHERE label LIKE 'OTHER ASSOCIATION%' AND parent_id = '3'").run();
         
@@ -1312,10 +1362,8 @@ const cleanMenu = () => {
             { id: '2-6-4', label: 'SCHOOL LEVEL FEE COMMITTEE (SLFC)', href: '#', parent_id: '2-6', order_index: 3 },
             { id: '2-6-5', label: 'PARENT TEACHER ASSOCIATION (PTA)', href: '#', parent_id: '2-6', order_index: 4 },
             { id: '11', label: 'Insights', href: '#', parent_id: null, order_index: 9 },
-            { id: '11-1', label: 'Streamwise Toppers', href: '/stream-toppers', parent_id: '11', order_index: 0 },
-            { id: '11-2', label: 'Laurel & Distinction', href: '/laurel-distinction', parent_id: '11', order_index: 1 },
-            { id: '11-3', label: 'Xavierite of the Year', href: '/xavierite-of-the-year', parent_id: '11', order_index: 2 },
-            { id: '11-4', label: 'Former Student Leaders', href: '/former-student-leaders', parent_id: '11', order_index: 3 },
+            { id: '11-2', label: 'Laurel & Distinction', href: '/laurel-distinction', parent_id: '11', order_index: 0 },
+            { id: '11-3', label: 'Xavierite of the Year', href: '/xavierite-of-the-year', parent_id: '11', order_index: 1 },
         ];
 
         associations.forEach(item => {
