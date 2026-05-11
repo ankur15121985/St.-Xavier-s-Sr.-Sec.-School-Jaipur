@@ -91,6 +91,7 @@ const FormerLeadersPage = ({ data, type, title, description }: Props) => {
                           viewport={{ once: true }}
                           transition={{ delay: itemIndex * 0.1 }}
                           className="flex-1"
+                          data-aos={rowIndex % 2 === 0 ? (itemIndex % 2 === 0 ? "fade-right" : "fade-left") : (itemIndex % 2 === 0 ? "fade-left" : "fade-right")}
                         >
                           <div className="bg-white/80 backdrop-blur-xl rounded-[40px] p-10 shadow-xl border border-white/40 h-full group hover:shadow-2xl transition-all duration-500 relative ring-1 ring-black/5 hover:ring-school-gold/30">
                              {/* Flow indicator */}

@@ -12,6 +12,8 @@ import {
   useLocation
 } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import { AppData } from './types';
 import { HelmetProvider } from 'react-helmet-async';
 import { SupabaseProvider, useSupabase } from './components/SupabaseProvider';
@@ -49,6 +51,7 @@ import FormerRectorsPage from './pages/FormerRectorsPage';
 import FormerManagersPage from './pages/FormerManagersPage';
 import FormerPrincipalsPage from './pages/FormerPrincipalsPage';
 import StreamToppersPage from './pages/StreamToppersPage';
+import LaurelDistinctionPage from './pages/LaurelDistinctionPage';
 import XavieriteOfTheYearPage from './pages/XavieriteOfTheYearPage';
 import LeadGracePage from './pages/LeadGracePage';
 import StudentLeadershipPage from './pages/StudentLeadershipPage';
@@ -58,6 +61,19 @@ import SitemapPage from './pages/SitemapPage';
 const PageTransition = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      easing: 'ease-out-cubic',
+      once: true,
+      offset: 50,
+    });
+  }, []);
+
+  useEffect(() => {
+    AOS.refresh();
+  }, [location.pathname]);
+
   useEffect(() => {
     if (location.hash) {
       setTimeout(() => {
@@ -266,6 +282,11 @@ export const DEFAULT_DATA: AppData = {
     { id: '1', name: 'Rijul Jain', category: 'JEE Mains Aspirant', result: 'Qualified', subtext: 'SCIENCE CLUB (JOINT SECRETARY), RAJYA PURASKAR AWARDEE (SCOUTS AND GUIDES)', image: 'https://picsum.photos/seed/student1/300/300', order_index: 0 },
     { id: '2', name: 'Ameyatman Roy', category: 'JEE Mains Merit', result: 'Qualified', subtext: 'ACADEMIC MERIT SCHOLAR', image: 'https://picsum.photos/seed/student2/300/300', order_index: 1 },
     { id: '3', name: 'Aryan Sharma', category: 'JEE Mains Achiever', result: 'Qualified', subtext: 'ACADEMIC EXCELLENCE AWARD WINNER', image: 'https://picsum.photos/seed/student3/300/300', order_index: 2 },
+    { id: '4', name: 'Advik Singh', category: 'KVPY Scholar', result: 'Qualified', subtext: 'ALL INDIA RANK 452 (SA STREAM), SCIENCE OLYMPIAD SILVER MEDALIST', image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=300&h=300&fit=crop', order_index: 3 },
+    { id: '5', name: 'Sia Mathur', category: 'NTSE Scholar', result: 'Scholarship Awardee', subtext: 'STATE TOPPER (STAGE 1), SCHOOL CAPTAIN (2025-26)', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop', order_index: 4 },
+    { id: '6', name: 'Rohan Gupta', category: 'Mathematics Achievement', result: 'Silver Medalist', subtext: 'REPRESENTED INDIA AT INTERNATIONAL MATHEMATICS OLYMPIAD (IMO) 2025', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop', order_index: 5 },
+    { id: '7', name: 'Tanya Verma', category: 'Oratory Excellence', result: 'National Winner', subtext: 'BEST SPEAKER AT NATIONAL INTER-SCHOOL DEBATE COMPETITION', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop', order_index: 6 },
+    { id: '8', name: 'Kabir Das', category: 'Sports Athletics', result: 'Gold Medalist', subtext: 'U-17 STATE SWIMMING CHAMPIONSHIP (100M FREESTYLE)', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop', order_index: 7 },
   ],
   scholarships: [],
   navigation_menu: [
@@ -747,6 +768,7 @@ export default function App() {
                 <Route path="/notice-board" element={<PageTransition><NoticeBoardPage data={data} /></PageTransition>} />
                 <Route path="/transfer-certificate" element={<PageTransition><TransferCertificatePage data={data} /></PageTransition>} />
                 <Route path="/stream-toppers" element={<PageTransition><StreamToppersPage data={data} /></PageTransition>} />
+                <Route path="/laurel-distinction" element={<PageTransition><LaurelDistinctionPage data={data} /></PageTransition>} />
                 <Route path="/xavierite-of-the-year" element={<PageTransition><XavieriteOfTheYearPage data={data} /></PageTransition>} />
                 <Route path="/former-student-leaders" element={<PageTransition><StudentLeadershipPage data={data} /></PageTransition>} />
                 <Route path="/lead-grace" element={<PageTransition><LeadGracePage data={data} /></PageTransition>} />

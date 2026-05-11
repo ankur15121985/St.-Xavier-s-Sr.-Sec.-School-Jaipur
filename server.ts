@@ -995,7 +995,12 @@ if ((menuCountResult?.count || 0) === 0) {
         { id: '7-1', label: 'Obligations of Parents', href: '/parent-obligations', parent_id: '7', order_index: 0 },
         { id: '8', label: 'Career', href: '#', parent_id: null, order_index: 8 },
         { id: '8-1', label: 'Careers', href: '/careers', parent_id: '8', order_index: 0 },
-        { id: '9', label: 'More', href: '#', parent_id: null, order_index: 9 },
+        { id: '11', label: 'Insights', href: '#', parent_id: null, order_index: 9 },
+        { id: '11-1', label: 'Streamwise Toppers', href: '/stream-toppers', parent_id: '11', order_index: 0 },
+        { id: '11-2', label: 'Laurel & Distinction', href: '/laurel-distinction', parent_id: '11', order_index: 1 },
+        { id: '11-3', label: 'Xavierite of the Year', href: '/xavierite-of-the-year', parent_id: '11', order_index: 2 },
+        { id: '11-4', label: 'Former Student Leaders', href: '/former-student-leaders', parent_id: '11', order_index: 3 },
+        { id: '9', label: 'More', href: '#', parent_id: null, order_index: 10 },
         { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
         { id: '9-3', label: 'Mandatory disclosure', href: '#', parent_id: '9', order_index: 1 },
         { id: '9-4', label: 'Transfer Certificate', href: '#', parent_id: '9', order_index: 2 },
@@ -1107,6 +1112,11 @@ tablesToSeed.forEach(table => {
                 { id: '1', name: 'Rijul Jain', category: 'JEE Mains Aspirant', result: 'Qualified', subtext: 'SCIENCE CLUB (JOINT SECRETARY), RAJYA PURASKAR AWARDEE (SCOUTS AND GUIDES)', image: 'https://picsum.photos/seed/student1/300/300', order_index: 0 },
                 { id: '2', name: 'Ameyatman Roy', category: 'JEE Mains Merit', result: 'Qualified', subtext: 'ACADEMIC MERIT SCHOLAR', image: 'https://picsum.photos/seed/student2/300/300', order_index: 1 },
                 { id: '3', name: 'Aryan Sharma', category: 'JEE Mains Achiever', result: 'Qualified', subtext: 'ACADEMIC EXCELLENCE AWARD WINNER', image: 'https://picsum.photos/seed/student3/300/300', order_index: 2 },
+                { id: '4', name: 'Advik Singh', category: 'KVPY Scholar', result: 'Qualified', subtext: 'ALL INDIA RANK 452 (SA STREAM), SCIENCE OLYMPIAD SILVER MEDALIST', image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=300&h=300&fit=crop', order_index: 3 },
+                { id: '5', name: 'Sia Mathur', category: 'NTSE Scholar', result: 'Scholarship Awardee', subtext: 'STATE TOPPER (STAGE 1), SCHOOL CAPTAIN (2025-26)', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop', order_index: 4 },
+                { id: '6', name: 'Rohan Gupta', category: 'Mathematics Achievement', result: 'Silver Medalist', subtext: 'REPRESENTED INDIA AT INTERNATIONAL MATHEMATICS OLYMPIAD (IMO) 2025', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop', order_index: 5 },
+                { id: '7', name: 'Tanya Verma', category: 'Oratory Excellence', result: 'National Winner', subtext: 'BEST SPEAKER AT NATIONAL INTER-SCHOOL DEBATE COMPETITION', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop', order_index: 6 },
+                { id: '8', name: 'Kabir Das', category: 'Sports Athletics', result: 'Gold Medalist', subtext: 'U-17 STATE SWIMMING CHAMPIONSHIP (100M FREESTYLE)', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop', order_index: 7 },
             ];
         } else if (table === 'school_info') {
             defaultData = [
@@ -1311,6 +1321,26 @@ const cleanMenu = () => {
     }
 };
 cleanMenu();
+const seedStudentHonors = () => {
+    const students = [
+        { id: '1', name: 'Rijul Jain', category: 'Class 12 Topper', result: '98.6%', subtext: 'SCIENCE CLUB (JOINT SECRETARY), RAJYA PURASKAR AWARDEE (SCOUTS AND GUIDES)', image: 'https://picsum.photos/seed/student1/300/300', order_index: 0 },
+        { id: '2', name: 'Ameyatman Roy', category: 'Class 12 Topper', result: '98.2%', subtext: 'ACADEMIC MERIT SCHOLAR', image: 'https://picsum.photos/seed/student2/300/300', order_index: 1 },
+        { id: '3', name: 'Aryan Sharma', category: 'Class 12 Topper', result: '97.8%', subtext: 'ACADEMIC EXCELLENCE AWARD WINNER', image: 'https://picsum.photos/seed/student3/300/300', order_index: 2 },
+        { id: '4', name: 'Advik Singh', category: 'JEE Achiever', result: 'AIR 452', subtext: 'ALL INDIA RANK 452 (SA STREAM), SCIENCE OLYMPIAD SILVER MEDALIST', image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=300&h=300&fit=crop', order_index: 3 },
+        { id: '5', name: 'Sia Mathur', category: 'Class 10 Topper', result: '99.2%', subtext: 'STATE TOPPER (STAGE 1), SCHOOL CAPTAIN (2025-26)', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop', order_index: 4 },
+        { id: '6', name: 'Rohan Gupta', category: 'JEE Achiever', result: 'AIR 892', subtext: 'REPRESENTED INDIA AT INTERNATIONAL MATHEMATICS OLYMPIAD (IMO) 2025', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop', order_index: 5 },
+        { id: '7', name: 'Tanya Verma', category: 'Class 10 Topper', result: '98.8%', subtext: 'BEST SPEAKER AT NATIONAL INTER-SCHOOL DEBATE COMPETITION', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop', order_index: 6 },
+        { id: '8', name: 'Kabir Das', category: 'Class 10 Topper', result: '98.4%', subtext: 'U-17 STATE SWIMMING CHAMPIONSHIP (100M FREESTYLE)', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop', order_index: 7 },
+    ];
+
+    students.forEach(s => {
+        const exists = db.prepare("SELECT id FROM studentHonors WHERE id = ?").get(s.id);
+        if (!exists) {
+            db.prepare("INSERT INTO studentHonors (id, name, category, result, subtext, image, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)").run(s.id, s.name, s.category, s.result, s.subtext, s.image, s.order_index);
+        }
+    });
+};
+seedStudentHonors();
 seedAdmin();
 addColumnIfMissing('notices', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('links', 'attachmentUrl', 'TEXT');

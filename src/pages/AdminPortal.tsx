@@ -258,15 +258,28 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                   </>
                 )}
               </select>
-            ) : field === 'category' && section === 'fees' ? (
+            ) : field === 'category' && (section === 'fees' || section === 'studentHonors') ? (
               <select 
-                value={item[field] ?? 'School Fee'} 
+                value={item[field] ?? (section === 'fees' ? 'School Fee' : 'Class 10 Topper')} 
                 onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
                 className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
               >
-                <option value="School Fee">School Fee Structure</option>
-                <option value="Annual Fee">Annual Fees (Quarters)</option>
-                <option value="Admission Fee">Admission Fee (One-time)</option>
+                {section === 'fees' ? (
+                  <>
+                    <option value="School Fee">School Fee Structure</option>
+                    <option value="Annual Fee">Annual Fees (Quarters)</option>
+                    <option value="Admission Fee">Admission Fee (One-time)</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="Class 10 Topper">Class 10 Topper</option>
+                    <option value="Class 12 Topper">Class 12 Topper</option>
+                    <option value="JEE Achiever">JEE Achiever</option>
+                    <option value="KVPY Scholar">KVPY Scholar</option>
+                    <option value="NTSE Scholar">NTSE Scholar</option>
+                    <option value="Other Achievement">Other Achievement</option>
+                  </>
+                )}
               </select>
             ) : field === 'isActive' || field === 'isPriority' || field === 'is_enabled' ? (
               <button 
@@ -680,9 +693,9 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.attachmentUrl = '';
     } else if (tableStr === 'studentHonors') {
       newItem.name = 'New Honor Student';
-      newItem.category = 'Category (e.g. JEE Mains)';
-      newItem.result = 'Merit';
-      newItem.subtext = 'Additional honors details...';
+      newItem.category = 'Class 10 Topper';
+      newItem.result = '95%';
+      newItem.subtext = 'Academic excellence...';
       newItem.image = 'https://picsum.photos/seed/honor/300/300';
       newItem.order_index = (data.studentHonors?.length || 0);
     } else if (tableStr === 'navigation_menu') {
