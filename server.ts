@@ -253,16 +253,53 @@ app.post('/api/upload/', (req, res) => {
 });
 
 // 2. CONNECTIVITY & ROUTE DIAGNOSTICS
-app.get('/api/visit', (req, res) => {
+app.get('/api/visit', async (req, res) => {
   console.log(`[STATS] GET /api/visit - IP: ${req.ip}`);
+  let count = 477706; // Default fallback from seeded value
+
   try {
-    const updateResult = db.prepare("UPDATE site_stats SET visitor_count = visitor_count + 1 WHERE id = 'main'").run();
-    const stats = db.prepare("SELECT visitor_count FROM site_stats WHERE id = 'main'").get() as any;
-    console.log(`[STATS] Success. New count: ${stats?.visitor_count}, Changes: ${updateResult.changes}`);
-    res.json({ success: true, count: stats?.visitor_count || 0 });
+    // 1. Local SQLite Update
+    try {
+      db.prepare("UPDATE site_stats SET visitor_count = visitor_count + 1 WHERE id = 'main'").run();
+      const stats = db.prepare("SELECT visitor_count FROM site_stats WHERE id = 'main'").get() as any;
+      if (stats) count = stats.visitor_count;
+    } catch (sqlErr) {
+      console.warn("[STATS] SQLite update failed, falling back:", sqlErr);
+    }
+
+    // 2. Supabase Sync (Primary source for persistent environments like Vercel)
+    if (supabaseServer) {
+      try {
+        // Fetch current count from Supabase
+        const { data: sbData, error: fetchError } = await supabaseServer
+          .from('site_stats')
+          .select('visitor_count')
+          .eq('id', 'main')
+          .maybeSingle();
+        
+        const currentSbCount = sbData?.visitor_count || count;
+        const newCount = Math.max(currentSbCount + 1, count);
+        
+        // Update Supabase
+        const { error: updateError } = await supabaseServer
+          .from('site_stats')
+          .upsert({ id: 'main', visitor_count: newCount, updated_at: new Date().toISOString() });
+        
+        if (!updateError) {
+          count = newCount;
+          console.log(`[STATS] Supabase sync success. New count: ${count}`);
+        } else {
+          console.warn("[STATS] Supabase update fail:", updateError.message);
+        }
+      } catch (sbErr) {
+        console.warn("[STATS] Supabase connection issue:", sbErr);
+      }
+    }
+
+    res.json({ success: true, count });
   } catch (err: any) {
     console.error('[STATS] Visit recording error:', err.message);
-    res.status(500).json({ error: 'Internal server error', details: err.message });
+    res.json({ success: false, count, error: err.message });
   }
 });
 
@@ -296,6 +333,13 @@ app.use((req, res, next) => {
 });
 
 // Authentication Middleware (Moved up)
+
+const seedStats = () => {
+  const stats = db.prepare("SELECT id FROM site_stats WHERE id = 'main'").get();
+  if (!stats) {
+    db.prepare("INSERT INTO site_stats (id, visitor_count) VALUES ('main', 477706)").run();
+  }
+};
 
 // Seed Default Admin if empty
 const seedAdmin = () => {
@@ -377,9 +421,9 @@ app.get('/api/routes', (req, res) => {
 });
 
 // Constants
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
-const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
-const supabaseServer = (SUPABASE_URL && SUPABASE_KEY) ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "https://bfqyrnvyhivflapjwllk.supabase.co";
+const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmcXlybnZ5aGl2ZmxhcGp3bGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0Mjg4NzEsImV4cCI6MjA5MzAwNDg3MX0.fCbIjOk8isAv5d2QJVPxVH4IV-_LnAglguU1Z9D-3qU";
+const supabaseServer = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 if (supabaseServer) {
   console.log('[SUPABASE] Server-side client initialized.');
@@ -1411,6 +1455,7 @@ const seedStudentHonors = () => {
     });
 };
 seedStudentHonors();
+seedStats();
 seedAdmin();
 addColumnIfMissing('notices', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('links', 'attachmentUrl', 'TEXT');
@@ -1705,6 +1750,17 @@ app.post('/api/save', authenticateToken, express.json(), async (req, res) => {
     const query = `INSERT OR REPLACE INTO "${table}" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`;
     db.prepare(query).run(values);
     
+    // 2. Record Audit Log
+    try {
+      const user = (req as any).user?.username || 'Admin';
+      const action = `UPDATE_${table.toUpperCase()}`;
+      const details = `Managed ${item?.id || 'record'} in ${table}`;
+      db.prepare("INSERT INTO logs (id, user, action, details, timestamp) VALUES (?, ?, ?, ?, ?)")
+        .run(crypto.randomUUID(), user, action, details, new Date().toISOString());
+    } catch (logErr) {
+      console.error("[AUDIT] Log failed:", logErr);
+    }
+
     console.log(`[SQL SUCCESS] Local ${table} item persisted.`);
     res.json({ success: true });
   } catch (err: any) {
@@ -1752,6 +1808,18 @@ app.post('/api/delete', authenticateToken, express.json(), async (req, res) => {
     }
     
     console.log(`[SQL DELETE SUCCESS] Local ${table} removed ${result.changes} rows.`);
+
+    // 3. Record Audit Log for Delete
+    try {
+      const user = (req as any).user?.username || 'Admin';
+      const action = `DELETE_${table.toUpperCase()}`;
+      const details = `Removed ${id || `${ids?.length} items`} from ${table}`;
+      db.prepare("INSERT INTO logs (id, user, action, details, timestamp) VALUES (?, ?, ?, ?, ?)")
+        .run(crypto.randomUUID(), user, action, details, new Date().toISOString());
+    } catch (logErr) {
+      console.error("[AUDIT] Delete log failed:", logErr);
+    }
+
     res.json({ success: true, changes: result.changes });
   } catch (err: any) {
     console.error(`[SQL DELETE ERROR]`, err.message);

@@ -30,7 +30,12 @@ interface NavLink {
 const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [visitorCount, setVisitorCount] = useState<number | null>(null);
+  const [visitorCount, setVisitorCount] = useState<number | null>(() => {
+    if (data.site_stats && data.site_stats.length > 0) {
+      return data.site_stats[0].visitor_count;
+    }
+    return null;
+  });
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -61,6 +66,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        console.log('[Layout] Fetching visitor count...');
         const response = await fetch('/api/visit');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -68,15 +74,16 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           const text = await response.text();
-          console.error("Expected JSON but received:", text.substring(0, 100));
-          throw new TypeError("Oops, we haven't got JSON!");
+          console.warn("[Layout] Visitor API returned non-JSON:", text.substring(0, 100));
+          return;
         }
         const rData = await response.json();
         if (rData.success) {
+          console.log('[Layout] Visitor count updated:', rData.count);
           setVisitorCount(rData.count);
         }
       } catch (err) {
-        console.error('Failed to fetch visitor count:', err);
+        console.warn('[Layout] Failed to fetch visitor count:', err);
       }
     };
     fetchStats();

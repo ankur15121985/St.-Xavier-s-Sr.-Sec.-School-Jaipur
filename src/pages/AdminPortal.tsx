@@ -5,7 +5,7 @@ import {
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
   Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, RefreshCw,
   Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink,
-  Type, Palette, Bold, Italic, Briefcase, ShieldCheck, Activity
+  Type, Palette, Bold, Italic, Briefcase, ShieldCheck, Activity, Send, Clock
 } from 'lucide-react';
 import { AppData, GalleryItem } from '../types';
 import { DEFAULT_DATA } from '../App';
@@ -133,6 +133,386 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
     });
 
     return results;
+  };
+
+  const renderMessagesSection = () => (
+    <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-3xl font-black text-school-navy italic uppercase tracking-tight">Institutional <span className="text-school-accent">Dialogue.</span></h2>
+        <div className="flex items-center gap-3 px-4 py-2 bg-school-paper border border-school-ink/10 rounded-full">
+          <MessageSquare size={16} className="text-school-accent" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-school-ink/60">{data.messages?.length || 0} Total Interchanges</span>
+        </div>
+      </div>
+
+      {Array.isArray(data.messages) && data.messages.length > 0 ? (
+        [...data.messages].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).map((msg, idx) => (
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: idx * 0.05 }}
+            key={msg.id} 
+            className={`relative p-8 md:p-10 rounded-[40px] border transition-all ${msg.status === 'new' ? 'bg-school-gold/5 border-school-gold shadow-lg ring-2 ring-school-gold/20' : 'bg-white border-school-ink/10 shadow-sm'}`}
+          >
+            {/* Chat Bubble Tail Effect */}
+            <div className="absolute -left-2 top-10 w-4 h-4 bg-inherit border-l border-t border-inherit rotate-[-45deg] hidden md:block" />
+
+            <div className="flex flex-col md:flex-row justify-between gap-8 mb-6">
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center gap-3">
+                   <div className="w-12 h-12 bg-school-navy text-white rounded-2xl flex items-center justify-center font-black text-xl italic uppercase">
+                     {msg.name.substring(0, 1)}
+                   </div>
+                   <div>
+                      <h3 className="text-xl font-black text-school-navy leading-none">{msg.name}</h3>
+                      <span className="text-[10px] font-bold text-school-ink/30 italic">{new Date(msg.timestamp).toLocaleString()}</span>
+                   </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                 <select 
+                   value={msg.status}
+                   onChange={(e) => handleUpdate(msg.id, 'status', e.target.value, 'messages')}
+                   className={`border-none rounded-2xl py-2 px-5 text-[9px] font-black uppercase tracking-widest outline-none transition-all ${msg.status === 'new' ? 'bg-school-gold text-school-navy shadow-md' : 'bg-school-ink/5 text-school-navy'}`}
+                 >
+                   <option value="new">New Inquiry</option>
+                   <option value="read">Archived / Seen</option>
+                   <option value="replied">✓ Resolved</option>
+                 </select>
+                 <button onClick={() => setItemToDelete(msg.id)} className="p-3 bg-red-400/10 text-red-500 rounded-xl hover:bg-red-400/20 transition-all">
+                   <Trash2 size={16} />
+                 </button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-school-paper/80 p-6 rounded-3xl border border-school-ink/5 relative group">
+                <div className="text-base text-school-ink leading-relaxed font-medium whitespace-pre-wrap">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-school-ink/20 block mb-2">Subject: {msg.subject || 'Institutional Matter'}</span>
+                  {msg.message}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4">
+                <div className="flex items-center gap-4">
+                  <a href={`mailto:${msg.email}`} className="text-[10px] font-black text-school-accent hover:underline flex items-center gap-2">
+                    <Mail size={12} /> {msg.email.toUpperCase()}
+                  </a>
+                </div>
+                <a 
+                  href={`mailto:${msg.email}?subject=Re: ${msg.subject || 'Inquiry'}`}
+                  onClick={() => {
+                    if (msg.status === 'new') handleUpdate(msg.id, 'status', 'read', 'messages');
+                  }}
+                  className="px-8 py-4 bg-school-navy text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-school-gold hover:text-school-navy transition-all shadow-xl shadow-school-navy/10 flex items-center gap-2"
+                >
+                  Respond <Send size={12} />
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        ))
+      ) : (
+        <div className="flex flex-col items-center justify-center py-40 text-center glass-surface rounded-[60px] border border-school-ink/5">
+           <div className="w-24 h-24 bg-school-ink/5 rounded-full flex items-center justify-center text-school-ink/20 mb-8">
+             <Mail size={48} />
+           </div>
+           <h3 className="text-2xl font-black text-school-navy mb-3 uppercase tracking-widest italic">Silent Inbox</h3>
+           <p className="text-sm text-school-ink/30 max-w-xs mx-auto leading-relaxed">No inquiries have been received yet. New messages from the contact form will appear here.</p>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderLogsSection = () => (
+    <div className="max-w-5xl mx-auto space-y-8 pb-20">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-4xl font-serif font-black text-school-navy italic tracking-tight uppercase">System <span className="text-school-accent">Chronicle.</span></h2>
+          <p className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 mt-2 italic">Comprehensive history of institutional data mutations</p>
+        </div>
+        <div className="px-6 py-3 bg-school-paper rounded-2xl border border-school-ink/10 flex items-center gap-4">
+          <Clock className="text-school-accent" size={20} />
+          <span className="text-sm font-black text-school-navy uppercase tracking-widest">Active Monitoring</span>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {Array.isArray(data.logs) && data.logs.length > 0 ? (
+          [...data.logs].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).map((log, idx) => (
+            <motion.div 
+              key={log.id || idx}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.02 }}
+              className="group bg-white p-6 rounded-[32px] border border-school-ink/5 shadow-sm hover:shadow-md hover:border-school-accent/20 transition-all flex items-start gap-8"
+            >
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${log.action?.includes('DELETE') ? 'bg-red-50 text-red-500' : 'bg-school-gold/10 text-school-gold'}`}>
+                {log.action?.includes('UPDATE') ? <Activity size={24} /> : <Trash2 size={24} />}
+              </div>
+              
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-school-ink/30 italic">{new Date(log.timestamp).toLocaleString()}</span>
+                  <span className="px-3 py-1 bg-school-paper rounded-lg text-[9px] font-black uppercase tracking-widest text-school-ink/40 border border-school-ink/10">ID: {log.id?.substring(0, 8) || 'N/A'}</span>
+                </div>
+                <h4 className="text-xl font-black text-school-navy tracking-tight group-hover:text-school-accent transition-colors">
+                   {log.user?.toUpperCase() || 'SYSTEM'} <span className="text-school-ink/40 italic font-medium mx-2">—</span> {log.action?.replace('_', ' ') || 'ACTION'}
+                </h4>
+                <p className="text-base text-school-ink/60 font-medium leading-relaxed">{log.details}</p>
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <div className="py-40 text-center glass-surface rounded-[60px] border border-school-ink/5 flex flex-col items-center">
+            <FileText size={64} className="text-school-ink/10 mb-6" />
+            <h3 className="text-2xl font-black text-school-navy uppercase italic">No history detected</h3>
+            <p className="text-sm text-school-ink/30 mt-2">New actions will appear in this feed automatically.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderSearchResults = () => {
+    const results = getGlobalSearchResults();
+    if (results.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="w-20 h-20 bg-school-ink/5 rounded-full flex items-center justify-center text-school-ink/20 mb-6">
+             <Search size={40} />
+          </div>
+          <h3 className="text-xl font-black text-school-ink mb-2 uppercase tracking-widest">No Results Found</h3>
+          <p className="text-sm text-school-ink/30 max-w-xs mx-auto">We couldn't find any items matching "{searchQuery}" in any of your tables.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-12">
+        {results.map(({ section, items }) => (
+          <div key={section} className="space-y-6">
+            <div className="flex items-center gap-4 px-4">
+              <div className="w-10 h-10 bg-school-gold/10 rounded-xl flex items-center justify-center text-school-gold">
+                <LayoutGrid size={20} />
+              </div>
+              <h2 className="text-xl font-black text-school-ink uppercase tracking-widest">{section}</h2>
+              <div className="h-px flex-1 bg-school-ink/5" />
+              <span className="text-[10px] font-black text-school-ink/30 uppercase tracking-widest">{items.length} Matches</span>
+            </div>
+            <div className="grid gap-6">
+              {items.map(item => renderItemCard(item, section))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderMainContent = () => {
+    if (searchQuery) return renderSearchResults();
+    if (activeSection === 'messages') return renderMessagesSection();
+    if (activeSection === 'logs') return renderLogsSection();
+
+    switch (activeSection) {
+      case 'fees':
+        return (
+          <div className="mb-12 bg-school-navy p-10 rounded-[40px] shadow-2xl border border-white/5 space-y-8">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div className="flex-1">
+                <h3 className="text-2xl font-serif font-black text-white italic tracking-tight mb-2 flex items-center gap-3">
+                  <FileText size={24} className="text-school-gold" />
+                  Institutional Fee Documentation
+                </h3>
+                <p className="text-white/40 text-xs font-light max-w-lg">This PDF serves as the official blueprint displayed on the public Fees page. Managing committee approved documents should be uploaded here.</p>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                <label className="px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap">
+                  {uploadingPath === 'settings-global-feesPdfUrl' ? 'Uploading...' : 'Upload Official PDF'}
+                  <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleFileUpload(e, 'global', 'feesPdfUrl', 'settings')} disabled={!!uploadingPath} />
+                </label>
+                {data.settings.feesPdfUrl && (
+                  <a 
+                    href={data.settings.feesPdfUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="px-8 py-4 bg-white/10 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-white/20 transition-all border border-white/10"
+                  >
+                    View Live Link
+                  </a>
+                )}
+              </div>
+            </div>
+            {data.settings.feesPdfUrl && (
+              <div className="aspect-[16/10] w-full bg-white rounded-[40px] overflow-hidden shadow-2xl border border-white/10 relative group bg-school-paper">
+                <iframe 
+                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(data.settings.feesPdfUrl)}&embedded=true`}
+                  className="w-full h-full border-none"
+                  title="Fee Documentation Preview"
+                />
+              </div>
+            )}
+          </div>
+        );
+      case 'about':
+        return (
+          <div className="space-y-12">
+            <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl relative overflow-hidden">
+              <div className="relative z-10">
+                <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4">About Section Narrative</h2>
+                <p className="text-sm text-white/40 leading-relaxed font-light max-w-xl">Customize the primary "About St. Xavier's School" title and story displayed on the homepage.</p>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-slate-900/50 p-10 rounded-[40px] border border-black/5 shadow-sm space-y-12">
+              <div className="space-y-6">
+                <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Section Heading</label>
+                <input 
+                  value={data.settings.aboutTitle || ''}
+                  onChange={(e) => handleUpdate('global', 'aboutTitle', e.target.value, 'settings')}
+                  className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xl font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-6">
+                <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">The Narrative (Main Content)</label>
+                <RichTextEditor 
+                  value={data.settings.aboutContent || ''}
+                  onChange={(val) => handleUpdate('global', 'aboutContent', val, 'settings')}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      case 'settings':
+        return (
+          <div className="max-w-5xl mx-auto space-y-12 pb-20">
+            <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-8">
+              <div className="relative z-10">
+                <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-2">Central Configurations</h2>
+                <p className="text-sm text-white/40 font-light">Manage global application states, critical year sessions, and visibility toggles.</p>
+              </div>
+              <div className="flex gap-4">
+                 <button onClick={handleSaveAll} disabled={!savePending} className={`px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${savePending ? 'bg-emerald-500 text-white shadow-xl hover:scale-105' : 'bg-white/10 text-white/20 cursor-not-allowed uppercase'}`}>
+                   {savePending ? 'Sync Changes' : 'State Current'}
+                 </button>
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="glass-surface p-10 rounded-[40px] border border-school-ink/5 space-y-10 group">
+                <h3 className="text-xl font-black text-school-navy uppercase italic tracking-tight border-b border-school-navy/5 pb-4">Portal Constants</h3>
+                <div className="space-y-6">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Active Academic Session</label>
+                  <input 
+                    value={data.settings.currentSession || ''}
+                    onChange={(e) => handleUpdate('global', 'currentSession', e.target.value, 'settings')}
+                    className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <div className="glass-surface p-10 rounded-[40px] border border-school-ink/5 space-y-10 group">
+                <h3 className="text-xl font-black text-school-navy uppercase italic tracking-tight border-b border-school-navy/5 pb-4">Global Announcement Popup</h3>
+                <div className="space-y-6">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Popup Visibility</label>
+                  <div className="flex items-center gap-4">
+                    <button 
+                      onClick={() => handleUpdate('global', 'popupEnabled', !data.settings.popupEnabled, 'settings')}
+                      className={`w-20 h-10 rounded-full relative transition-all ${data.settings.popupEnabled ? 'bg-school-accent' : 'bg-school-ink/10'}`}
+                    >
+                      <motion.div animate={{ x: data.settings.popupEnabled ? 44 : 4 }} className="w-8 h-8 rounded-full bg-white shadow-lg absolute top-1 left-0" />
+                    </button>
+                    <span className="text-xs font-black text-school-ink">
+                      {data.settings.popupEnabled ? 'Enabled' : 'Disabled'}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Message Content</label>
+                  <RichTextEditor value={data.settings.popupMessage || ''} onChange={(val) => handleUpdate('global', 'popupMessage', val, 'settings')} />
+                </div>
+              </div>
+            </div>
+            <div className="glass-surface p-10 rounded-[40px] border border-school-ink/5 space-y-10">
+              <h3 className="text-xl font-black text-school-navy uppercase italic tracking-tight">Section Visibility Toggles</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                 {[
+                   { key: 'showCarousel', label: 'Primary Carousel' },
+                   { key: 'showMarquee', label: 'News Marquee' },
+                   { key: 'showAbout', label: 'Front Introduction' },
+                   { key: 'showFeature', label: 'Modernity Feature' },
+                   { key: 'showVision', label: 'Motto & Vision' },
+                   { key: 'showInsights', label: 'Updates & Events' },
+                   { key: 'showPrincipalMessage', label: 'Editorial Message' },
+                   { key: 'showDistinction', label: 'Institutional Pillar' },
+                   { key: 'showVirtualCampus', label: 'Virtual Campus' },
+                   { key: 'showGallery', label: 'Campus Gallery' },
+                   { key: 'showLeadership', label: 'Regency Personnel' },
+                   { key: 'showHonors', label: 'Student Triumphs' }
+                 ].map((item) => (
+                   <div key={item.key} className="bg-school-ink/5 p-6 rounded-3xl border border-school-ink/5 flex items-center justify-between">
+                     <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">{item.label}</span>
+                     <button 
+                       onClick={() => handleUpdate('global', item.key, !data.settings[item.key as keyof typeof data.settings], 'settings')}
+                       className={`w-14 h-8 rounded-full relative transition-all ${data.settings[item.key as keyof typeof data.settings] !== false ? 'bg-emerald-500' : 'bg-rose-500/20'}`}
+                     >
+                       <motion.div animate={{ x: data.settings[item.key as keyof typeof data.settings] !== false ? 26 : 4 }} className="w-6 h-6 rounded-full bg-white shadow-md absolute top-1 left-0" />
+                     </button>
+                   </div>
+                 ))}
+              </div>
+            </div>
+          </div>
+        );
+      case 'content':
+        return (
+          <div className="space-y-12">
+            <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4">Site Narrative & Labels</h2>
+                <p className="text-sm text-white/40 leading-relaxed max-w-xl">Modify all headings, descriptions, and labels used throughout the website sections.</p>
+              </div>
+            </div>
+            <div className="grid gap-6">
+              {Object.keys(data.content).sort().map((key) => (
+                <div key={key} className="bg-school-paper p-8 rounded-3xl border border-school-ink/10 shadow-sm group">
+                  <div className="flex flex-col md:flex-row gap-8 items-start">
+                     <div className="w-full md:w-64 space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-school-accent">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
+                        <p className="text-[9px] font-bold text-school-ink/30 uppercase tracking-widest">Key: {key}</p>
+                     </div>
+                     <div className="flex-1 w-full space-y-4">
+                        {(key.toLowerCase().includes('image') || key.toLowerCase().includes('logo') || key.toLowerCase().includes('url')) && (
+                          <div className="flex items-center gap-4">
+                            {data.content[key] && !data.content[key].endsWith('.pdf') && (
+                              <div className="w-16 h-16 rounded-xl overflow-hidden border border-school-ink/10 bg-school-ink/5">
+                                <img src={data.content[key]} className="w-full h-full object-cover" />
+                              </div>
+                            )}
+                            <label className="px-6 py-2 bg-school-gold text-school-navy rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-white transition-all shadow-lg">
+                              Update Media
+                              <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'global', key, 'content')} disabled={!!uploadingPath} />
+                            </label>
+                          </div>
+                        )}
+                        <input 
+                          type="text"
+                          value={data.content[key]}
+                          onChange={(e) => handleUpdate('global', key, e.target.value, 'content')}
+                          className="w-full bg-school-ink/5 border-none rounded-2xl p-6 text-sm font-black text-school-ink focus:ring-2 focus:ring-school-gold/20 outline-none"
+                        />
+                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      default:
+        return (
+          <div className="grid gap-6">
+            {Array.isArray(data[activeSection as keyof AppData]) && (data[activeSection as keyof AppData] as any[]).map((item: any) => renderItemCard(item, activeSection as keyof AppData))}
+          </div>
+        );
+    }
   };
 
   const renderItemCard = (item: any, section: keyof AppData) => (
@@ -1676,781 +2056,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         )}
 
         <div className="grid gap-12">
-          {activeSection === 'fees' && (
-            <div className="mb-12 bg-school-navy p-10 rounded-[40px] shadow-2xl border border-white/5 space-y-8">
-              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-                <div className="flex-1">
-                  <h3 className="text-2xl font-serif font-black text-white italic tracking-tight mb-2 flex items-center gap-3">
-                    <FileText size={24} className="text-school-gold" />
-                    Institutional Fee Documentation
-                  </h3>
-                  <p className="text-white/40 text-xs font-light max-w-lg">This PDF serves as the official blueprint displayed on the public Fees page. Managing committee approved documents should be uploaded here.</p>
-                </div>
-                <div className="flex flex-wrap gap-4">
-                  <label className="px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap">
-                    {uploadingPath === 'settings-global-feesPdfUrl' ? 'Uploading...' : 'Upload Official PDF'}
-                    <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleFileUpload(e, 'global', 'feesPdfUrl', 'settings')} disabled={!!uploadingPath} />
-                  </label>
-                  {data.settings.feesPdfUrl && (
-                    <a 
-                      href={data.settings.feesPdfUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="px-8 py-4 bg-white/10 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-white/20 transition-all border border-white/10"
-                    >
-                      View Live Link
-                    </a>
-                  )}
-                </div>
-              </div>
-              
-              {data.settings.feesPdfUrl && (
-                <div className="aspect-[16/10] w-full bg-white rounded-[40px] overflow-hidden shadow-2xl border border-white/10 relative group bg-school-paper">
-                  <iframe 
-                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(data.settings.feesPdfUrl)}&embedded=true`}
-                    className="w-full h-full border-none"
-                    title="Fee Documentation Preview"
-                  />
-                  <div className="absolute inset-0 bg-school-navy/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                    <div className="flex flex-col items-center gap-4">
-                       <Maximize2 size={32} className="text-school-gold" />
-                       <p className="text-[10px] font-black uppercase tracking-widest text-white">Live PDF Preview Mode</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-          {activeSection === 'about' ? (
-              <div className="space-y-12">
-                <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl relative overflow-hidden">
-                  <div className="relative z-10">
-                    <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4">About Section Narrative</h2>
-                    <p className="text-sm text-white/40 leading-relaxed font-light max-w-xl">Customize the primary "About St. Xavier's School" title and story displayed on the homepage.</p>
-                  </div>
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-school-accent opacity-5 rounded-full -mr-32 -mt-32 blur-[80px]" />
-                </div>
-
-                <div className="bg-white dark:bg-slate-900/50 p-10 rounded-[40px] border border-black/5 shadow-sm space-y-12">
-                  <div className="space-y-6">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Section Heading</label>
-                    <input 
-                      value={data.settings.aboutTitle || ''}
-                      onChange={(e) => handleUpdate('global', 'aboutTitle', e.target.value, 'settings')}
-                      placeholder="e.g. About St. Xavier's School"
-                      className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xl font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                    />
-                    <p className="text-[9px] text-school-ink/30 font-bold uppercase tracking-widest">This appears as the main bold title in the about section.</p>
-                  </div>
-
-                  <div className="space-y-6">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">The Narrative (Main Content)</label>
-                    <RichTextEditor 
-                      value={data.settings.aboutContent || ''}
-                      onChange={(val) => handleUpdate('global', 'aboutContent', val, 'settings')}
-                    />
-                    <p className="text-[9px] text-school-ink/30 font-bold uppercase tracking-widest">Rich text content describing the school's heritage and mission.</p>
-                  </div>
-                </div>
-              </div>
-          ) : activeSection === 'school_history' ? (
-              <div className="space-y-12">
-                <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl relative overflow-hidden">
-                  <div className="relative z-10">
-                    <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4">School History Narrative</h2>
-                    <p className="text-sm text-white/40 leading-relaxed font-light max-w-xl">Customize the heading and historical content for the School History page.</p>
-                  </div>
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-school-gold opacity-5 rounded-full -mr-32 -mt-32 blur-[80px]" />
-                </div>
-
-                <div className="bg-white dark:bg-slate-900/50 p-10 rounded-[40px] border border-black/5 shadow-sm space-y-12">
-                  <div className="space-y-6">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Page Heading</label>
-                    <input 
-                      value={data.school_history?.[0]?.title || ''}
-                      onChange={(e) => handleUpdate('main', 'title', e.target.value, 'school_history')}
-                      placeholder="e.g. Our Illustrious History"
-                      className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xl font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                    />
-                    <p className="text-[9px] text-school-ink/30 font-bold uppercase tracking-widest">This appears as the main title on the history page.</p>
-                  </div>
-
-                  <div className="space-y-6">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Detailed History (Main Content)</label>
-                    <RichTextEditor 
-                      value={data.school_history?.[0]?.content || ''}
-                      onChange={(val) => handleUpdate('main', 'content', val, 'school_history')}
-                    />
-                    <p className="text-[9px] text-school-ink/30 font-bold uppercase tracking-widest">The comprehensive story of the school since its inception.</p>
-                  </div>
-                </div>
-              </div>
-          ) : activeSection === 'lead_grace' ? (
-              <div className="space-y-12">
-                <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl relative overflow-hidden">
-                  <div className="relative z-10">
-                    <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4">Lead Grace Narrative</h2>
-                    <p className="text-sm text-white/40 leading-relaxed font-light max-w-xl">Manage the heading, biographical content, and portrait for the Lead Grace section.</p>
-                  </div>
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-school-neon opacity-5 rounded-full -mr-32 -mt-32 blur-[80px]" />
-                </div>
-
-                <div className="bg-white dark:bg-slate-900/50 p-10 rounded-[40px] border border-black/5 shadow-sm space-y-12">
-                  <div className="grid md:grid-cols-2 gap-12">
-                    <div className="space-y-6">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Inspirational Heading</label>
-                      <input 
-                        value={data.lead_grace?.[0]?.heading || ''}
-                        onChange={(e) => handleUpdate('lg1', 'heading', e.target.value, 'lead_grace')}
-                        placeholder="e.g. Lead with Grace"
-                        className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xl font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                      />
-                    </div>
-                    
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Portrait Image URL</label>
-                        <label className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
-                          {uploadingPath === 'lead_grace-lg1-image_url' ? 'Uploading...' : 'Upload Image'}
-                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'lg1', 'image_url', 'lead_grace')} disabled={!!uploadingPath} />
-                        </label>
-                      </div>
-                      <input 
-                        value={data.lead_grace?.[0]?.image_url || ''}
-                        onChange={(e) => handleUpdate('lg1', 'image_url', e.target.value, 'lead_grace')}
-                        className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                        placeholder="Image URL..."
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">The Discourse (Detailed Content)</label>
-                    <RichTextEditor 
-                      value={data.lead_grace?.[0]?.content || ''}
-                      onChange={(val) => handleUpdate('lg1', 'content', val, 'lead_grace')}
-                    />
-                    <p className="text-[9px] text-school-ink/30 font-bold uppercase tracking-widest">Main message or profile content for the Lead Grace page.</p>
-                  </div>
-                </div>
-              </div>
-          ) : activeSection === 'digital_campus' ? (
-              <div className="space-y-12">
-                <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl relative overflow-hidden">
-                  <div className="relative z-10">
-                    <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4">Digital Campus Experience</h2>
-                    <p className="text-sm text-white/40 leading-relaxed font-light max-w-xl">Manage the 3D campus model, title, and visibility status.</p>
-                  </div>
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-school-accent opacity-5 rounded-full -mr-32 -mt-32 blur-[80px]" />
-                </div>
-
-                <div className="bg-white p-10 rounded-[40px] border border-black/5 shadow-sm space-y-12">
-                  <div className="grid md:grid-cols-2 gap-12">
-                    <div className="space-y-6">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Section Title</label>
-                      <input 
-                        value={data.digital_campus?.title || 'Legacy in Motion'}
-                        onChange={(e) => handleUpdate('current', 'title', e.target.value, 'digital_campus')}
-                        className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xl font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                      />
-                    </div>
-                    
-                    <div className="space-y-6">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">3D Interaction Status</label>
-                      <div className="flex items-center gap-4">
-                        <button 
-                          onClick={() => handleUpdate('current', 'is_enabled', !data.digital_campus?.is_enabled, 'digital_campus')}
-                          className={`w-20 h-10 rounded-full relative transition-all ${data.digital_campus?.is_enabled ? 'bg-school-accent' : 'bg-school-ink/10'}`}
-                        >
-                          <motion.div 
-                            animate={{ x: data.digital_campus?.is_enabled ? 44 : 4 }}
-                            className="w-8 h-8 rounded-full bg-white shadow-lg absolute top-1 left-0"
-                          />
-                        </button>
-                        <span className="text-xs font-black text-school-ink uppercase tracking-widest">
-                          {data.digital_campus?.is_enabled ? 'Active' : 'Disabled'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6 pt-12 border-t border-school-ink/5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">3D Model File (OBJ/GLB)</label>
-                      <label className="px-6 py-2 bg-school-gold text-school-navy rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/90 transition-all shadow-lg active:scale-95">
-                        {uploadingPath === 'digital_campus-current-model_url' ? 'Uploading Model...' : 'Upload 3D Asset'}
-                        <input type="file" className="hidden" accept=".obj,.glb" onChange={(e) => handleFileUpload(e, 'current', 'model_url', 'digital_campus')} disabled={!!uploadingPath} />
-                      </label>
-                    </div>
-                    <input 
-                      value={data.digital_campus?.model_url || ''}
-                      onChange={(e) => {
-                        const updated = { ...(data.digital_campus || { id: 'current', title: 'Legacy in Motion', is_enabled: true }), model_url: e.target.value };
-                        setData({ ...data, digital_campus: updated });
-                        handleUpdate('current', 'model_url', e.target.value, 'digital_campus');
-                      }}
-                      className="w-full bg-school-ink/5 border-none rounded-2xl py-6 px-8 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                      placeholder="Public URL to the .glb or .obj file"
-                    />
-                    <p className="text-[9px] text-school-ink/30 font-bold uppercase tracking-widest">Current Support: GLB (Recommended) or OBJ files.</p>
-                  </div>
-                </div>
-              </div>
-          ) : activeSection === 'settings' ? (
-            <div className="space-y-12">
-               <div className="bg-red-500/5 border border-red-500/10 rounded-[40px] p-10 space-y-8 mb-12">
-                 <div className="flex items-center gap-6">
-                   <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-2xl flex items-center justify-center">
-                     <AlertCircle size={32} />
-                   </div>
-                   <div>
-                     <h3 className="text-2xl font-serif font-black text-red-500 italic">Emergency Recovery Zone</h3>
-                     <p className="text-sm text-school-ink/60 font-light mt-1 max-w-xl">If data appears missing or corrupted (e.g. after a partial sync failure), you can re-synchronize all cloud tables with institutional defaults.</p>
-                   </div>
-                   <button 
-                       onClick={async () => {
-                         if (confirm('Are you sure you want to re-seed all tables with default data? Existing items will be updated, but not deleted.')) {
-                           try {
-                             setUploadingPath('reseed');
-                             await supabaseService.syncAll(DEFAULT_DATA);
-                             showToast('Database recovery sync completed!');
-                             window.location.reload();
-                           } catch (err: any) {
-                             showToast(`Recovery failed: ${err.message}`, 'error');
-                           } finally {
-                             setUploadingPath(null);
-                           }
-                         }
-                       }}
-                       disabled={!!uploadingPath}
-                       className="ml-auto px-10 py-5 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black transition-all flex items-center gap-3 shadow-xl disabled:opacity-50"
-                    >
-                       {uploadingPath === 'reseed' ? <Loader2 className="animate-spin" size={16} /> : <RefreshCw size={16} />}
-                       Trigger Recovery Sync
-                    </button>
-                 </div>
-               </div>
-
-               <div className="bg-school-paper p-10 rounded-[40px] shadow-2xl border border-school-ink/10 space-y-12">
-               <div>
-                 <h2 className="text-3xl font-serif font-black text-school-navy italic tracking-tight mb-4">Global Site Settings</h2>
-                 
-                 {/* Font Branding Context */}
-                 <div className="mb-12 p-8 bg-school-gold/5 rounded-[32px] border border-school-gold/10">
-                   <div className="flex items-center gap-4 mb-6">
-                     <div className="w-12 h-12 bg-school-gold rounded-2xl flex items-center justify-center text-school-navy">
-                       <Type size={24} />
-                     </div>
-                     <div>
-                       <h3 className="text-xl font-serif font-bold text-school-navy italic">Typography Branding</h3>
-                       <p className="text-xs text-school-navy/40 font-medium">Manage the institutional font patterns across the portal</p>
-                     </div>
-                   </div>
-                   
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <div className="p-6 bg-white rounded-2xl border border-school-ink/5 shadow-sm">
-                       <span className="text-[10px] font-serif font-bold uppercase tracking-widest text-school-gold mb-3 block">Primary Serif (Headings)</span>
-                       <h4 className="text-2xl font-serif font-bold text-school-navy mb-2 italic">Cormorant Garamond</h4>
-                       <p className="text-xs text-school-ink/50 font-light italic leading-relaxed">
-                         Used for high-impact biological titles, institutional quotes, and rhythmic headers. Provides a legacy, academic atmosphere.
-                       </p>
-                     </div>
-                     <div className="p-6 bg-white rounded-2xl border border-school-ink/5 shadow-sm">
-                       <span className="text-[10px] font-serif font-bold uppercase tracking-widest text-school-gold mb-3 block">Primary Sans (Interface)</span>
-                       <h1 className="text-2xl font-sans font-black text-school-navy mb-2 tracking-tight">Inter Prototype</h1>
-                       <p className="text-xs text-school-ink/50 font-light leading-relaxed">
-                         Used for utility text, labels, and administrative data. Provides clarity, precision, and modern accessibility.
-                       </p>
-                     </div>
-                   </div>
-
-                   <div className="mt-8 pt-8 border-t border-school-gold/10 flex flex-wrap gap-4">
-                     <button className="px-6 py-3 bg-school-navy text-white rounded-xl text-[10px] font-serif font-bold uppercase tracking-widest hover:bg-black transition-all">Apply Legacy Serif Theme</button>
-                     <button className="px-6 py-3 bg-white border border-school-ink/10 text-school-ink rounded-xl text-[10px] font-serif font-bold uppercase tracking-widest hover:bg-school-ink/5 transition-all">Reset to Modern Sans</button>
-                   </div>
-                 </div>
-                 <p className="text-sm text-school-navy/60 leading-relaxed font-light">Site-wide configurations, contact information, and main branding assets.</p>
-               </div>
-
-               <div className="grid md:grid-cols-2 gap-12">
-                  <div className="space-y-6">
-                     <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Site Name</label>
-                     <input 
-                       value={data.settings.siteName}
-                       onChange={(e) => handleUpdate('global', 'siteName', e.target.value, 'settings')}
-                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                     />
-                  </div>
-                  <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Site Logo URL</label>
-                        <label className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
-                          {uploadingPath === 'settings-global-siteLogo' ? 'Uploading...' : 'Upload Logo'}
-                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'global', 'siteLogo', 'settings')} disabled={!!uploadingPath} />
-                        </label>
-                      </div>
-                      <input 
-                       value={data.settings.siteLogo}
-                       onChange={(e) => handleUpdate('global', 'siteLogo', e.target.value, 'settings')}
-                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                     />
-                  </div>
-                  <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Favicon URL (16x16 or 32x32)</label>
-                        <label className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
-                          {uploadingPath === 'settings-global-faviconUrl' ? 'Uploading...' : 'Upload Icon'}
-                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'global', 'faviconUrl', 'settings')} disabled={!!uploadingPath} />
-                        </label>
-                      </div>
-                      <input 
-                       value={data.settings.faviconUrl || ''}
-                       onChange={(e) => handleUpdate('global', 'faviconUrl', e.target.value, 'settings')}
-                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                     />
-                  </div>
-               </div>
-
-               <div className="grid md:grid-cols-3 gap-12 pt-12 border-t border-school-ink/5">
-                  <div className="space-y-6">
-                     <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Contact Email</label>
-                     <input 
-                       value={data.settings.contactEmail}
-                       onChange={(e) => handleUpdate('global', 'contactEmail', e.target.value, 'settings')}
-                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                     />
-                  </div>
-                  <div className="space-y-6">
-                     <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Contact Phone</label>
-                     <input 
-                       value={data.settings.contactPhone}
-                       onChange={(e) => handleUpdate('global', 'contactPhone', e.target.value, 'settings')}
-                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                     />
-                  </div>
-                  <div className="space-y-6">
-                     <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Contact Address</label>
-                     <textarea 
-                       value={data.settings.contactAddress}
-                       onChange={(e) => handleUpdate('global', 'contactAddress', e.target.value, 'settings')}
-                       className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all h-24 resize-none"
-                     />
-                  </div>
-               </div>
-
-               <div className="pt-12 border-t border-school-ink/5">
-                <div className="space-y-6 pt-12 border-t border-school-ink/5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Fees Structure PDF URL</label>
-                      <label className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
-                        {uploadingPath === 'settings-global-feesPdfUrl' ? 'Uploading...' : 'Upload Fee PDF'}
-                        <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleFileUpload(e, 'global', 'feesPdfUrl', 'settings')} disabled={!!uploadingPath} />
-                      </label>
-                    </div>
-                    <input 
-                      value={data.settings.feesPdfUrl || ''}
-                      onChange={(e) => handleUpdate('global', 'feesPdfUrl', e.target.value, 'settings')}
-                      className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                      placeholder="Public URL to the fee structure PDF"
-                    />
-                </div>
-
-                 <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight mb-8">Application Module</h2>
-                 <div className="grid md:grid-cols-2 gap-12">
-                    <div className="space-y-6">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Module Status</label>
-                       <div className="flex items-center gap-4">
-                          <button 
-                            onClick={() => handleUpdate('global', 'applyNowEnabled', !data.settings.applyNowEnabled, 'settings')}
-                            className={`w-20 h-10 rounded-full relative transition-all ${data.settings.applyNowEnabled ? 'bg-emerald-500' : 'bg-school-ink/10'}`}
-                          >
-                             <motion.div 
-                               animate={{ x: data.settings.applyNowEnabled ? 44 : 4 }}
-                               className="w-8 h-8 rounded-full bg-white shadow-lg absolute top-1 left-0"
-                             />
-                          </button>
-                          <span className="text-xs font-black text-school-ink uppercase tracking-widest">
-                            {data.settings.applyNowEnabled ? 'Enabled' : 'Disabled'}
-                          </span>
-                       </div>
-                    </div>
-
-                    <div className="space-y-6">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Action Label</label>
-                       <input 
-                         value={data.settings.applyNowLabel}
-                         onChange={(e) => handleUpdate('global', 'applyNowLabel', e.target.value, 'settings')}
-                         className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                       />
-                    </div>
-                 </div>
-
-                 <div className="space-y-6 mt-12">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Document Link (PDF)</label>
-                      <label className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
-                        {uploadingPath === 'settings-global-applyNowUrl' ? 'Uploading...' : 'Update PDF'}
-                        <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleFileUpload(e, 'global', 'applyNowUrl', 'settings')} disabled={!!uploadingPath} />
-                      </label>
-                    </div>
-                    <input 
-                      value={data.settings.applyNowUrl}
-                      onChange={(e) => handleUpdate('global', 'applyNowUrl', e.target.value, 'settings')}
-                      className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                    />
-                 </div>
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Current Academic Session</label>
-                    <input 
-                      value={data.settings.currentSession || ''}
-                      onChange={(e) => handleUpdate('global', 'currentSession', e.target.value, 'settings')}
-                      placeholder="e.g. 2025-26"
-                      className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-bold text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between mb-8 mt-16 pt-16 border-t border-school-ink/5">
-                    <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight">Interactive Flag Configuration</h2>
-                    <button 
-                      onClick={() => handleUpdate('global', 'flagEnabled', !data.settings.flagEnabled, 'settings')}
-                      className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                        data.settings.flagEnabled 
-                          ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200' 
-                          : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
-                      }`}
-                    >
-                      {data.settings.flagEnabled ? 'Enabled' : 'Disabled'}
-                    </button>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-12">
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Custom Animated Image (GIF/WebP)</label>
-                        <label className="px-6 py-2 bg-school-gold/10 text-school-gold rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-school-gold/20 transition-all">
-                          {uploadingPath === 'settings-global-flagImage' ? 'Uploading...' : 'Upload Image'}
-                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'global', 'flagImage', 'settings')} disabled={!!uploadingPath} />
-                        </label>
-                      </div>
-                      <input 
-                        value={data.settings.flagImage || ''}
-                        onChange={(e) => handleUpdate('global', 'flagImage', e.target.value, 'settings')}
-                        placeholder="Leave empty for default Indian Flag"
-                        className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-xs font-mono text-school-ink/60 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                      />
-                    </div>
-                    {data.settings.flagImage && (
-                      <div className="space-y-6">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Preview</label>
-                        <div className="w-32 h-20 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center border border-dashed border-school-ink/20 overflow-hidden">
-                          <img src={data.settings.flagImage} alt="Flag Preview" className="max-w-full max-h-full object-contain" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight mb-8 mt-16 pt-16 border-t border-school-ink/5">Homepage Section Visibility</h2>
-                  <p className="text-xs text-school-navy/60 mb-10 max-w-xl">Toggle which major sections appear on the homepage. Changes reflect instantly upon saving.</p>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {[
-                      { key: 'showCarousel', label: 'Main Carousel' },
-                      { key: 'showMarquee', label: 'Scrolling Marquee' },
-                      { key: 'showAbout', label: 'About Narrative' },
-                      { key: 'showFeature', label: 'Feature Banner' },
-                      { key: 'showVision', label: 'Mission & Vision' },
-                      { key: 'showInsights', label: 'Insights Section' },
-                      { key: 'showPrincipalMessage', label: 'Principal Message' },
-                      { key: 'showDistinction', label: 'Distinction Badges' },
-                      { key: 'showGallery', label: 'Photo Gallery' },
-                      { key: 'showLeadership', label: 'Current Leadership' },
-                      { key: 'showHonors', label: 'Student Honors' }
-                    ].map((section) => (
-                      <div key={section.key} className="bg-white p-6 rounded-3xl border border-school-ink/5 shadow-sm flex items-center justify-between group hover:border-school-gold/30 transition-all">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/70">{section.label}</span>
-                        <button 
-                          onClick={() => handleUpdate('global', section.key, !data.settings[section.key as keyof typeof data.settings], 'settings')}
-                          className={`w-12 h-6 rounded-full relative transition-all ${data.settings[section.key as keyof typeof data.settings] ? 'bg-emerald-500' : 'bg-school-ink/10'}`}
-                        >
-                          <motion.div 
-                            animate={{ x: data.settings[section.key as keyof typeof data.settings] ? 26 : 2 }}
-                            className="w-4 h-4 rounded-full bg-white shadow-md absolute top-1 left-0"
-                          />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-
-                  <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight mb-8 mt-16 pt-16 border-t border-school-ink/5">Institutional Popup Notice</h2>
-                  <div className="grid md:grid-cols-2 gap-12">
-                    <div className="space-y-6">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Popup Visibility</label>
-                      <div className="flex items-center gap-4">
-                        <button 
-                          onClick={() => handleUpdate('global', 'popupEnabled', !data.settings.popupEnabled, 'settings')}
-                          className={`w-20 h-10 rounded-full relative transition-all ${data.settings.popupEnabled ? 'bg-school-accent' : 'bg-school-ink/10'}`}
-                        >
-                          <motion.div 
-                            animate={{ x: data.settings.popupEnabled ? 44 : 4 }}
-                            className="w-8 h-8 rounded-full bg-white shadow-lg absolute top-1 left-0"
-                          />
-                        </button>
-                        <span className="text-xs font-black text-school-ink uppercase tracking-widest">
-                          {data.settings.popupEnabled ? 'Enabled' : 'Disabled'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="space-y-6">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Message Content</label>
-                      <RichTextEditor 
-                        value={data.settings.popupMessage || ''}
-                        onChange={(val) => handleUpdate('global', 'popupMessage', val, 'settings')}
-                      />
-                    </div>
-                  </div>
-
-                  <h2 className="text-2xl font-serif font-black text-school-navy italic tracking-tight mb-8 mt-16 pt-16 border-t border-school-ink/5">Digital Section Visibility</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                     {[
-                       { key: 'showCarousel', label: 'Primary Carousel' },
-                       { key: 'showMarquee', label: 'News Marquee' },
-                       { key: 'showAbout', label: 'Front Introduction' },
-                       { key: 'showFeature', label: 'Modernity Feature' },
-                       { key: 'showVision', label: 'Motto & Vision' },
-                       { key: 'showInsights', label: 'Updates & Events' },
-                       { key: 'showPrincipalMessage', label: 'Editorial Message' },
-                       { key: 'showDistinction', label: 'Institutional Pillar' },
-                       { key: 'showVirtualCampus', label: 'Virtual Campus' },
-                       { key: 'showGallery', label: 'Campus Gallery' },
-                       { key: 'showLeadership', label: 'Regency Personnel' },
-                       { key: 'showHonors', label: 'Student Triumphs' }
-                     ].map((item) => (
-                       <div key={item.key} className="bg-school-ink/5 p-6 rounded-3xl border border-school-ink/5 flex items-center justify-between">
-                         <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">{item.label}</span>
-                         <button 
-                           onClick={() => handleUpdate('global', item.key, !data.settings[item.key as keyof typeof data.settings], 'settings')}
-                           className={`w-14 h-8 rounded-full relative transition-all ${data.settings[item.key as keyof typeof data.settings] !== false ? 'bg-emerald-500' : 'bg-rose-500/20'}`}
-                         >
-                           <motion.div 
-                             animate={{ x: data.settings[item.key as keyof typeof data.settings] !== false ? 26 : 4 }}
-                             className="w-6 h-6 rounded-full bg-white shadow-md absolute top-1 left-0"
-                           />
-                         </button>
-                       </div>
-                     ))}
-                  </div>
-
-                </div>
-              </div>
-            </div>
-          ) : activeSection === 'content' ? (
-            <div className="space-y-12">
-              <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl flex items-center justify-between">
-                <div>
-                  <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4">Site Narrative & Labels</h2>
-                  <p className="text-sm text-white/40 leading-relaxed font-light max-w-xl">Modify all headings, descriptions, and labels used throughout the website sections.</p>
-                </div>
-                <button 
-                  onClick={() => {
-                    const key = prompt('Enter new content key (camelCase recommended):');
-                    if (key) handleUpdate('global', key, 'New Content', 'content');
-                  }}
-                  className="px-8 py-4 bg-school-neon text-school-ink rounded-full text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
-                >
-                  Add New Key
-                </button>
-              </div>
-              <div className="grid gap-6">
-                {Object.keys(data.content).sort().map((key) => (
-                  <div key={key} className="bg-school-paper p-8 rounded-3xl border border-school-ink/10 shadow-sm group">
-                    <div className="flex flex-col md:flex-row gap-8 items-start">
-                       <div className="w-full md:w-64 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-school-accent">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
-                            {/* Option to delete custom keys? Optional but good for flexibility */}
-                            {['heroTitle1', 'heroTitle2', 'heroBadge'].indexOf(key) === -1 && (
-                              <button 
-                                onClick={() => {
-                                  if (confirm(`Delete content key "${key}"?`)) {
-                                    setData(prev => {
-                                      const newContent = { ...prev.content };
-                                      delete newContent[key];
-                                      
-                                      // Side effect: delete from supabase
-                                      supabaseService.deleteItem('content', key).catch(() => {});
-                                      
-                                      return { ...prev, content: newContent };
-                                    });
-                                  }
-                                }}
-                                className="text-red-500 opacity-0 group-hover:opacity-50 hover:opacity-100 transition-all text-[8px] font-black uppercase tracking-widest"
-                              >
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                          <p className="text-[9px] font-bold text-school-ink/30 uppercase tracking-widest">Key: {key}</p>
-                       </div>
-                       <div className="flex-1 w-full space-y-4">
-                          {(key.toLowerCase().includes('image') || key.toLowerCase().includes('logo') || key.toLowerCase().includes('url')) && (
-                            <div className="flex items-center gap-4">
-                              {data.content[key] && !data.content[key].endsWith('.pdf') && (
-                                <div className="w-16 h-16 rounded-xl overflow-hidden border border-school-ink/10 bg-school-ink/5 flex items-center justify-center">
-                                  <img src={data.content[key]} className="w-full h-full object-cover" />
-                                </div>
-                              )}
-                              <label className="px-6 py-2 bg-school-gold text-school-navy rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-white transition-all shadow-lg active:scale-95">
-                                {uploadingPath === `content-global-${key}` ? 'Uploading...' : 'Update Media'}
-                                <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'global', key, 'content')} disabled={!!uploadingPath} />
-                              </label>
-                            </div>
-                          )}
-                          {data.content[key].length > 100 || key.toLowerCase().includes('description') || key.toLowerCase().includes('content') ? (
-                            <RichTextEditor 
-                              value={data.content[key]}
-                              onChange={(val) => handleUpdate('global', key, val, 'content')}
-                            />
-                          ) : (
-                            <input 
-                              type="text"
-                              value={data.content[key]}
-                              onChange={(e) => handleUpdate('global', key, e.target.value, 'content')}
-                              className="w-full bg-school-ink/5 border-none rounded-2xl p-6 text-sm font-black text-school-ink focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
-                            />
-                          )}
-                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : activeSection === 'messages' ? (
-            <div className="grid gap-8">
-              {Array.isArray(data.messages) && data.messages.length > 0 ? (
-                [...data.messages].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).map((msg) => (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    key={msg.id} 
-                    className={`p-8 md:p-10 rounded-[40px] border transition-all ${msg.status === 'new' ? 'bg-school-gold/5 border-school-gold shadow-lg shadow-school-gold/10 ring-1 ring-school-gold/20' : 'bg-white border-school-ink/10 shadow-sm'}`}
-                  >
-                    <div className="flex flex-col md:flex-row justify-between gap-8 mb-8 pb-8 border-b border-school-ink/5">
-                      <div className="flex-1 space-y-4">
-                        <div className="flex flex-wrap items-center gap-4">
-                           {msg.status === 'new' && (
-                             <span className="px-3 py-1 bg-school-gold text-school-navy text-[8px] font-black uppercase tracking-widest rounded-full animate-pulse shadow-lg shadow-school-gold/20">
-                               New Inquiry
-                             </span>
-                           )}
-                           <span className={`text-[10px] font-black uppercase tracking-widest ${msg.status === 'new' ? 'text-school-navy/60' : 'text-school-ink/30'}`}>
-                             {msg.status === 'replied' ? '✓ Replied' : msg.status === 'read' ? 'Seen' : 'Waiting for Action'}
-                           </span>
-                           <span className="text-[10px] font-black uppercase tracking-widest text-school-ink/20 flex items-center gap-2">
-                             <Calendar size={12} /> {new Date(msg.timestamp).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
-                           </span>
-                        </div>
-                        
-                        <div>
-                          <h3 className="text-2xl md:text-3xl font-black text-school-navy tracking-tight">{msg.name}</h3>
-                          <div className="flex flex-wrap gap-6 mt-2">
-                            <a href={`mailto:${msg.email}`} className="text-xs font-bold text-school-accent hover:text-school-gold flex items-center gap-2 transition-colors">
-                              <Mail size={14} /> {msg.email}
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-4 self-start">
-                         <div className="flex flex-col gap-2">
-                           <p className="text-[8px] font-black uppercase tracking-widest text-school-ink/30 ml-1">Status Control</p>
-                           <select 
-                             value={msg.status}
-                             onChange={(e) => handleUpdate(msg.id, 'status', e.target.value, 'messages')}
-                             className={`border-none rounded-2xl py-3 px-6 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-school-gold/20 transition-all ${msg.status === 'new' ? 'bg-school-gold text-school-navy' : 'bg-school-ink/5 text-school-navy'}`}
-                           >
-                             <option value="new">New / Unread</option>
-                             <option value="read">Mark as Read</option>
-                             <option value="replied">Mark as Replied</option>
-                           </select>
-                         </div>
-                         <button onClick={() => setItemToDelete(msg.id)} className="p-5 bg-red-400/10 text-red-500 rounded-2xl hover:bg-red-400/20 transition-all mt-4 md:mt-0 shadow-sm">
-                           <Trash2 size={20} />
-                         </button>
-                      </div>
-                    </div>
-
-                    <div className="grid gap-6">
-                      <div className="bg-school-paper/50 p-8 rounded-[32px] border border-school-ink/5">
-                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-school-ink/30 mb-3">Topic / Subject</p>
-                        <p className="text-lg font-black text-school-navy italic">{msg.subject || 'Institutional Inquiry'}</p>
-                      </div>
-                      
-                      <div className="bg-school-paper p-8 rounded-[32px] border border-school-ink/5 relative group">
-                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-school-ink/30 mb-4">Transmission Content</p>
-                        <div className="text-base text-school-ink leading-relaxed font-medium whitespace-pre-wrap">
-                          {msg.message}
-                        </div>
-                        <div className="absolute top-8 right-8 text-school-ink/5 group-hover:text-school-gold/20 transition-colors">
-                          <MessageSquare size={48} />
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end pt-4">
-                        <a 
-                          href={`mailto:${msg.email}?subject=Re: ${msg.subject || 'Inquiry'}`}
-                          onClick={() => {
-                            if (msg.status === 'new') handleUpdate(msg.id, 'status', 'read', 'messages');
-                          }}
-                          className="px-10 py-5 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-school-gold hover:text-school-navy transition-all shadow-xl shadow-school-navy/20 flex items-center gap-3"
-                        >
-                          Compose Response <ExternalLink size={14} />
-                        </a>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center py-40 text-center glass-surface rounded-[60px] border border-school-ink/5">
-                   <div className="w-24 h-24 bg-school-ink/5 rounded-full flex items-center justify-center text-school-ink/20 mb-8">
-                     <Mail size={48} />
-                   </div>
-                   <h3 className="text-2xl font-black text-school-navy mb-3 uppercase tracking-widest italic">Silent Inbox</h3>
-                   <p className="text-sm text-school-ink/30 max-w-xs mx-auto leading-relaxed">No inquiries have been received yet. New messages from the contact form will appear here.</p>
-                </div>
-              )}
-            </div>
-          ) : searchQuery ? (
-            globalResults.length > 0 ? (
-              <div className="space-y-12">
-                {globalResults.map(({ section, items }) => (
-                  <div key={section} className="space-y-6">
-                    <div className="flex items-center gap-4 px-4">
-                      <div className="w-10 h-10 bg-school-gold/10 rounded-xl flex items-center justify-center text-school-gold">
-                        <LayoutGrid size={20} />
-                      </div>
-                      <h2 className="text-xl font-black text-school-ink uppercase tracking-widest">{section}</h2>
-                      <div className="h-px flex-1 bg-school-ink/5" />
-                      <span className="text-[10px] font-black text-school-ink/30 uppercase tracking-widest">{items.length} Matches</span>
-                    </div>
-                    <div className="grid gap-6">
-                      {items.map(item => renderItemCard(item, section))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-24 text-center">
-                <div className="w-20 h-20 bg-school-ink/5 rounded-full flex items-center justify-center text-school-ink/20 mb-6">
-                   <Search size={40} />
-                </div>
-                <h3 className="text-xl font-black text-school-ink mb-2 uppercase tracking-widest">No Results Found</h3>
-                <p className="text-sm text-school-ink/30 max-w-xs mx-auto">We couldn't find any items matching "{searchQuery}" in any of your tables.</p>
-              </div>
-            )
-          ) : (
-            <div className="grid gap-6">
-              {Array.isArray(data[activeSection as keyof AppData]) && (data[activeSection as keyof AppData] as any[]).map((item: any) => renderItemCard(item, activeSection as keyof AppData))}
-            </div>
-          )}
+          {renderMainContent()}
         </div>
       </main>
 
