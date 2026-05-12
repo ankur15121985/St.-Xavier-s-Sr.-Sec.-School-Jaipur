@@ -229,17 +229,24 @@ const HomePage = ({ data }: { data: AppData }) => {
                >
                   <h4 className="text-2xl font-bold mb-8 text-school-navy dark:text-white">Upcoming Events</h4>
                   <div className="space-y-6">
-                    {data.events.filter(e => e.is_enabled !== false).slice(0, 3).map((e, i) => (
-                      <div key={e.id} className="flex gap-6 items-center border-b border-black/5 dark:border-white/5 pb-6 last:border-0">
-                        <div className="w-16 h-16 bg-school-navy text-white rounded-2xl flex items-center justify-center shrink-0">
-                          <span className="text-2xl font-bold">{24 + i}</span>
+                    {data.events.filter(e => e.is_enabled !== false).slice(0, 3).map((e) => {
+                      const eventDate = new Date(e.date);
+                      const day = isNaN(eventDate.getTime()) ? '??' : eventDate.getDate();
+                      const month = isNaN(eventDate.getTime()) ? '???' : eventDate.toLocaleString('default', { month: 'short' });
+                      
+                      return (
+                        <div key={e.id} className="flex gap-6 items-center border-b border-black/5 dark:border-white/5 pb-6 last:border-0">
+                          <div className="w-16 h-16 bg-school-navy text-white rounded-2xl flex flex-col items-center justify-center shrink-0">
+                            <span className="text-2xl font-bold leading-none">{day}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest mt-1 opacity-60">{month}</span>
+                          </div>
+                          <div>
+                            <h5 className="text-lg font-bold leading-tight text-school-navy dark:text-white">{e.title}</h5>
+                            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">{e.location}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h5 className="text-lg font-bold leading-tight text-school-navy dark:text-white">{e.title}</h5>
-                          <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">{e.location}</p>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                </motion.div>
              )}
