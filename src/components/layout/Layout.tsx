@@ -652,7 +652,6 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                     <li><Link to="/jesuit-education-objectives" className="text-white/40 hover:text-white transition-all text-sm font-medium">Jesuit Education</Link></li>
                     <li><Link to="/founder-patron" className="text-white/40 hover:text-white transition-all text-sm font-medium">Founder Patron</Link></li>
                     <li><Link to="/governing-members" className="text-white/40 hover:text-white transition-all text-sm font-medium">Governing Body</Link></li>
-                    <li><Link to="/former-managers" className="text-white/40 hover:text-white transition-all text-sm font-medium">Former Managers</Link></li>
                   </ul>
                 </div>
                 

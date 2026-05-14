@@ -15,7 +15,6 @@ const SitemapPage = ({ data }: { data: AppData }) => {
         { label: "Jesuit Education Objectives", href: "/jesuit-education-objectives" },
         { label: "Founder Patron", href: "/founder-patron" },
         { label: "Governing Members", href: "/governing-members" },
-        { label: "Former Managers", href: "/former-managers" },
         { label: "Former Principals", href: "/former-principals" },
         { label: "Former Rectors", href: "/former-rectors" },
         { label: "School Anthem", href: "/anthem" },

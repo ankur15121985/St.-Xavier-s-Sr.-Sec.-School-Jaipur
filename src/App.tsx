@@ -44,11 +44,11 @@ import CareersPage from './pages/CareersPage';
 import MandatoryDisclosuresPage from './pages/MandatoryDisclosuresPage';
 import FireSafetyPage from './pages/FireSafetyPage';
 import NoticeBoardPage from './pages/NoticeBoardPage';
+import StatutoryArchivesPage from './pages/StatutoryArchivesPage';
 import ContactPage from './pages/ContactPage';
 import AdminPortal from './pages/AdminPortal';
 import TransferCertificatePage from './pages/TransferCertificatePage';
 import FormerRectorsPage from './pages/FormerRectorsPage';
-import FormerManagersPage from './pages/FormerManagersPage';
 import FormerPrincipalsPage from './pages/FormerPrincipalsPage';
 import StreamToppersPage from './pages/StreamToppersPage';
 import LaurelDistinctionPage from './pages/LaurelDistinctionPage';
@@ -296,7 +296,6 @@ export const DEFAULT_DATA: AppData = {
     { id: '2-1', label: 'School History', href: '/history#legacy', parent_id: '2', order_index: 1 },
     { id: '2-2', label: 'Former Principals', href: '/former-principals', parent_id: '2', order_index: 2 },
     { id: '2-3', label: 'Former Rectors', href: '/former-rectors', parent_id: '2', order_index: 3 },
-    { id: '2-4', label: 'Former Managers', href: '/former-managers', parent_id: '2', order_index: 4 },
     { id: '2-7', label: 'School Governing Members', href: '/governing-members', parent_id: '2', order_index: 5 },
     { id: '2-8', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 6 },
     { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
@@ -335,6 +334,7 @@ export const DEFAULT_DATA: AppData = {
     { id: '9', label: 'More', href: '#', parent_id: null, order_index: 10 },
     { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
     { id: '9-3', label: 'Mandatory disclosure', href: '/mandatory-disclosures', parent_id: '9', order_index: 1 },
+    { id: '9-5', label: 'Disclosure Records', href: '/statutory-archives', parent_id: '9-3', order_index: 0 },
     { id: '9-4', label: 'Transfer Certificate', href: '/transfer-certificate', parent_id: '9', order_index: 2 },
     { id: '10', label: 'Contact', href: '/contact', parent_id: null, order_index: 11 },
   ],
@@ -408,15 +408,60 @@ export const DEFAULT_DATA: AppData = {
     { id: 'po-pta', title: 'Parent Teacher Association (PTA)', content: 'Note: Every parent and teacher is a member of the Parent Teacher Association', order_index: 0 }
   ],
   careers: [],
+  career_applications: [],
   mandatory_disclosures: [
-    { id: 'md-1', title: 'Affiliation / Upgradation Letter', content: 'Copies of Affiliation / Upgradation letter and recent extension of affiliation.', attachmentUrl: '', order_index: 0 },
-    { id: 'md-2', title: 'Society/Trust Registration', content: 'Copies of Societies / Trust / Company Registration / Renewal certificate.', attachmentUrl: '', order_index: 1 },
-    { id: 'md-3', title: 'No Objection Certificate (NOC)', content: 'Copy of No Objection Certificate (NOC) issued by the State Govt / UT.', attachmentUrl: '', order_index: 2 },
-    { id: 'md-4', title: 'Recognition Certificate', content: 'Copies of Recognition Certificate under RTE Act, 2009 and its renewal.', attachmentUrl: '', order_index: 3 },
-    { id: 'md-5', title: 'Building Safety Certificate', content: 'Copy of valid Building Safety Certificate as per National Building Code.', attachmentUrl: '', order_index: 4 },
-    { id: 'md-6', title: 'Fire Safety Certificate', content: 'Copy of valid Fire Safety Certificate issued by the competent authority.', attachmentUrl: '', order_index: 5 },
-    { id: 'md-7', title: 'Self Certification', content: 'Copy of the Self Certification submitted by the school for affiliation.', attachmentUrl: '', order_index: 6 },
-    { id: 'md-8', title: 'Health & Sanitation Certificate', content: 'Copies of Water, Health and Sanitation certificates.', attachmentUrl: '', order_index: 7 }
+    // SECTION A
+    { id: 'md-a1', category: 'A', title: 'Name of the School', content: "St. Xavier's School, Nevta", order_index: 0 },
+    { id: 'md-a2', category: 'A', title: 'Affiliation No.', content: '1730818', order_index: 1 },
+    { id: 'md-a3', category: 'A', title: 'School Code', content: '11167', order_index: 2 },
+    { id: 'md-a4', category: 'A', title: 'Complete Address with Pin Code', content: 'Nevta-Mahapura Road, Nevta, Jaipur-302029', order_index: 3 },
+    { id: 'md-a5', category: 'A', title: 'Principal Name & Qualification', content: 'Fr. Sangeeth Raj, S.J. (M.A., B.Ed.)', order_index: 4 },
+    { id: 'md-a6', category: 'A', title: 'School Email ID', content: 'stxaviersnevta@gmail.com', order_index: 5 },
+    { id: 'md-a7', category: 'A', title: 'Contact Details', content: '8890531185, 7340023454', order_index: 6 },
+    
+    // SECTION B
+    { id: 'md-b1', category: 'B', title: 'Affiliation letter', content: "Copies of affiliation/upgradation letter and recent extension of affiliation, if any", attachmentUrl: '', order_index: 7 },
+    { id: 'md-b2', category: 'B', title: 'Trust/Society Certificate', content: "Copies of societies/trust/company registration/renewal certificate as applicable", attachmentUrl: '', order_index: 8 },
+    { id: 'md-b3', category: 'B', title: 'NOC Certificate', content: "Copies of No Objection Certificate (NOC) issued, if applicable by the state Govt./UT", attachmentUrl: '', order_index: 9 },
+    { id: 'md-b4', category: 'B', title: 'Recognition Certificate', content: "Copies of Recognition certificate under RTE Act 2009 and it's Renewal if applicable", attachmentUrl: '', order_index: 10 },
+    { id: 'md-b5', category: 'B', title: 'Building Safety Certificate', content: "Copy of valid building safety certificate as per the national building code", attachmentUrl: '', order_index: 11 },
+    { id: 'md-b6', category: 'B', title: 'Fire Safety Certificate', content: "Copy of Valid Fire safety certificate issued by the competent authority", attachmentUrl: '', order_index: 12 },
+    { id: 'md-b7', category: 'B', title: 'DEO Certificate', content: "Copy of the DEO Certificate submitted by the school for affiliation or self-certification", attachmentUrl: '', order_index: 13 },
+    { id: 'md-b8', category: 'B', title: 'Health & Sanitation', content: "Copies of valid water, health and sanitation certificates", attachmentUrl: '', order_index: 14 },
+
+    // SECTION C
+    { id: 'md-c1', category: 'C', title: 'Fee Structure of the School', content: "Link to official fee structure documentation", attachmentUrl: '', order_index: 15 },
+    { id: 'md-c2', category: 'C', title: 'Annual academic calendar', content: "Calendar for the current academic session", attachmentUrl: '', order_index: 16 },
+    { id: 'md-c3', category: 'C', title: 'List of SMC', content: "List of School Management Committee members", attachmentUrl: '', order_index: 17 },
+    { id: 'md-c4', category: 'C', title: 'List of PTA Members', content: "List of Parent Teachers Association members", attachmentUrl: '', order_index: 18 },
+    { id: 'md-c5', category: 'C', title: 'Board Results (Last 3 Years)', content: "Board Examination results for the last three years", attachmentUrl: '', order_index: 19 },
+    
+    // Result Class X
+    { id: 'md-c6', category: 'C_TABLE_X', title: '2018-19', content: 'Reg: 276, Passed: 276, Pass%: 100%', order_index: 20 },
+    { id: 'md-c7', category: 'C_TABLE_X', title: '2019-20', content: 'Reg: 267, Passed: 267, Pass%: 100%', order_index: 21 },
+    { id: 'md-c8', category: 'C_TABLE_X', title: '2020-21', content: 'Reg: 257, Passed: 257, Pass%: 100%', order_index: 22 },
+    
+    // Result Class XII
+    { id: 'md-c9', category: 'C_TABLE_XII', title: '2020-21', content: 'Reg: 234, Passed: 234, Pass%: 100%', order_index: 23 },
+
+    // SECTION D
+    { id: 'md-d1', category: 'D', title: 'Principal', content: 'Fr. Sangeeth Raj, S.J.', order_index: 24 },
+    { id: 'md-d2', category: 'D', title: 'Total No. of Teachers', content: '106', order_index: 25 },
+    { id: 'md-d3', category: 'D', title: 'PGT', content: '19', order_index: 26 },
+    { id: 'md-d4', category: 'D', title: 'TGT', content: '43', order_index: 27 },
+    { id: 'md-d5', category: 'D', title: 'PRT', content: '44', order_index: 28 },
+    { id: 'md-d6', category: 'D', title: 'Teachers Section Ratio', content: '1:32', order_index: 29 },
+    { id: 'md-d7', category: 'D', title: 'Special Educator', content: 'Mrs. Mariamma John', order_index: 30 },
+    { id: 'md-d8', category: 'D', title: 'Counsellor & Wellness Teacher', content: 'Mrs. Shilpa Sharma Mishra', order_index: 31 },
+
+    // SECTION E
+    { id: 'md-e1', category: 'E', title: 'Total Campus area (in Sq Mtr)', content: '20234.3', order_index: 32 },
+    { id: 'md-e2', category: 'E', title: 'No. and size of classrooms', content: '72 Rooms', order_index: 33 },
+    { id: 'md-e3', category: 'E', title: 'No. and size of Laboratories', content: '11 Labs', order_index: 34 },
+    { id: 'md-e4', category: 'E', title: 'Internet Facility (Y/N)', content: 'Yes', order_index: 35 },
+    { id: 'md-e5', category: 'E', title: 'Girls Toilets Count', content: '84', order_index: 36 },
+    { id: 'md-e6', category: 'E', title: 'Boys Toilets Count', content: '84', order_index: 37 },
+    { id: 'md-e7', category: 'E', title: 'Inspection Video Link', content: 'YouTube Link', attachmentUrl: '', order_index: 38 },
   ],
   contact_content: [],
   jesuit_page_content: [
@@ -457,7 +502,8 @@ export const DEFAULT_DATA: AppData = {
     showLeadership: true,
     showHonors: true,
     faviconUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
-    flagEnabled: true
+    flagEnabled: true,
+    careerFormEnabled: true
   },
   site_stats: [
     { id: 'main', visitor_count: 477706 }
@@ -526,7 +572,7 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
                 // IMPORTANT: Only overwrite if the fetched array actually has items,
                 // OR if it's a section where an empty list is a valid user-defined state
                 // (like messages or logs). For content tables, empty often means sync failure.
-                const isContentTable = ['staff', 'notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'marquee', 'popups', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content'].includes(k);
+                const isContentTable = ['staff', 'notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'marquee', 'popups', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'career_applications'].includes(k);
                 
                 if (val.length > 0 || !isContentTable) {
                   if (k === 'navigation_menu') {
@@ -747,7 +793,6 @@ export default function App() {
                 <Route path="/founder-patron" element={<PageTransition><FounderPatronPage data={data} /></PageTransition>} />
                 <Route path="/governing-members" element={<PageTransition><GoverningMembersPage data={data} /></PageTransition>} />
                 <Route path="/former-rectors" element={<PageTransition><FormerRectorsPage data={data} /></PageTransition>} />
-                <Route path="/former-managers" element={<PageTransition><FormerManagersPage data={data} /></PageTransition>} />
                 <Route path="/former-principals" element={<PageTransition><FormerPrincipalsPage data={data} /></PageTransition>} />
                 <Route path="/anthem" element={<PageTransition><SchoolAnthemPage data={data} /></PageTransition>} />
                 <Route path="/admission-policy" element={<PageTransition><AdmissionPolicyPage data={data} /></PageTransition>} />
@@ -763,6 +808,7 @@ export default function App() {
                 <Route path="/parent-obligations" element={<PageTransition><ParentObligationsPage data={data} /></PageTransition>} />
                 <Route path="/careers" element={<PageTransition><CareersPage data={data} /></PageTransition>} />
                 <Route path="/mandatory-disclosures" element={<PageTransition><MandatoryDisclosuresPage data={data} /></PageTransition>} />
+                <Route path="/statutory-archives" element={<PageTransition><StatutoryArchivesPage data={data} /></PageTransition>} />
                 <Route path="/safety-guidelines" element={<PageTransition><FireSafetyPage data={data} /></PageTransition>} />
                 <Route path="/notice-board" element={<PageTransition><NoticeBoardPage data={data} /></PageTransition>} />
                 <Route path="/transfer-certificate" element={<PageTransition><TransferCertificatePage data={data} /></PageTransition>} />

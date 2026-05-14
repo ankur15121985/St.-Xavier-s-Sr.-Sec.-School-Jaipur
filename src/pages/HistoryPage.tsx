@@ -204,8 +204,7 @@ const HistoryPage = ({ data }: { data: AppData }) => {
                   <div className="flex flex-wrap justify-center gap-4">
                     {[
                       { label: 'Former Principals', href: '/former-principals' },
-                      { label: 'Former Rectors', href: '/former-rectors' },
-                      { label: 'Former Managers', href: '/former-managers' }
+                      { label: 'Former Rectors', href: '/former-rectors' }
                     ].map((lnk) => (
                       <Link 
                         key={lnk.href}

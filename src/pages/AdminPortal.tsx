@@ -5,9 +5,9 @@ import {
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
   Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, RefreshCw,
   Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink,
-  Type, Palette, Bold, Italic, Briefcase, ShieldCheck, Activity, Send, Clock
+  Type, Palette, Bold, Italic, Briefcase, ShieldCheck, Activity, Send, Clock, Database
 } from 'lucide-react';
-import { AppData, GalleryItem } from '../types';
+import { AppData, GalleryItem, CareerApplication } from '../types';
 import { DEFAULT_DATA } from '../App';
 import { useSupabase } from '../components/SupabaseProvider';
 import { supabaseService } from '../lib/supabaseService';
@@ -30,11 +30,12 @@ interface PendingGalleryItem {
 }
 
 const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch<React.SetStateAction<AppData>> }) => {
+  const navigate = useNavigate();
   const { user, isAdmin, loading: authLoading, login, usernameLogin, logout } = useSupabase();
+  
   const [activeSection, setActiveSection] = useState<string>('notices');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [uploadingPath, setUploadingPath] = useState<string | null>(null);
-  const isUploading = !!uploadingPath;
   const [pendingGalleryItems, setPendingGalleryItems] = useState<PendingGalleryItem[]>([]);
   const [itemToDelete, setItemToDelete] = useState<string | string[] | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -51,12 +52,15 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
   const [isLegacyAuthenticated, setIsLegacyAuthenticated] = useState(false);
   const [showLegacyForm, setShowLegacyForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
+  const [filterCategory, setFilterCategory] = useState<string>('All');
+  const [detailedApp, setDetailedApp] = useState<CareerApplication | null>(null);
+  const [showSchemaError, setShowSchemaError] = useState(false);
+
+  const isUploading = !!uploadingPath;
 
   useEffect(() => {
     // Session check logic could go here if needed
   }, []);
-
 
   const handleUsernameLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,8 +77,6 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
       setIsLoggingIn(false);
     }
   };
-
-  const [showSchemaError, setShowSchemaError] = useState(false);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     // Suppress MetaMask specific connection errors from appearing in toasts
@@ -133,6 +135,584 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
     });
 
     return results;
+  };
+
+  const renderCareersSection = () => {
+    const jobs = (data.careers || []) as any[];
+    const apps = (data.career_applications || []) as any[];
+    
+    return (
+      <div className="flex flex-col gap-10 max-w-6xl mx-auto">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-4xl font-black text-school-navy tracking-tighter uppercase leading-none italic">Manage <span className="text-school-accent">Careers.</span></h2>
+            <p className="text-[10px] font-bold text-school-ink/30 uppercase tracking-[0.3em] mt-3">Roster of active institutional openings</p>
+          </div>
+          
+          <div className="flex items-center gap-4">
+             <button 
+               onClick={async () => {
+                 setSavePending(true);
+                 try {
+                   await supabaseService.fetchAllData();
+                   showToast('Career data re-synchronized from Supabase');
+                 } catch (err: any) {
+                   showToast(`Sync failed: ${err.message}`, 'error');
+                 } finally {
+                   setSavePending(false);
+                 }
+               }}
+               className="p-4 bg-school-paper border border-school-ink/10 rounded-2xl text-school-navy hover:bg-school-ink/5 transition-all group shadow-sm text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
+               title="Refresh data from database"
+             >
+               <RefreshCw size={16} className={savePending ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'} />
+               Sync
+             </button>
+             <button 
+               onClick={() => setActiveSection('career_applications')}
+               className="flex items-center gap-3 px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all group"
+             >
+               <FileText size={18} className="group-hover:rotate-12 transition-transform" />
+               View Received Applications (Filled Forms)
+               <span className="px-3 py-1 bg-school-navy text-white rounded-lg ml-2">{apps.length}</span>
+             </button>
+             <button disabled={savePending} onClick={handleAdd} className="flex items-center gap-3 px-10 py-4 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-school-accent transition-all">
+               <Plus size={18} /> Post Job opening
+             </button>
+          </div>
+        </div>
+
+        {/* Guidance Box for filled forms */}
+        <div className="bg-school-navy/5 border border-school-navy/10 p-10 rounded-[40px] flex items-center gap-10 shadow-sm">
+          <div className="w-20 h-20 bg-school-navy text-school-gold rounded-3xl flex items-center justify-center shrink-0 shadow-2xl">
+             <ShieldCheck size={40} />
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-school-navy">Administrative Information</h4>
+            <p className="text-sm text-school-ink/60 leading-relaxed max-w-2xl font-medium">
+              Filled application forms (candidate data) are stored in the <button onClick={() => setActiveSection('career_applications')} className="text-school-accent font-black hover:underline px-1 underline-offset-4 decoration-2">JOB APPLICATIONS</button> section. Use this panel ONLY to create or modify active job vacancies shown on the website.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-6">
+          {jobs.length > 0 ? (
+            jobs.map((job) => (
+              <motion.div 
+                key={job.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white p-8 rounded-[40px] border border-school-ink/5 shadow-sm hover:shadow-xl transition-all duration-500 group"
+              >
+                <div className="grid md:grid-cols-4 gap-8">
+                  <div className="md:col-span-2 space-y-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 bg-school-navy text-white rounded-2xl flex items-center justify-center transition-all ${job.is_enabled ? 'bg-school-navy' : 'bg-school-ink/20 grayscale'}`}>
+                        <Briefcase size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <input 
+                          value={job.title || ''}
+                          placeholder="Job Title (e.g. Science Teacher)"
+                          onChange={(e) => handleUpdate(job.id, 'title', e.target.value, 'careers')}
+                          className="w-full text-xl font-black text-school-navy uppercase tracking-tight bg-transparent border-none focus:ring-0 p-0"
+                        />
+                        <p className="text-[9px] font-bold text-school-ink/30 uppercase tracking-[0.2em] mt-1">ID: {job.id.substring(0, 8)}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black text-school-ink/20 uppercase tracking-widest ml-1">Job Description & Qualifications</label>
+                       <RichTextEditor 
+                         value={job.content || ''}
+                         onChange={(val) => handleUpdate(job.id, 'content', val, 'careers')}
+                       />
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black text-school-ink/20 uppercase tracking-widest ml-1">Attachment Status</label>
+                      <div className="p-4 bg-school-ink/5 rounded-2xl border border-school-ink/5 space-y-3">
+                        {job.attachmentUrl ? (
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-red-400/10 text-red-500 rounded-lg flex items-center justify-center shrink-0">
+                              <FileText size={16} />
+                            </div>
+                            <p className="text-[10px] font-bold text-school-navy truncate flex-1">{job.attachmentUrl.split('/').pop()}</p>
+                            <button 
+                              onClick={() => handleUpdate(job.id, 'attachmentUrl', '', 'careers')}
+                              className="text-school-ink/30 hover:text-red-500 transition-colors"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <p className="text-[10px] font-bold text-school-ink/30 italic">No PDF attached</p>
+                        )}
+                        <label className="w-full py-3 bg-white text-school-navy rounded-xl text-[9px] font-black uppercase tracking-widest text-center cursor-pointer hover:bg-school-gold transition-all shadow-sm border border-school-ink/5 block">
+                          {uploadingPath === `careers-${job.id}-attachmentUrl` ? 'Syncing...' : 'Upload Circular PDF'}
+                          <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleFileUpload(e, job.id, 'attachmentUrl', 'careers')} disabled={!!uploadingPath} />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black text-school-ink/20 uppercase tracking-widest ml-1">Visibility State</label>
+                       <button 
+                        onClick={() => handleUpdate(job.id, 'is_enabled', !job.is_enabled, 'careers')}
+                        className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${job.is_enabled ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}
+                      >
+                        {job.is_enabled ? '✓ Published on Careers Page' : '✕ Hidden from Public'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col justify-end gap-3">
+                     <button 
+                       onClick={() => setItemToDelete(job.id)}
+                       className="w-full py-4 bg-rose-500/5 text-rose-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-500/10 transition-all flex items-center justify-center gap-2"
+                     >
+                       <Trash2 size={16} /> Remove Listing
+                     </button>
+                     <button 
+                       onClick={() => {
+                        setSavePending(true);
+                        supabaseService.saveItem('careers', job)
+                          .then(() => showToast('Job listing synchronized'))
+                          .catch((err) => showToast(err.message, 'error'))
+                          .finally(() => setSavePending(false));
+                       }}
+                       className="w-full py-4 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-school-accent transition-all shadow-xl flex items-center justify-center gap-2"
+                     >
+                       <RefreshCw size={16} className={savePending ? 'animate-spin' : ''} /> Force Sync
+                     </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+            <div className="py-40 text-center glass-surface rounded-[60px] border border-school-ink/5 flex flex-col items-center">
+              <Briefcase size={64} className="text-school-ink/10 mb-6" />
+              <h3 className="text-2xl font-black text-school-navy uppercase italic">No Active Openings</h3>
+              <p className="text-sm text-school-ink/30 mt-2 mb-8">Post a new job listing to start receiving applications.</p>
+              
+              {apps.length > 0 && (
+                <button 
+                  onClick={() => setActiveSection('career_applications')}
+                  className="px-10 py-5 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all flex items-center gap-3"
+                >
+                  <FileText size={18} /> View {apps.length} Filled Forms
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderCareerApplicationsSection = () => {
+    const apps = (data.career_applications || []) as CareerApplication[];
+    
+    const filteredApps = apps.filter(app => {
+      const matchesSearch = searchQuery === '' || 
+        app.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        app.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        app.application_no?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesCategory = filterCategory === 'All' || app.category === filterCategory;
+      
+      return matchesSearch && matchesCategory;
+    });
+
+    return (
+      <div className="flex flex-col gap-8 max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-4xl font-black text-school-navy tracking-tighter uppercase leading-none italic">Filled <span className="text-school-accent">Forms.</span></h2>
+            <p className="text-[10px] font-bold text-school-ink/40 uppercase tracking-widest mt-3">Reviewing potential institutional candidates</p>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 px-6 py-3 bg-school-paper border border-school-ink/10 rounded-3xl">
+              <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">Accepting Applications</span>
+              <button 
+                onClick={() => handleUpdate('settings', 'careerFormEnabled', !data.settings.careerFormEnabled, 'settings')}
+                className={`w-12 h-6 rounded-full transition-all relative ${data.settings.careerFormEnabled ? 'bg-emerald-500' : 'bg-school-ink/20'}`}
+              >
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${data.settings.careerFormEnabled ? 'left-7' : 'left-1'}`} />
+              </button>
+            </div>
+            <div className="flex items-center gap-3 px-4 py-3 bg-school-paper border border-school-ink/10 rounded-full">
+              <Briefcase size={16} className="text-school-accent" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-school-ink/60">{apps.length} Total</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Global Toolbar for Filtering */}
+        <div className="flex flex-col md:flex-row gap-6 items-center p-6 bg-school-navy/[0.02] rounded-[40px] border border-school-ink/5">
+           <div className="relative flex-1 group">
+             <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-school-ink/20 group-focus-within:text-school-accent transition-colors" size={18} />
+             <input 
+               placeholder="Search by candidate name, email or application no..."
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               className="w-full pl-16 pr-8 py-5 bg-white rounded-3xl text-sm font-bold border border-school-ink/5 shadow-sm focus:ring-4 focus:ring-school-accent/5 outline-none transition-all"
+             />
+           </div>
+           <div className="flex items-center gap-4 bg-white p-2 rounded-3xl border border-school-ink/5 shadow-sm overflow-x-auto no-scrollbar">
+             {['All', 'Teacher', 'Administrative Staff', 'Supporting Staff', 'Sports Coach', 'Other'].map(cat => (
+               <button 
+                 key={cat}
+                 onClick={() => setFilterCategory(cat)}
+                 className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${filterCategory === cat ? 'bg-school-navy text-white shadow-lg' : 'text-school-ink/40 hover:bg-school-ink/5'}`}
+               >
+                 {cat}
+               </button>
+             ))}
+           </div>
+        </div>
+
+        {filteredApps.length > 0 ? (
+          <div className="overflow-x-auto rounded-[32px] border border-school-ink/10 bg-white shadow-sm">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-school-navy text-white">
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest">App ID</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest">Candidate</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest">Category</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest">Contact</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest">Status</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest">Applied On</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest">Public IP</th>
+                  <th className="px-6 py-6 text-right text-[10px] font-black uppercase tracking-widest pr-10">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-school-ink/5">
+                {[...filteredApps].sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()).map((app, idx) => (
+                  <tr key={app.id || idx} className="hover:bg-school-ink/[0.02] transition-colors group">
+                    <td className="px-6 py-6 font-black text-[9px] text-school-accent">
+                      {app.application_no || 'NA'}
+                    </td>
+                    <td className="px-6 py-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-school-gold/10 text-school-navy rounded-full flex items-center justify-center font-black text-sm overflow-hidden shadow-inner border border-school-ink/5">
+                          {app.photo_url ? (
+                            <img src={app.photo_url} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          ) : (
+                            app.full_name?.charAt(0)
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-black text-school-navy text-sm leading-none mb-1">{app.full_name}</p>
+                          <p className="text-[10px] text-school-ink/40 font-medium">{app.gender} • {app.dob}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-6 font-bold text-xs text-school-navy/70 uppercase">
+                      {app.category}
+                      <span className="block text-[9px] text-school-ink/30 mt-0.5">{app.major_subject}</span>
+                    </td>
+                    <td className="px-6 py-6">
+                      <div className="space-y-1">
+                        <a href={`mailto:${app.email}`} className="text-xs font-bold text-school-accent hover:underline block">{app.email}</a>
+                        <p className="text-[10px] text-school-ink/40 font-medium">{app.mobile_number}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-6">
+                      <select 
+                        value={app.status || 'Received'}
+                        onChange={(e) => handleUpdate(app.id!, 'status', e.target.value, 'career_applications')}
+                        className={`text-[9px] font-black px-3 py-1.5 rounded-full border-none outline-none cursor-pointer uppercase tracking-widest ${
+                          app.status === 'Shortlisted' ? 'bg-emerald-500/10 text-emerald-600' :
+                          app.status === 'Interviewed' ? 'bg-school-accent/10 text-school-accent' :
+                          app.status === 'Rejected' ? 'bg-rose-500/10 text-rose-600' :
+                          'bg-school-ink/5 text-school-ink/60'
+                        }`}
+                      >
+                        <option value="Received">Received</option>
+                        <option value="Shortlisted">Shortlisted</option>
+                        <option value="Interviewed">Interviewed</option>
+                        <option value="Selected">Selected</option>
+                        <option value="Rejected">Rejected</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-6 text-[10px] font-bold text-school-ink/40 uppercase">
+                      {new Date(app.created_at || '').toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-6 font-mono text-[9px] text-school-ink/40 font-bold bg-school-ink/[0.01]">
+                      {app.user_ip || 'Unknown'}
+                    </td>
+                    <td className="px-6 py-6">
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => {
+                            // Expand/Collapse logic here or Modal
+                            console.log('Viewing details for:', app.id);
+                            // For now, let's just use the toast to show we're doing something
+                            showToast(`Opening record for ${app.full_name}`);
+                            // We will use state to show modal in next step if needed
+                            setDetailedApp(app);
+                          }}
+                          className="p-2 bg-school-navy text-white rounded-lg hover:bg-school-gold hover:text-school-navy transition-all"
+                        >
+                          <Maximize2 size={14} />
+                        </button>
+                        <button 
+                          onClick={() => setItemToDelete(app.id!)}
+                          className="p-2 bg-rose-500/10 text-rose-500 rounded-lg hover:bg-rose-500/20 transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-40 text-center glass-surface rounded-[60px] border border-school-ink/5">
+             <div className="w-24 h-24 bg-school-ink/5 rounded-full flex items-center justify-center text-school-ink/20 mb-8">
+               <Briefcase size={48} />
+             </div>
+             <h3 className="text-2xl font-black text-school-navy mb-3 uppercase tracking-widest italic">No Applications</h3>
+             <p className="text-sm text-school-ink/30 max-w-xs mx-auto leading-relaxed">The talent pool is currently empty. New applications from the Careers page will materialize here.</p>
+          </div>
+        )}
+
+        {/* Detailed Application Modal */}
+        <AnimatePresence>
+          {detailedApp && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 pointer-events-none">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setDetailedApp(null)}
+                className="absolute inset-0 bg-school-navy/80 backdrop-blur-md pointer-events-auto"
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative bg-white w-full max-w-5xl max-h-[90vh] rounded-[40px] shadow-2xl overflow-hidden flex flex-col pointer-events-auto"
+              >
+                <div className="p-8 bg-school-navy text-white flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 bg-school-gold text-school-navy rounded-2xl flex items-center justify-center font-black text-2xl overflow-hidden shadow-xl border-4 border-white/20">
+                        {detailedApp.photo_url ? (
+                          <img src={detailedApp.photo_url} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        ) : (
+                          detailedApp.full_name?.charAt(0)
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-black italic tracking-tight">{detailedApp.full_name}</h3>
+                        <div className="flex items-center gap-3 mt-1">
+                           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-school-gold">{detailedApp.category} Candidate</p>
+                           <span className="w-1 h-1 bg-white/20 rounded-full" />
+                           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{detailedApp.application_no || 'MANUAL'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  <button 
+                    onClick={() => setDetailedApp(null)}
+                    className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-8 md:p-12 space-y-12">
+                  {/* Basic Identity */}
+                  <section className="space-y-6">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-school-accent border-b border-school-ink/5 pb-3">Personal Identity</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <div>
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Parent/Spouse Name</p>
+                        <p className="font-bold text-school-navy">{detailedApp.parent_spouse_name}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Date of Birth</p>
+                        <p className="font-bold text-school-navy">{detailedApp.dob}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Gender</p>
+                        <p className="font-bold text-school-navy">{detailedApp.gender}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Mobile Number</p>
+                        <p className="font-bold text-school-navy">{detailedApp.mobile_number}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Email</p>
+                        <p className="font-bold text-school-navy">{detailedApp.email}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Aadhar Number</p>
+                        <p className="font-bold text-school-navy">{detailedApp.aadhar_number}</p>
+                      </div>
+                      <div className="md:col-span-2">
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Permanent Address</p>
+                        <p className="font-bold text-school-navy leading-relaxed">{detailedApp.address}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Security Footprint (IP)</p>
+                        <p className="font-bold text-school-accent">{detailedApp.user_ip || 'N/A'}</p>
+                      </div>
+                      <div>
+                         <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Submission Date</p>
+                         <p className="font-bold text-school-navy">{detailedApp.created_at ? new Date(detailedApp.created_at).toLocaleString() : 'N/A'}</p>
+                      </div>
+                      <div>
+                         <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Legal Declaration</p>
+                         <p className="font-bold text-emerald-500 flex items-center gap-2">
+                            <ShieldCheck size={14} /> Accepted
+                         </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Professional Profile */}
+                  <section className="space-y-6">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-school-accent border-b border-school-ink/5 pb-3">Professional Specialization</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <div>
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Major Subject</p>
+                        <p className="font-bold text-school-navy">{detailedApp.major_subject}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Minor Subject 1</p>
+                        <p className="font-bold text-school-navy">{detailedApp.minor_subject_1}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Minor Subject 2</p>
+                        <p className="font-bold text-school-navy">{detailedApp.minor_subject_2}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">Expected Salary</p>
+                        <p className="font-bold text-school-navy">{detailedApp.salary_expected}</p>
+                      </div>
+                      <div className="md:col-span-2">
+                        <p className="text-[9px] font-black text-school-ink/30 uppercase mb-1">TET Details</p>
+                        <p className="font-bold text-school-navy">{detailedApp.tet_details || 'N/A'}</p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Academic Qualifications Table */}
+                  <section className="space-y-6">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-school-accent border-b border-school-ink/5 pb-3">Academic Credentials</h4>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse bg-school-ink/5 rounded-2xl overflow-hidden">
+                        <thead>
+                          <tr className="bg-school-navy/5 text-school-navy">
+                            <th className="px-4 py-3 text-[9px] font-black uppercase tracking-widest">Examination</th>
+                            <th className="px-4 py-3 text-[9px] font-black uppercase tracking-widest">Institution</th>
+                            <th className="px-4 py-3 text-[9px] font-black uppercase tracking-widest">Percentage/CGPA</th>
+                            <th className="px-4 py-3 text-[9px] font-black uppercase tracking-widest">Year</th>
+                            <th className="px-4 py-3 text-[9px] font-black uppercase tracking-widest">Subjects</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-school-ink/5">
+                          {detailedApp.education_qualifications?.map((edu, i) => (
+                            <tr key={i}>
+                              <td className="px-4 py-3 text-xs font-bold text-school-navy">{edu.examination}</td>
+                              <td className="px-4 py-3 text-xs text-school-ink/60">{edu.institution}</td>
+                              <td className="px-4 py-3 text-xs text-school-accent font-black">{edu.percentage}%</td>
+                              <td className="px-4 py-3 text-xs text-school-ink/60">{edu.year}</td>
+                              <td className="px-4 py-3 text-xs text-school-ink/60">{edu.subjects}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+
+                  {/* Experience & Achievements */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <section className="space-y-6">
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-school-accent border-b border-school-ink/5 pb-3">Teaching History</h4>
+                      <div className="space-y-4">
+                        {detailedApp.teaching_experience?.map((exp, i) => (
+                          <div key={i} className="p-4 bg-school-paper rounded-2xl border border-school-ink/5">
+                            <h5 className="font-black text-school-navy text-sm mb-1">{exp.institution}</h5>
+                            <p className="text-[10px] font-bold text-school-ink/40 uppercase mb-2">{exp.fromYear} - {exp.toYear}</p>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-[8px] font-black text-school-ink/20 uppercase">Subjects</p>
+                                <p className="text-xs font-medium text-school-ink/70">{exp.subjects}</p>
+                              </div>
+                              <div>
+                                <p className="text-[8px] font-black text-school-ink/20 uppercase">Classes</p>
+                                <p className="text-xs font-medium text-school-ink/70">{exp.classes}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                    <section className="space-y-6">
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-school-accent border-b border-school-ink/5 pb-3">Notable Achievements</h4>
+                      <div className="space-y-4">
+                        {detailedApp.achievements?.map((ach, i) => (
+                          <div key={i} className="p-4 bg-school-paper rounded-2xl border border-school-ink/5">
+                            <div className="flex justify-between items-start mb-1">
+                              <h5 className="font-black text-school-navy text-sm">{ach.field}</h5>
+                              <span className="text-[10px] font-black bg-school-gold text-school-navy px-2 py-0.5 rounded-md">{ach.year}</span>
+                            </div>
+                            <p className="text-xs text-school-ink/60 italic">{ach.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  </div>
+
+                  {/* Subjective Responses */}
+                  <section className="space-y-8">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-school-accent border-b border-school-ink/5 pb-3">Institutional Insights</h4>
+                    <div className="space-y-8">
+                      <div>
+                        <p className="text-[10px] font-black text-school-ink/30 uppercase tracking-widest mb-2">Interests & Hobbies</p>
+                        <div className="bg-school-paper p-6 rounded-3xl text-sm leading-relaxed text-school-ink/80">{detailedApp.interests}</div>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-school-ink/30 uppercase tracking-widest mb-2">Responsibilities Previously Handled</p>
+                        <div className="bg-school-paper p-6 rounded-3xl text-sm leading-relaxed text-school-ink/80">{detailedApp.responsibilities_handled}</div>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-school-ink/30 uppercase tracking-widest mb-2">Statement of Purpose</p>
+                        <div className="bg-school-navy/5 p-8 rounded-[32px] text-base leading-relaxed text-school-navy font-medium italic border-l-4 border-school-gold">"{detailedApp.statement_of_purpose}"</div>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-school-ink/30 uppercase tracking-widest mb-2">Other Professional Experience (Non-Teaching)</p>
+                        <div className="bg-school-paper p-6 rounded-3xl text-sm leading-relaxed text-school-ink/80">{detailedApp.other_experience || 'None'}</div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                <div className="p-8 border-t border-school-ink/5 bg-white shrink-0 flex justify-end gap-4">
+                   <button 
+                     onClick={() => setDetailedApp(null)}
+                     className="px-8 py-3 bg-school-ink/5 text-school-ink rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-school-ink/10 transition-all"
+                   >
+                     Close Application
+                   </button>
+                   <a 
+                     href={`mailto:${detailedApp.email}?subject=Regarding Your Application for St. Xavier's School`}
+                     className="px-8 py-3 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-school-accent transition-all shadow-xl"
+                   >
+                     Initiate Contact
+                   </a>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
   };
 
   const renderMessagesSection = () => (
@@ -275,6 +855,164 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
     </div>
   );
 
+  const renderMandatoryDisclosuresSection = () => {
+    const items = (data.mandatory_disclosures || []) as any[];
+    const categories = [
+      { id: 'A', label: 'General Information' },
+      { id: 'B', label: 'Documents & Information' },
+      { id: 'C', label: 'Results & Academics' },
+      { id: 'C_TABLE_X', label: 'Result Class X Table' },
+      { id: 'C_TABLE_XII', label: 'Result Class XII Table' },
+      { id: 'D', label: 'Staff (Teaching)' },
+      { id: 'E', label: 'School Infrastructure' }
+    ];
+
+    return (
+      <div className="space-y-16 pb-20">
+        <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-4 uppercase">Mandatory <span className="text-school-gold">Disclosures</span></h2>
+            <p className="text-sm text-white/40 leading-relaxed max-w-xl">Manage all statutory disclosure information and compliance documents required by CBSE.</p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3">
+             {categories.map(c => (
+               <button 
+                 key={c.id} 
+                 onClick={() => handleAdd({ category: c.id, title: `New ${c.label} Item` })}
+                 className="px-4 py-2 bg-white/5 border border-white/10 text-white hover:bg-school-gold hover:text-school-navy rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+               >
+                 + {c.id}
+               </button>
+             ))}
+          </div>
+        </div>
+
+        {categories.map(cat => {
+          const catItems = items.filter(i => i.category === cat.id).sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+          return (
+            <motion.div key={cat.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="flex items-center justify-between gap-4">
+                <h3 className="text-lg font-black text-school-navy uppercase tracking-widest italic flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-lg bg-school-gold text-school-navy flex items-center justify-center text-xs font-black">{cat.id}</span>
+                  {cat.label}
+                </h3>
+                <button 
+                  onClick={() => handleAdd({ category: cat.id, title: `New ${cat.label} Entry` })}
+                  className="px-4 py-2 bg-school-navy text-white hover:bg-school-gold hover:text-school-navy rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
+                >
+                  <Plus size={12} /> Add to {cat.id}
+                </button>
+              </div>
+              
+              <div className="overflow-hidden rounded-[32px] border border-school-ink/5 shadow-sm bg-white overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[900px]">
+                  <thead>
+                    <tr className="bg-school-paper/50">
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 w-16 text-center">Sr.</th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 w-1/4">Title / Information</th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 w-1/4">Content / Details</th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 w-32">Section</th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5">Attachment</th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 text-right w-32">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-school-ink/5">
+                    {catItems.map((item, idx) => (
+                      <tr key={item.id} className="hover:bg-school-paper/30 transition-colors group">
+                        <td className="px-6 py-4 text-xs font-black text-school-ink/20 text-center">{idx + 1}</td>
+                        <td className="px-6 py-4">
+                          <input 
+                            value={item.title || ''} 
+                            onChange={(e) => handleUpdate(item.id, 'title', e.target.value, 'mandatory_disclosures')}
+                            className="bg-transparent border-none text-[13px] font-bold text-school-navy focus:ring-0 w-full p-0 placeholder:text-school-ink/10"
+                            placeholder="Enter informational label..."
+                          />
+                        </td>
+                        <td className="px-6 py-4">
+                          {cat.id.includes('TABLE') ? (
+                            <input 
+                              value={item.content || ''} 
+                              onChange={(e) => handleUpdate(item.id, 'content', e.target.value, 'mandatory_disclosures')}
+                              className="bg-transparent border-none text-[13px] font-medium text-school-ink focus:ring-0 w-full p-0 font-mono"
+                              placeholder="Reg: 276, Passed: 276, Pass%: 100%"
+                            />
+                          ) : (
+                            <textarea 
+                              value={item.content || ''} 
+                              onChange={(e) => handleUpdate(item.id, 'content', e.target.value, 'mandatory_disclosures')}
+                              className="bg-transparent border-none text-[13px] font-medium text-school-ink focus:ring-0 w-full p-0 min-h-[1.5em] resize-none overflow-hidden leading-relaxed placeholder:text-school-ink/10"
+                              rows={1}
+                              onInput={(e: any) => {e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'}}
+                              placeholder="Enter data or description..."
+                            />
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <select 
+                            value={item.category} 
+                            onChange={(e) => handleUpdate(item.id, 'category', e.target.value, 'mandatory_disclosures')}
+                            className="bg-school-ink/5 border-none rounded-lg p-1.5 text-[10px] font-black text-school-navy focus:ring-1 focus:ring-school-gold transition-all outline-none uppercase"
+                          >
+                            {categories.map(c => (
+                              <option key={c.id} value={c.id}>{c.id}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            {item.attachmentUrl ? (
+                              <div className="flex items-center gap-1">
+                                <a href={item.attachmentUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-school-gold/10 text-school-gold rounded-xl hover:bg-school-gold/20 transition-all" title="View Link">
+                                  <ExternalLink size={14} />
+                                </a>
+                                <button 
+                                  onClick={() => handleUpdate(item.id, 'attachmentUrl', '', 'mandatory_disclosures')} 
+                                  className="p-2 text-school-ink/20 hover:text-red-400 transition-colors"
+                                  title="Remove Link"
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            ) : (
+                              <label className="p-2.5 bg-school-ink/5 text-school-ink/30 rounded-xl cursor-pointer hover:bg-school-gold/10 hover:text-school-gold transition-all" title="Upload Document">
+                                <UploadCloud size={14} />
+                                <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, item.id, 'attachmentUrl', 'mandatory_disclosures')} />
+                              </label>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                             <button onClick={() => setItemToDelete(item.id)} className="p-2.5 text-school-ink/10 hover:text-red-400 hover:bg-red-50 rounded-xl transition-all">
+                               <Trash2 size={16} />
+                             </button>
+                             <div className="flex flex-col gap-1">
+                               <button 
+                                 onClick={() => handleUpdate(item.id, 'order_index', (item.order_index || 0) - 1, 'mandatory_disclosures')}
+                                 className="p-1 text-school-ink/20 hover:text-school-gold"
+                               >
+                                 <Plus size={10} className="rotate-45" />
+                               </button>
+                             </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {catItems.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-20 text-center text-xs text-school-ink/30 italic uppercase tracking-[0.2em]">No entries recorded in this category</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const renderSearchResults = () => {
     const results = getGlobalSearchResults();
     if (results.length === 0) {
@@ -312,6 +1050,9 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
 
   const renderMainContent = () => {
     if (searchQuery) return renderSearchResults();
+    if (activeSection === 'careers') return renderCareersSection();
+    if (activeSection === 'career_applications') return renderCareerApplicationsSection();
+    if (activeSection === 'mandatory_disclosures') return renderMandatoryDisclosuresSection();
     if (activeSection === 'messages') return renderMessagesSection();
     if (activeSection === 'logs') return renderLogsSection();
 
@@ -389,9 +1130,19 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
             <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-8">
               <div className="relative z-10">
                 <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-2">Central Configurations</h2>
-                <p className="text-sm text-white/40 font-light">Manage global application states, critical year sessions, and visibility toggles.</p>
+                <p className="text-sm text-white/40 font-light">Manage global application states, session identifiers, and storage infrastructure.</p>
               </div>
               <div className="flex gap-4">
+                 <button 
+                   onClick={() => {
+                     const sql = `-- SUPABASE STORAGE SETUP\n-- Run this in SQL Editor to fix "Bucket not found" errors\n\nINSERT INTO storage.buckets (id, name, public) \nVALUES ('career_assets', 'career_assets', true) \nON CONFLICT (id) DO NOTHING;\n\nCREATE POLICY "Public Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'career_assets');\nCREATE POLICY "Public View" ON storage.objects FOR SELECT USING (bucket_id = 'career_assets');`;
+                     navigator.clipboard.writeText(sql);
+                     showToast('Storage Fix SQL copied!');
+                   }}
+                   className="px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl flex items-center gap-2"
+                 >
+                   <Database size={14} /> Fix Storage Bucket
+                 </button>
                  <button onClick={handleSaveAll} disabled={!savePending} className={`px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${savePending ? 'bg-emerald-500 text-white shadow-xl hover:scale-105' : 'bg-white/10 text-white/20 cursor-not-allowed uppercase'}`}>
                    {savePending ? 'Sync Changes' : 'State Current'}
                  </button>
@@ -446,7 +1197,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                    { key: 'showVirtualCampus', label: 'Virtual Campus' },
                    { key: 'showGallery', label: 'Campus Gallery' },
                    { key: 'showLeadership', label: 'Regency Personnel' },
-                   { key: 'showHonors', label: 'Student Triumphs' }
+                   { key: 'showHonors', label: 'Student Triumphs' },
+                   { key: 'careerFormEnabled', label: 'Careers Application Form' }
                  ].map((item) => (
                    <div key={item.key} className="bg-school-ink/5 p-6 rounded-3xl border border-school-ink/5 flex items-center justify-between">
                      <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">{item.label}</span>
@@ -638,9 +1390,9 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                   </>
                 )}
               </select>
-            ) : field === 'category' && (section === 'fees' || section === 'studentHonors') ? (
+            ) : field === 'category' && (section === 'fees' || section === 'studentHonors' || section === 'mandatory_disclosures') ? (
               <select 
-                value={item[field] ?? (section === 'fees' ? 'School Fee' : 'Class 10 Topper')} 
+                value={item[field] ?? (section === 'fees' ? 'School Fee' : section === 'mandatory_disclosures' ? 'A' : 'Class 10 Topper')} 
                 onChange={(e) => handleUpdate(item.id, field as string, e.target.value, section)} 
                 className="w-full bg-school-ink/5 border-none rounded-xl p-3 text-xs text-school-ink font-medium focus:ring-1 focus:ring-school-gold transition-all outline-none"
               >
@@ -649,6 +1401,16 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                     <option value="School Fee">School Fee Structure</option>
                     <option value="Annual Fee">Annual Fees (Quarters)</option>
                     <option value="Admission Fee">Admission Fee (One-time)</option>
+                  </>
+                ) : section === 'mandatory_disclosures' ? (
+                  <>
+                    <option value="A">Section A: General Information</option>
+                    <option value="B">Section B: Documents & Info</option>
+                    <option value="C">Section C: Results & Academics</option>
+                    <option value="C_TABLE_X">Section C: Class X Result Table</option>
+                    <option value="C_TABLE_XII">Section C: Class XII Result Table</option>
+                    <option value="D">Section D: Staff (Teaching)</option>
+                    <option value="E">Section E: School Infrastructure</option>
                   </>
                 ) : (
                   <>
@@ -1023,8 +1785,8 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     }
   };
 
-  const handleAdd = async () => {
-    const newItem: any = { id: crypto.randomUUID() };
+  const handleAdd = async (overrides?: any) => {
+    const newItem: any = { id: crypto.randomUUID(), ...overrides };
     const tableStr = activeSection as string;
     
     // Initialize fields
@@ -1070,6 +1832,11 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.title = 'Achievement Title';
       newItem.year = '2026';
       newItem.description = 'Success story detail...';
+      newItem.attachmentUrl = '';
+    } else if (tableStr === 'careers') {
+      newItem.title = 'New Job Vacancy';
+      newItem.content = 'Enter job description and requirements...';
+      newItem.is_enabled = true;
       newItem.attachmentUrl = '';
     } else if (tableStr === 'studentHonors') {
       newItem.name = 'New Honor Student';
@@ -1157,11 +1924,19 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.password = 'change_me_123';
       newItem.role = 'staff';
       newItem.created_at = new Date().toISOString();
-    } else if (['activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content', 'co_curricular_activities', 'fire_safety'].includes(tableStr)) {
+    } else if (tableStr === 'mandatory_disclosures') {
+      newItem.title = newItem.title || 'New Disclosure Information';
+      newItem.content = newItem.content || 'Enter details here...';
+      newItem.category = newItem.category || 'A';
+      newItem.order_index = newItem.order_index ?? (data.mandatory_disclosures?.length || 0);
+      newItem.is_enabled = newItem.is_enabled ?? true;
+      newItem.attachmentUrl = newItem.attachmentUrl || '';
+    } else if (['activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'contact_content', 'scholarships', 'jesuit_page_content', 'co_curricular_activities', 'fire_safety'].includes(tableStr)) {
       newItem.title = tableStr === 'scholarships' ? 'New Scholarship/Concession' : tableStr === 'co_curricular_activities' ? 'New Activity Section' : tableStr === 'fire_safety' ? 'Fire Safety Heading/Link' : 'New Section Title';
       newItem.heading = '';
       newItem.content = tableStr === 'co_curricular_activities' ? 'Write content or JSON for table here...' : 'Write description here...';
       if (['scholarships', 'co_curricular_activities', 'fire_safety'].includes(tableStr)) newItem.display_type = 'tile';
+      if (tableStr === 'mandatory_disclosures') newItem.category = 'A';
       newItem.image_url = '';
       newItem.attachmentUrl = '';
       newItem.order_index = (data[activeSection as keyof AppData] as any[] || []).length;
@@ -1428,7 +2203,8 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'admins', label: 'Admin Accounts', icon: <Key size={18} className="text-school-neon" /> },
     { id: 'alumni', label: 'Alumni Content', icon: <Users2 size={18} className="text-school-accent" /> },
     { id: 'logs', label: 'Audit Logs', icon: <FileText size={18} className="text-school-ink opacity-50" /> },
-    { id: 'careers', label: 'Careers', icon: <Briefcase size={18} className="text-school-gold" /> },
+    { id: 'careers', label: 'Careers (Job Openings)', icon: <Briefcase size={18} className="text-school-gold" /> },
+    { id: 'career_applications', label: 'Job Applications', icon: <FileText size={18} className="text-school-accent" /> },
     { id: 'carousel', label: 'Carousel', icon: <ImagePlus size={18} className="text-school-accent" /> },
     { id: 'co_curricular_activities', label: 'Co-curricular (New)', icon: <LayoutGrid size={18} className="text-school-neon" /> },
     { id: 'contact_content', label: 'Contact Page Info', icon: <Mail size={18} className="text-school-accent" /> },

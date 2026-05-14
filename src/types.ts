@@ -129,6 +129,7 @@ export interface AppSettings {
   showLeadership?: boolean;
   showHonors?: boolean;
   faviconUrl?: string;
+  careerFormEnabled?: boolean;
 }
 
 export interface StudentLeader {
@@ -185,6 +186,53 @@ export interface SiteStats {
   visitor_count: number;
 }
 
+export interface CareerApplication {
+  id?: string;
+  application_no?: string;
+  category: string;
+  full_name: string;
+  parent_spouse_name: string;
+  mobile_number: string;
+  email: string;
+  gender: string;
+  dob: string;
+  aadhar_number: string;
+  address: string;
+  photo_url?: string;
+  user_ip?: string;
+  declaration_accepted: boolean;
+  major_subject: string;
+  minor_subject_1: string;
+  minor_subject_2: string;
+  salary_expected: string;
+  tet_details: string;
+  interests: string;
+  responsibilities_handled: string;
+  statement_of_purpose: string;
+  other_experience: string;
+  education_qualifications: {
+    examination: string;
+    percentage: string;
+    year: string;
+    institution: string;
+    subjects: string;
+  }[];
+  teaching_experience: {
+    fromYear: string;
+    toYear: string;
+    institution: string;
+    subjects: string;
+    classes: string;
+  }[];
+  achievements: {
+    year: string;
+    field: string;
+    description: string;
+  }[];
+  created_at?: string;
+  status?: string;
+}
+
 export interface AppData {
   notices: Notice[];
   staff: StaffMember[];
@@ -224,6 +272,7 @@ export interface AppData {
   mandatory_disclosures: PageSection[];
   contact_content: PageSection[];
   scholarships: PageSection[];
+  career_applications?: CareerApplication[];
   site_stats: SiteStats[];
   jesuit_page_content: JesuitPageContent[];
   settings: AppSettings;
