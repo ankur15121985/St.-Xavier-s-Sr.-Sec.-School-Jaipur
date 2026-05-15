@@ -76,7 +76,16 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://*.run.app", "https://ais-pre-*.run.app", "https://ais-dev-*.run.app"],
+      scriptSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        "'unsafe-eval'", 
+        "https://*.run.app", 
+        "https://ais-pre-*.run.app", 
+        "https://ais-dev-*.run.app",
+        "https://www.googletagmanager.com",
+        "https://www.google-analytics.com"
+      ],
       connectSrc: [
         "'self'", 
         "https://*.supabase.co", 
@@ -87,7 +96,9 @@ app.use(helmet({
         "https://raw.githack.com",
         "https://cdn.jsdelivr.net",
         "https://dl.polyhaven.org",
-        "https://raw.githubusercontent.com"
+        "https://raw.githubusercontent.com",
+        "https://www.google-analytics.com",
+        "https://analytics.google.com"
       ],
       imgSrc: [
         "'self'", 
@@ -98,17 +109,31 @@ app.use(helmet({
         "https://picsum.photos", 
         "https://lh3.googleusercontent.com",
         "https://raw.githack.com",
-        "https://cdn.jsdelivr.net"
+        "https://cdn.jsdelivr.net",
+        "https://images.unsplash.com",
+        "https://www.google-analytics.com"
       ],
       fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       frameAncestors: ["'self'", "https://*.run.app", "https://ais-dev-*.run.app", "https://ais-pre-*.run.app", "https://*.google.com"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
     },
   },
   crossOriginEmbedderPolicy: false,
   xContentTypeOptions: true,
-  xFrameOptions: false // Disable X-Frame-Options to allow framing in AI Studio
+  xFrameOptions: false, // Must be disabled for AI Studio preview to work in iframe
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  permittedCrossDomainPolicies: { permittedPolicies: 'none' },
 }));
+
+// Additional Security Headers
+app.use((req, res, next) => {
+  res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+  res.setHeader('X-DNS-Prefetch-Control', 'on');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  next();
+});
 
 // Rate Limiting
 const limiterOptions = {

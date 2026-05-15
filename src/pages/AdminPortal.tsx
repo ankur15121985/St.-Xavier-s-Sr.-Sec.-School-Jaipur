@@ -15,6 +15,7 @@ import { supabaseService } from '../lib/supabaseService';
 import { storageService } from '../lib/storageService';
 import { supabase } from '../supabaseClient';
 
+import DOMPurify from 'dompurify';
 import SidebarLinks from '../components/layout/SidebarLinks';
 import RichTextEditor from '../components/ui/RichTextEditor';
 import GalleryBulkUpload from '../components/admin/GalleryBulkUpload';
@@ -128,6 +129,27 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
       setLoginError(err.message || 'Login failed');
     } finally {
       setIsLoggingIn(false);
+    }
+  };
+
+  // Security Helper: Sanitize input
+  const sanitize = (val: any) => {
+    if (typeof val === 'string') return DOMPurify.sanitize(val);
+    return val;
+  };
+
+  // Stability Helper: Prevent circular event objects from being saved
+  const isCircular = (val: any) => {
+    if (!val || typeof val !== 'object') return false;
+    // Common indicators of React/DOM events
+    try {
+      // Check for common event properties
+      if (val.nativeEvent !== undefined || (val.target && val.target.nodeType !== undefined) || val.type?.includes('click') || val.type?.includes('change')) return true;
+      // Faster circular check
+      JSON.stringify(val);
+      return false;
+    } catch (e) {
+      return true;
     }
   };
 
@@ -1615,9 +1637,20 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
   const globalResults = getGlobalSearchResults();
 
   const handleUpdate = (id: string, field: string, value: any, section: keyof AppData) => {
+    // Audit Defense: Prevent event objects from leaking into state/database
+    if (isCircular(value)) {
+      console.warn(`[AdminPortal] Blocked save of potential circular object (Event) to ${section}.${field}`);
+      // Try to extract a string value if it was an event by mistake
+      if (value.target && value.target.value !== undefined) value = value.target.value;
+      else if (typeof value.target?.checked === 'boolean') value = value.target.checked;
+      else return; // Stop if we can't rescue it
+    }
+
+    const sanitizedValue = sanitize(value);
+
     if (section === 'settings') {
       setData(prev => {
-        const updatedSettings = { ...prev.settings, [field]: value };
+        const updatedSettings = { ...prev.settings, [field]: sanitizedValue };
         
         const timerId = `save-settings`;
         if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
@@ -1630,7 +1663,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 id: `log_set_${Date.now()}`,
                 user: user?.email || 'anonymous',
                 action: 'UPDATE_SETTINGS',
-                details: `Updated setting ${field} to ${value}`,
+                details: `Updated setting ${field} to ${sanitizedValue}`,
                 timestamp: new Date().toISOString()
               });
             } catch (logErr) {
@@ -1652,7 +1685,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
 
     if (section === 'content') {
       setData(prev => {
-        const updatedContent = { ...prev.content, [field]: value };
+        const updatedContent = { ...prev.content, [field]: sanitizedValue };
         
         const timerId = `save-content`;
         if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
@@ -1660,7 +1693,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
           setSavePending(true);
           try {
             // Optimization: Only sync the specific key that changed
-            await supabaseService.saveItem('content', { [field]: value });
+            await supabaseService.saveItem('content', { [field]: sanitizedValue });
             try {
               await supabaseService.saveItem('logs', {
                 id: `log_cont_${Date.now()}`,
@@ -1688,7 +1721,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
 
     if (section === 'digital_campus') {
       setData(prev => {
-        const updatedDC = { ...(prev.digital_campus || { id: 'current', title: 'Legacy in Motion', is_enabled: true }), [field]: value };
+        const updatedDC = { ...(prev.digital_campus || { id: 'current', title: 'Legacy in Motion', is_enabled: true }), [field]: sanitizedValue };
         
         const timerId = `save-digital-campus`;
         if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
@@ -1727,14 +1760,14 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       let newItems = currentItems.map((item: any) => {
         if (item.id === id) {
           itemFound = true;
-          return { ...item, [field]: value };
+          return { ...item, [field]: sanitizedValue };
         }
         return item;
       });
 
       if (!itemFound && (section === 'school_history' || section === 'lead_grace')) {
         // Special singleton handling: if id doesn't exist, create it (usually 'main' or 'lg1')
-        newItems = [...currentItems, { id, [field]: value }];
+        newItems = [...currentItems, { id, [field]: sanitizedValue }];
       }
 
       const updatedItem = newItems.find((i: any) => i.id === id);
@@ -1849,7 +1882,9 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
   };
 
   const handleAdd = async (overrides?: any) => {
-    const newItem: any = { id: crypto.randomUUID(), ...overrides };
+    // Stability Defense: Ensure overrides is NOT an event
+    const actualOverrides = (overrides && isCircular(overrides)) ? {} : (overrides || {});
+    const newItem: any = { id: crypto.randomUUID(), ...actualOverrides };
     const tableStr = activeSection as string;
     
     // Initialize fields

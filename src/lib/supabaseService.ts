@@ -135,6 +135,15 @@ export const supabaseService = {
           }
           
           console.log(`[Supabase Upsert] Table: ${targetTable}, ID: ${item.id}`);
+          
+          // Defensive check for circular structure before sending to Supabase
+          try {
+            JSON.stringify(sanitized);
+          } catch (circError: any) {
+            console.error(`[Supabase Sync Blocked] Circular dependency detected in ${targetTable}/${item.id}:`, circError);
+            throw new Error(`CRITICAL: Circular data structure detected. Source: ${targetTable}/${item.id}. Error: ${circError.message}`);
+          }
+
           let { error } = await supabase.from(targetTable).upsert(sanitized);
           
           // Handle missing columns or stale cache gracefully by dynamic recursive stripping or retry
