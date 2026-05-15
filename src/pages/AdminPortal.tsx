@@ -5,8 +5,9 @@ import {
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
   Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, RefreshCw,
   Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink,
-  Type, Palette, Bold, Italic, Briefcase, ShieldCheck, Activity, Send, Clock, Database
+  Type, Palette, Bold, Italic, Briefcase, ShieldCheck, Activity, Send, Clock, Database, Download
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { AppData, GalleryItem, CareerApplication } from '../types';
 import { DEFAULT_DATA } from '../App';
 import { useSupabase } from '../components/SupabaseProvider';
@@ -61,6 +62,58 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
   useEffect(() => {
     // Session check logic could go here if needed
   }, []);
+
+  const exportApplicationsToExcel = () => {
+    const apps = (data.career_applications || []) as CareerApplication[];
+    
+    // Prepare data for export
+    const exportData = apps.map(app => ({
+      'Application No': app.application_no || 'NA',
+      'Applied On': app.created_at ? new Date(app.created_at).toLocaleDateString() + ' ' + new Date(app.created_at).toLocaleTimeString() : 'NA',
+      'Status': app.status || 'Received',
+      'Category': app.category || '',
+      'Teacher Level (PGT/TGT/PRT)': app.teacher_category || 'NA',
+      'Full Name': app.full_name || '',
+      'Parent/Spouse Name': app.parent_spouse_name || '',
+      'Gender': app.gender || '',
+      'DOB': app.dob || '',
+      'Email': app.email || '',
+      'Mobile': app.mobile_number || '',
+      'Aadhar No': app.aadhar_number || '',
+      'Address': app.address || '',
+      'Major Subject': app.major_subject || '',
+      'Minor Subject 1': app.minor_subject_1 || '',
+      'Minor Subject 2': app.minor_subject_2 || '',
+      'Salary Expected': app.salary_expected || '',
+      'TET Details': app.tet_details || '',
+      'Interests': app.interests || '',
+      'Responsibilities Handled': app.responsibilities_handled || '',
+      'Statement of Purpose': app.statement_of_purpose || '',
+      'Other Experience': app.other_experience || '',
+      'Education Qualifications': (app.education_qualifications || []).map(q => 
+        `${q.examination} (${q.year}): ${q.percentage}% from ${q.institution} [Subjects: ${q.subjects}]`
+      ).join(' | '),
+      'Teaching Experience': (app.teaching_experience || []).map(e => 
+        `${e.institution} (${e.fromYear}-${e.toYear}): ${e.classes} [Subjects: ${e.subjects}]`
+      ).join(' | '),
+      'Achievements': (app.achievements || []).map(a => 
+        `${a.year} - ${a.field}: ${a.description}`
+      ).join(' | '),
+      'Photo URL': app.photo_url || '',
+      'User IP': app.user_ip || '',
+      'Declaration Accepted': app.declaration_accepted ? 'Yes' : 'No'
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Applications");
+    
+    // Generate filename with date
+    const date = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(workbook, `Career_Applications_${date}.xlsx`);
+    
+    showToast('Applications exported successfully');
+  };
 
   const handleUsernameLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,7 +229,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                View Received Applications (Filled Forms)
                <span className="px-3 py-1 bg-school-navy text-white rounded-lg ml-2">{apps.length}</span>
              </button>
-             <button disabled={savePending} onClick={handleAdd} className="flex items-center gap-3 px-10 py-4 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-school-accent transition-all">
+             <button disabled={savePending} onClick={() => handleAdd()} className="flex items-center gap-3 px-10 py-4 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-school-accent transition-all">
                <Plus size={18} /> Post Job opening
              </button>
           </div>
@@ -334,6 +387,13 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
             <p className="text-[10px] font-bold text-school-ink/40 uppercase tracking-widest mt-3">Reviewing potential institutional candidates</p>
           </div>
           <div className="flex items-center gap-6">
+            <button 
+              onClick={exportApplicationsToExcel}
+              className="px-6 py-3 bg-emerald-600 text-white rounded-3xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg hover:scale-105"
+            >
+              <Download size={16} />
+              Export to Excel
+            </button>
             <div className="flex items-center gap-4 px-6 py-3 bg-school-paper border border-school-ink/10 rounded-3xl">
               <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">Accepting Applications</span>
               <button 
@@ -412,6 +472,9 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                     </td>
                     <td className="px-6 py-6 font-bold text-xs text-school-navy/70 uppercase">
                       {app.category}
+                      {app.teacher_category && (
+                        <span className="block text-[9px] text-school-accent mt-0.5">{app.teacher_category}</span>
+                      )}
                       <span className="block text-[9px] text-school-ink/30 mt-0.5">{app.major_subject}</span>
                     </td>
                     <td className="px-6 py-6">
@@ -2204,7 +2267,6 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'alumni', label: 'Alumni Content', icon: <Users2 size={18} className="text-school-accent" /> },
     { id: 'logs', label: 'Audit Logs', icon: <FileText size={18} className="text-school-ink opacity-50" /> },
     { id: 'careers', label: 'Careers (Job Openings)', icon: <Briefcase size={18} className="text-school-gold" /> },
-    { id: 'career_applications', label: 'Job Applications', icon: <FileText size={18} className="text-school-accent" /> },
     { id: 'carousel', label: 'Carousel', icon: <ImagePlus size={18} className="text-school-accent" /> },
     { id: 'co_curricular_activities', label: 'Co-curricular (New)', icon: <LayoutGrid size={18} className="text-school-neon" /> },
     { id: 'contact_content', label: 'Contact Page Info', icon: <Mail size={18} className="text-school-accent" /> },
@@ -2630,7 +2692,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
               </button>
             )}
             {!['settings', 'content', 'jesuit_page_content', 'digital_campus', 'logs', 'messages', 'site_stats'].includes(activeSection) && (
-              <button onClick={handleAdd} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none whitespace-nowrap">
+              <button onClick={() => handleAdd()} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none whitespace-nowrap">
                 <Plus size={16} /> New Item
               </button>
             )}

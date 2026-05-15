@@ -229,6 +229,7 @@ export interface CareerApplication {
     field: string;
     description: string;
   }[];
+  teacher_category?: string;
   created_at?: string;
   status?: string;
 }

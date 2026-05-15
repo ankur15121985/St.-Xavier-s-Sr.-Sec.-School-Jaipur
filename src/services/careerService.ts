@@ -49,6 +49,7 @@ export interface CareerApplication {
   education_qualifications: EducationQualification[];
   teaching_experience: TeachingExperience[];
   achievements: Achievement[];
+  teacher_category?: string;
   created_at?: string;
   status?: string;
 }

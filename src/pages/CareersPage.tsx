@@ -53,6 +53,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
     photo_url: '',
     user_ip: '',
     declaration_accepted: false,
+    teacher_category: '',
     major_subject: '',
     minor_subject_1: '',
     minor_subject_2: '',
@@ -385,7 +386,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
 
                         <div className="grid md:grid-cols-2 gap-12">
                           <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Application Category</label>
+                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Application Category</label>
                              <select 
                                required
                                className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none"
@@ -399,6 +400,26 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                <option>Other</option>
                              </select>
                           </div>
+                          {formData.category === 'Teacher' && (
+                            <motion.div 
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              className="space-y-4"
+                            >
+                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Teacher Category (Select Level)</label>
+                              <select 
+                                required
+                                className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none"
+                                value={formData.teacher_category}
+                                onChange={e => setFormData({...formData, teacher_category: e.target.value})}
+                              >
+                                <option value="">Select Level...</option>
+                                <option>PGT</option>
+                                <option>TGT</option>
+                                <option>PRT</option>
+                              </select>
+                            </motion.div>
+                          )}
                           <div className="space-y-4">
                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Full Legal Name</label>
                              <input 
