@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS logs (
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS settings (
+CREATE TABLE IF NOT EXISTS site_settings (
     id TEXT PRIMARY KEY,
     "applyNowEnabled" BOOLEAN DEFAULT true,
     "applyNowUrl" TEXT,
@@ -403,14 +403,31 @@ BEGIN
         -- Drop any old policy
         EXECUTE format('DROP POLICY IF EXISTS "Public Full Access" ON %I', t_name);
         
-        -- Create a blanket policy for ALL operations
-        EXECUTE format('
-            CREATE POLICY "Public Full Access" ON %I 
-            FOR ALL 
-            TO public 
-            USING (true) 
-            WITH CHECK (true)
-        ', t_name);
+        -- Create hardened policies for sensitive tables
+        IF t_name IN ('career_applications', 'messages', 'transfer_certificates', 'admins', 'logs') THEN
+          -- Allow public to INSERT (submit forms/messages)
+          EXECUTE format('
+              CREATE POLICY "Secure Insert" ON %I FOR INSERT TO public WITH CHECK (true)
+          ', t_name);
+          -- Allow public to SELECT (needed for Admin Portal which uses anon key)
+          -- Ideally this should be authenticated, but we keep it working for now
+          EXECUTE format('
+              CREATE POLICY "System Select" ON %I FOR SELECT TO public USING (true)
+          ', t_name);
+          -- Protect UPDATE/DELETE (Administrative operations)
+          EXECUTE format('
+              CREATE POLICY "Admin Write" ON %I FOR ALL TO authenticated USING (true) WITH CHECK (true)
+          ', t_name);
+        ELSE
+          -- Create a blanket policy for non-sensitive public tables
+          EXECUTE format('
+              CREATE POLICY "Public Full Access" ON %I 
+              FOR ALL 
+              TO public 
+              USING (true) 
+              WITH CHECK (true)
+          ', t_name);
+        END IF;
         
         -- Grant permissions
         EXECUTE format('GRANT ALL ON TABLE %I TO anon, authenticated, postgres, service_role', t_name);

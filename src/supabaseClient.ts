@@ -1,9 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = "https://bfqyrnvyhivflapjwllk.supabase.co"
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmcXlybnZ5aGl2ZmxhcGp3bGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0Mjg4NzEsImV4cCI6MjA5MzAwNDg3MX0.fCbIjOk8isAv5d2QJVPxVH4IV-_LnAglguU1Z9D-3qU"
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.warn("Supabase credentials missing! Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.");
+}
+
+export const supabase = createClient(SUPABASE_URL || '', SUPABASE_ANON_KEY || '');
 
 /**
  * Uploads a file to Supabase Storage and returns the public URL

@@ -31,7 +31,13 @@ export const supabaseService = {
         // Settings (single row)
         (async () => {
            try {
-             const { data, error } = await supabase.from('settings').select('*').limit(1).maybeSingle();
+             let { data, error } = await supabase.from('site_settings').select('*').limit(1).maybeSingle();
+             if (error && (error.code === 'PGRST125' || error.code === 'PGRST204' || error.message.includes('site_settings'))) {
+               console.warn('[Supabase] site_settings table missing, trying settings table fallback...');
+               const fallback = await supabase.from('settings').select('*').limit(1).maybeSingle();
+               data = fallback.data;
+               error = fallback.error;
+             }
              if (error) console.warn('[Supabase] Settings table issue:', error.message);
              if (data) results.settings = data as any;
            } catch (e) { console.error('[Supabase] Settings fetch error:', e); }
@@ -93,7 +99,7 @@ export const supabaseService = {
       try {
         if (!supabase) throw new Error('Supabase client not initialized');
         
-        const targetTable = section as string;
+        const targetTable = section === 'settings' ? 'site_settings' : section as string;
 
         if (section === 'content') {
           // Optimization: When saving content, we use the 'key' as the primary identifier
@@ -145,6 +151,12 @@ export const supabaseService = {
           }
 
           let { error } = await supabase.from(targetTable).upsert(sanitized);
+          
+          if (error && section === 'settings' && targetTable === 'site_settings' && (error.code === 'PGRST125' || error.code === 'PGRST204' || error.message.toLowerCase().includes('site_settings'))) {
+            console.warn(`[Supabase Sync] 'site_settings' table not found on remote. Trying fallback to 'settings' table...`);
+            const fallbackResult = await supabase.from('settings').upsert(sanitized);
+            error = fallbackResult.error;
+          }
           
           // Handle missing columns or stale cache gracefully by dynamic recursive stripping or retry
           if (error && (error.code === 'PGRST204' || error.code === 'PGRST205' || error.code === '42703')) {
@@ -259,9 +271,14 @@ export const supabaseService = {
     try {
       // 1. Delete from Supabase
       try {
-        const targetTable = section as string;
+        const targetTable = section === 'settings' ? 'site_settings' : section as string;
         const matchField = section === 'content' ? 'key' : 'id';
-        const { error } = await supabase.from(targetTable).delete().eq(matchField, id);
+        let { error } = await supabase.from(targetTable).delete().eq(matchField, id);
+        if (error && section === 'settings' && targetTable === 'site_settings' && (error.code === 'PGRST125' || error.code === 'PGRST204' || error.message.toLowerCase().includes('site_settings'))) {
+          console.warn(`[Supabase Sync] 'site_settings' table not found on delete. Trying fallback to 'settings' table...`);
+          const fallbackResult = await supabase.from('settings').delete().eq(matchField, id);
+          error = fallbackResult.error;
+        }
         if (error) throw error;
         console.log(`[Supabase Sync] ${targetTable} item deleted`);
       } catch (err: any) {

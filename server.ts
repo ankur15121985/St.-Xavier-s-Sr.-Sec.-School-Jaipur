@@ -18,6 +18,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
+// Security: Remove X-Powered-By header
+app.disable('x-powered-by');
+
 // 1. DATABASE INITIALIZATION (CRITICAL: MUST BE BEFORE ROUTES)
 const dbPath = path.join(__dirname, 'database.sqlite');
 const db = new Database(dbPath);
@@ -41,7 +44,7 @@ db.exec(`
 `);
 
 db.exec(`
-  CREATE TABLE IF NOT EXISTS settings (
+  CREATE TABLE IF NOT EXISTS site_settings (
     id TEXT PRIMARY KEY,
     applyNowEnabled INTEGER DEFAULT 1,
     applyNowUrl TEXT,
@@ -129,6 +132,7 @@ app.use(helmet({
 
 // Additional Security Headers
 app.use((req, res, next) => {
+  res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
   res.setHeader('X-DNS-Prefetch-Control', 'on');
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
@@ -170,7 +174,14 @@ const uploadLimiter = rateLimit({
 
 app.use(generalLimiter);
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev-only-change-in-env';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
+  console.error('[CRITICAL] JWT_SECRET environment variable is NOT set in production!');
+  process.exit(1);
+}
+
+const FINAL_JWT_SECRET = JWT_SECRET || 'dev-fallback-only-change-in-production';
 
 // Authentication Middleware
 const authenticateToken = (req: any, res: any, next: any) => {
@@ -182,7 +193,7 @@ const authenticateToken = (req: any, res: any, next: any) => {
     return res.status(401).json({ error: 'Authentication required' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+  jwt.verify(token, FINAL_JWT_SECRET, (err: any, user: any) => {
     if (err) {
       console.error(`[AUTH] Invalid token for ${req.method} ${req.url}:`, err.message);
       return res.status(403).json({ error: 'Session expired or invalid' });
@@ -199,12 +210,22 @@ app.use((req, res, next) => {
 });
 
 // Basic Middleware
+const allowedOrigins = process.env.APP_URL ? [process.env.APP_URL] : [];
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    // In dev, allow any origin if needed, but better to be strict
-    callback(null, true); 
+    
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.includes(origin) || origin.includes('.run.app')) {
+      return callback(null, true);
+    }
+    
+    console.warn(`[CORS] Rejected origin: ${origin}`);
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true
 }));
@@ -239,7 +260,14 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
   storage,
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  fileFilter: (req, file, cb) => {
+    const allowedExtensions = /\.(png|jpg|jpeg|gif|webp|pdf|doc|docx|xls|xlsx)$/i;
+    if (!allowedExtensions.test(file.originalname)) {
+      return cb(new Error('Only images (png, jpg, jpeg, gif, webp), PDFs, Word, and Excel files are allowed.'));
+    }
+    cb(null, true);
+  }
 });
 
 // 1. UPLOAD ROUTE (PROTECTED BY AUTH AND RATE LIMITER)
@@ -367,34 +395,33 @@ const seedStats = () => {
 };
 
 // Seed Default Admin if empty
-const seedAdmin = () => {
+const seedAdmin = async () => {
   const adminCount = db.prepare("SELECT COUNT(*) as count FROM admins").get() as any;
   if ((adminCount?.count || 0) === 0) {
     console.log("[AUTH] Seeding root admin...");
-    const rootUser = 'admin';
-    const rootPass = 'admin123'; // In a real app, this should be set via env and changed immediately
-    const hashedPass = bcrypt.hashSync(rootPass, 10);
+    
+    // Use environment variables for initial admin credentials
+    const rootUser = process.env.INITIAL_ADMIN_USERNAME || 'admin';
+    const rootPass = process.env.INITIAL_ADMIN_PASSWORD;
+    
+    if (!rootPass) {
+       console.warn("[AUTH] No INITIAL_ADMIN_PASSWORD set. Admin seeding skipped for security. Set it in environment variables.");
+       return;
+    }
+
+    const hashedPass = await bcrypt.hash(rootPass, 12);
     db.prepare("INSERT INTO admins (id, username, password, role) VALUES (?, ?, ?, ?)").run(
       'root-admin',
       rootUser,
       hashedPass,
       'admin'
     );
-    // Also bootstrap the one from SupabaseProvider if configured
-    const bootstrapUser = 'ankur15121985';
-    const bootstrapPass = '24121985'; 
-    const hashedBootstrap = bcrypt.hashSync(bootstrapPass, 10);
-    db.prepare("INSERT INTO admins (id, username, password, role) VALUES (?, ?, ?, ?)").run(
-      'bootstrap-admin',
-      bootstrapUser,
-      hashedBootstrap,
-      'admin'
-    );
+    console.log(`[AUTH] Admin '${rootUser}' seeded.`);
   }
 };
 
 // Login Endpoint
-app.post('/api/login', loginLimiter, express.json(), (req, res) => {
+app.post('/api/login', loginLimiter, express.json(), async (req, res) => {
   const { username, password } = req.body;
   
   if (!username || !password) {
@@ -409,7 +436,7 @@ app.post('/api/login', loginLimiter, express.json(), (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const validPassword = bcrypt.compareSync(password, user.password);
+    const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       console.warn(`[AUTH] Login failed: Incorrect password for ${username}`);
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -417,7 +444,7 @@ app.post('/api/login', loginLimiter, express.json(), (req, res) => {
 
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role },
-      JWT_SECRET,
+      FINAL_JWT_SECRET,
       { expiresIn: '8h' }
     );
 
@@ -446,14 +473,15 @@ app.get('/api/routes', (req, res) => {
 });
 
 // Constants
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "https://bfqyrnvyhivflapjwllk.supabase.co";
-const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmcXlybnZ5aGl2ZmxhcGp3bGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0Mjg4NzEsImV4cCI6MjA5MzAwNDg3MX0.fCbIjOk8isAv5d2QJVPxVH4IV-_LnAglguU1Z9D-3qU";
-const supabaseServer = createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 
-if (supabaseServer) {
+let supabaseServer: any = null;
+if (SUPABASE_URL && SUPABASE_KEY) {
+  supabaseServer = createClient(SUPABASE_URL, SUPABASE_KEY);
   console.log('[SUPABASE] Server-side client initialized.');
 } else {
-  console.warn('[SUPABASE] Server-side client missing credentials.');
+  console.warn('[SUPABASE] Server-side client NOT initialized. Missing credentials in environment.');
 }
 
 // Removed old upload routes from here as they were moved up
@@ -1001,7 +1029,7 @@ try {
 } catch (e) {}
 
 // Seed Default Settings if empty
-const settingsCountResult = db.prepare("SELECT COUNT(*) as count FROM settings").get() as any;
+const settingsCountResult = db.prepare("SELECT COUNT(*) as count FROM site_settings").get() as any;
 if ((settingsCountResult?.count || 0) === 0) {
     console.log("Seeding default settings...");
     db.prepare(`
@@ -1305,7 +1333,7 @@ addColumnIfMissing('fees', 'amount', 'TEXT');
 addColumnIfMissing('fees', 'remarks', 'TEXT');
 addColumnIfMissing('fees', 'order_index', 'INTEGER');
 addColumnIfMissing('fees', 'attachmentUrl', 'TEXT');
-addColumnIfMissing('settings', 'currentSession', 'TEXT');
+addColumnIfMissing('site_settings', 'currentSession', 'TEXT');
 
 // Migration: Initialize currentSession if null
 try {
@@ -1486,12 +1514,12 @@ addColumnIfMissing('notices', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('links', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('events', 'attachmentUrl', 'TEXT');
 addColumnIfMissing('achievements', 'attachmentUrl', 'TEXT');
-addColumnIfMissing('settings', 'siteName', 'TEXT');
-addColumnIfMissing('settings', 'siteLogo', 'TEXT');
-addColumnIfMissing('settings', 'contactEmail', 'TEXT');
-addColumnIfMissing('settings', 'contactPhone', 'TEXT');
-addColumnIfMissing('settings', 'contactAddress', 'TEXT');
-addColumnIfMissing('settings', 'feesPdfUrl', 'TEXT');
+addColumnIfMissing('site_settings', 'siteName', 'TEXT');
+addColumnIfMissing('site_settings', 'siteLogo', 'TEXT');
+addColumnIfMissing('site_settings', 'contactEmail', 'TEXT');
+addColumnIfMissing('site_settings', 'contactPhone', 'TEXT');
+addColumnIfMissing('site_settings', 'contactAddress', 'TEXT');
+addColumnIfMissing('site_settings', 'feesPdfUrl', 'TEXT');
 addColumnIfMissing('gallery', 'session', 'TEXT');
 
 // Diagnostic: Check fees table columns
@@ -1667,7 +1695,7 @@ app.get('/api/data', (req, res) => {
       data[table] = rows;
     });
 
-    const settings = db.prepare(`SELECT * FROM settings WHERE id = 'global'`).get() as any;
+    const settings = db.prepare(`SELECT * FROM site_settings WHERE id = 'global'`).get() as any;
     if (settings) {
       const convertedSettings = { ...settings };
       Object.keys(settings).forEach(key => {
@@ -1757,7 +1785,13 @@ app.post('/api/save', authenticateToken, express.json(), async (req, res) => {
             if (table === 'settings' && 'applyNowEnabled' in sanitizedForSupabase) sanitizedForSupabase.applyNowEnabled = !!sanitizedForSupabase.applyNowEnabled;
             if (table === 'settings' && 'popupEnabled' in sanitizedForSupabase) sanitizedForSupabase.popupEnabled = !!sanitizedForSupabase.popupEnabled;
 
-            const { error } = await supabaseServer.from(table).upsert(sanitizedForSupabase);
+            const targetTable = table === 'settings' ? 'site_settings' : table;
+            let { error } = await supabaseServer.from(targetTable).upsert(sanitizedForSupabase);
+            if (error && table === 'settings' && targetTable === 'site_settings' && (error.code === 'PGRST125' || error.code === 'PGRST204' || error.message.toLowerCase().includes('site_settings'))) {
+                console.warn(`[SUPABASE SYNC] 'site_settings' table not found on remote. Trying fallback to 'settings' table...`);
+                const fallbackResult = await supabaseServer.from('settings').upsert(sanitizedForSupabase);
+                error = fallbackResult.error;
+            }
             if (error) console.error(`[SUPABASE SYNC ERROR] ${table}:`, error.message);
         } catch (e: any) {
             console.warn('[SUPABASE SYNC EXCEPTION]', e.message);
@@ -1807,13 +1841,24 @@ app.post('/api/delete', authenticateToken, express.json(), async (req, res) => {
 
     // 1. Sync Delete to Supabase
     if (supabaseServer) {
+        const targetTable = table === 'settings' ? 'site_settings' : table;
         try {
             if (ids && Array.isArray(ids)) {
-                const { error } = await supabaseServer.from(table).delete().in('id', ids);
-                if (error) console.error(`[SUPABASE DELETE ERROR] ${table} bulk:`, error.message);
+                let { error } = await supabaseServer.from(targetTable).delete().in('id', ids);
+                if (error && table === 'settings' && targetTable === 'site_settings' && (error.code === 'PGRST125' || error.code === 'PGRST204' || error.message.toLowerCase().includes('site_settings'))) {
+                    console.warn(`[SUPABASE DELETE] 'site_settings' table not found. Trying fallback in 'settings'...`);
+                    const fallbackResult = await supabaseServer.from('settings').delete().in('id', ids);
+                    error = fallbackResult.error;
+                }
+                if (error) console.error(`[SUPABASE DELETE ERROR] ${targetTable} bulk:`, error.message);
             } else if (id) {
-                const { error } = await supabaseServer.from(table).delete().eq('id', id);
-                if (error) console.error(`[SUPABASE DELETE ERROR] ${table} single:`, error.message);
+                let { error } = await supabaseServer.from(targetTable).delete().eq('id', id);
+                if (error && table === 'settings' && targetTable === 'site_settings' && (error.code === 'PGRST125' || error.code === 'PGRST204' || error.message.toLowerCase().includes('site_settings'))) {
+                    console.warn(`[SUPABASE DELETE] 'site_settings' table not found. Trying fallback in 'settings'...`);
+                    const fallbackResult = await supabaseServer.from('settings').delete().eq('id', id);
+                    error = fallbackResult.error;
+                }
+                if (error) console.error(`[SUPABASE DELETE ERROR] ${targetTable} single:`, error.message);
             }
         } catch (e: any) {
             console.warn('[SUPABASE DELETE EXCEPTION]', e.message);

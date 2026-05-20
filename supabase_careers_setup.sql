@@ -35,12 +35,10 @@ DROP POLICY IF EXISTS "Public Insert Access" ON career_applications;
 DROP POLICY IF EXISTS "Admin Full Access" ON career_applications;
 DROP POLICY IF EXISTS "Public Full Access" ON career_applications;
 
--- We follow the project's pattern of public full access for development simplicity,
--- but ideally this should be restricted.
-CREATE POLICY "Public Full Access" ON career_applications 
-FOR ALL TO public 
-USING (true) 
-WITH CHECK (true);
+-- We differentiate between public insertion and administrative access
+CREATE POLICY "Public Insert Access" ON career_applications FOR INSERT TO public WITH CHECK (true);
+CREATE POLICY "Public Select Access" ON career_applications FOR SELECT TO public USING (true);
+CREATE POLICY "Admin Write Access" ON career_applications FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- Grant permissions
 GRANT ALL ON TABLE career_applications TO anon, authenticated, postgres, service_role;

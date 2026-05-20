@@ -100,9 +100,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     
-    // File size validation (2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      setErrorMsg('File too large. Maximum size is 2MB.');
+    // File size validation (300KB)
+    if (file.size > 300 * 1024) {
+      setErrorMsg('File too large. Maximum size is 300KB.');
       return;
     }
 
@@ -515,7 +515,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                 </div>
                                 <div className="flex-1">
                                    <p className="text-xs font-bold text-school-navy mb-1">{formData.photo_url ? 'Photograph Manifested' : 'Upload recent passport photo'}</p>
-                                   <p className="text-[10px] text-school-ink/40 font-medium italic">Max 2MB. JPG, PNG formats only.</p>
+                                   <p className="text-[10px] text-school-ink/40 font-medium italic">Max 300KB. JPG, PNG formats only.</p>
                                    <input 
                                      type="file" 
                                      accept="image/*"

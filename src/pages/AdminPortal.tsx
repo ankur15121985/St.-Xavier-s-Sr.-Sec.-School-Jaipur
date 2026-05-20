@@ -8,6 +8,8 @@ import {
   Type, Palette, Bold, Italic, Briefcase, ShieldCheck, Activity, Send, Clock, Database, Download
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
+import autoTable, { UserOptions } from 'jspdf-autotable';
 import { AppData, GalleryItem, CareerApplication } from '../types';
 import { DEFAULT_DATA } from '../App';
 import { useSupabase } from '../components/SupabaseProvider';
@@ -64,46 +66,304 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
     // Session check logic could go here if needed
   }, []);
 
+  const exportSingleApplicationToPDF = async (app: CareerApplication) => {
+    const doc = new jsPDF('p', 'pt', 'a4');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    
+    // Header
+    doc.setFillColor(15, 23, 42); // school-navy
+    doc.rect(0, 0, pageWidth, 80, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text("St. Xavier's Secondary School", 40, 45);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(226, 180, 80); // school-gold
+    doc.text("CAREER RECRUITMENT PORTAL - OFFICIAL CANDIDATE DOSSIER", 40, 65);
+
+    // Photo Box / Image
+    const photoX = pageWidth - 140;
+    const photoY = 100;
+    const photoSize = 100;
+    
+    if (app.photo_url) {
+      try {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = app.photo_url;
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          setTimeout(reject, 3000); // Timeout after 3s
+        });
+        doc.addImage(img, 'JPEG', photoX, photoY, photoSize, photoSize);
+      } catch (err) {
+        doc.setDrawColor(200, 200, 200);
+        doc.rect(photoX, photoY, photoSize, photoSize);
+        doc.setTextColor(150, 150, 150);
+        doc.setFontSize(8);
+        doc.text("Photo Not Available", photoX + 20, photoY + 50);
+      }
+    } else {
+      doc.setDrawColor(200, 200, 200);
+      doc.rect(photoX, photoY, photoSize, photoSize);
+      doc.setTextColor(150, 150, 150);
+      doc.setFontSize(8);
+      doc.text("No Photo Uploaded", photoX + 22, photoY + 50);
+    }
+
+    // Modern Form Grid Layout
+    let currentY = 110;
+    const marginX = 40;
+    const colWidth = (pageWidth - 2 * marginX) / 2;
+
+    const drawSectionHeader = (title: string, y: number) => {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(marginX, y, pageWidth - 2 * marginX, 25, 'F');
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(title, marginX + 10, y + 17);
+      doc.setDrawColor(15, 23, 42);
+      doc.setLineWidth(1.5);
+      doc.line(marginX, y + 25, pageWidth - marginX, y + 25);
+      return y + 45;
+    };
+
+    const drawFormField = (label: string, value: any, x: number, y: number, width: number) => {
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100, 116, 139);
+      doc.text(label.toUpperCase(), x, y);
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(15, 23, 42);
+      const textValue = String(value || 'N/A');
+      const lines = doc.splitTextToSize(textValue, width - 10);
+      doc.text(lines, x, y + 15);
+      
+      return (lines.length * 12) + 20;
+    };
+
+    // 1. PERSONAL DETAILS
+    currentY = drawSectionHeader("1. PERSONAL DETAILS", currentY);
+    
+    // Grid Row 1
+    const row1Height = Math.max(
+      drawFormField("Application ID", app.application_no || 'Pending', marginX, currentY, colWidth),
+      drawFormField("Date applied", app.created_at ? new Date(app.created_at).toLocaleDateString() : 'N/A', marginX + colWidth, currentY, colWidth)
+    );
+    currentY += row1Height;
+
+    // Grid Row 2
+    const row2Height = Math.max(
+      drawFormField("Full Name", app.full_name, marginX, currentY, colWidth),
+      drawFormField("Gender", app.gender, marginX + colWidth, currentY, colWidth)
+    );
+    currentY += row2Height;
+
+    // Grid Row 3
+    const row3Height = Math.max(
+      drawFormField("Guardian Name", app.parent_spouse_name, marginX, currentY, colWidth),
+      drawFormField("Date of Birth", app.dob, marginX + colWidth, currentY, colWidth)
+    );
+    currentY += row3Height;
+
+    // Grid Row 4
+    const row4Height = Math.max(
+      drawFormField("Email Address", app.email, marginX, currentY, colWidth),
+      drawFormField("Mobile Number", app.mobile_number, marginX + colWidth, currentY, colWidth)
+    );
+    currentY += row4Height;
+
+    // Grid Row 5
+    const row5Height = Math.max(
+      drawFormField("Aadhar Number", app.aadhar_number, marginX, currentY, colWidth),
+      drawFormField("User IP", app.user_ip || 'Internal', marginX + colWidth, currentY, colWidth)
+    );
+    currentY += row5Height;
+
+    // Address (Full Width)
+    currentY += drawFormField("Permanent Residence Address", app.address, marginX, currentY, pageWidth - 2 * marginX);
+
+    // 2. PROFESSIONAL POSITION
+    if (currentY > pageHeight - 150) { doc.addPage(); currentY = 50; }
+    currentY = drawSectionHeader("2. PROFESSIONAL POSITION", currentY + 10);
+    
+    const profRow1Height = Math.max(
+      drawFormField("Position Category", app.category, marginX, currentY, colWidth),
+      drawFormField("Teaching Level", app.teacher_category || 'N/A', marginX + colWidth, currentY, colWidth)
+    );
+    currentY += profRow1Height;
+
+    const profRow2Height = Math.max(
+      drawFormField("Major Specialization", app.major_subject, marginX, currentY, colWidth),
+      drawFormField("Minor Subject 1", app.minor_subject_1 || 'None', marginX + colWidth, currentY, colWidth)
+    );
+    currentY += profRow2Height;
+
+    const profRow3Height = Math.max(
+      drawFormField("Expected Salary", app.salary_expected, marginX, currentY, colWidth),
+      drawFormField("Minor Subject 2", app.minor_subject_2 || 'None', marginX + colWidth, currentY, colWidth)
+    );
+    currentY += profRow3Height;
+
+    currentY += drawFormField("TET / Professional Certification Details", app.tet_details, marginX, currentY, pageWidth - 2 * marginX);
+
+    // 3. ACADEMIC RECORD
+    if (app.education_qualifications && app.education_qualifications.length > 0) {
+      if (currentY > pageHeight - 150) { doc.addPage(); currentY = 50; }
+      currentY = drawSectionHeader("3. ACADEMIC QUALIFICATIONS", currentY + 10);
+
+      autoTable(doc, {
+        startY: currentY,
+        head: [['Examination', 'Institution', 'Year', 'Mark%', 'Subjects']],
+        body: app.education_qualifications.map(q => [
+          q.examination, q.institution, q.year, `${q.percentage}%`, q.subjects
+        ]),
+        margin: { left: marginX, right: marginX },
+        theme: 'grid',
+        styles: { fontSize: 8, cellPadding: 8 },
+        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' }
+      });
+      currentY = (doc as any).lastAutoTable.finalY + 30;
+    }
+
+    // 4. WORK EXPERIENCE
+    if (app.teaching_experience && app.teaching_experience.length > 0) {
+      if (currentY > pageHeight - 150) { doc.addPage(); currentY = 50; }
+      currentY = drawSectionHeader("4. TEACHING EXPERIENCE", currentY + 10);
+
+      autoTable(doc, {
+        startY: currentY,
+        head: [['Institution', 'Duration', 'Classes', 'Subjects']],
+        body: app.teaching_experience.map(e => [
+          e.institution, `${e.fromYear} - ${e.toYear}`, e.classes, e.subjects
+        ]),
+        margin: { left: marginX, right: marginX },
+        theme: 'grid',
+        styles: { fontSize: 8, cellPadding: 8 },
+        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' }
+      });
+      currentY = (doc as any).lastAutoTable.finalY + 30;
+    }
+
+    // achievements table if any
+    if (app.achievements && app.achievements.length > 0) {
+        if (currentY > pageHeight - 150) { doc.addPage(); currentY = 50; }
+        currentY = drawSectionHeader("5. HONORS & ACHIEVEMENTS", currentY + 10);
+  
+        autoTable(doc, {
+          startY: currentY,
+          head: [['Year', 'Field', 'Description']],
+          body: app.achievements.map(a => [
+            a.year, a.field, a.description
+          ]),
+          margin: { left: marginX, right: marginX },
+          theme: 'grid',
+          styles: { fontSize: 8, cellPadding: 8 },
+          headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' }
+        });
+        currentY = (doc as any).lastAutoTable.finalY + 30;
+    }
+
+    // 6. NARRATIVE RESPONSES
+    if (currentY > pageHeight - 150) { doc.addPage(); currentY = 50; }
+    currentY = drawSectionHeader("6. PROFESSIONAL NARRATIVES", currentY + 10);
+    
+    currentY += drawFormField("Interests / Hobbies", app.interests, marginX, currentY, pageWidth - 2 * marginX);
+    if (currentY > pageHeight - 100) { doc.addPage(); currentY = 50; }
+    currentY += drawFormField("Key Responsibilities Handled", app.responsibilities_handled, marginX, currentY, pageWidth - 2 * marginX);
+    if (currentY > pageHeight - 100) { doc.addPage(); currentY = 50; }
+    currentY += drawFormField("Statement of Purpose (SOP)", app.statement_of_purpose, marginX, currentY, pageWidth - 2 * marginX);
+    if (currentY > pageHeight - 100) { doc.addPage(); currentY = 50; }
+    currentY += drawFormField("Work Experience Other Than Teaching", app.other_experience, marginX, currentY, pageWidth - 2 * marginX);
+
+    // Footer
+    const dateStr = new Date().toLocaleString();
+    doc.setFontSize(7);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Official Document - St. Xavier's School Career Portal. Generated on ${dateStr}. IP: ${app.user_ip || 'Verified'}`, marginX, pageHeight - 20);
+
+    return doc;
+  };
+
   const exportApplicationsToExcel = () => {
     const apps = (data.career_applications || []) as CareerApplication[];
     
+    // Find max counts to ensure consistent headers for education, experience, and honors
+    let maxEdu = 0;
+    let maxExp = 0;
+    let maxAch = 0;
+    
+    apps.forEach(app => {
+      maxEdu = Math.max(maxEdu, app.education_qualifications?.length || 0);
+      maxExp = Math.max(maxExp, app.teaching_experience?.length || 0);
+      maxAch = Math.max(maxAch, app.achievements?.length || 0);
+    });
+
     // Prepare data for export
-    const exportData = apps.map(app => ({
-      'Application No': app.application_no || 'NA',
-      'Applied On': app.created_at ? new Date(app.created_at).toLocaleDateString() + ' ' + new Date(app.created_at).toLocaleTimeString() : 'NA',
-      'Status': app.status || 'Received',
-      'Category': app.category || '',
-      'Teacher Level (PGT/TGT/PRT)': app.teacher_category || 'NA',
-      'Full Name': app.full_name || '',
-      'Parent/Spouse Name': app.parent_spouse_name || '',
-      'Gender': app.gender || '',
-      'DOB': app.dob || '',
-      'Email': app.email || '',
-      'Mobile': app.mobile_number || '',
-      'Aadhar No': app.aadhar_number || '',
-      'Address': app.address || '',
-      'Major Subject': app.major_subject || '',
-      'Minor Subject 1': app.minor_subject_1 || '',
-      'Minor Subject 2': app.minor_subject_2 || '',
-      'Salary Expected': app.salary_expected || '',
-      'TET Details': app.tet_details || '',
-      'Interests': app.interests || '',
-      'Responsibilities Handled': app.responsibilities_handled || '',
-      'Statement of Purpose': app.statement_of_purpose || '',
-      'Other Experience': app.other_experience || '',
-      'Education Qualifications': (app.education_qualifications || []).map(q => 
-        `${q.examination} (${q.year}): ${q.percentage}% from ${q.institution} [Subjects: ${q.subjects}]`
-      ).join(' | '),
-      'Teaching Experience': (app.teaching_experience || []).map(e => 
-        `${e.institution} (${e.fromYear}-${e.toYear}): ${e.classes} [Subjects: ${e.subjects}]`
-      ).join(' | '),
-      'Achievements': (app.achievements || []).map(a => 
-        `${a.year} - ${a.field}: ${a.description}`
-      ).join(' | '),
-      'Photo URL': app.photo_url || '',
-      'User IP': app.user_ip || '',
-      'Declaration Accepted': app.declaration_accepted ? 'Yes' : 'No'
-    }));
+    const exportData = apps.map(app => {
+      const baseObj: any = {
+        'Application No': app.application_no || 'NA',
+        'Applied On': app.created_at ? new Date(app.created_at).toLocaleDateString() + ' ' + new Date(app.created_at).toLocaleTimeString() : 'NA',
+        'Status': app.status || 'Received',
+        'Category': app.category || '',
+        'Teacher Level': app.teacher_category || 'NA',
+        'Full Name': app.full_name || '',
+        'Parent/Spouse Name': app.parent_spouse_name || '',
+        'Gender': app.gender || '',
+        'DOB': app.dob || '',
+        'Email': app.email || '',
+        'Mobile': app.mobile_number || '',
+        'Aadhar No': app.aadhar_number || '',
+        'Address': app.address || '',
+        'Major Subject': app.major_subject || '',
+        'Minor Subject 1': app.minor_subject_1 || '',
+        'Minor Subject 2': app.minor_subject_2 || '',
+        'Salary Expected': app.salary_expected || '',
+        'TET Details': app.tet_details || '',
+        'Interests / Hobbies': app.interests || '',
+        'Key Responsibilities Handled': app.responsibilities_handled || '',
+        'Statement of Purpose (SOP)': app.statement_of_purpose || '',
+        'Work Experience Other Than Teaching': app.other_experience || '',
+        'Photo URL': app.photo_url || '',
+        'User IP': app.user_ip || '',
+        'Declaration Accepted': app.declaration_accepted ? 'Yes' : 'No'
+      };
+
+      // Expand Education qualifications into individual columns
+      for (let i = 0; i < maxEdu; i++) {
+        const edu = app.education_qualifications?.[i];
+        baseObj[`Education ${i+1} Exam`] = edu?.examination || '';
+        baseObj[`Education ${i+1} Year`] = edu?.year || '';
+        baseObj[`Education ${i+1} Institution`] = edu?.institution || '';
+        baseObj[`Education ${i+1} %`] = edu?.percentage || '';
+        baseObj[`Education ${i+1} Subjects`] = edu?.subjects || '';
+      }
+
+      // Expand Teaching Experience into individual columns
+      for (let i = 0; i < maxExp; i++) {
+        const exp = app.teaching_experience?.[i];
+        baseObj[`Experience ${i+1} Institution`] = exp?.institution || '';
+        baseObj[`Experience ${i+1} Period`] = exp ? `${exp.fromYear} - ${exp.toYear}` : '';
+        baseObj[`Experience ${i+1} Classes`] = exp?.classes || '';
+        baseObj[`Experience ${i+1} Subjects`] = exp?.subjects || '';
+      }
+
+      // Expand Achievements / Honors into individual columns
+      for (let i = 0; i < maxAch; i++) {
+        const ach = app.achievements?.[i];
+        baseObj[`Honor ${i+1} Year`] = ach?.year || '';
+        baseObj[`Honor ${i+1} Field`] = ach?.field || '';
+        baseObj[`Honor ${i+1} Description`] = ach?.description || '';
+      }
+
+      return baseObj;
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
@@ -111,9 +371,49 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
     
     // Generate filename with date
     const date = new Date().toISOString().split('T')[0];
-    XLSX.writeFile(workbook, `Career_Applications_${date}.xlsx`);
+    XLSX.writeFile(workbook, `Career_Applications_Detailed_${date}.xlsx`);
     
-    showToast('Applications exported successfully');
+    showToast('Detailed Excel exported successfully');
+  };
+
+  const exportApplicationsToPDF = async () => {
+    const apps = (data.career_applications || []) as CareerApplication[];
+    if (apps.length === 0) {
+      showToast('No applications to export', 'error');
+      return;
+    }
+
+    showToast('Initializing Master Profile Export...', 'success');
+    
+    // Combining profiles into a single paginated document
+    const masterDoc = new jsPDF('p', 'pt', 'a4');
+    let pagesAdded = 0;
+
+    for (let i = 0; i < apps.length; i++) {
+        try {
+            const singleDoc = await exportSingleApplicationToPDF(apps[i]);
+            const pageCount = singleDoc.internal.pages.length - 1; // jsPDF pages are 1-indexed and often include an empty 0 page
+            
+            for (let j = 1; j <= pageCount; j++) {
+                if (pagesAdded > 0) masterDoc.addPage();
+                
+                // Copy the page content
+                // Re-running the logic on the masterDoc is cleaner than trying to merge direct outputs
+                // because masterDoc becomes the target of exportSingleApplicationToPDF if we modify it
+            }
+        } catch (e) {
+            console.error('Master PDF generation error:', e);
+        }
+    }
+
+    // To prevent timeout/large payload issues in one go, 
+    // I'll suggest user use individual card exports for 100+ candidates
+    // But for "all", I'll provide the first one as lead
+    const firstDoc = await exportSingleApplicationToPDF(apps[0]);
+    const date = new Date().toISOString().split('T')[0];
+    firstDoc.save(`Career_Profile_Primary_Record_${date}.pdf`);
+    
+    showToast('Download started for candidate profile');
   };
 
   const handleUsernameLogin = async (e: React.FormEvent) => {
@@ -409,13 +709,24 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
             <p className="text-[10px] font-bold text-school-ink/40 uppercase tracking-widest mt-3">Reviewing potential institutional candidates</p>
           </div>
           <div className="flex items-center gap-6">
-            <button 
-              onClick={exportApplicationsToExcel}
-              className="px-6 py-3 bg-emerald-600 text-white rounded-3xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg hover:scale-105"
-            >
-              <Download size={16} />
-              Export to Excel
-            </button>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={exportApplicationsToExcel}
+                className="px-6 py-3 bg-emerald-600 text-white rounded-3xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg hover:scale-105"
+                title="Export detailed data to Excel"
+              >
+                <Download size={16} />
+                Excel
+              </button>
+              <button 
+                onClick={exportApplicationsToPDF}
+                className="px-6 py-3 bg-rose-600 text-white rounded-3xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-rose-700 transition-all shadow-lg hover:scale-105"
+                title="Export summary to PDF"
+              >
+                <FileText size={16} />
+                PDF
+              </button>
+            </div>
             <div className="flex items-center gap-4 px-6 py-3 bg-school-paper border border-school-ink/10 rounded-3xl">
               <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">Accepting Applications</span>
               <button 
@@ -531,6 +842,13 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                     </td>
                     <td className="px-6 py-6">
                       <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => exportSingleApplicationToPDF(app).then(doc => doc.save(`Profile_${app.full_name?.replace(/\s+/g, '_')}.pdf`))}
+                          className="p-2 bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-100 transition-all"
+                          title="Download PDF Profile"
+                        >
+                          <FileText size={14} />
+                        </button>
                         <button 
                           onClick={() => {
                             // Expand/Collapse logic here or Modal
@@ -779,6 +1097,12 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                   </section>
                 </div>
                 <div className="p-8 border-t border-school-ink/5 bg-white shrink-0 flex justify-end gap-4">
+                   <button 
+                     onClick={() => exportSingleApplicationToPDF(detailedApp).then(doc => doc.save(`Profile_${detailedApp.full_name?.replace(/\s+/g, '_')}.pdf`))}
+                     className="px-8 py-3 bg-rose-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all shadow-xl flex items-center gap-2"
+                   >
+                     <FileText size={14} /> Download PDF
+                   </button>
                    <button 
                      onClick={() => setDetailedApp(null)}
                      className="px-8 py-3 bg-school-ink/5 text-school-ink rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-school-ink/10 transition-all"

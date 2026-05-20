@@ -335,7 +335,7 @@ export const DEFAULT_DATA: AppData = {
     { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
     { id: '9-3', label: 'Mandatory disclosure', href: '/mandatory-disclosures', parent_id: '9', order_index: 1 },
     { id: '9-5', label: 'Disclosure Records', href: '/statutory-archives', parent_id: '9-3', order_index: 0 },
-    { id: '9-4', label: 'Transfer Certificate', href: '/transfer-certificate', parent_id: '9', order_index: 2 },
+    { id: '6-4', label: 'Transfer Certificate', href: '/transfer-certificate', parent_id: '6', order_index: 3 },
     { id: '10', label: 'Contact', href: '/contact', parent_id: null, order_index: 11 },
   ],
   carousel: [

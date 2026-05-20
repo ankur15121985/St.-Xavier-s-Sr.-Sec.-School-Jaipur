@@ -15,14 +15,14 @@ CREATE TABLE IF NOT EXISTS page_sections (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- UPDATE SETTINGS TABLE: Add missing columns if they don't exist
+-- UPDATE SITE_SETTINGS TABLE: Add missing columns if they don't exist
 DO $$ 
 BEGIN 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='settings' AND column_name='showVirtualCampus') THEN
-        ALTER TABLE settings ADD COLUMN "showVirtualCampus" BOOLEAN DEFAULT true;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='site_settings' AND column_name='showVirtualCampus') THEN
+        ALTER TABLE site_settings ADD COLUMN "showVirtualCampus" BOOLEAN DEFAULT true;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='settings' AND column_name='faviconUrl') THEN
-        ALTER TABLE settings ADD COLUMN "faviconUrl" TEXT DEFAULT 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png';
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='site_settings' AND column_name='faviconUrl') THEN
+        ALTER TABLE site_settings ADD COLUMN "faviconUrl" TEXT DEFAULT 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png';
     END IF;
 END $$;
 
@@ -32,11 +32,11 @@ DROP POLICY IF EXISTS "Public Full Access" ON page_sections;
 CREATE POLICY "Public Full Access" ON page_sections FOR ALL TO public USING (true) WITH CHECK (true);
 GRANT ALL ON TABLE page_sections TO anon, authenticated, postgres, service_role;
 
--- Ensure settings has a robust public policy as well
-ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS "Public Full Access" ON settings;
-CREATE POLICY "Public Full Access" ON settings FOR ALL TO public USING (true) WITH CHECK (true);
-GRANT ALL ON TABLE settings TO anon, authenticated, postgres, service_role;
+-- Ensure site_settings has a robust public policy as well
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public Full Access" ON site_settings;
+CREATE POLICY "Public Full Access" ON site_settings FOR ALL TO public USING (true) WITH CHECK (true);
+GRANT ALL ON TABLE site_settings TO anon, authenticated, postgres, service_role;
 
 -- JESUIT PAGE CONTENT TABLE
 CREATE TABLE IF NOT EXISTS jesuit_page_content (
@@ -80,6 +80,11 @@ VALUES (
     '<p>Information about promotions will be updated soon.</p>',
     '<ul><li>Arrive at least five minutes before the first bell.</li><li>Habitually clean and neat dress.</li><li>Official school diary is mandatory daily.</li><li>Excel in conduct and cleanliness.</li><li>Damages to property must be made good.</li><li>Personal vehicles require valid licences.</li></ul>'
 ) ON CONFLICT (id) DO NOTHING;
+
+-- Update Navigation Menu: Transfer Certificate to CBSE Corner
+UPDATE navigation_menu 
+SET parent_id = '6', order_index = 3, id = '6-4'
+WHERE label = 'Transfer Certificate';
 
 -- Notify schema reload
 NOTIFY pgrst, 'reload schema';
