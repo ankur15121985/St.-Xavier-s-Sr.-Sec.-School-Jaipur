@@ -112,20 +112,21 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
 
       if (!res.ok) {
-        // If it's a 404, it's likely that the API server is not running (e.g. Vercel)
-        if (res.status === 404) {
-          console.warn('[Auth] /api/login returned 404. Falling back to Supabase.');
+        const contentType = res.headers.get('content-type');
+        const isNonJson = !contentType || !contentType.includes('application/json');
+
+        // If it is a 404, 405, or any non-JSON error page returned by a static server (like Vercel),
+        // fallback directly to client-side Supabase validation.
+        if (res.status === 404 || res.status === 405 || isNonJson) {
+          console.warn(`[Auth] /api/login returned status ${res.status} (or served non-JSON). Falling back to Supabase.`);
           return await supabaseFallbackLogin(username, pass);
         }
 
         let errorMessage = 'Login failed';
-        const contentType = res.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
+        try {
           const errorData = await res.json();
           errorMessage = errorData.error || errorMessage;
-        } else {
-          const text = await res.text();
-          console.error('[Auth] Non-JSON error response:', text);
+        } catch {
           errorMessage = `Server Error (${res.status})`;
         }
         throw new Error(errorMessage);
@@ -177,7 +178,11 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         console.error('[Auth] Supabase fallback database error (could be missing table):', error);
         
         // If the table doesn't exist, allow a fallback login to let the admin access and setup
-        const isTableMissing = error.code === 'PGRST125' || error.code === 'PGRST204' || error.message?.includes('relation "public.admins" does not exist') || error.message?.toLowerCase().includes('invalid path');
+        const isTableMissing = error.code === 'PGRST125' || 
+                               error.code === 'PGRST204' || 
+                               String(error.code) === '404' || 
+                               error.message?.includes('relation "public.admins" does not exist') || 
+                               error.message?.toLowerCase().includes('invalid path');
         if (isTableMissing) {
           console.warn('[Auth] admins table is missing on Supabase. Using safe offline client-side fallback login.');
           const presetUsernames = ['admin', 'ankur15121985', 'ankur24121985', 'school_admin', 'root'];

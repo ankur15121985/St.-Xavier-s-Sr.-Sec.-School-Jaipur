@@ -32,7 +32,16 @@ export const supabaseService = {
         (async () => {
            try {
              let { data, error } = await supabase.from('site_settings').select('*').limit(1).maybeSingle();
-             if (error && (error.code === 'PGRST125' || error.code === 'PGRST204' || error.message.includes('site_settings'))) {
+             const errMsg = error?.message?.toLowerCase() || '';
+             const isTableMissing = error && (
+               error.code === 'PGRST125' || 
+               error.code === 'PGRST204' || 
+               String(error.code) === '404' || 
+               errMsg.includes('site_settings') || 
+               errMsg.includes('invalid path') || 
+               errMsg.includes('relation "public.site_settings" does not exist')
+             );
+             if (isTableMissing) {
                console.warn('[Supabase] site_settings table missing, trying settings table fallback...');
                const fallback = await supabase.from('settings').select('*').limit(1).maybeSingle();
                data = fallback.data;

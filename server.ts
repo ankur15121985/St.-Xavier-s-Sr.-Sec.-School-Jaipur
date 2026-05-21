@@ -1836,12 +1836,23 @@ app.post('/api/save', authenticateToken, express.json(), async (req, res) => {
 
             const targetTable = table === 'settings' ? 'site_settings' : table;
             let { error } = await supabaseServer.from(targetTable).upsert(sanitizedForSupabase);
-            if (error && table === 'settings' && targetTable === 'site_settings' && (error.code === 'PGRST125' || error.code === 'PGRST204' || error.message.toLowerCase().includes('site_settings'))) {
-                console.warn(`[SUPABASE SYNC] 'site_settings' table not found on remote. Trying fallback to 'settings' table...`);
-                const fallbackResult = await supabaseServer.from('settings').upsert(sanitizedForSupabase);
-                error = fallbackResult.error;
+            if (error && table === 'settings' && targetTable === 'site_settings') {
+                const errMsg = error.message?.toLowerCase() || '';
+                const isTableError = error.code === 'PGRST125' || 
+                                     error.code === 'PGRST204' || 
+                                     error.status === 404 || 
+                                     errMsg.includes('site_settings') || 
+                                     errMsg.includes('invalid path') || 
+                                     errMsg.includes('relation "public.site_settings" does not exist');
+                if (isTableError) {
+                    console.warn(`[SUPABASE SYNC] 'site_settings' table not found on remote. Trying fallback to 'settings' table...`);
+                    const fallbackResult = await supabaseServer.from('settings').upsert(sanitizedForSupabase);
+                    error = fallbackResult.error;
+                }
             }
-            if (error) console.error(`[SUPABASE SYNC ERROR] ${table}:`, error.message);
+            if (error) {
+                console.warn(`[SUPABASE SYNC WARNING] ${table} (target: ${targetTable}):`, error.message, `(Code: ${error.code})`);
+            }
         } catch (e: any) {
             console.warn('[SUPABASE SYNC EXCEPTION]', e.message);
         }
@@ -1894,20 +1905,38 @@ app.post('/api/delete', authenticateToken, express.json(), async (req, res) => {
         try {
             if (ids && Array.isArray(ids)) {
                 let { error } = await supabaseServer.from(targetTable).delete().in('id', ids);
-                if (error && table === 'settings' && targetTable === 'site_settings' && (error.code === 'PGRST125' || error.code === 'PGRST204' || error.message.toLowerCase().includes('site_settings'))) {
-                    console.warn(`[SUPABASE DELETE] 'site_settings' table not found. Trying fallback in 'settings'...`);
-                    const fallbackResult = await supabaseServer.from('settings').delete().in('id', ids);
-                    error = fallbackResult.error;
+                if (error && table === 'settings' && targetTable === 'site_settings') {
+                    const errMsg = error.message?.toLowerCase() || '';
+                    const isTableError = error.code === 'PGRST125' || 
+                                         error.code === 'PGRST204' || 
+                                         error.status === 404 || 
+                                         errMsg.includes('site_settings') || 
+                                         errMsg.includes('invalid path') || 
+                                         errMsg.includes('relation "public.site_settings" does not exist');
+                    if (isTableError) {
+                        console.warn(`[SUPABASE DELETE] 'site_settings' table not found. Trying fallback in 'settings'...`);
+                        const fallbackResult = await supabaseServer.from('settings').delete().in('id', ids);
+                        error = fallbackResult.error;
+                    }
                 }
-                if (error) console.error(`[SUPABASE DELETE ERROR] ${targetTable} bulk:`, error.message);
+                if (error) console.warn(`[SUPABASE DELETE WARNING] ${targetTable} bulk:`, error.message);
             } else if (id) {
                 let { error } = await supabaseServer.from(targetTable).delete().eq('id', id);
-                if (error && table === 'settings' && targetTable === 'site_settings' && (error.code === 'PGRST125' || error.code === 'PGRST204' || error.message.toLowerCase().includes('site_settings'))) {
-                    console.warn(`[SUPABASE DELETE] 'site_settings' table not found. Trying fallback in 'settings'...`);
-                    const fallbackResult = await supabaseServer.from('settings').delete().eq('id', id);
-                    error = fallbackResult.error;
+                if (error && table === 'settings' && targetTable === 'site_settings') {
+                    const errMsg = error.message?.toLowerCase() || '';
+                    const isTableError = error.code === 'PGRST125' || 
+                                         error.code === 'PGRST204' || 
+                                         error.status === 404 || 
+                                         errMsg.includes('site_settings') || 
+                                         errMsg.includes('invalid path') || 
+                                         errMsg.includes('relation "public.site_settings" does not exist');
+                    if (isTableError) {
+                        console.warn(`[SUPABASE DELETE] 'site_settings' table not found. Trying fallback in 'settings'...`);
+                        const fallbackResult = await supabaseServer.from('settings').delete().eq('id', id);
+                        error = fallbackResult.error;
+                    }
                 }
-                if (error) console.error(`[SUPABASE DELETE ERROR] ${targetTable} single:`, error.message);
+                if (error) console.warn(`[SUPABASE DELETE WARNING] ${targetTable} single:`, error.message);
             }
         } catch (e: any) {
             console.warn('[SUPABASE DELETE EXCEPTION]', e.message);
