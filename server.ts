@@ -1699,6 +1699,13 @@ const targetStaff = [
   }
 
 // API Routes
+app.get('/api/supabase-config', (req, res) => {
+  res.json({
+    url: process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    key: process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  });
+});
+
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};

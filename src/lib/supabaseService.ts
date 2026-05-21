@@ -187,7 +187,47 @@ export const supabaseService = {
         if (!res.ok || isNonJson || res.status === 404 || res.status === 405) {
           throw new Error('Local server database is offline (static mode)');
         }
-        return await res.json();
+        const resJson = await res.json();
+
+        // Harmonize SQLite tables with client naming conventions
+        if (resJson.menu && !resJson.navigation_menu) {
+          resJson.navigation_menu = resJson.menu;
+        }
+
+        // Harmonize content structured schema (column-row to key-value record object)
+        if (Array.isArray(resJson.content)) {
+          const contentObj: Record<string, string> = {};
+          if (resJson.content.length > 0) {
+            const firstRow = resJson.content[0];
+            Object.keys(firstRow).forEach(key => {
+              if (key !== 'id') {
+                contentObj[key] = String(firstRow[key] ?? '');
+              }
+            });
+          }
+          resJson.content = contentObj;
+        } else if (resJson.content && typeof resJson.content === 'object') {
+          const contentObj: Record<string, string> = {};
+          Object.keys(resJson.content).forEach(key => {
+            if (key !== 'id') {
+              contentObj[key] = String(resJson.content[key] ?? '');
+            }
+          });
+          resJson.content = contentObj;
+        }
+
+        // Harmonize settings booleans
+        if (resJson.settings && typeof resJson.settings === 'object' && !Array.isArray(resJson.settings)) {
+          const mappedSettings = { ...resJson.settings };
+          Object.keys(mappedSettings).forEach(key => {
+            if (key.startsWith('show') || key.endsWith('Enabled')) {
+              mappedSettings[key] = Boolean(mappedSettings[key]);
+            }
+          });
+          resJson.settings = mappedSettings;
+        }
+
+        return resJson;
       } catch (localError) {
         console.error('All database sources failed. Loading from browser storage as custom fallback.', localError);
         

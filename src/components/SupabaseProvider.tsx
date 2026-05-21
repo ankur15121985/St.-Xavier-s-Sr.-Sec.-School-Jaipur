@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, isSupabasePlaceholder } from '../supabaseClient';
+import { supabase, isSupabasePlaceholder, initializeSupabase } from '../supabaseClient';
 import { User } from '@supabase/supabase-js';
 
 interface SupabaseContextType {
@@ -17,6 +17,27 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [configLoaded, setConfigLoaded] = useState(false);
+
+  // Fetch dynamic Supabase configuration from server on mount
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const res = await fetch('/api/supabase-config');
+        if (res.ok) {
+          const { url, key } = await res.json();
+          if (url && key) {
+            initializeSupabase(url, key);
+          }
+        }
+      } catch (e) {
+        console.warn('[Auth] Error fetching dynamic Supabase config:', e);
+      } finally {
+        setConfigLoaded(true);
+      }
+    };
+    loadConfig();
+  }, []);
 
   // Persistence for custom admin session
   useEffect(() => {
@@ -47,6 +68,8 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   useEffect(() => {
+    if (!configLoaded) return;
+
     console.log('[Auth] Setting up Supabase Auth listener...');
     
     const checkUser = async () => {
@@ -79,7 +102,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [configLoaded]);
 
   const login = async () => {
     // Legacy OAuth support

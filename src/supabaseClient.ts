@@ -35,9 +35,17 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !isValidUrl(SUPABASE_URL)) {
   );
 }
 
-export const isSupabasePlaceholder = !SUPABASE_URL || !SUPABASE_ANON_KEY || !isValidUrl(SUPABASE_URL) || SUPABASE_URL.includes('placeholder-project-id') || safeUrl.includes('placeholder-project-id');
+export let isSupabasePlaceholder = !SUPABASE_URL || !SUPABASE_ANON_KEY || !isValidUrl(SUPABASE_URL) || SUPABASE_URL.includes('placeholder-project-id') || safeUrl.includes('placeholder-project-id');
 
-export const supabase = createClient(safeUrl, safeKey);
+export let supabase = createClient(safeUrl, safeKey);
+
+export function initializeSupabase(url: string, key: string) {
+  if (url && key && !url.includes('placeholder-project-id')) {
+    supabase = createClient(url, key);
+    isSupabasePlaceholder = false;
+    console.log('[Supabase Client] Dynamically initialized with server credentials.');
+  }
+}
 
 /**
  * Uploads a file to Supabase Storage and returns the public URL
