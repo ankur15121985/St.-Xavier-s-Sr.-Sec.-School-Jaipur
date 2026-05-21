@@ -3,11 +3,25 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.warn("Supabase credentials missing! Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.");
+const isValidUrl = (url: string): boolean => {
+  try {
+    return Boolean(url && new URL(url));
+  } catch {
+    return false;
+  }
+};
+
+const safeUrl = isValidUrl(SUPABASE_URL || '') ? (SUPABASE_URL as string) : 'https://placeholder-project-id.supabase.co';
+const safeKey = SUPABASE_ANON_KEY || 'placeholder-anon-key';
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !isValidUrl(SUPABASE_URL)) {
+  console.warn(
+    "Supabase credentials missing or invalid! Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment " +
+    "to enable live cloud sync. Using a placeholder client to prevent script crash."
+  );
 }
 
-export const supabase = createClient(SUPABASE_URL || '', SUPABASE_ANON_KEY || '');
+export const supabase = createClient(safeUrl, safeKey);
 
 /**
  * Uploads a file to Supabase Storage and returns the public URL

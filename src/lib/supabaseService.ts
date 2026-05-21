@@ -94,116 +94,129 @@ export const supabaseService = {
 
   async saveItem(section: keyof AppData, item: any): Promise<void> {
     console.log(`[Sync] Saving item to ${section}:`, item.id || 'new');
+    
+    // 1. Primary: Save to local server (SQLite) since it's the core local server database
+    let localSaveSucceeded = false;
+    let localErrorMsg = '';
     try {
-      // Primary: Save to Supabase
-      try {
-        if (!supabase) throw new Error('Supabase client not initialized');
-        
-        const targetTable = section === 'settings' ? 'site_settings' : section as string;
+      const token = localStorage.getItem('school_admin_token');
+      const res = await fetch('/api/save', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ table: section, item })
+      });
+      if (res.ok) {
+        console.log(`[Local Sync Success] ${section}`);
+        localSaveSucceeded = true;
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        localErrorMsg = errData.error || `Server status code ${res.status}`;
+        console.error(`[Local Sync Error] ${section}:`, localErrorMsg);
+      }
+    } catch (e: any) {
+      localErrorMsg = e.message || String(e);
+      console.error(`[Local Sync Exception] ${section}:`, localErrorMsg);
+    }
 
-        if (section === 'content') {
-          // Optimization: When saving content, we use the 'key' as the primary identifier
-          const contentUpserts = Object.entries(item)
-            .filter(([k]) => k !== 'id')
-            .map(([key, value]) => ({ key, value: String(value) }));
-          
-          if (contentUpserts.length > 0) {
-            console.log(`[Supabase Content Upsert] Keys: ${contentUpserts.map(c => c.key).join(', ')}`);
-            const { error } = await supabase.from('content').upsert(contentUpserts, { onConflict: 'key' });
-            if (error) {
-              console.error(`[Supabase Content Failure] Code: ${error.code}, Message: ${error.message}`);
-              throw error;
-            }
+    // 2. Secondary: Sync to Supabase
+    let cloudSaveSucceeded = false;
+    try {
+      if (!supabase) {
+        console.warn('[Supabase Sync] Supabase client not initialized');
+        return;
+      }
+      
+      const targetTable = section === 'settings' ? 'site_settings' : section as string;
+
+      if (section === 'content') {
+        const contentUpserts = Object.entries(item)
+          .filter(([k]) => k !== 'id')
+          .map(([key, value]) => ({ key, value: String(value) }));
+        
+        if (contentUpserts.length > 0) {
+          console.log(`[Supabase Content Upsert] Keys: ${contentUpserts.map(c => c.key).join(', ')}`);
+          const { error } = await supabase.from('content').upsert(contentUpserts, { onConflict: 'key' });
+          if (error) {
+            console.warn(`[Supabase Content Failure Warning] Code: ${error.code}, Message: ${error.message}`);
+          } else {
+            cloudSaveSucceeded = true;
           }
         } else {
-          // Convert types for Supabase and STRIP deprecated fields
-          const sanitized = { ...item };
-          
-          // Explicitly delete deprecated fields that might still exist in legacy state/storage
-          delete (sanitized as any).isVital;
-          delete (sanitized as any).is_vital;
+          cloudSaveSucceeded = true;
+        }
+      } else {
+        const sanitized = { ...item };
+        delete (sanitized as any).isVital;
+        delete (sanitized as any).is_vital;
 
-          // Ensure booleans are correct for Postgres
-          if (section === 'popups' && 'isActive' in sanitized) sanitized.isActive = !!sanitized.isActive;
-          if (section === 'digital_campus' && 'is_enabled' in sanitized) sanitized.is_enabled = !!sanitized.is_enabled;
-          
-          // CRITICAL: Ensure parent_id is NULL, not empty string, for top-level items
-          if (section === 'navigation_menu' && (sanitized.parent_id === '' || sanitized.parent_id === undefined)) {
-            sanitized.parent_id = null;
-          }
-          
-          if (section === 'settings') {
-            Object.keys(sanitized).forEach(key => {
-              if (key.startsWith('show') || key.endsWith('Enabled')) {
-                sanitized[key] = !!sanitized[key];
-              }
-            });
-          }
-          
-          console.log(`[Supabase Upsert] Table: ${targetTable}, ID: ${item.id}`);
-          
-          // Defensive check for circular structure before sending to Supabase
-          try {
-            JSON.stringify(sanitized);
-          } catch (circError: any) {
-            console.error(`[Supabase Sync Blocked] Circular dependency detected in ${targetTable}/${item.id}:`, circError);
-            throw new Error(`CRITICAL: Circular data structure detected. Source: ${targetTable}/${item.id}. Error: ${circError.message}`);
-          }
-
-          let { error } = await supabase.from(targetTable).upsert(sanitized);
-          
-          if (error && section === 'settings' && targetTable === 'site_settings' && (error.code === 'PGRST125' || error.code === 'PGRST204' || error.message.toLowerCase().includes('site_settings'))) {
-            console.warn(`[Supabase Sync] 'site_settings' table not found on remote. Trying fallback to 'settings' table...`);
-            const fallbackResult = await supabase.from('settings').upsert(sanitized);
-            error = fallbackResult.error;
-          }
-          
-          // Handle missing columns or stale cache gracefully by dynamic recursive stripping or retry
-          if (error && (error.code === 'PGRST204' || error.code === 'PGRST205' || error.code === '42703')) {
-            console.warn(`[Supabase Sync] Schema issue in ${targetTable} (Code: ${error.code}), attempting recovery...`);
-            console.warn(`[Supabase Sync] Raw Error Details:`, JSON.stringify(error));
-            
-            // If it's a missing relation (PGRST204), check if it's specifically for a table
-            if (error.code === 'PGRST204' || error.message.includes('relation "public.')) {
-               const tableMatch = error.message.match(/relation "public\.(.+?)"/i);
-               const tableName = tableMatch ? tableMatch[1] : targetTable;
-               
-               // Double check if table might actually exist but cache is stale
-               console.log(`[Supabase Sync] Probing table '${tableName}'...`);
-               const { error: probeError } = await supabase.from(tableName).select('count').limit(0);
-               
-               if (probeError && (probeError.code === 'PGRST204' || probeError.message.includes('relation "public.'))) {
-                  console.warn(`[Supabase Sync] Table '${tableName}' is confirmed missing.`);
-                  throw new Error(`Supabase Table '${tableName}' is missing. Please run the SQL setup script in your Supabase dashboard to enable cloud sync.`);
-               } else if (!probeError) {
-                  console.log(`[Supabase Sync] Table '${tableName}' exists in probe. Retrying original upsert...`);
-                  const { error: retryError } = await supabase.from(targetTable).upsert(sanitized);
-                  if (!retryError) {
-                    console.log(`[Supabase Sync] Retry success for ${targetTable}`);
-                    return; 
-                  }
-                  error = retryError;
-               }
+        if (section === 'popups' && 'isActive' in sanitized) sanitized.isActive = !!sanitized.isActive;
+        if (section === 'digital_campus' && 'is_enabled' in sanitized) sanitized.is_enabled = !!sanitized.is_enabled;
+        
+        if (section === 'navigation_menu' && (sanitized.parent_id === '' || sanitized.parent_id === undefined)) {
+          sanitized.parent_id = null;
+        }
+        
+        if (section === 'settings') {
+          Object.keys(sanitized).forEach(key => {
+            if (key.startsWith('show') || key.endsWith('Enabled')) {
+              sanitized[key] = !!sanitized[key];
             }
+          });
+        }
+        
+        console.log(`[Supabase Upsert] Table: ${targetTable}, ID: ${item.id}`);
+        
+        try {
+          JSON.stringify(sanitized);
+        } catch (circError: any) {
+          console.error(`[Supabase Sync Blocked] Circular dependency detected in ${targetTable}/${item.id}:`, circError);
+          return;
+        }
 
+        let { error } = await supabase.from(targetTable).upsert(sanitized);
+        
+        if (error && section === 'settings' && targetTable === 'site_settings' && (error.code === 'PGRST125' || error.code === 'PGRST204' || error.message.toLowerCase().includes('site_settings'))) {
+          console.warn(`[Supabase Sync] 'site_settings' table not found on remote. Trying fallback to 'settings' table...`);
+          const fallbackResult = await supabase.from('settings').upsert(sanitized);
+          error = fallbackResult.error;
+        }
+        
+        if (error && (error.code === 'PGRST204' || error.code === 'PGRST205' || error.code === '42703')) {
+          console.warn(`[Supabase Sync] Schema issue in ${targetTable} (Code: ${error.code}), attempting recovery...`);
+          
+          if (error.code === 'PGRST204' || error.message.includes('relation "public.')) {
+             const tableMatch = error.message.match(/relation "public\.(.+?)"/i);
+             const tableName = tableMatch ? tableMatch[1] : targetTable;
+             
+             console.log(`[Supabase Sync] Probing table '${tableName}'...`);
+             const { error: probeError } = await supabase.from(tableName).select('count').limit(0);
+             
+             if (probeError && (probeError.code === 'PGRST204' || probeError.message.includes('relation "public.'))) {
+                console.warn(`[Supabase Sync Warning] Table '${tableName}' is missing. Cloud sync skipped.`);
+                return;
+             } else if (!probeError) {
+                console.log(`[Supabase Sync] Table '${tableName}' exists in probe. Retrying original upsert...`);
+                const { error: retryError } = await supabase.from(targetTable).upsert(sanitized);
+                error = retryError;
+             }
+          }
+
+          if (error) {
             let currentSanitized = { ...sanitized };
             let currentError = error;
             let retryCount = 0;
             const MAX_RETRIES = 5;
 
-            // If it's a stale cache error (PGRST205), try a single raw retry after a short delay
-            if (error && error.code === 'PGRST205') {
-              console.log('[Supabase Sync] Stale schema cache detected (PGRST205). Waiting then retrying...');
+            if (error.code === 'PGRST205') {
               await new Promise(resolve => setTimeout(resolve, 1000));
               const { error: retryError } = await supabase.from(targetTable).upsert(sanitized);
               currentError = retryError;
-              if (!currentError) return;
             }
 
             while (currentError && (currentError.code === 'PGRST204' || currentError.code === '42703') && retryCount < MAX_RETRIES) {
-              // Extract field name from various PostgREST error formats
-              // Format 1: column "field" does not exist
-              // Format 2: Could not find the "field" column ... in the schema cache
               const match = currentError.message.match(/column ['"](.+?)['"]/i) || currentError.message.match(/find the ['"](.+?)['"] column/i);
               const missingField = match ? match[1] : null;
               
@@ -220,50 +233,23 @@ export const supabaseService = {
             }
             error = currentError;
           }
+        }
 
-          if (error) {
-            console.error(`[Supabase Sync Failure] Table: ${targetTable}, Error: ${error.message}, Code: ${error.code}`);
-            let userMessage = `Supabase Table '${targetTable}' error: ${error.message}`;
-            
-            if (error.message.includes('Failed to fetch')) {
-              userMessage = `Network Error: Failed to reach Supabase. This usually means your connection is unstable, the Supabase project is paused, or an ad-blocker is interfering with the request.`;
-            } else if (error.message.toLowerCase().includes('column') || error.message.toLowerCase().includes('schema cache') || error.message.toLowerCase().includes('relation')) {
-              userMessage += ". Your Supabase schema is missing tables or columns. Please run 'supabase_setup.sql' in your Supabase SQL Editor to fix your database schema.";
-            } else if (error.message.toLowerCase().includes('uuid')) {
-              userMessage += ". Your IDs are incompatible with the database (UUID vs TEXT). Please run Section 3 of 'supabase_setup.sql' in your Supabase SQL Editor.";
-            }
-            throw new Error(userMessage);
-          }
+        if (error) {
+          console.warn(`[Supabase Sync Warning] Table: ${targetTable}, Error: ${error.message}, Code: ${error.code}`);
+        } else {
           console.log(`[Supabase Sync Success] ${section}/${item.id || 'new'}`);
+          cloudSaveSucceeded = true;
         }
-      } catch (err: any) {
-        const errorMsg = err.message || String(err);
-        if (errorMsg.includes('Failed to fetch')) {
-           console.warn(`[Supabase Connectivity] Detected a network-level fetch failure for ${section}. Check connectivity or status at https://status.supabase.com`);
-        }
-        console.warn(`[Supabase Service Error] ${section}:`, errorMsg);
-        throw err; // Re-throw to inform UI
       }
+    } catch (err: any) {
+      console.warn(`[Supabase Service Soft Exception] ${section}:`, err.message || err);
+    }
 
-      // Secondary: Save to local server (fallback/legacy)
-      try {
-        const token = localStorage.getItem('school_admin_token');
-        const res = await fetch('/api/save', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ table: section, item })
-        });
-        if (res.ok) console.log(`[Local Sync Success] ${section}`);
-      } catch (e) {
-        // Only log if specifically needed
-      }
-
-    } catch (error) {
-      console.error('Final Save Exception:', error);
-      throw error;
+    if (!localSaveSucceeded && !cloudSaveSucceeded) {
+      throw new Error(localErrorMsg || `Failed to save item locally or to cloud database.`);
+    } else if (!localSaveSucceeded) {
+      console.info(`[Save Success Status] Cloud sync saved successfully, but server fallback is inactive.`);
     }
   },
 
@@ -322,24 +308,38 @@ export const supabaseService = {
             return rest;
           });
           
-          const { error } = await supabase.from(section).upsert(sanitizedChunk);
-          if (error) {
-            console.warn(`[SyncAll] Error syncing chunk for ${section}:`, error.message);
-            if (error.code === 'PGRST204' || error.message.includes('relation "public.')) {
-               throw new Error(`Supabase Table '${section}' is missing. Please run the SQL setup script.`);
+          try {
+            const { error } = await supabase.from(section).upsert(sanitizedChunk);
+            if (error) {
+              console.warn(`[SyncAll Warning] Skipping table '${section}' since it's not setup yet on Supabase:`, error.message);
             }
+          } catch (e: any) {
+            console.warn(`[SyncAll Exception] Error uploading chunk to '${section}':`, e.message || e);
           }
         }
       } else if (value && typeof value === 'object' && section !== 'content' && section !== 'digital_campus') {
-        // Handle single object tables (settings, etc)
-        await this.saveItem(section, value);
+        // Handle single object tables (settings, etc) - safe and silent on failure
+        try {
+          await this.saveItem(section, value);
+        } catch (e: any) {
+          console.warn(`[SyncAll settings warning] Could not save item: ${e.message}`);
+        }
       } else if (section === 'digital_campus' && value && typeof value === 'object') {
-        await supabase.from('digital_campus').upsert(value);
+        try {
+          await supabase.from('digital_campus').upsert(value);
+        } catch (e: any) {
+          console.warn('[SyncAll digital_campus warning] Could not sync digital_campus:', e.message || e);
+        }
       } else if (section === 'content' && value && typeof value === 'object') {
-        // Handle the Key-Value content store
+        // Handle the Key-Value content store safely
         const contentEntries = Object.entries(value as Record<string, string>);
         for (const [key, val] of contentEntries) {
-          await supabase.from('content').upsert({ key, value: val });
+          try {
+            await supabase.from('content').upsert({ key, value: val });
+          } catch (e: any) {
+            console.warn(`[SyncAll content warning] Could not sync content key '${key}':`, e.message || e);
+            break; // Stop syncing additional keys to keep it brief if table missing
+          }
         }
       }
     }

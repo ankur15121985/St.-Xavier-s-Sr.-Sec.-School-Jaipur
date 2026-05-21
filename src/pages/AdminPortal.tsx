@@ -2893,6 +2893,36 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         </AnimatePresence>
 
       <AnimatePresence>
+        {localStorage.getItem('supabase_schema_warning') === 'true' && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 bg-amber-500 rounded-[32px] p-8 text-white shadow-2xl relative overflow-hidden">
+             <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+               <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
+                     <AlertCircle size={32} />
+                  </div>
+                  <div className="space-y-1">
+                     <h3 className="text-xl font-serif font-black italic">Supabase Cloud Database Setup Required</h3>
+                     <p className="text-white/95 text-[13px] font-medium leading-relaxed">Your Supabase database does not have any initialized tables yet (such as <code>admins</code>). This site has bypassed the missing table error to let you access this management portal safely.</p>
+                     <p className="text-white/85 text-[11px] font-semibold">To enable full cloud synchronization, please open your Supabase SQL Editor and execute the <b>supabase_setup.sql</b> file located in your project root directory.</p>
+                  </div>
+               </div>
+               <div className="flex flex-wrap gap-4 shrink-0">
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem('supabase_schema_warning');
+                      setSearchQuery(prev => prev === '' ? ' ' : '');
+                      setTimeout(() => setSearchQuery(''), 50);
+                    }}
+                    className="px-6 py-3 bg-white text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/90 transition-all font-black shadow-xl"
+                  >
+                    Dismiss Warning
+                  </button>
+               </div>
+             </div>
+             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+          </motion.div>
+        )}
+
         {showSchemaError && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 bg-red-500 rounded-[32px] p-8 text-white shadow-2xl relative overflow-hidden">
              <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
