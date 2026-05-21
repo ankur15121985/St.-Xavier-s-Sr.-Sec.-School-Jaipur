@@ -35,6 +35,8 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !isValidUrl(SUPABASE_URL)) {
   );
 }
 
+export const isSupabasePlaceholder = !SUPABASE_URL || !SUPABASE_ANON_KEY || !isValidUrl(SUPABASE_URL) || SUPABASE_URL.includes('placeholder-project-id') || safeUrl.includes('placeholder-project-id');
+
 export const supabase = createClient(safeUrl, safeKey);
 
 /**

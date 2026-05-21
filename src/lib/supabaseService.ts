@@ -1,9 +1,14 @@
 import { AppData } from '../types';
-import { supabase } from '../supabaseClient';
+import { supabase, isSupabasePlaceholder } from '../supabaseClient';
 
 export const supabaseService = {
   async fetchAllData(): Promise<Partial<AppData>> {
     try {
+      if (isSupabasePlaceholder) {
+        console.warn('[Supabase Service] Placeholder client detected. Bypassing client-side fetch and utilizing local SQLite database server directly.');
+        throw new Error('Supabase client is unconfigured');
+      }
+
       const collections: (keyof AppData)[] = [
         'notices', 'staff', 'gallery', 'fees', 'links', 
         'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs', 'former_leaders',
@@ -12,6 +17,15 @@ export const supabaseService = {
       ];
 
       const results: Partial<AppData> = {};
+      let successCount = 0;
+      let networkErrorOccurred = false;
+
+      const flagNetworkError = (msg: string) => {
+        const lower = String(msg || '').toLowerCase();
+        if (lower.includes('failed to fetch') || lower.includes('fetch failed')) {
+          networkErrorOccurred = true;
+        }
+      };
       
       const fetchTasks = [
         ...collections.map(async (colName) => {
@@ -19,13 +33,21 @@ export const supabaseService = {
             const { data, error } = await supabase.from(colName).select('*');
             if (error) {
               console.warn(`[Supabase] Table ${colName} missing or inaccessible:`, error.message);
-              (results as any)[colName] = [];
+              flagNetworkError(error.message);
+              // Do NOT populate empty results for key tables on network error to allow proper fallback
+              if (!networkErrorOccurred) {
+                (results as any)[colName] = [];
+              }
             } else {
               (results as any)[colName] = data as any;
+              successCount++;
             }
-          } catch (e) {
+          } catch (e: any) {
             console.error(`[Supabase] Fatal error fetching ${colName}:`, e);
-            (results as any)[colName] = [];
+            flagNetworkError(e.message);
+            if (!networkErrorOccurred) {
+              (results as any)[colName] = [];
+            }
           }
         }),
         // Settings (single row)
@@ -42,43 +64,75 @@ export const supabaseService = {
                errMsg.includes('relation "public.site_settings" does not exist')
              );
              if (isTableMissing) {
-               console.warn('[Supabase] site_settings table missing, trying settings table fallback...');
-               const fallback = await supabase.from('settings').select('*').limit(1).maybeSingle();
-               data = fallback.data;
-               error = fallback.error;
+                console.warn('[Supabase] site_settings table missing, trying settings table fallback...');
+                const fallback = await supabase.from('settings').select('*').limit(1).maybeSingle();
+                data = fallback.data;
+                error = fallback.error;
              }
-             if (error) console.warn('[Supabase] Settings table issue:', error.message);
-             if (data) results.settings = data as any;
-           } catch (e) { console.error('[Supabase] Settings fetch error:', e); }
+             if (error) {
+                console.warn('[Supabase] Settings table issue:', error.message);
+                flagNetworkError(error.message);
+             }
+             if (data) {
+                results.settings = data as any;
+                successCount++;
+             }
+           } catch (e: any) { 
+             console.error('[Supabase] Settings fetch error:', e); 
+             flagNetworkError(e.message);
+           }
         })(),
         // Digital Campus (single row)
         (async () => {
            try {
              const { data, error } = await supabase.from('digital_campus').select('*').limit(1).maybeSingle();
-             if (error) console.warn('[Supabase] Digital Campus table issue:', error.message);
-             if (data) results.digital_campus = data as any;
-             else results.digital_campus = { id: 'current', title: 'Legacy in Motion', is_enabled: true };
-           } catch (e) { console.error('[Supabase] Digital Campus fetch error:', e); }
+             if (error) {
+                console.warn('[Supabase] Digital Campus table issue:', error.message);
+                flagNetworkError(error.message);
+             }
+             if (data) {
+                results.digital_campus = data as any;
+                successCount++;
+             } else {
+                results.digital_campus = { id: 'current', title: 'Legacy in Motion', is_enabled: true };
+             }
+           } catch (e: any) { 
+             console.error('[Supabase] Digital Campus fetch error:', e); 
+             flagNetworkError(e.message);
+           }
         })(),
         // Content (key-value)
         (async () => {
            try {
              const { data, error } = await supabase.from('content').select('*');
-             if (error) console.warn('[Supabase] Content table issue:', error.message);
+             if (error) {
+                console.warn('[Supabase] Content table issue:', error.message);
+                flagNetworkError(error.message);
+             }
              if (data) {
                const contentObj: Record<string, string> = {};
                data.forEach(row => contentObj[row.key] = row.value);
                results.content = contentObj as any;
+               successCount++;
              }
-           } catch (e) { console.error('[Supabase] Content fetch error:', e); }
+           } catch (e: any) { 
+             console.error('[Supabase] Content fetch error:', e); 
+             flagNetworkError(e.message);
+           }
         })()
       ];
 
       // Concurrent fetch for all tasks
       try {
         await Promise.all(fetchTasks);
-      } catch (err) {
-        console.warn('[Supabase] Individual task error, continuing with partial results:', err);
+      } catch (err: any) {
+        console.warn('[Supabase] Individual task error:', err);
+        flagNetworkError(err.message);
+      }
+
+      // If a network connection error was hit, or if absolutely zero tables succeeded, raise exception to trigger clean local fallback
+      if (networkErrorOccurred || successCount === 0) {
+        throw new Error('Supabase project is unreachable or offline.');
       }
 
       // If we got some results, merge them. If it's completely empty, triggered catch fallback.
