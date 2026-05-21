@@ -1,18 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 
-const getEnv = (key: string): string | undefined => {
-  if (typeof process !== 'undefined' && process.env && process.env[key]) {
-    return process.env[key];
+const getStaticEnv = (): { url?: string; key?: string } => {
+  let url = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  let key = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!url || !key) {
+    try {
+      url = url || (import.meta as any).env?.VITE_SUPABASE_URL || (import.meta as any).env?.NEXT_PUBLIC_SUPABASE_URL;
+      key = key || (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || (import.meta as any).env?.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    } catch {}
   }
-  try {
-    return (import.meta as any).env?.[key];
-  } catch {
-    return undefined;
-  }
+  return { url, key };
 };
 
-const SUPABASE_URL = getEnv('VITE_SUPABASE_URL') || getEnv('NEXT_PUBLIC_SUPABASE_URL');
-const SUPABASE_ANON_KEY = getEnv('VITE_SUPABASE_ANON_KEY') || getEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+const { url: envUrl, key: envKey } = getStaticEnv();
+const SUPABASE_URL = envUrl;
+const SUPABASE_ANON_KEY = envKey;
 
 const isValidUrl = (url: string): boolean => {
   try {

@@ -182,7 +182,9 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                                error.code === 'PGRST204' || 
                                String(error.code) === '404' || 
                                error.message?.includes('relation "public.admins" does not exist') || 
-                               error.message?.toLowerCase().includes('invalid path');
+                               error.message?.toLowerCase().includes('invalid path') ||
+                               error.message?.toLowerCase().includes('failed to fetch') ||
+                               error.message?.toLowerCase().includes('fetch failed');
         if (isTableMissing) {
           console.warn('[Auth] admins table is missing on Supabase. Using safe offline client-side fallback login.');
           const presetUsernames = ['admin', 'ankur15121985', 'ankur24121985', 'school_admin', 'root'];
