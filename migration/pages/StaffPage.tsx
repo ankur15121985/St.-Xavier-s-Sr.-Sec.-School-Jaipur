@@ -1,0 +1,201 @@
+import React, { useState, useMemo } from 'react';
+import { AppData, StaffMember } from '../types';
+import { PerspectiveCard } from '../components/ui/PerspectiveCard';
+import { Users2, ArrowUpDown, Filter } from 'lucide-react';
+import Layout from '../components/layout/Layout';
+
+const StaffPage = ({ data }: { data: AppData }) => {
+  const [sortBy, setSortBy] = useState<'name' | 'bio'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const sortedStaff = useMemo(() => {
+    return [...data.staff].sort((a, b) => {
+      let valA = (a[sortBy] || '').toString().toLowerCase();
+      let valB = (b[sortBy] || '').toString().toLowerCase();
+
+      // Special handling for Appointment Details (bio) to try and extract date if requested
+      // but alphabetical is a safer default "according to Appointment Details"
+      if (sortBy === 'bio') {
+        const dateA = a.bio.match(/Appointed: (\d{2}-\d{2}-\d{4})/);
+        const dateB = b.bio.match(/Appointed: (\d{2}-\d{2}-\d{4})/);
+        
+        if (dateA && dateB) {
+          const [dayA, monthA, yearA] = dateA[1].split('-').map(Number);
+          const [dayB, monthB, yearB] = dateB[1].split('-').map(Number);
+          const dA = new Date(yearA, monthA - 1, dayA).getTime();
+          const dB = new Date(yearB, monthB - 1, dayB).getTime();
+          return sortOrder === 'asc' ? dA - dB : dB - dA;
+        }
+      }
+
+      if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+      if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [data.staff, sortBy, sortOrder]);
+
+  const toggleSort = (key: 'name' | 'bio') => {
+    if (sortBy === key) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(key);
+      setSortOrder('asc');
+    }
+  };
+
+  const renderTable = (members: StaffMember[], title: string) => (
+    <div className="mb-24 last:mb-0">
+      <div className="flex items-center gap-6 mb-12">
+        <h4 className="text-3xl font-sans font-black text-school-ink capitalize italic">{title}</h4>
+        <div className="flex-1 h-px bg-school-ink/10"></div>
+      </div>
+      <div className="overflow-x-auto rounded-[32px] border border-school-ink/20 shadow-2xl backdrop-blur-3xl bg-school-paper/20">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-school-accent/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-[0.2em]">
+              <th className="py-2 px-3 border-b border-white/10 w-16">S.No</th>
+              <th className="py-2 px-3 border-b border-white/10">Employee Name</th>
+              <th className="py-2 px-3 border-b border-white/10">Designation</th>
+              <th className="py-2 px-3 border-b border-white/10">Appointment Details</th>
+            </tr>
+          </thead>
+          <tbody className="text-school-ink text-sm">
+            {members.map((s, i) => (
+              <tr key={s.id} className="hover:bg-school-paper/30 transition-colors border-b border-school-ink/10 last:border-none group">
+                <td className="py-2 px-3 font-black text-school-accent text-xs">{i + 1}</td>
+                <td className="py-2 px-3">
+                  <span className="font-black tracking-tight">{s.name}</span>
+                </td>
+                <td className="py-2 px-3">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-school-accent bg-school-paper/40 px-3 py-1 rounded-full border border-school-ink/10">
+                    {s.role}
+                  </span>
+                </td>
+                <td className="py-2 px-3">
+                  <div 
+                    className="text-xs text-school-ink/60 leading-relaxed font-medium italic prose prose-sm prose-slate max-w-none whitespace-pre-wrap shadow-none bg-transparent"
+                    dangerouslySetInnerHTML={{ __html: s.bio }}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  return (
+    <Layout data={data}>
+      <section className="pt-24 pb-40 bg-transparent">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center mb-16">
+           <h2 className="text-[12vw] md:text-9xl font-sans font-black text-school-ink tracking-tighter leading-none mb-8">Modern <br /><span className="text-school-accent italic">Leadership.</span></h2>
+           <p className="text-2xl text-school-ink/50 font-medium max-w-2xl mx-auto">Mentorship and excellence driven by a dedicated team of educators and administrators committed to holistic development.</p>
+        </div>
+
+        {/* Sort Controls */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-20">
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-school-ink/40 mr-2 flex items-center gap-2">
+              <Filter size={14} /> Sort By:
+            </span>
+            <button 
+              onClick={() => toggleSort('name')}
+              className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
+                sortBy === 'name' 
+                  ? 'bg-school-accent text-white border-school-accent shadow-lg shadow-school-accent/20 scale-105' 
+                  : 'bg-school-paper/40 text-school-ink/60 border-school-ink/10 hover:bg-school-paper/60'
+              } flex items-center gap-2`}
+            >
+              Employee Name
+              {sortBy === 'name' && (
+                <ArrowUpDown size={12} className={sortOrder === 'desc' ? 'rotate-180 transition-transform' : 'transition-transform'} />
+              )}
+            </button>
+            <button 
+              onClick={() => toggleSort('bio')}
+              className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
+                sortBy === 'bio' 
+                  ? 'bg-school-accent text-white border-school-accent shadow-lg shadow-school-accent/20 scale-105' 
+                  : 'bg-school-paper/40 text-school-ink/60 border-school-ink/10 hover:bg-school-paper/60'
+              } flex items-center gap-2`}
+            >
+              Appointment Details
+              {sortBy === 'bio' && (
+                <ArrowUpDown size={12} className={sortOrder === 'desc' ? 'rotate-180 transition-transform' : 'transition-transform'} />
+              )}
+            </button>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          {/* Management (Cards) */}
+          <div className="mb-32">
+            <div className="flex items-center gap-6 mb-16">
+              <h3 className="text-5xl font-sans font-black text-school-ink tracking-tighter capitalize italic">Archive. <span className="not-italic text-school-accent">Management</span></h3>
+              <div className="flex-1 h-2 bg-school-ink/10 rounded-full"></div>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+              {sortedStaff.filter(s => s.type === 'Management' && s.is_enabled !== false).map((s, i) => (
+                <PerspectiveCard key={s.id} delay={i * 0.1}>
+                  <div className="bg-school-paper/40 backdrop-blur-3xl p-10 rounded-[40px] flex flex-col h-full group border border-school-ink/10 shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
+                    <div className="absolute top-6 right-6 px-4 py-2 bg-school-accent text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-sm">
+                      Management
+                    </div>
+                    <h4 className="text-2xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors break-words italic pt-4">{s.name}</h4>
+                    <p className="text-[10px] uppercase font-black tracking-[0.15em] text-school-accent mb-6 border-b border-school-accent/20 pb-4 leading-relaxed">{s.role}</p>
+                    <div 
+                      className="text-sm text-school-ink/60 font-medium leading-relaxed italic prose prose-sm prose-slate max-w-none whitespace-pre-wrap shadow-none bg-transparent"
+                      dangerouslySetInnerHTML={{ __html: s.bio }}
+                    />
+                  </div>
+                </PerspectiveCard>
+              ))}
+            </div>
+          </div>
+
+          {/* Administration (Coordinators as Cards, others as Table) */}
+          <div className="mb-32">
+            <div className="flex items-center gap-6 mb-16">
+              <h3 className="text-4xl font-sans font-black text-school-ink tracking-tighter capitalize italic">Administration</h3>
+              <div className="flex-1 h-px bg-school-ink/10"></div>
+            </div>
+            
+            {/* Senior Administration / Coordinators */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 mb-24">
+              {sortedStaff.filter(s => s.type === 'Administration' && s.role.includes('COORDINATOR') && s.is_enabled !== false).map((s, i) => (
+                <PerspectiveCard key={s.id} delay={i * 0.1}>
+                  <div className="bg-school-paper/40 backdrop-blur-3xl p-10 rounded-[40px] flex flex-col h-full group border border-school-ink/10 shadow-xl hover:shadow-2xl transition-all duration-500">
+                    <h4 className="text-2xl font-sans font-black text-school-ink mb-3 group-hover:text-school-accent transition-colors break-words italic">{s.name}</h4>
+                    <p className="text-[10px] uppercase font-black tracking-[0.15em] text-school-accent mb-6 border-b border-school-accent/20 pb-4 leading-relaxed">{s.role}</p>
+                    <div 
+                      className="text-sm text-school-ink/60 font-medium leading-relaxed italic prose prose-sm prose-slate max-w-none whitespace-pre-wrap shadow-none bg-transparent"
+                      dangerouslySetInnerHTML={{ __html: s.bio }}
+                    />
+                  </div>
+                </PerspectiveCard>
+              ))}
+            </div>
+
+            {/* Support Administration Staff */}
+            {renderTable(sortedStaff.filter(s => s.type === 'Administration' && !s.role.includes('COORDINATOR') && s.is_enabled !== false), 'Office Administrative Staff')}
+          </div>
+
+          {/* Faculty Groups (Tables) */}
+          <div className="mb-32">
+            <div className="flex items-center gap-6 mb-16">
+              <h3 className="text-4xl font-sans font-black text-school-ink tracking-tighter capitalize italic">Teaching Faculty</h3>
+              <div className="flex-1 h-px bg-school-ink/10"></div>
+            </div>
+            
+            {renderTable(sortedStaff.filter(s => s.type === 'Faculty' && s.role === 'PGT' && s.is_enabled !== false), 'Post Graduate Teachers (PGT)')}
+            {renderTable(sortedStaff.filter(s => s.type === 'Faculty' && s.role === 'TGT' && s.is_enabled !== false), 'Trained Graduate Teachers (TGT)')}
+            {renderTable(sortedStaff.filter(s => s.type === 'Faculty' && s.role === 'PRT' && s.is_enabled !== false), 'Primary Teachers (PRT)')}
+          </div>
+        </div>
+      </section>
+    </Layout>
+  );
+};
+
+export default StaffPage;

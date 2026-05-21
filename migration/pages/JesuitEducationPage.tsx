@@ -1,0 +1,237 @@
+import React from 'react';
+import { motion } from 'motion/react';
+import Layout from '../components/layout/Layout';
+import { AppData } from '../types';
+import { BookOpen, Award, ShieldAlert, GraduationCap, Users, Clock, CheckCircle2 } from 'lucide-react';
+
+const JesuitEducationPage = ({ data }: { data: AppData }) => {
+  const jesuitData = data.jesuit_page_content?.[0] || {
+    objectives_html: '',
+    examinations_html: '',
+    promotions_html: '',
+    discipline_html: ''
+  };
+
+  return (
+    <Layout data={data}>
+      <div className="bg-school-paper min-h-screen">
+        {/* Hero Section */}
+        <section className="py-20 bg-school-navy relative overflow-hidden">
+          <div className="absolute inset-0">
+            <img 
+              src="https://lh3.googleusercontent.com/d/1t9vcyHXbu3KjpG-YClHk1BNsT_Rk9qZz" 
+              className="w-full h-full object-cover brightness-40" 
+              alt="Jesuit Education"
+              loading="lazy"
+            />
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-school-navy/90 via-school-navy/60 to-school-navy/90"></div>
+          </div>
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <h1 className="text-6xl md:text-8xl font-serif font-black text-white tracking-tighter mb-6 italic drop-shadow-2xl">Objectives of <br /> <span className="text-school-gold not-italic uppercase text-3xl md:text-4xl tracking-[0.3em]">Jesuit Education</span></h1>
+              <p className="text-white/90 text-xl font-bold max-w-2xl mx-auto italic bg-black/20 backdrop-blur-sm px-6 py-2 rounded-full inline-block border border-white/10 mt-4">Promoting the total development of the WHOLE PERSON — fully human, fully Indian, and truly modern.</p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Vision & Objectives Section */}
+        <section className="py-40 max-w-7xl mx-auto px-6 lg:px-12 overflow-hidden">
+          <div className="grid xl:grid-cols-2 gap-12 xl:gap-20 items-start">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="space-y-8 xl:sticky xl:top-32"
+            >
+              <div className="inline-block px-5 py-2 bg-school-gold/10 rounded-full text-[10px] font-black uppercase tracking-widest text-school-gold mb-10 border border-school-gold/20 shadow-sm shadow-school-gold/5">Our Vision</div>
+              <h2 className="text-4xl md:text-5xl lg:text-7xl font-serif font-black text-school-navy italic tracking-tight leading-[1.1] mb-12">Inspired by <br className="hidden md:block" /> Divine Wisdom</h2>
+              
+              <div className="space-y-10 text-xl text-slate-800 font-medium leading-relaxed text-justify relative z-10 bg-white/40 backdrop-blur-sm p-8 md:p-12 rounded-[40px] border border-white/60 shadow-xl shadow-school-navy/5">
+                <p className="first-letter:text-6xl first-letter:font-black first-letter:text-school-accent first-letter:mr-4 first-letter:float-left first-letter:leading-none first-letter:mt-2">
+                  Jesuit Education is inspired by a vision drawn from the life and teachings of Jesus Christ and the principles of CHARACTER formation elaborated by <span className="font-bold text-school-navy decoration-school-gold decoration-2 underline-offset-4 underline">Ignatius Loyola</span>, the founder of the Society of Jesus.
+                </p>
+                <p className="pt-4 border-t border-school-ink/5">
+                  This vision sets before our staff, students, and parents high ideals of humanism and service. We believe in a Christian Social Ethics whereby justice is an absolute requirement of faith in God and the acceptance of each other as brothers and sisters.
+                </p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-school-navy rounded-[48px] p-8 md:p-12 lg:p-16 text-white shadow-2xl relative overflow-hidden ring-1 ring-white/10"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-12 -mt-12 blur-3xl"></div>
+              <h3 className="text-2xl font-serif font-black italic text-school-gold mb-8">Integral Formation Aims:</h3>
+              <div className="prose prose-invert prose-p:text-white/80 prose-li:text-white/80 prose-strong:text-school-gold prose-li:my-1 prose-ul:list-none prose-ul:p-0">
+                {jesuitData.objectives_html ? (
+                  <div dangerouslySetInnerHTML={{ __html: jesuitData.objectives_html }} className="space-y-6 [&>ul]:space-y-6 [&>ul>li]:flex [&>ul>li]:gap-4 [&>ul>li]:items-start [&>ul>li]:group [&>ul>li:before]:content-['✓'] [&>ul>li:before]:text-school-gold [&>ul>li:before]:font-bold [&>ul>li:before]:shrink-0" />
+                ) : (
+                  <ul className="space-y-6">
+                    {[
+                      "Help students become mature, spiritually oriented men and women of character.",
+                      "Encourage continual striving after excellence in every field.",
+                      "Value and judiciously use their freedom.",
+                      "Be clear and firm on principles and courageous in action.",
+                      "Be unselfish in the service of their fellow human beings.",
+                      "Become agents of needed social change in the country."
+                    ].map((item, i) => (
+                      <li key={i} className="flex gap-4 items-start group text-sm font-light leading-relaxed">
+                        <CheckCircle2 className="text-school-gold shrink-0 mt-1 transition-transform group-hover:scale-110" size={18} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Academic Standards Section */}
+        <section id="examinations" className="py-24 bg-school-paper/50">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12">
+            <div className="flex flex-col md:flex-row gap-4 items-end justify-between mb-16">
+              <div id="academic-regulations">
+                <h2 className="text-4xl md:text-5xl font-serif font-black text-school-ink italic tracking-tight">Academic Regulations</h2>
+                <p className="text-school-ink/40 text-sm font-black uppercase tracking-widest mt-2">Examinations & Promotion Criteria</p>
+              </div>
+              <div className="w-24 h-1 bg-school-gold rounded-full"></div>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12">
+              {/* Examinations */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="glass-surface p-10 rounded-[48px] border border-school-ink/10 shadow-xl"
+              >
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 bg-blue-50/10 rounded-2xl flex items-center justify-center text-school-ink">
+                    <BookOpen size={24} />
+                  </div>
+                  <h3 className="text-2xl font-serif font-black italic text-school-ink">Examinations</h3>
+                </div>
+                {jesuitData.examinations_html ? (
+                  <div className="text-sm text-school-ink/70 leading-relaxed font-light prose prose-p:m-0 max-w-none" dangerouslySetInnerHTML={{ __html: jesuitData.examinations_html }} />
+                ) : (
+                  <div className="space-y-4 text-sm text-school-ink/70 leading-relaxed font-light">
+                    <p>• Two Semesters per year with Internal Assessments in each.</p>
+                    <p>• <span className="font-bold text-school-ink">40% Minimum marks</span> in each subject for every grade (1 to 12).</p>
+                    <p>• <span className="font-bold text-school-ink">90% Attendance</span> is mandatory to appear for the final examination.</p>
+                    <p>• No re-examinations for absence. Medical certificates required for illness-related absence from tests.</p>
+                    <p className="italic bg-school-paper/50 p-4 rounded-xl border border-school-ink/10">"Sufficient reasons like unsatisfactory progress or serious misconduct may debar a pupil from examination."</p>
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Promotions */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="glass-surface p-10 rounded-[48px] border border-school-ink/10 shadow-xl"
+              >
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 bg-school-gold/10 rounded-2xl flex items-center justify-center text-school-gold">
+                    <Award size={24} />
+                  </div>
+                  <h3 className="text-2xl font-serif font-black italic text-school-ink">Promotions</h3>
+                </div>
+                {jesuitData.promotions_html ? (
+                  <div className="text-sm text-school-ink/70 leading-relaxed font-light prose prose-p:m-0 max-w-none" dangerouslySetInnerHTML={{ __html: jesuitData.promotions_html }} />
+                ) : (
+                  <div className="space-y-4 text-sm text-school-ink/70 leading-relaxed font-light">
+                    <p>• Decisions based on the <span className="font-bold text-school-ink uppercase">Whole Year’s Work</span> and steady performance.</p>
+                    <p>• Failure in two or more subjects renders a pupil liable to repeat the class.</p>
+                    <p>• Results declared at year-end are final; retests or reconsiderations are not possible.</p>
+                    <p>• <span className="font-bold text-school-ink">Class XII Criteria:</span> Minimum 33% required per subject. Failure in any two subjects in Class XI results in overall failure.</p>
+                    <p className="text-[10px] uppercase font-black tracking-widest text-school-ink/30">Note: Answer sheets of final exams are not shown to parents/guardians.</p>
+                  </div>
+                )}
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Discipline Section */}
+        <section id="discipline" className="py-24 max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="bg-school-paper rounded-[64px] p-12 lg:p-20 shadow-2xl relative overflow-hidden border border-school-ink/10">
+             <div className="flex flex-col lg:flex-row gap-16">
+                <div className="lg:w-1/3">
+                  <div className="w-16 h-16 bg-red-50/10 rounded-2xl flex items-center justify-center text-red-600 mb-8">
+                    <ShieldAlert size={32} />
+                  </div>
+                  <h2 className="text-4xl font-serif font-black text-school-ink italic leading-tight mb-6 uppercase">Rules of Discipline</h2>
+                  <p className="text-school-ink/50 font-light italic leading-relaxed">Maintaining the high tone of the school through conduct, manners, and integrity.</p>
+                  <div className="mt-12 p-6 bg-school-navy rounded-3xl text-white">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-school-gold mb-2">Prohibited Items</p>
+                    <p className="text-xs font-light text-white/70 italic leading-relaxed">Mobiles, Cameras, CDs, I-Pods, Explosives, or any dangerous materials are strictly forbidden. Confiscated items will not be returned.</p>
+                  </div>
+                </div>
+
+                <div className="lg:w-2/3">
+                  {jesuitData.discipline_html ? (
+                    <div className="p-8 border border-school-ink/5 rounded-[32px] bg-school-paper/50 prose prose-ink max-w-none prose-p:text-sm prose-li:text-sm" dangerouslySetInnerHTML={{ __html: jesuitData.discipline_html }} />
+                  ) : (
+                    <div className="grid sm:grid-cols-2 gap-12">
+                      {[
+                        { icon: <Clock size={20} />, title: "Punctuality", desc: "Arrive at least five minutes before the first bell. Prompt assembly is mandatory." },
+                        { icon: <Users size={20} />, title: "Uniform", desc: "Habitually clean and neat dress. Uniform is mandatory for all school functions." },
+                        { icon: <BookOpen size={20} />, title: "Student Diary", desc: "The official school diary must be brought to school every single day." },
+                        { icon: <GraduationCap size={20} />, title: "Conduct", desc: "Excel in manners and cleanliness. patronizing street vendors is forbidden for health." },
+                        { icon: <ShieldAlert size={20} />, title: "Property", desc: "Damages must be made good. Personal vehicles require valid licences; 4-wheelers not allowed." },
+                        { icon: <Zap size={20} /> as any, title: "Class Order", desc: "Monitors assume responsibility for order if a teacher is delayed." }
+                      ].map((rule, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, y: 10 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: idx * 0.05 }}
+                          className="p-8 border border-school-ink/5 rounded-[32px] hover:bg-school-paper/50 transition-colors group"
+                        >
+                          <div className="text-school-gold mb-4 group-hover:scale-110 transition-transform">{rule.icon}</div>
+                          <h4 className="text-lg font-serif font-black text-school-ink mb-2 italic uppercase">{rule.title}</h4>
+                          <p className="text-sm text-school-ink/60 leading-relaxed font-light">{rule.desc}</p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+             </div>
+          </div>
+        </section>
+
+        {/* Final Statement */}
+        <section className="py-24 text-center max-w-4xl mx-auto px-6">
+           <motion.div
+             initial={{ opacity: 0 }}
+             whileInView={{ opacity: 1 }}
+             viewport={{ once: true }}
+             className="space-y-6"
+           >
+             <p className="text-2xl font-serif font-black text-school-ink italic leading-relaxed">
+               "The Jesuit school aims at making its own contribution towards a radical transformation of present day social justice, equality of opportunity, and genuine freedom."
+             </p>
+             <div className="w-16 h-1 bg-school-gold mx-auto"></div>
+             <p className="text-xs font-black uppercase tracking-[0.4em] text-school-ink/30">Jesuit Mission Statement</p>
+           </motion.div>
+        </section>
+      </div>
+    </Layout>
+  );
+};
+
+// Helper for the Zap icon (optional since it wasn't imported initially)
+const Zap = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+);
+
+export default JesuitEducationPage;

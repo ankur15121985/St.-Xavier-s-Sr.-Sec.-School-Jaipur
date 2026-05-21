@@ -1,5 +1,5 @@
 import express from 'express';
-import next from 'next';
+import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -2047,21 +2047,24 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
-// Next.js Integration
+// Vite Integration
 async function startServer() {
-  const dev = process.env.NODE_ENV !== 'production';
-  const nextApp = next({ dev });
-  const handle = nextApp.getRequestHandler();
-
-  await nextApp.prepare();
-
-  // Next.js handles all non-API paths
-  app.all('*', (req, res) => {
-    return handle(req, res);
-  });
+  if (process.env.NODE_ENV !== 'production') {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.join(process.cwd(), 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running in ${dev ? 'development' : 'production'} mode on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
   });
 }
 
