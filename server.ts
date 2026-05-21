@@ -1030,17 +1030,13 @@ try {
 
 // Seed Default Settings if empty
 const settingsCountResult = db.prepare("SELECT COUNT(*) as count FROM site_settings").get() as any;
-if ((settingsCountResult?.count || 0) === 0) {
+const settingsLegacyResult = db.prepare("SELECT COUNT(*) as count FROM settings").get() as any;
+
+if ((settingsCountResult?.count || 0) === 0 || (settingsLegacyResult?.count || 0) === 0) {
     console.log("Seeding default settings...");
-    db.prepare(`
-      INSERT INTO settings (
-        id, applyNowEnabled, applyNowUrl, applyNowLabel, siteName, siteLogo, 
-        contactEmail, contactPhone, contactAddress, currentSession,
-        showCarousel, showMarquee, showAbout, showFeature, showVision, 
-        showInsights, showPrincipalMessage, showDistinction, showGallery, 
-        showLeadership, showHonors
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
+    
+    // Prepare values to seed
+    const seedValues = [
       'global',
       1,
       'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
@@ -1052,7 +1048,37 @@ if ((settingsCountResult?.count || 0) === 0) {
       'Bhagwan Das Road, C-Scheme, Jaipur - 302001, Rajasthan, India',
       '2025-26',
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-    );
+    ];
+
+    try {
+      db.prepare(`
+        INSERT OR REPLACE INTO site_settings (
+          id, applyNowEnabled, applyNowUrl, applyNowLabel, siteName, siteLogo, 
+          contactEmail, contactPhone, contactAddress, currentSession,
+          showCarousel, showMarquee, showAbout, showFeature, showVision, 
+          showInsights, showPrincipalMessage, showDistinction, showGallery, 
+          showLeadership, showHonors
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(...seedValues);
+      console.log('Seeded site_settings table.');
+    } catch (e: any) {
+      console.warn("Could not seed site_settings directly:", e.message);
+    }
+
+    try {
+      db.prepare(`
+        INSERT OR REPLACE INTO settings (
+          id, applyNowEnabled, applyNowUrl, applyNowLabel, siteName, siteLogo, 
+          contactEmail, contactPhone, contactAddress, currentSession,
+          showCarousel, showMarquee, showAbout, showFeature, showVision, 
+          showInsights, showPrincipalMessage, showDistinction, showGallery, 
+          showLeadership, showHonors
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(...seedValues);
+      console.log('Seeded settings table.');
+    } catch (e: any) {
+      console.warn("Could not seed settings legacy directly:", e.message);
+    }
 }
 
 // Seed Default Content if empty
@@ -1695,16 +1721,39 @@ app.get('/api/data', (req, res) => {
       data[table] = rows;
     });
 
-    const settings = db.prepare(`SELECT * FROM site_settings WHERE id = 'global'`).get() as any;
-    if (settings) {
-      const convertedSettings = { ...settings };
-      Object.keys(settings).forEach(key => {
-        if (key.startsWith('show') || key.endsWith('Enabled')) {
-          convertedSettings[key] = Boolean(settings[key] ?? 1);
-        }
-      });
-      data.settings = convertedSettings;
+    let settings = db.prepare(`SELECT * FROM site_settings WHERE id = 'global'`).get() as any;
+    if (!settings) {
+      try {
+        settings = db.prepare(`SELECT * FROM settings WHERE id = 'global'`).get() as any;
+      } catch (e) {}
     }
+    
+    if (!settings) {
+      settings = {
+        id: 'global',
+        applyNowEnabled: 1,
+        applyNowUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
+        applyNowLabel: 'Apply 2026-27',
+        siteName: "St. Xavier's Sr. Sec. School, Jaipur",
+        siteLogo: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
+        contactEmail: 'xaviersjaipur@gmail.com',
+        contactPhone: '0141-2372336, 2362436',
+        contactAddress: 'Bhagwan Das Road, C-Scheme, Jaipur - 302001, Rajasthan, India',
+        currentSession: '2025-26',
+        showCarousel: 1, showMarquee: 1, showAbout: 1, showFeature: 1, showVision: 1, 
+        showInsights: 1, showPrincipalMessage: 1, showDistinction: 1, showGallery: 1, 
+        showLeadership: 1, showHonors: 1, popupEnabled: 1, popupMessage: 'Welcome to St. Xavier\'s, C-scheme.',
+        flagEnabled: 1, careerFormEnabled: 1, faviconUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png'
+      };
+    }
+
+    const convertedSettings = { ...settings };
+    Object.keys(settings).forEach(key => {
+      if (key.startsWith('show') || key.endsWith('Enabled')) {
+        convertedSettings[key] = Boolean(settings[key] ?? 1);
+      }
+    });
+    data.settings = convertedSettings;
 
     res.json(data);
   } catch (err: any) {
