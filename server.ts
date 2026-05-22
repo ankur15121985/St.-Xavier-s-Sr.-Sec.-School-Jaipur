@@ -816,7 +816,7 @@ db.exec(`
   )
 `);
 
-const pageTables = ['activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'fire_safety'];
+const pageTables = ['activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'fire_safety', 'custom_content'];
 pageTables.forEach(table => {
   db.exec(`
     CREATE TABLE IF NOT EXISTS "${table}" (
@@ -831,6 +831,67 @@ pageTables.forEach(table => {
     )
   `);
 });
+
+// Create additional missing tables for Co-curricular, Former Leaders and Career space
+db.exec(`
+  CREATE TABLE IF NOT EXISTS co_curricular_activities (
+    id TEXT PRIMARY KEY,
+    title TEXT,
+    heading TEXT,
+    content TEXT,
+    display_type TEXT DEFAULT 'tile',
+    category TEXT DEFAULT 'General',
+    order_index INTEGER DEFAULT 0,
+    attachmentUrl TEXT,
+    image_url TEXT,
+    is_enabled INTEGER DEFAULT 1
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS former_leaders (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    tenure TEXT,
+    image TEXT,
+    order_index INTEGER,
+    type TEXT
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS career_applications (
+    id TEXT PRIMARY KEY,
+    application_no TEXT,
+    category TEXT,
+    full_name TEXT,
+    parent_spouse_name TEXT,
+    mobile_number TEXT,
+    email TEXT,
+    gender TEXT,
+    dob TEXT,
+    aadhar_number TEXT,
+    address TEXT,
+    photo_url TEXT,
+    user_ip TEXT,
+    declaration_accepted INTEGER,
+    major_subject TEXT,
+    minor_subject_1 TEXT,
+    minor_subject_2 TEXT,
+    salary_expected TEXT,
+    tet_details TEXT,
+    interests TEXT,
+    responsibilities_handled TEXT,
+    statement_of_purpose TEXT,
+    other_experience TEXT,
+    education_qualifications TEXT,
+    teaching_experience TEXT,
+    achievements TEXT,
+    teacher_category TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    status TEXT
+  )
+`);
 
 // Migration for is_enabled on fire_safety and others
 pageTables.forEach(table => {
@@ -1712,7 +1773,16 @@ app.get('/api/supabase-config', (req, res) => {
 app.get('/api/data', (req, res) => {
   try {
     const data: any = {};
-    const tables = ['gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements', 'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups', 'school_history', 'lead_grace', 'school_info', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content', 'fire_safety', 'site_stats'];
+    const tables = [
+      'gallery', 'notices', 'staff', 'fees', 'links', 'events', 'achievements',
+      'menu', 'carousel', 'studentHonors', 'faqs', 'messages', 'content', 'popups',
+      'school_history', 'lead_grace', 'school_info', 'activities', 'co_curricular_activities',
+      'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content',
+      'scholarships', 'jesuit_page_content', 'fire_safety', 'site_stats', 'former_leaders',
+      'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders',
+      'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content',
+      'transfer_certificates', 'career_applications', 'digital_campus', 'marquee'
+    ];
 
     tables.forEach(table => {
       let rows = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
@@ -1726,10 +1796,24 @@ app.get('/api/data', (req, res) => {
         rows = rows.map(r => ({ ...r, isPriority: Boolean(r.isPriority) }));
       } else if (table === 'studentHonors') {
         rows = rows.map(r => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
+      } else if (table === 'co_curricular_activities') {
+        rows = rows.map(r => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
+      } else if (table === 'custom_content') {
+        rows = rows.map(r => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
+      } else if (table === 'fire_safety') {
+        rows = rows.map(r => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
       }
       
-      data[table] = rows;
+      if (table === 'digital_campus') {
+        const row = rows[0] || { id: 'current', title: 'Legacy in Motion', is_enabled: 1, model_url: '' };
+        data['digital_campus'] = { ...row, is_enabled: Boolean(row.is_enabled) };
+      } else {
+        data[table] = rows;
+      }
     });
+
+    // Provide navigation_menu alias representing the menu table
+    data['navigation_menu'] = data['menu'] || [];
 
     let settings = db.prepare(`SELECT * FROM site_settings WHERE id = 'global'`).get() as any;
     if (!settings) {
@@ -1779,11 +1863,13 @@ const SCHEMA: Record<string, string[]> = {
   carousel: ['id', 'url', 'caption', 'session', 'attachmentUrl'],
   fees: ['id', 'category', 'particulars', 'amount', 'quarterly', 'remarks', 'order_index', 'attachmentUrl'],
   links: ['id', 'title', 'url', 'isPriority', 'icon', 'attachmentUrl'],
+  useful_links: ['id', 'title', 'url', 'isPriority', 'icon', 'attachmentUrl'],
   events: ['id', 'title', 'date', 'time', 'location', 'attachmentUrl'],
   achievements: ['id', 'title', 'year', 'description', 'attachmentUrl'],
   transfer_certificates: ['id', 'admission_number', 'dob', 'student_name', 'attachmentUrl'],
   studentHonors: ['id', 'name', 'category', 'result', 'subtext', 'image', 'order_index', 'attachmentUrl'],
   menu: ['id', 'label', 'href', 'parent_id', 'order_index', 'attachmentUrl'],
+  navigation_menu: ['id', 'label', 'href', 'parent_id', 'order_index', 'attachmentUrl'],
   faqs: ['id', 'question', 'answer', 'category', 'order_index', 'attachmentUrl'],
   messages: ['id', 'name', 'email', 'subject', 'message', 'timestamp', 'status', 'attachmentUrl'],
   popups: ['id', 'title', 'type', 'content', 'buttonText', 'buttonLink', 'isActive', 'order_index', 'attachmentUrl'],
@@ -1800,12 +1886,19 @@ const SCHEMA: Record<string, string[]> = {
   school_history: ['id', 'title', 'content', 'updated_at'],
   lead_grace: ['id', 'heading', 'content', 'image_url', 'updated_at'],
   digital_campus: ['id', 'title', 'is_enabled', 'model_url'],
+  former_leaders: ['id', 'name', 'tenure', 'image', 'order_index', 'type'],
   former_principals: ['id', 'name', 'tenure', 'image', 'order_index'],
   former_rectors: ['id', 'name', 'tenure', 'image', 'order_index'],
   former_managers: ['id', 'name', 'tenure', 'image', 'order_index'],
   former_student_leaders: ['id', 'name', 'role', 'academic_year', 'image', 'order_index'],
+  marquee: ['id', 'text', 'link', 'attachmentUrl', 'isActive', 'order_index'],
   streamwise_toppers: ['id', 'name', 'stream', 'percentage', 'academic_year', 'image', 'order_index'],
   xavierite_of_the_year: ['id', 'name', 'academic_year', 'citation', 'image', 'order_index'],
+  custom_content: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'is_enabled'],
+  co_curricular_activities: ['id', 'title', 'heading', 'content', 'display_type', 'category', 'order_index', 'attachmentUrl', 'image_url', 'is_enabled'],
+  career_applications: [
+    'id', 'application_no', 'category', 'full_name', 'parent_spouse_name', 'mobile_number', 'email', 'gender', 'dob', 'aadhar_number', 'address', 'photo_url', 'user_ip', 'declaration_accepted', 'major_subject', 'minor_subject_1', 'minor_subject_2', 'salary_expected', 'tet_details', 'interests', 'responsibilities_handled', 'statement_of_purpose', 'other_experience', 'education_qualifications', 'teaching_experience', 'achievements', 'teacher_category', 'created_at', 'status'
+  ],
   settings: ['id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 'contactEmail', 'contactPhone', 'contactAddress', 'currentSession', 'feesPdfUrl', 'popupMessage', 'popupEnabled'],
   content: [
     'id', 'heroTitle1', 'heroTitle2', 'heroBadge', 'heroDescription', 'carouselBranding',
@@ -1869,6 +1962,13 @@ app.post('/api/save', authenticateToken, express.json(), async (req, res) => {
     }
 
     // 2. Local SQLite Sync
+    let sqliteTable = table;
+    if (table === 'navigation_menu') {
+      sqliteTable = 'menu';
+    } else if (table === 'site_settings') {
+      sqliteTable = 'settings';
+    }
+
     const placeholders = fields.map(() => '?').join(',');
     const values = fields.map(f => {
       const val = item[f];
@@ -1876,7 +1976,7 @@ app.post('/api/save', authenticateToken, express.json(), async (req, res) => {
       return val;
     });
 
-    const query = `INSERT OR REPLACE INTO "${table}" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`;
+    const query = `INSERT OR REPLACE INTO "${sqliteTable}" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`;
     db.prepare(query).run(values);
     
     // 2. Record Audit Log
