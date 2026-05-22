@@ -1,10 +1,10 @@
 import { AppData } from '../types';
-import { supabase, isSupabasePlaceholder } from '../supabaseClient';
+import { supabase, getIsSupabasePlaceholder } from '../supabaseClient';
 
 export const supabaseService = {
   async fetchAllData(): Promise<Partial<AppData>> {
     try {
-      if (isSupabasePlaceholder) {
+      if (getIsSupabasePlaceholder()) {
         console.warn('[Supabase Service] Placeholder client detected. Bypassing client-side fetch and utilizing local SQLite database server directly.');
         throw new Error('Supabase client is unconfigured');
       }

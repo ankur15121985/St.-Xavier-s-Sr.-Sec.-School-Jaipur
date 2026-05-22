@@ -15,7 +15,7 @@ import { DEFAULT_DATA } from '../App';
 import { useSupabase } from '../components/SupabaseProvider';
 import { supabaseService } from '../lib/supabaseService';
 import { storageService } from '../lib/storageService';
-import { supabase } from '../supabaseClient';
+import { supabase, getIsSupabasePlaceholder } from '../supabaseClient';
 
 import DOMPurify from 'dompurify';
 import SidebarLinks from '../components/layout/SidebarLinks';
@@ -1538,22 +1538,46 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
           <div className="max-w-5xl mx-auto space-y-12 pb-20">
             <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-8">
               <div className="relative z-10">
-                <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-2">Central Configurations</h2>
-                <p className="text-sm text-white/40 font-light">Manage global application states, session identifiers, and storage infrastructure.</p>
+                <div className="flex items-center gap-3 mb-2">
+                  <h2 className="text-3xl font-serif font-black text-white italic tracking-tight">Central Configurations</h2>
+                  {getIsSupabasePlaceholder() ? (
+                    <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[9px] font-black uppercase tracking-widest border border-amber-500/30">
+                      Local SQLite Mode
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[9px] font-black uppercase tracking-widest border border-emerald-500/30 animate-pulse">
+                      Supabase Cloud Active
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-white/40 font-light">
+                  {getIsSupabasePlaceholder() 
+                    ? "Currently using the offline SQLite fallbacks. Sync to host cloud content."
+                    : "Fully connected to Supabase Cloud Storage and relational tables."}
+                </p>
               </div>
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-4 relative z-10">
                  <button 
                    onClick={() => {
                      const sql = `-- SUPABASE STORAGE SETUP\n-- Run this in SQL Editor to fix "Bucket not found" errors\n\nINSERT INTO storage.buckets (id, name, public) \nVALUES ('career_assets', 'career_assets', true) \nON CONFLICT (id) DO NOTHING;\n\nCREATE POLICY "Public Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'career_assets');\nCREATE POLICY "Public View" ON storage.objects FOR SELECT USING (bucket_id = 'career_assets');`;
                      navigator.clipboard.writeText(sql);
                      showToast('Storage Fix SQL copied!');
                    }}
-                   className="px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl flex items-center gap-2"
+                   className="px-6 py-3 bg-school-gold text-school-navy rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl flex items-center gap-2 outline-none font-bold"
                  >
-                   <Database size={14} /> Fix Storage Bucket
+                   <Database size={14} /> Copy Storage Fix SQL
                  </button>
-                 <button onClick={handleSaveAll} disabled={!savePending} className={`px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${savePending ? 'bg-emerald-500 text-white shadow-xl hover:scale-105' : 'bg-white/10 text-white/20 cursor-not-allowed uppercase'}`}>
-                   {savePending ? 'Sync Changes' : 'State Current'}
+                 <button 
+                   onClick={handleSaveAll} 
+                   disabled={uploadingPath === 'global'}
+                   className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-2 outline-none font-bold ${
+                     uploadingPath === 'global'
+                       ? 'bg-white/10 text-white/40 cursor-not-allowed'
+                       : 'bg-emerald-500 text-white hover:bg-emerald-600 hover:scale-105 active:scale-95'
+                   }`}
+                 >
+                   <RefreshCw size={14} className={uploadingPath === 'global' ? 'animate-spin' : ''} />
+                   {uploadingPath === 'global' ? 'Syncing...' : 'Sync Entire DB to Supabase'}
                  </button>
               </div>
             </div>

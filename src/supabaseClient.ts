@@ -1,21 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 
 const getStaticEnv = (): { url?: string; key?: string } => {
-  let url = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  let key = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  let url = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  let key = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY;
   
   if (!url || !key) {
     try {
-      url = url || (import.meta as any).env?.VITE_SUPABASE_URL || (import.meta as any).env?.NEXT_PUBLIC_SUPABASE_URL;
-      key = key || (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || (import.meta as any).env?.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      url = url || (import.meta as any).env?.VITE_SUPABASE_URL || (import.meta as any).env?.NEXT_PUBLIC_SUPABASE_URL || (import.meta as any).env?.SUPABASE_URL;
+      key = key || (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || (import.meta as any).env?.NEXT_PUBLIC_SUPABASE_ANON_KEY || (import.meta as any).env?.SUPABASE_ANON_KEY || (import.meta as any).env?.SUPABASE_KEY;
     } catch {}
   }
   return { url, key };
 };
 
 const { url: envUrl, key: envKey } = getStaticEnv();
-const SUPABASE_URL = envUrl;
-const SUPABASE_ANON_KEY = envKey;
+let SUPABASE_URL = envUrl;
+let SUPABASE_ANON_KEY = envKey;
 
 const isValidUrl = (url: string): boolean => {
   try {
@@ -25,8 +25,8 @@ const isValidUrl = (url: string): boolean => {
   }
 };
 
-const safeUrl = isValidUrl(SUPABASE_URL || '') ? (SUPABASE_URL as string) : 'https://placeholder-project-id.supabase.co';
-const safeKey = SUPABASE_ANON_KEY || 'placeholder-anon-key';
+let safeUrl = isValidUrl(SUPABASE_URL || '') ? (SUPABASE_URL as string) : 'https://placeholder-project-id.supabase.co';
+let safeKey = SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !isValidUrl(SUPABASE_URL)) {
   console.warn(
@@ -37,15 +37,29 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !isValidUrl(SUPABASE_URL)) {
 
 export let isSupabasePlaceholder = !SUPABASE_URL || !SUPABASE_ANON_KEY || !isValidUrl(SUPABASE_URL) || SUPABASE_URL.includes('placeholder-project-id') || safeUrl.includes('placeholder-project-id');
 
-export let supabase = createClient(safeUrl, safeKey);
+let activeClient = createClient(safeUrl, safeKey);
 
 export function initializeSupabase(url: string, key: string) {
-  if (url && key && !url.includes('placeholder-project-id')) {
-    supabase = createClient(url, key);
+  if (url && key && !url.includes('placeholder-project-id') && isValidUrl(url)) {
+    activeClient = createClient(url, key);
     isSupabasePlaceholder = false;
+    SUPABASE_URL = url;
+    SUPABASE_ANON_KEY = key;
+    safeUrl = url;
+    safeKey = key;
     console.log('[Supabase Client] Dynamically initialized with server credentials.');
   }
 }
+
+export function getIsSupabasePlaceholder(): boolean {
+  return isSupabasePlaceholder;
+}
+
+export const supabase = new Proxy({} as any, {
+  get(target, prop, receiver) {
+    return Reflect.get(activeClient, prop, receiver);
+  }
+});
 
 /**
  * Uploads a file to Supabase Storage and returns the public URL

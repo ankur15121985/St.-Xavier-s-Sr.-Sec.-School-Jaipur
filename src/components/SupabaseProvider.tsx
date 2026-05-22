@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, isSupabasePlaceholder, initializeSupabase } from '../supabaseClient';
+import { supabase, getIsSupabasePlaceholder, initializeSupabase } from '../supabaseClient';
 import { User } from '@supabase/supabase-js';
 
 interface SupabaseContextType {
@@ -190,7 +190,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const supabaseFallbackLogin = async (username: string, pass: string) => {
     console.log(`[Auth] Executing Supabase fallback login for: ${username}`);
     try {
-      if (isSupabasePlaceholder) {
+      if (getIsSupabasePlaceholder()) {
         console.warn('[Auth] Placeholder Supabase client detected in fallback login. Performing safe offline bypass.');
         const presetUsernames = ['admin', 'ankur15121985', 'ankur24121985', 'school_admin', 'root'];
         if (presetUsernames.includes(username.toLowerCase())) {
