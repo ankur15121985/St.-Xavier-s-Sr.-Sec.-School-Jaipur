@@ -572,44 +572,10 @@ const DataLoader = ({ children, data, setData, loading, setLoading }: { children
                 // IMPORTANT: Only overwrite if the fetched array actually has items,
                 // OR if it's a section where an empty list is a valid user-defined state
                 // (like messages or logs). For content tables, empty often means sync failure.
-                const isContentTable = ['staff', 'notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'marquee', 'popups', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'career_applications'].includes(k);
+                const isContentTable = ['staff', 'notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'marquee', 'popups', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'career_applications', 'school_history'].includes(k);
                 
                 if (val.length > 0 || !isContentTable) {
-                  if (k === 'navigation_menu') {
-                    // Filter out deprecated or duplicate menu items
-                    const filteredVal = (val as any[]).filter(m => 
-                      m.label !== 'Staff Directory' && 
-                      m.label !== 'Our Patron' && 
-                      m.label !== 'School ANthem' &&
-                      m.label !== 'Tenders' &&
-                      m.label !== 'Fee Payment' &&
-                      m.label !== 'Prospectus' &&
-                      m.label !== 'rules & Disciplin' &&
-                      m.label !== 'Rules & Disciplin'
-                    ).map(m => {
-                      // Fix academics directory link if it's stale in the DB
-                      if (m.label === 'Academics Directory' && (m.href === '/academics' || m.href.includes('#academic-regulations'))) {
-                        return { ...m, href: '/jesuit-education-objectives' };
-                      }
-                      return m;
-                    });
-                    
-                    // Deduplicate by label to prevent key collisions even if IDs differ
-                    const seenLabels = new Set();
-                    const deduplicated = filteredVal.filter(m => {
-                      if (seenLabels.has(m.label)) return false;
-                      seenLabels.add(m.label);
-                      return true;
-                    });
-
-                    const fetchedIds = new Set(deduplicated.map(m => m.id));
-                    const missing = DEFAULT_DATA.navigation_menu.filter(m => {
-                      return !fetchedIds.has(m.id) && !seenLabels.has(m.label);
-                    });
-                    merged[k] = [...deduplicated, ...missing] as any;
-                  } else {
-                    merged[k] = val as any;
-                  }
+                  merged[k] = val as any;
                 }
               } else {
                 // If it's an object (like settings or content), merge it with DEFAULT_DATA

@@ -1,5 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
+const cleanSupabaseUrl = (url?: string): string => {
+  if (!url) return '';
+  let clean = url.trim();
+  clean = clean.replace('/rest/v1/', '').replace('/rest/v1', '');
+  if (clean.endsWith('/')) {
+    clean = clean.slice(0, -1);
+  }
+  return clean;
+};
+
 const getStaticEnv = (): { url?: string; key?: string } => {
   let url = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
   let key = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY;
@@ -10,7 +20,7 @@ const getStaticEnv = (): { url?: string; key?: string } => {
       key = key || (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || (import.meta as any).env?.NEXT_PUBLIC_SUPABASE_ANON_KEY || (import.meta as any).env?.SUPABASE_ANON_KEY || (import.meta as any).env?.SUPABASE_KEY;
     } catch {}
   }
-  return { url, key };
+  return { url: cleanSupabaseUrl(url), key };
 };
 
 const { url: envUrl, key: envKey } = getStaticEnv();
@@ -40,14 +50,15 @@ export let isSupabasePlaceholder = !SUPABASE_URL || !SUPABASE_ANON_KEY || !isVal
 let activeClient = createClient(safeUrl, safeKey);
 
 export function initializeSupabase(url: string, key: string) {
-  if (url && key && !url.includes('placeholder-project-id') && isValidUrl(url)) {
-    activeClient = createClient(url, key);
+  const cleanedUrl = cleanSupabaseUrl(url);
+  if (cleanedUrl && key && !cleanedUrl.includes('placeholder-project-id') && isValidUrl(cleanedUrl)) {
+    activeClient = createClient(cleanedUrl, key);
     isSupabasePlaceholder = false;
-    SUPABASE_URL = url;
+    SUPABASE_URL = cleanedUrl;
     SUPABASE_ANON_KEY = key;
-    safeUrl = url;
+    safeUrl = cleanedUrl;
     safeKey = key;
-    console.log('[Supabase Client] Dynamically initialized with server credentials.');
+    console.log('[Supabase Client] Dynamically initialized with server credentials (cleaned URL).');
   }
 }
 

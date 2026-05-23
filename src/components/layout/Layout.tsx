@@ -102,13 +102,17 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
     
     const buildTree = (parentId: string | null = null): NavLink[] => {
       return data.navigation_menu
-        .filter(m => m.parent_id === parentId)
-        .sort((a, b) => a.order_index - b.order_index)
+        .filter(m => {
+          const mParent = (!m.parent_id || m.parent_id === 'null' || m.parent_id === '') ? null : m.parent_id;
+          const targetParent = (!parentId || parentId === 'null' || parentId === '') ? null : parentId;
+          return mParent === targetParent;
+        })
+        .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
         .map(m => {
           const subLinks = buildTree(m.id);
           return {
             id: m.id,
-            label: m.label.toUpperCase(),
+            label: (m.label || '').toUpperCase(),
             href: m.attachmentUrl || m.href,
             subLinks: subLinks.length > 0 ? subLinks : undefined
           };

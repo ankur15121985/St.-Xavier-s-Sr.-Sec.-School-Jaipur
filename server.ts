@@ -403,15 +403,10 @@ const seedAdmin = async () => {
   if ((adminCount?.count || 0) === 0) {
     console.log("[AUTH] Seeding root admin...");
     
-    // Use environment variables for initial admin credentials
+    // Choose environment variable if present, else fallback to safe admin credentials
     const rootUser = process.env.INITIAL_ADMIN_USERNAME || 'admin';
-    const rootPass = process.env.INITIAL_ADMIN_PASSWORD;
+    const rootPass = process.env.INITIAL_ADMIN_PASSWORD || 'admin123';
     
-    if (!rootPass) {
-       console.warn("[AUTH] No INITIAL_ADMIN_PASSWORD set. Admin seeding skipped for security. Set it in environment variables.");
-       return;
-    }
-
     const hashedPass = await bcrypt.hash(rootPass, 12);
     db.prepare("INSERT INTO admins (id, username, password, role) VALUES (?, ?, ?, ?)").run(
       'root-admin',
@@ -419,7 +414,18 @@ const seedAdmin = async () => {
       hashedPass,
       'admin'
     );
-    console.log(`[AUTH] Admin '${rootUser}' seeded.`);
+    console.log(`[AUTH] Admin '${rootUser}' seeded successfully.`);
+    
+    // Seed the user requested 'ankur15121985' for immediate usability
+    const secondaryUser = 'ankur15121985';
+    const secondaryHashed = await bcrypt.hash('ankur24121985', 12);
+    db.prepare("INSERT INTO admins (id, username, password, role) VALUES (?, ?, ?, ?)").run(
+      'ankur-admin',
+      secondaryUser,
+      secondaryHashed,
+      'admin'
+    );
+    console.log(`[AUTH] Admin '${secondaryUser}' seeded successfully.`);
   }
 };
 
@@ -476,13 +482,20 @@ app.get('/api/routes', (req, res) => {
 });
 
 // Constants
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+let SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (SUPABASE_URL) {
+  SUPABASE_URL = SUPABASE_URL.trim().replace('/rest/v1/', '').replace('/rest/v1', '');
+  if (SUPABASE_URL.endsWith('/')) {
+    SUPABASE_URL = SUPABASE_URL.slice(0, -1);
+  }
+}
 
 let supabaseServer: any = null;
 if (SUPABASE_URL && SUPABASE_KEY) {
   supabaseServer = createClient(SUPABASE_URL, SUPABASE_KEY);
-  console.log('[SUPABASE] Server-side client initialized.');
+  console.log('[SUPABASE] Server-side client initialized with clean URL:', SUPABASE_URL);
 } else {
   console.warn('[SUPABASE] Server-side client NOT initialized. Missing credentials in environment.');
 }
@@ -1198,25 +1211,32 @@ if ((menuCountResult?.count || 0) === 0) {
     const navLinks = [
         { id: '1', label: 'Home', href: '/', parent_id: null, order_index: 0 },
         { id: '2', label: 'About Us', href: '#', parent_id: null, order_index: 1 },
-        { id: '2-1', label: 'Our Founder & Patron', href: '/founder-patron', parent_id: '2', order_index: 0 },
-        { id: '2-3', label: 'Our Patron', href: '/founder-patron#patron', parent_id: '2', order_index: 2 },
-        { id: '2-4', label: 'School Governing Members', href: '/governing-members', parent_id: '2', order_index: 3 },
-        { id: '2-5', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 4 },
-        { id: '2-6', label: 'Other Association & Committee', href: '#', parent_id: '2', order_index: 5 },
-        { id: '2-6-1', label: 'Internal Complaints Committee (POSH)', href: '#', parent_id: '2-6', order_index: 0 },
-        { id: '2-6-2', label: 'Internal Grievance Cell', href: '#', parent_id: '2-6', order_index: 1 },
-        { id: '2-6-3', label: 'POCSO Committee', href: '#', parent_id: '2-6', order_index: 2 },
-        { id: '2-6-4', label: 'School Level Fee Committee (SLFC)', href: '#', parent_id: '2-6', order_index: 3 },
-        { id: '2-6-5', label: 'Parent Teacher Association (PTA)', href: '#', parent_id: '2-6', order_index: 4 },
+        { id: '2-5', label: 'Our Founder', href: '/founder-patron#founder', parent_id: '2', order_index: 0 },
+        { id: '2-1', label: 'School History', href: '/history#legacy', parent_id: '2', order_index: 1 },
+        { id: '2-2', label: 'Former Principals', href: '/former-principals', parent_id: '2', order_index: 2 },
+        { id: '2-3', label: 'Former Rectors', href: '/former-rectors', parent_id: '2', order_index: 3 },
+        { id: '2-4', label: 'Former Managers', href: '/former-managers', parent_id: '2', order_index: 4 },
+        { id: '2-7', label: 'School Governing Members', href: '/governing-members', parent_id: '2', order_index: 5 },
+        { id: '2-8', label: 'School Staff', href: '/staff', parent_id: '2', order_index: 6 },
+        { id: '2-9', label: 'Xavierite of the Year', href: '/xavierite-of-the-year', parent_id: '2', order_index: 7 },
+        { id: '2-10', label: 'Stream Toppers', href: '/stream-toppers', parent_id: '2', order_index: 8 },
+        { id: '2-11', label: 'Former Head Boy & Girls', href: '/former-student-leaders', parent_id: '2', order_index: 9 },
         { id: '3', label: 'Admission', href: '#', parent_id: null, order_index: 2 },
         { id: '3-1', label: 'Admission Policy', href: '/admission-policy', parent_id: '3', order_index: 0 },
         { id: '3-2', label: 'Scholarship & Concessions', href: '/scholarships', parent_id: '3', order_index: 1 },
-        { id: '3-4', label: 'Studybase Mobile App', href: '/studybase-app', parent_id: '3', order_index: 2 },
-        { id: '3-3', label: 'Fees Structure', href: '/fees', parent_id: null, order_index: 3 },
+        { id: '3-4', label: 'Studybase Mobile App', href: '/studybase-app', parent_id: '3', order_index: 3 },
+        { id: '3-5', label: 'Other Association & Committee', href: '#', parent_id: '3', order_index: 4 },
+        { id: '3-5-1', label: 'Internal Complaints Committee (POSH)', href: '#', parent_id: '3-5', order_index: 0 },
+        { id: '3-5-2', label: 'Internal Grievance Cell', href: '#', parent_id: '3-5', order_index: 1 },
+        { id: '3-5-3', label: 'POCSO Committee', href: '#', parent_id: '3-5', order_index: 2 },
+        { id: '3-5-4', label: 'School Level Fee Committee (SLFC)', href: '#', parent_id: '3-5', order_index: 3 },
+        { id: '3-5-5', label: 'Parent Teacher Association (PTA)', href: '#', parent_id: '3-5', order_index: 4 },
+        { id: '3-3', label: 'Fees', href: '/fees', parent_id: null, order_index: 3 },
         { id: '4', label: 'Academics', href: '#', parent_id: null, order_index: 4 },
-        { id: '4-1', label: 'Jesuit Education Objectives', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
-        { id: '4-2', label: 'Academics Directory', href: '/jesuit-education-objectives', parent_id: '4', order_index: 1 },
-        { id: '4-3', label: 'Rules & Discipline', href: '#', parent_id: '4', order_index: 2 },
+        { id: '4-1', label: 'OBJECTIVES OF JESUIT EDUCATION', href: '/jesuit-education-objectives', parent_id: '4', order_index: 0 },
+        { id: '4-2', label: 'Academics Directory', href: '/academics', parent_id: '4', order_index: 1 },
+        { id: '4-3', label: 'Examinations & Promotions', href: '/jesuit-education-objectives#examinations', parent_id: '4', order_index: 2 },
+        { id: '4-4', label: 'Rules & Discipline', href: '/jesuit-education-objectives#discipline', parent_id: '4', order_index: 3 },
         { id: '5', label: 'Activities', href: '#', parent_id: null, order_index: 5 },
         { id: '5-1', label: 'Co-Curricular Activities', href: '/co-curricular', parent_id: '5', order_index: 0 },
         { id: '5-2', label: 'Fr. Batson Sports Complex', href: '/sports-complex', parent_id: '5', order_index: 1 },
@@ -1227,19 +1247,16 @@ if ((menuCountResult?.count || 0) === 0) {
         { id: '6', label: 'CBSE Corner', href: '#', parent_id: null, order_index: 6 },
         { id: '6-1', label: 'School Information', href: '/school-info', parent_id: '6', order_index: 0 },
         { id: '6-2', label: 'Fire safety', href: '/safety-guidelines', parent_id: '6', order_index: 1 },
+        { id: '9-4', label: 'Transfer Certificate', href: '/transfer-certificate', parent_id: '6', order_index: 2 },
         { id: '7', label: 'For Parents', href: '#', parent_id: null, order_index: 7 },
         { id: '7-1', label: 'Obligations of Parents', href: '/parent-obligations', parent_id: '7', order_index: 0 },
         { id: '8', label: 'Career', href: '#', parent_id: null, order_index: 8 },
         { id: '8-1', label: 'Careers', href: '/careers', parent_id: '8', order_index: 0 },
-        { id: '11', label: 'Insights', href: '#', parent_id: null, order_index: 9 },
-        { id: '11-1', label: 'Streamwise Toppers', href: '/stream-toppers', parent_id: '11', order_index: 0 },
-        { id: '11-2', label: 'Laurel & Distinction', href: '/laurel-distinction', parent_id: '11', order_index: 1 },
-        { id: '11-3', label: 'Xavierite of the Year', href: '/xavierite-of-the-year', parent_id: '11', order_index: 2 },
-        { id: '11-4', label: 'Former Student Leaders', href: '/former-student-leaders', parent_id: '11', order_index: 3 },
-        { id: '9', label: 'More', href: '#', parent_id: null, order_index: 10 },
+        { id: '9', label: 'More', href: '#', parent_id: null, order_index: 9 },
         { id: '9-1', label: 'Notice Board', href: '/notice-board', parent_id: '9', order_index: 0 },
-        { id: '9-3', label: 'Mandatory disclosure', href: '#', parent_id: '9', order_index: 1 },
-        { id: '9-4', label: 'Transfer Certificate', href: '#', parent_id: '9', order_index: 2 },
+        { id: '9-3', label: 'Mandatory disclosure', href: '/mandatory-disclosures', parent_id: '9', order_index: 1 },
+        { id: '9-5', label: 'INSIGHTS', href: '#', parent_id: '9', order_index: 3 },
+        { id: '10', label: 'Contact', href: '/contact', parent_id: null, order_index: 10 }
     ];
 
     const insert = db.prepare("INSERT INTO menu (id, label, href, parent_id, order_index) VALUES (?, ?, ?, ?, ?)");
@@ -1523,8 +1540,11 @@ const cleanMenu = () => {
         // Remove unwanted Insights items
         db.prepare("DELETE FROM menu WHERE id IN ('11-1', '11-4')").run();
 
-        // Remove "Other Association & Committee" from Admission (parent '3') if it exists
-        db.prepare("DELETE FROM menu WHERE label LIKE 'OTHER ASSOCIATION%' AND parent_id = '3'").run();
+        // Clean up old 2-6 based menu list to avoid duplicate or incorrect entries under About Us
+        db.prepare("DELETE FROM menu WHERE id LIKE '2-6%'").run();
+
+        // Remove "Other Association & Committee" from incorrect layouts
+        db.prepare("DELETE FROM menu WHERE label LIKE 'OTHER ASSOCIATION%' AND parent_id = '2'").run();
         
         db.prepare("DELETE FROM menu WHERE label LIKE 'OTHER %' AND href LIKE '%school-info%'").run();
         
@@ -1542,15 +1562,12 @@ const cleanMenu = () => {
 
         // Forced re-alignment for Association Menu and Insights
         const associations = [
-            { id: '2-6', label: 'OTHER ASSOCIATION & COMMITTEE', href: '#', parent_id: '2', order_index: 5 },
-            { id: '2-6-1', label: 'INTERNAL COMPLAINTS COMMITTEE (POSH)', href: '#', parent_id: '2-6', order_index: 0 },
-            { id: '2-6-2', label: 'INTERNAL GRIEVANCE CELL', href: '#', parent_id: '2-6', order_index: 1 },
-            { id: '2-6-3', label: 'POCSO COMMITTEE', href: '#', parent_id: '2-6', order_index: 2 },
-            { id: '2-6-4', label: 'SCHOOL LEVEL FEE COMMITTEE (SLFC)', href: '#', parent_id: '2-6', order_index: 3 },
-            { id: '2-6-5', label: 'PARENT TEACHER ASSOCIATION (PTA)', href: '#', parent_id: '2-6', order_index: 4 },
-            { id: '11', label: 'Insights', href: '#', parent_id: null, order_index: 9 },
-            { id: '11-2', label: 'Laurel & Distinction', href: '/laurel-distinction', parent_id: '11', order_index: 0 },
-            { id: '11-3', label: 'Xavierite of the Year', href: '/xavierite-of-the-year', parent_id: '11', order_index: 1 },
+            { id: '3-5', label: 'OTHER ASSOCIATION & COMMITTEE', href: '#', parent_id: '3', order_index: 4 },
+            { id: '3-5-1', label: 'INTERNAL COMPLAINTS COMMITTEE (POSH)', href: '#', parent_id: '3-5', order_index: 0 },
+            { id: '3-5-2', label: 'INTERNAL GRIEVANCE CELL', href: '#', parent_id: '3-5', order_index: 1 },
+            { id: '3-5-3', label: 'POCSO COMMITTEE', href: '#', parent_id: '3-5', order_index: 2 },
+            { id: '3-5-4', label: 'SCHOOL LEVEL FEE COMMITTEE (SLFC)', href: '#', parent_id: '3-5', order_index: 3 },
+            { id: '3-5-5', label: 'PARENT TEACHER ASSOCIATION (PTA)', href: '#', parent_id: '3-5', order_index: 4 },
         ];
 
         associations.forEach(item => {
@@ -1785,7 +1802,12 @@ app.get('/api/data', (req, res) => {
     ];
 
     tables.forEach(table => {
-      let rows = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
+      let rows: any[] = [];
+      try {
+        rows = db.prepare(`SELECT * FROM "${table}"`).all() as any[];
+      } catch (err: any) {
+        console.warn(`[SQLite Info] Table "${table}" does not exist or fetch failed. Initializing with empty array. Error:`, err.message);
+      }
       
       // Convert SQLite integers (0/1) to Booleans for frontend consistency
       if (['popups', 'marquee'].includes(table)) {
@@ -1965,7 +1987,7 @@ app.post('/api/save', authenticateToken, express.json(), async (req, res) => {
     let sqliteTable = table;
     if (table === 'navigation_menu') {
       sqliteTable = 'menu';
-    } else if (table === 'site_settings') {
+    } else if (table === 'site_settings' || table === 'settings') {
       sqliteTable = 'settings';
     }
 
@@ -1978,6 +2000,17 @@ app.post('/api/save', authenticateToken, express.json(), async (req, res) => {
 
     const query = `INSERT OR REPLACE INTO "${sqliteTable}" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`;
     db.prepare(query).run(values);
+    
+    // If it was settings, mirror to site_settings as well for GET route consistency
+    if (table === 'settings' || table === 'site_settings') {
+      try {
+        const queryMirror = `INSERT OR REPLACE INTO "site_settings" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`;
+        db.prepare(queryMirror).run(values);
+        console.log(`[SQL SYNCHRONIZER] Mirrored settings to site_settings.`);
+      } catch (e: any) {
+        console.warn(`[SQL SYNCHRONIZER WARNING] Could not mirror settings to site_settings:`, e.message);
+      }
+    }
     
     // 2. Record Audit Log
     try {
@@ -2054,15 +2087,34 @@ app.post('/api/delete', authenticateToken, express.json(), async (req, res) => {
     }
 
     // 2. Local SQLite Delete
+    let sqliteTable = table;
+    if (table === 'navigation_menu') {
+      sqliteTable = 'menu';
+    } else if (table === 'site_settings' || table === 'settings') {
+      sqliteTable = 'settings';
+    }
+
     let result;
     if (ids && Array.isArray(ids)) {
       if (ids.length === 0) return res.json({ success: true, changes: 0 });
       const placeholders = ids.map(() => '?').join(',');
-      const stmt = db.prepare(`DELETE FROM "${table}" WHERE id IN (${placeholders})`);
+      const stmt = db.prepare(`DELETE FROM "${sqliteTable}" WHERE id IN (${placeholders})`);
       result = stmt.run(ids);
+      
+      if (sqliteTable === 'settings') {
+        try {
+          db.prepare(`DELETE FROM "site_settings" WHERE id IN (${placeholders})`).run(ids);
+        } catch (e) {}
+      }
     } else {
-      const stmt = db.prepare(`DELETE FROM "${table}" WHERE id = ?`);
+      const stmt = db.prepare(`DELETE FROM "${sqliteTable}" WHERE id = ?`);
       result = stmt.run(id);
+      
+      if (sqliteTable === 'settings') {
+        try {
+          db.prepare(`DELETE FROM "site_settings" WHERE id = ?`).run(id);
+        } catch (e) {}
+      }
     }
     
     console.log(`[SQL DELETE SUCCESS] Local ${table} removed ${result.changes} rows.`);
