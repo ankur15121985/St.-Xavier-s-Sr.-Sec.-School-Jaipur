@@ -145,9 +145,33 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
       position: 'relative'
     }}>
       <Helmet>
-        <title>St. Xavier's Sr. Sec. School, Jaipur | Excellence in Education Since 1941</title>
-        <meta name="description" content="St. Xavier's Senior Secondary School, Jaipur - A premier Jesuit institution dedicated to holistic development and educational excellence since 1941." />
+        <title>{data.settings?.ogTitle || "St. Xavier's Sr. Sec. School, Jaipur | Excellence in Education Since 1941"}</title>
+        <meta name="description" content={data.settings?.ogDescription || "St. Xavier's Senior Secondary School, Jaipur - A premier Jesuit institution dedicated to holistic development and educational excellence since 1941."} />
         <meta name="keywords" content="St. Xavier's Jaipur, Xaviers Jaipur, Best School in Jaipur, Jesuit School, St. Xavier's Sr. Sec. School Bhagwan Das Road" />
+        
+        {/* Dynamic Search Verification meta tags */}
+        {data.settings?.googleSearchConsoleKey && (
+          <meta name="google-site-verification" content={data.settings.googleSearchConsoleKey} />
+        )}
+        {data.settings?.bingWebmasterKey && (
+          <meta name="msvalidate.01" content={data.settings.bingWebmasterKey} />
+        )}
+        {data.settings?.indexNowKey && (
+          <meta name="indexnow-key" content={data.settings.indexNowKey} />
+        )}
+
+        {/* Open Graph Elements */}
+        <meta property="og:title" content={data.settings?.ogTitle || data.settings?.siteName || "St. Xavier's Sr. Sec. School, Jaipur"} />
+        <meta property="og:description" content={data.settings?.ogDescription || "St. Xavier's Senior Secondary School, Jaipur - A premier Jesuit institution dedicated to holistic development and educational excellence since 1941."} />
+        <meta property="og:image" content={data.settings?.ogImage || data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ""} />
+
+        {/* Twitter Card configuration */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={data.settings?.ogTitle || data.settings?.siteName || "St. Xavier's Sr. Sec. School, Jaipur"} />
+        <meta name="twitter:description" content={data.settings?.ogDescription || "St. Xavier's Senior Secondary School, Jaipur - A premier Jesuit institution dedicated to holistic development and educational excellence since 1941."} />
+        <meta name="twitter:image" content={data.settings?.ogImage || data.settings?.siteLogo || "https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png"} />
       </Helmet>
       {/* Admin Institutional Popup - High level */}
       {data.settings && <PopupMessage settings={data.settings} />}
@@ -257,7 +281,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             {/* Row 2: Nav Bar */}
             <div className={`bg-white dark:bg-slate-900 transition-all duration-500 ${isScrolled ? 'py-0' : 'py-0'}`}>
               <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center">
-                <nav className="flex-1 hidden lg:flex items-center flex-wrap">
+                <nav style={{ flexWrap: 'nowrap' }} className="flex-1 hidden lg:flex items-center justify-between w-full gap-x-0.5 min-[1150px]:gap-x-1 xl:gap-x-1.5 2xl:gap-x-2">
                   {navLinks.map(l => (
                     <div 
                       key={l.id} 
@@ -268,10 +292,10 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       {l.subLinks ? (
                         <>
                           <button 
-                            className={`px-3 xl:px-5 py-4 text-[10px] xl:text-[12px] font-bold uppercase tracking-wider flex items-center gap-1 transition-all border-b-2 border-transparent hover:text-school-accent whitespace-nowrap ${activeDropdown === l.label ? 'text-school-accent border-school-accent bg-slate-50 dark:bg-slate-800' : 'text-school-navy dark:text-white'}`}
+                            className={`py-2.5 px-0.5 min-[1150px]:px-1 xl:px-1.5 2xl:px-2 text-[8px] min-[1150px]:text-[9px] min-[1250px]:text-[10px] xl:text-[11px] 2xl:text-xs font-bold uppercase tracking-wider flex items-center gap-0.5 transition-all border-b-2 border-transparent hover:text-school-accent whitespace-nowrap ${activeDropdown === l.label ? 'text-school-accent border-school-accent bg-slate-50 dark:bg-slate-800' : 'text-school-navy dark:text-white'}`}
                           >
                             {l.label.toUpperCase()}
-                            <ArrowDown size={10} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180' : 'opacity-40'}`} />
+                            <ArrowDown size={9} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180' : 'opacity-40'}`} />
                           </button>
                           <AnimatePresence>
                             {activeDropdown === l.label && (
@@ -293,7 +317,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       ) : (
                         <Link 
                           to={l.href}
-                          className={`px-3 xl:px-5 py-4 text-[10px] xl:text-[12px] font-bold uppercase tracking-wider transition-all border-b-2 border-transparent hover:text-school-accent whitespace-nowrap ${location.pathname === l.href ? 'text-school-accent border-school-accent' : 'text-school-navy dark:text-white'}`}
+                          className={`py-2.5 px-0.5 min-[1150px]:px-1 xl:px-1.5 2xl:px-2 text-[8px] min-[1150px]:text-[9px] min-[1250px]:text-[10px] xl:text-[11px] 2xl:text-xs font-bold uppercase tracking-wider transition-all border-b-2 border-transparent hover:text-school-accent whitespace-nowrap ${location.pathname === l.href ? 'text-school-accent border-school-accent' : 'text-school-navy dark:text-white'}`}
                         >
                           {l.label.toUpperCase()}
                         </Link>
@@ -315,7 +339,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         /* Original Home Header */
         <header className={`fixed top-0 inset-x-0 z-[100] transition-all duration-500 ${isScrolled ? 'bg-white shadow-lg' : 'bg-white shadow-sm'}`}>
           {/* Row 1: Brand & Actions */}
-          <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
+          <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-1 md:py-1.5' : 'py-3 md:py-4'}`}>
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
               {/* Brand Area - Left Defined */}
               <div className="flex items-center gap-4 relative pr-12 lg:pr-0">
@@ -384,9 +408,9 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           </div>
 
           {/* Row 2: Navigation Bar */}
-          <div className={`bg-white dark:bg-slate-900/50 backdrop-blur-md transition-all duration-500 ${isScrolled ? 'py-1' : 'py-0'}`} style={{ WebkitBackdropFilter: 'blur(12px)' }}>
+          <div className={`bg-white dark:bg-slate-900/50 backdrop-blur-md transition-all duration-500 ${isScrolled ? 'py-0.5' : 'py-0'}`} style={{ WebkitBackdropFilter: 'blur(12px)' }}>
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8">
-              <nav className="hidden lg:flex items-center justify-between flex-wrap">
+              <nav style={{ flexWrap: 'nowrap' }} className="hidden lg:flex items-center justify-between w-full gap-x-0.5 min-[1150px]:gap-x-1 xl:gap-x-1.5 2xl:gap-x-2">
                 {navLinks.map(l => (
                   <div 
                     key={l.id} 
@@ -397,10 +421,10 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                     {l.subLinks ? (
                       <>
                         <button 
-                          className={`py-4 px-2 xl:px-0 text-[10px] xl:text-[13px] font-black uppercase tracking-wider flex items-center gap-1 transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent whitespace-nowrap ${activeDropdown === l.label ? 'text-school-accent border-school-accent' : ''}`}
+                          className={`py-2.5 px-0.5 min-[1150px]:px-1 xl:px-1.5 2xl:px-2 text-[8px] min-[1150px]:text-[9px] min-[1250px]:text-[10px] xl:text-[11px] 2xl:text-xs font-black uppercase tracking-wider flex items-center gap-0.5 transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent whitespace-nowrap ${activeDropdown === l.label ? 'text-school-accent border-school-accent' : ''}`}
                         >
                           {l.label.toUpperCase()}
-                          <ArrowDown size={10} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180' : 'opacity-40'}`} />
+                          <ArrowDown size={9} className={`transition-transform duration-300 ${activeDropdown === l.label ? 'rotate-180' : 'opacity-40'}`} />
                         </button>
                         <AnimatePresence>
                           {activeDropdown === l.label && (
@@ -424,7 +448,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                     ) : (
                       <Link 
                         to={l.href}
-                        className={`py-4 px-2 xl:px-0 text-[10px] xl:text-[13px] font-black uppercase tracking-wider transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent whitespace-nowrap ${location.pathname === l.href ? 'text-school-accent border-school-accent' : ''}`}
+                        className={`py-2.5 px-0.5 min-[1150px]:px-1 xl:px-1.5 2xl:px-2 text-[8px] min-[1150px]:text-[9px] min-[1250px]:text-[10px] xl:text-[11px] 2xl:text-xs font-black uppercase tracking-wider transition-all text-school-navy hover:text-school-accent dark:text-white border-b-2 border-transparent hover:border-school-accent whitespace-nowrap ${location.pathname === l.href ? 'text-school-accent border-school-accent' : ''}`}
                       >
                         {l.label.toUpperCase()}
                       </Link>

@@ -76,9 +76,9 @@ INSERT INTO jesuit_page_content (id, objectives_html, examinations_html, promoti
 VALUES (
     'primary',
     '<ul><li>Help students become mature, spiritually oriented men and women of character.</li><li>Encourage continual striving after excellence in every field.</li><li>Value and judiciously use their freedom.</li><li>Be clear and firm on principles and courageous in action.</li><li>Be unselfish in the service of their fellow human beings.</li><li>Become agents of needed social change in the country.</li></ul>',
-    '<p>Information about examinations will be updated soon.</p>',
-    '<p>Information about promotions will be updated soon.</p>',
-    '<ul><li>Arrive at least five minutes before the first bell.</li><li>Habitually clean and neat dress.</li><li>Official school diary is mandatory daily.</li><li>Excel in conduct and cleanliness.</li><li>Damages to property must be made good.</li><li>Personal vehicles require valid licences.</li></ul>'
+    '',
+    '',
+    ''
 ) ON CONFLICT (id) DO NOTHING;
 
 -- Update Navigation Menu: Transfer Certificate to CBSE Corner

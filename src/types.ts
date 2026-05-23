@@ -130,6 +130,12 @@ export interface AppSettings {
   showHonors?: boolean;
   faviconUrl?: string;
   careerFormEnabled?: boolean;
+  googleSearchConsoleKey?: string;
+  bingWebmasterKey?: string;
+  indexNowKey?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
 }
 
 export interface StudentLeader {
@@ -281,6 +287,7 @@ export interface AppData {
   admins: AdminCredential[];
   logs: AuditLog[];
   student_leaders?: any[]; // Keep for legacy but we will remove usage
+  supabaseTableStatus?: Record<string, 'online' | 'offline'>;
 }
 
 export interface AdminCredential {

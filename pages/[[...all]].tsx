@@ -192,8 +192,67 @@ export default function CatchAllPage() {
   );
 }
 
-export async function getServerSideProps() {
-  return {
-    props: {},
-  };
+import { fetchServerData } from '../src/lib/db';
+
+export async function getServerSideProps(context: any) {
+  const { req, res } = context;
+  const rawUrl = req.url || '';
+  
+  // Extract accurate pathname without query strings
+  const pathname = rawUrl.split('?')[0] || '';
+
+  try {
+    const initialData = await fetchServerData();
+    const settings = initialData?.settings || {};
+
+    // 1. Google Search Console dynamic HTML file verification
+    // Auto-responds to any google[hash].html with the corresponding verification proof
+    if (pathname.match(/^\/google[a-zA-Z0-9_\-]+\.html$/i)) {
+      const filename = pathname.substring(1);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.write(`google-site-verification: ${filename}`);
+      res.end();
+      return { props: { initialData: null } };
+    }
+
+    // 2. Bing Webmaster XML Verification (BingSiteAuth.xml)
+    if (pathname.toLowerCase() === '/bingsiteauth.xml' && settings.bingWebmasterKey) {
+      res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+      res.write(`<?xml version="1.0" encoding="utf-8"?>
+<users>
+  <user>${settings.bingWebmasterKey}</user>
+</users>`);
+      res.end();
+      return { props: { initialData: null } };
+    }
+
+    // 3. IndexNow verification key file (.txt)
+    if (pathname.match(/^\/[a-zA-Z0-9_\-]+\.txt$/i)) {
+      const filename = pathname.substring(1);
+      const key = filename.replace(/\.txt$/i, '');
+      
+      // If indexNowKey matches or someone requested indexnow.txt directly
+      if (settings.indexNowKey && (settings.indexNowKey === key || key.toLowerCase() === 'indexnow')) {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.write(settings.indexNowKey);
+        res.end();
+        return { props: { initialData: null } };
+      }
+    }
+
+    // Normal payload delivery
+    const serialized = JSON.parse(JSON.stringify(initialData));
+    return {
+      props: {
+        initialData: serialized,
+      },
+    };
+  } catch (err: any) {
+    console.error('Server-side query fetch error:', err.message);
+    return {
+      props: {
+        initialData: null,
+      },
+    };
+  }
 }

@@ -12,6 +12,20 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
     discipline_html: ''
   };
 
+  // Check if databases returned the legacy placeholder seeds to automatically fallback to the beautiful formatted copy
+  const isExaminationsPlaceholder = !jesuitData.examinations_html || 
+    jesuitData.examinations_html.includes("Information about examinations") || 
+    jesuitData.examinations_html.trim() === "";
+
+  const isPromotionsPlaceholder = !jesuitData.promotions_html || 
+    jesuitData.promotions_html.includes("Information about promotions") || 
+    jesuitData.promotions_html.trim() === "";
+
+  const isDisciplinePlaceholder = !jesuitData.discipline_html || 
+    jesuitData.discipline_html.includes("Arrive at least five minutes") || 
+    jesuitData.discipline_html.includes("Habitually clean") ||
+    jesuitData.discipline_html.trim() === "";
+
   return (
     <Layout data={data}>
       <div className="bg-school-paper min-h-screen">
@@ -93,10 +107,10 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Academic Standards Section */}
-        <section id="examinations" className="py-24 bg-school-paper/50">
+        <section id="examinations" className="py-24 bg-school-paper/50 scroll-mt-[80px] md:scroll-mt-[112px] lg:scroll-mt-[150px]">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className="flex flex-col md:flex-row gap-4 items-end justify-between mb-16">
-              <div id="academic-regulations">
+              <div id="academic-regulations" className="scroll-mt-[80px] md:scroll-mt-[112px] lg:scroll-mt-[150px]">
                 <h2 className="text-4xl md:text-5xl font-serif font-black text-school-ink italic tracking-tight">Academic Regulations</h2>
                 <p className="text-school-ink/40 text-sm font-black uppercase tracking-widest mt-2">Examinations & Promotion Criteria</p>
               </div>
@@ -117,7 +131,7 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
                   </div>
                   <h3 className="text-2xl font-serif font-black italic text-school-ink">Examinations</h3>
                 </div>
-                {jesuitData.examinations_html ? (
+                {jesuitData.examinations_html && !isExaminationsPlaceholder ? (
                   <div className="text-sm text-school-ink/70 leading-relaxed font-light prose prose-p:m-0 max-w-none" dangerouslySetInnerHTML={{ __html: jesuitData.examinations_html }} />
                 ) : (
                   <div className="space-y-4 text-sm text-school-ink/70 leading-relaxed font-light">
@@ -144,7 +158,7 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
                   </div>
                   <h3 className="text-2xl font-serif font-black italic text-school-ink">Promotions</h3>
                 </div>
-                {jesuitData.promotions_html ? (
+                {jesuitData.promotions_html && !isPromotionsPlaceholder ? (
                   <div className="text-sm text-school-ink/70 leading-relaxed font-light prose prose-p:m-0 max-w-none" dangerouslySetInnerHTML={{ __html: jesuitData.promotions_html }} />
                 ) : (
                   <div className="space-y-4 text-sm text-school-ink/70 leading-relaxed font-light">
@@ -161,7 +175,7 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Discipline Section */}
-        <section id="discipline" className="py-24 max-w-7xl mx-auto px-6 lg:px-12">
+        <section id="discipline" className="scroll-mt-[100px] md:scroll-mt-[135px] lg:scroll-mt-[165px] py-16 md:py-24 max-w-7xl mx-auto px-6 lg:px-12">
           <div className="bg-school-paper rounded-[64px] p-12 lg:p-20 shadow-2xl relative overflow-hidden border border-school-ink/10">
              <div className="flex flex-col lg:flex-row gap-16">
                 <div className="lg:w-1/3">
@@ -177,7 +191,7 @@ const JesuitEducationPage = ({ data }: { data: AppData }) => {
                 </div>
 
                 <div className="lg:w-2/3">
-                  {jesuitData.discipline_html ? (
+                  {jesuitData.discipline_html && !isDisciplinePlaceholder ? (
                     <div className="p-8 border border-school-ink/5 rounded-[32px] bg-school-paper/50 prose prose-ink max-w-none prose-p:text-sm prose-li:text-sm" dangerouslySetInnerHTML={{ __html: jesuitData.discipline_html }} />
                   ) : (
                     <div className="grid sm:grid-cols-2 gap-12">

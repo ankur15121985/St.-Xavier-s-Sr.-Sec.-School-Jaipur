@@ -11,7 +11,7 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable, { UserOptions } from 'jspdf-autotable';
 import { AppData, GalleryItem, CareerApplication } from '../types';
-import { DEFAULT_DATA } from '../App';
+import { DEFAULT_DATA } from '../lib/defaultData';
 import { useSupabase } from '../components/SupabaseProvider';
 import { supabaseService } from '../lib/supabaseService';
 import { storageService } from '../lib/storageService';
@@ -1581,6 +1581,104 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                  </button>
               </div>
             </div>
+            {data.supabaseTableStatus && (
+              <div className="glass-surface p-8 rounded-[40px] border border-school-ink/5 space-y-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-school-navy/5 pb-4">
+                  <div>
+                    <h3 className="text-xl font-black text-school-navy uppercase italic tracking-tight flex items-center gap-2">
+                      <Database className="text-school-navy text-emerald-500 animate-pulse" size={20} />
+                      Supabase Cloud Sync Streams
+                    </h3>
+                    <p className="text-[11px] text-school-ink/60 mt-1">
+                      Showing real-time live connectivity for each database model stream. Offline models use secure local database fallbacks automatically.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-wider">
+                      {Object.values(data.supabaseTableStatus).filter(v => v === 'online').length} Online
+                    </span>
+                    {Object.values(data.supabaseTableStatus).filter(v => v === 'offline').length > 0 && (
+                      <span className="px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 text-[10px] font-black uppercase tracking-wider">
+                        {Object.values(data.supabaseTableStatus).filter(v => v === 'offline').length} SQLite Fallback
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-h-64 overflow-y-auto pr-1">
+                  {Object.entries(data.supabaseTableStatus).map(([tbl, status]) => (
+                    <div 
+                      key={tbl}
+                      onClick={() => {
+                        if (status === 'offline') {
+                          let sql = '';
+                          if (tbl === 'former_leaders') {
+                            sql = `-- SQL Statement to create 'former_leaders' table in Supabase SQL Editor:\n\nCREATE TABLE IF NOT EXISTS former_leaders (\n    id TEXT PRIMARY KEY,\n    name TEXT,\n    role TEXT,\n    tenure TEXT,\n    image TEXT,\n    order_index INTEGER DEFAULT 0,\n    "attachmentUrl" TEXT,\n    is_enabled BOOLEAN DEFAULT true,\n    type TEXT DEFAULT 'Principal'\n);\n\nALTER TABLE former_leaders ENABLE ROW LEVEL SECURITY;\nDROP POLICY IF EXISTS "Public Full Access" ON former_leaders;\nCREATE POLICY "Public Full Access" ON former_leaders FOR ALL TO public USING (true) WITH CHECK (true);\nGRANT ALL ON TABLE former_leaders TO anon, authenticated, postgres, service_role;`;
+                          } else {
+                            sql = `-- SQL Schema code for '${tbl}':\n-- Apply this in the Supabase SQL editor to create the table structure.\n\nCREATE TABLE IF NOT EXISTS "${tbl}" (\n    id TEXT PRIMARY KEY,\n    "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())\n);\n\nALTER TABLE "${tbl}" ENABLE ROW LEVEL SECURITY;\nDROP POLICY IF EXISTS "Public Full Access" ON "${tbl}";\nCREATE POLICY "Public Full Access" ON "${tbl}" FOR ALL TO public USING (true) WITH CHECK (true);\nGRANT ALL ON TABLE "${tbl}" TO anon, authenticated, postgres, service_role;`;
+                          }
+                          navigator.clipboard.writeText(sql);
+                          showToast(`SQL helper for '${tbl}' copied!`);
+                        }
+                      }}
+                      className={`p-3 rounded-2xl flex flex-col justify-between gap-2 border transition-all ${
+                        status === 'online' 
+                          ? 'bg-emerald-50/20 border-emerald-500/10 hover:border-emerald-500/20' 
+                          : 'bg-amber-50/20 border-amber-500/10 hover:border-amber-500/20 cursor-pointer'
+                      }`}
+                      title={status === 'offline' ? "Click to copy target table SQL definition script" : "Synced and live on cloud database"}
+                    >
+                      <span className="text-[11px] font-bold font-mono text-school-navy truncate" title={tbl}>
+                        {tbl}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full ${status === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+                        <span className={`text-[9px] font-black uppercase tracking-wider ${status === 'online' ? 'text-emerald-600' : 'text-amber-600'}`}>
+                          {status === 'online' ? 'Live Cloud' : 'Fallback DB'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {Object.entries(data.supabaseTableStatus).some(([_, status]) => status === 'offline') && (
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 text-amber-900 text-[11px]">
+                    <div className="flex gap-2">
+                      <span className="font-black shrink-0">⚠️ Missing Cloud Tables:</span>
+                      <span className="font-medium text-amber-800">
+                        Some tables correspond to uninitialized schemas in your live Supabase. They are running locally on SQLite safely. Click below to copy the auto-generated SQL setup command to paste in your Supabase Dashboard.
+                      </span>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        const offlineTables = Object.entries(data.supabaseTableStatus || {}).filter(([_, status]) => status === 'offline').map(([tbl]) => tbl);
+                        const sql = `-- AUTOMATIC MIGRATION CODE BLOCK FOR UNINITIALIZED SUPABASE TABLES\n-- Paste this directly into your Supabase Dashboard SQL Editor (https://supabase.com/dashboard/project/_/sql)\n\n` + 
+                          offlineTables.map(tbl => {
+                            if (tbl === 'former_leaders') {
+                              return `CREATE TABLE IF NOT EXISTS former_leaders (\n    id TEXT PRIMARY KEY,\n    name TEXT,\n    role TEXT,\n    tenure TEXT,\n    image TEXT,\n    order_index INTEGER DEFAULT 0,\n    "attachmentUrl" TEXT,\n    is_enabled BOOLEAN DEFAULT true,\n    type TEXT DEFAULT 'Principal'\n);\nALTER TABLE former_leaders ENABLE ROW LEVEL SECURITY;\nDROP POLICY IF EXISTS "Public Full Access" ON former_leaders;\nCREATE POLICY "Public Full Access" ON former_leaders FOR ALL TO public USING (true) WITH CHECK (true);\nGRANT ALL ON TABLE former_leaders TO anon, authenticated, postgres, service_role;\n`;
+                            }
+                            if (tbl === 'former_principals') return `CREATE TABLE IF NOT EXISTS former_principals (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);\nALTER TABLE former_principals ENABLE ROW LEVEL SECURITY;\nDROP POLICY IF EXISTS "Public Full Access" ON former_principals;\nCREATE POLICY "Public Full Access" ON former_principals FOR ALL TO public USING (true) WITH CHECK (true);\nGRANT ALL ON TABLE former_principals TO anon, authenticated, postgres, service_role;\n`;
+                            if (tbl === 'former_rectors') return `CREATE TABLE IF NOT EXISTS former_rectors (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);\nALTER TABLE former_rectors ENABLE ROW LEVEL SECURITY;\nDROP POLICY IF EXISTS "Public Full Access" ON former_rectors;\nCREATE POLICY "Public Full Access" ON former_rectors FOR ALL TO public USING (true) WITH CHECK (true);\nGRANT ALL ON TABLE former_rectors TO anon, authenticated, postgres, service_role;\n`;
+                            if (tbl === 'former_managers') return `CREATE TABLE IF NOT EXISTS former_managers (id TEXT PRIMARY KEY, name TEXT, tenure TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);\nALTER TABLE former_managers ENABLE ROW LEVEL SECURITY;\nDROP POLICY IF EXISTS "Public Full Access" ON former_managers;\nCREATE POLICY "Public Full Access" ON former_managers FOR ALL TO public USING (true) WITH CHECK (true);\nGRANT ALL ON TABLE former_managers TO anon, authenticated, postgres, service_role;\n`;
+                            if (tbl === 'former_student_leaders') return `CREATE TABLE IF NOT EXISTS former_student_leaders (id TEXT PRIMARY KEY, name TEXT, role TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);\nALTER TABLE former_student_leaders ENABLE ROW LEVEL SECURITY;\nDROP POLICY IF EXISTS "Public Full Access" ON former_student_leaders;\nCREATE POLICY "Public Full Access" ON former_student_leaders FOR ALL TO public USING (true) WITH CHECK (true);\nGRANT ALL ON TABLE former_student_leaders TO anon, authenticated, postgres, service_role;\n`;
+                            if (tbl === 'streamwise_toppers') return `CREATE TABLE IF NOT EXISTS streamwise_toppers (id TEXT PRIMARY KEY, name TEXT, stream TEXT, percentage TEXT, academic_year TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);\nALTER TABLE streamwise_toppers ENABLE ROW LEVEL SECURITY;\nDROP POLICY IF EXISTS "Public Full Access" ON streamwise_toppers;\nCREATE POLICY "Public Full Access" ON streamwise_toppers FOR ALL TO public USING (true) WITH CHECK (true);\nGRANT ALL ON TABLE streamwise_toppers TO anon, authenticated, postgres, service_role;\n`;
+                            if (tbl === 'xavierite_of_the_year') return `CREATE TABLE IF NOT EXISTS xavierite_of_the_year (id TEXT PRIMARY KEY, name TEXT, academic_year TEXT, citation TEXT, image TEXT, order_index INTEGER DEFAULT 0, "attachmentUrl" TEXT, is_enabled BOOLEAN DEFAULT true);\nALTER TABLE xavierite_of_the_year ENABLE ROW LEVEL SECURITY;\nDROP POLICY IF EXISTS "Public Full Access" ON xavierite_of_the_year;\nCREATE POLICY "Public Full Access" ON xavierite_of_the_year FOR ALL TO public USING (true) WITH CHECK (true);\nGRANT ALL ON TABLE xavierite_of_the_year TO anon, authenticated, postgres, service_role;\n`;
+                            if (tbl === 'useful_links') return `CREATE TABLE IF NOT EXISTS useful_links (id TEXT PRIMARY KEY, title TEXT, url TEXT, category TEXT, "isPriority" BOOLEAN DEFAULT false, order_index INTEGER DEFAULT 0);\nALTER TABLE useful_links ENABLE ROW LEVEL SECURITY;\nDROP POLICY IF EXISTS "Public Full Access" ON useful_links;\nCREATE POLICY "Public Full Access" ON useful_links FOR ALL TO public USING (true) WITH CHECK (true);\nGRANT ALL ON TABLE useful_links TO anon, authenticated, postgres, service_role;\n`;
+                            if (tbl === 'custom_content') return `CREATE TABLE IF NOT EXISTS custom_content (id TEXT PRIMARY KEY, section_identifier TEXT, title TEXT, body TEXT, image_url TEXT, is_enabled BOOLEAN DEFAULT true, updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()));\nALTER TABLE custom_content ENABLE ROW LEVEL SECURITY;\nDROP POLICY IF EXISTS "Public Full Access" ON custom_content;\nCREATE POLICY "Public Full Access" ON custom_content FOR ALL TO public USING (true) WITH CHECK (true);\nGRANT ALL ON TABLE custom_content TO anon, authenticated, postgres, service_role;\n`;
+                            return `CREATE TABLE IF NOT EXISTS "${tbl}" (\n    id TEXT PRIMARY KEY,\n    "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())\n);\nALTER TABLE "${tbl}" ENABLE ROW LEVEL SECURITY;\nDROP POLICY IF EXISTS "Public Full Access" ON "${tbl}";\nCREATE POLICY "Public Full Access" ON "${tbl}" FOR ALL TO public USING (true) WITH CHECK (true);\nGRANT ALL ON TABLE "${tbl}" TO anon, authenticated, postgres, service_role;\n`;
+                          }).join('\n');
+                        navigator.clipboard.writeText(sql);
+                        showToast('Automatic schema initialization SQL copied!');
+                      }}
+                      className="px-4 py-2 shrink-0 bg-amber-600 text-white hover:bg-amber-700 active:scale-95 transition-all text-[10px] font-black uppercase tracking-wider rounded-xl shadow-md font-bold"
+                    >
+                      Copy SQL for Missing Tables
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="grid md:grid-cols-2 gap-8">
               <div className="glass-surface p-10 rounded-[40px] border border-school-ink/5 space-y-10 group">
                 <h3 className="text-xl font-black text-school-navy uppercase italic tracking-tight border-b border-school-navy/5 pb-4">Portal Constants</h3>
@@ -1657,6 +1755,117 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                      </button>
                    </div>
                  ))}
+              </div>
+            </div>
+
+            {/* Search Engine Optimization & Search Console Verification */}
+            <div className="glass-surface p-10 rounded-[40px] border border-school-ink/5 space-y-10">
+              <div>
+                <h3 className="text-xl font-black text-school-navy uppercase italic tracking-tight flex items-center gap-2">
+                  <span>SEO & Search Indexing Controls</span>
+                </h3>
+                <p className="text-xs text-school-ink/65 mt-1">
+                  Configure search engine visibility tools, IndexNow setups, Google Search Console, Bing Webmaster tools, and dynamic page preview Open Graph meta fields.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-school-navy/5">
+                {/* Column 1: Search Console Keys */}
+                <div className="space-y-6">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-school-gold">Webmaster Verification Strings</h4>
+                  
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">
+                      Google Search Console Site Verification Key
+                    </label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. google1abcd2efgh3ijkl or string"
+                      value={data.settings.googleSearchConsoleKey || ''}
+                      onChange={(e) => handleUpdate('global', 'googleSearchConsoleKey', e.target.value, 'settings')}
+                      className="w-full bg-school-ink/5 border-none rounded-2xl py-3.5 px-6 text-sm text-school-navy placeholder-school-ink/30 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all font-medium"
+                    />
+                    <p className="text-[9px] text-school-ink/50 leading-relaxed">
+                      Enter the key value. Verification meta tags are embedded in the header, and dynamic verification files (e.g. <code>/google[key].html</code>) are generated instantly on the server!
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">
+                      Bing Webmaster / Yahoo! Verification Code
+                    </label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. A1B2C3D4E5F6G7H8"
+                      value={data.settings.bingWebmasterKey || ''}
+                      onChange={(e) => handleUpdate('global', 'bingWebmasterKey', e.target.value, 'settings')}
+                      className="w-full bg-school-ink/5 border-none rounded-2xl py-3.5 px-6 text-sm text-school-navy placeholder-school-ink/30 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all font-medium"
+                    />
+                    <p className="text-[9px] text-school-ink/50 leading-relaxed">
+                      Enter your meta tag verification code or XML code. Standardizes <code>BingSiteAuth.xml</code> file serving and inserts XML tag matching on request.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">
+                      IndexNow Key Code
+                    </label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. 5aa717e816a644ba90ef76828551a396"
+                      value={data.settings.indexNowKey || ''}
+                      onChange={(e) => handleUpdate('global', 'indexNowKey', e.target.value, 'settings')}
+                      className="w-full bg-school-ink/5 border-none rounded-2xl py-3.5 px-6 text-sm text-school-navy placeholder-school-ink/30 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all font-medium font-mono text-xs"
+                    />
+                    <p className="text-[9px] text-school-ink/50 leading-relaxed font-sans">
+                      The 32-character hexadecimal key to notify search engines of changes automatically. Automatically configures dynamic route serving at <code>/[key].txt</code> for verification.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Column 2: Open Graph Metadata */}
+                <div className="space-y-6">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-school-gold">Open Graph (OG) Previews</h4>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">
+                      OG Display Title
+                    </label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. St. Xavier's Senior Secondary School, Jaipur"
+                      value={data.settings.ogTitle || ''}
+                      onChange={(e) => handleUpdate('global', 'ogTitle', e.target.value, 'settings')}
+                      className="w-full bg-school-ink/5 border-none rounded-2xl py-3.5 px-6 text-sm text-school-navy placeholder-school-ink/30 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all font-medium"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">
+                      OG Display Description
+                    </label>
+                    <textarea 
+                      placeholder="Write a descriptive snippet of the page/institution for preview cards on WhatsApp, Twitter, FB and social shares."
+                      rows={3}
+                      value={data.settings.ogDescription || ''}
+                      onChange={(e) => handleUpdate('global', 'ogDescription', e.target.value, 'settings')}
+                      className="w-full bg-school-ink/5 border-none rounded-2xl py-3.5 px-6 text-sm text-school-navy placeholder-school-ink/30 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all font-medium resize-none leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">
+                      OG Display Image URL
+                    </label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. https://xaviersjaipur.edu.in/.../SchoolLogoTest.png"
+                      value={data.settings.ogImage || ''}
+                      onChange={(e) => handleUpdate('global', 'ogImage', e.target.value, 'settings')}
+                      className="w-full bg-school-ink/5 border-none rounded-2xl py-3.5 px-6 text-sm text-school-navy placeholder-school-ink/30 focus:ring-2 focus:ring-school-gold/20 outline-none transition-all font-medium text-xs font-mono"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>

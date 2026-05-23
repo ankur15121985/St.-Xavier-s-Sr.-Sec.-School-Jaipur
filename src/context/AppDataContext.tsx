@@ -14,10 +14,10 @@ interface AppDataContextProps {
 
 const AppDataContext = createContext<AppDataContextProps | undefined>(undefined);
 
-export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AppDataProvider: React.FC<{ children: React.ReactNode; initialData?: AppData }> = ({ children, initialData }) => {
   const { isAdmin, loading: authLoading } = useSupabase();
-  const [data, setData] = useState<AppData>(DEFAULT_DATA);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<AppData>(initialData || DEFAULT_DATA);
+  const [loading, setLoading] = useState(initialData ? false : true);
 
   useEffect(() => {
     // Suppress MetaMask specific connection errors that might be coming from browser extensions
@@ -98,6 +98,10 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [data.settings?.faviconUrl]);
 
   useEffect(() => {
+    if (initialData) {
+      setLoading(false);
+      return;
+    }
     if (authLoading) return;
 
     const fetchDataAndSeed = async () => {

@@ -7,7 +7,7 @@ import { HelmetProvider } from 'react-helmet-async';
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <SupabaseProvider>
-      <AppDataProvider>
+      <AppDataProvider initialData={pageProps.initialData}>
         <HelmetProvider>
           <Component {...pageProps} />
         </HelmetProvider>

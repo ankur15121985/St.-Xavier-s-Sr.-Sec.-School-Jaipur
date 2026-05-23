@@ -39,8 +39,13 @@ export const useLocation = () => {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
+  const cleanPathname = React.useMemo(() => {
+    if (!router.asPath) return '/';
+    return router.asPath.split('?')[0].split('#')[0] || '/';
+  }, [router.asPath]);
+
   return {
-    pathname: router.pathname === '/_error' ? '/' : router.pathname,
+    pathname: cleanPathname,
     asPath: router.asPath,
     hash: hash,
     search: typeof window !== 'undefined' ? window.location.search : '',

@@ -57,7 +57,7 @@ const HomePage = ({ data }: { data: AppData }) => {
         <link rel="canonical" href="https://stxaviersjaipur.edu.in/" />
       </Helmet>
       {/* Spacer for fixed navbar on Home page */}
-      <div className="h-[120px] md:h-[180px]" />
+      <div className="h-[64px] md:h-[102px] lg:h-[134px]" />
 
       {/* Full Width Dynamic Carousel */}
       {data.settings?.showCarousel !== false && carouselImages.length > 0 && (
@@ -65,7 +65,7 @@ const HomePage = ({ data }: { data: AppData }) => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="w-full h-[calc(100dvh-120px)] md:h-[calc(100dvh-180px)] overflow-hidden relative shadow-2xl"
+          className="w-full h-[calc(100dvh-64px)] md:h-[calc(100dvh-102px)] lg:h-[calc(100dvh-134px)] overflow-hidden relative"
         >
           <Carousel images={carouselImages} />
         </motion.section>
@@ -78,7 +78,7 @@ const HomePage = ({ data }: { data: AppData }) => {
 
       {/* About St. Xavier's School - Introduction Section */}
       {data.settings?.showAbout !== false && (
-        <section id="about-section" className="py-24 relative overflow-hidden">
+        <section id="about-section" className="py-12 md:py-16 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-20 items-center">
               <motion.div
@@ -134,7 +134,7 @@ const HomePage = ({ data }: { data: AppData }) => {
 
       {/* Feature Section - Simple Clean */}
       {data.settings?.showFeature !== false && (
-        <section className="py-32 relative">
+        <section className="py-16 md:py-20 relative">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-24 items-center">
               <motion.div 
@@ -176,7 +176,7 @@ const HomePage = ({ data }: { data: AppData }) => {
           whileInView={{ opacity: 1 }}
           viewport={{ amount: 0.1 }}
           transition={{ duration: 1 }}
-          className="py-24 border-y border-black/5 dark:border-white/5"
+          className="py-12 md:py-16 border-y border-black/5 dark:border-white/5"
         >
           <div className="max-w-7xl mx-auto px-6 text-center">
               <h4 className="text-2xl md:text-5xl font-bold leading-tight max-w-4xl mx-auto text-school-navy dark:text-white">
@@ -188,7 +188,7 @@ const HomePage = ({ data }: { data: AppData }) => {
 
       {/* Insights Section - Simple Clean */}
       {data.settings?.showInsights !== false && (data.notices?.filter(n => n.is_enabled !== false).length > 0 || data.events?.filter(e => e.is_enabled !== false).length > 0) && (
-        <section className="py-32 overflow-hidden">
+        <section className="py-16 md:py-20 overflow-hidden">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -256,7 +256,7 @@ const HomePage = ({ data }: { data: AppData }) => {
 
       {/* Principal Message Section - Slick Editorial */}
       {data.settings?.showPrincipalMessage !== false && (
-        <section className="py-32 relative overflow-hidden">
+        <section className="py-16 md:py-20 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-24 lg:gap-32 items-center">
               <motion.div 
@@ -313,7 +313,7 @@ const HomePage = ({ data }: { data: AppData }) => {
 
       {/* Distinction Section - Redesigned Hyper-Focused Excellence */}
       {data.settings?.showDistinction !== false && (
-        <section className="py-20 md:py-32 relative overflow-hidden bg-school-paper">
+        <section className="py-12 md:py-20 relative overflow-hidden bg-school-paper">
           <FocusVisual />
           
           <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -487,7 +487,7 @@ const HomePage = ({ data }: { data: AppData }) => {
 
       {/* Visual Narrative Grid - Simple Gallery */}
       {data.settings?.showGallery !== false && data.gallery?.filter(img => img.is_enabled !== false).length > 0 && (
-        <section className="py-24">
+        <section className="py-12 md:py-16">
           <div className="max-w-7xl mx-auto px-6">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
