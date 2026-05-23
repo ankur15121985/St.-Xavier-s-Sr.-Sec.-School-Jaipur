@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from '../../lib/router-compat';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, Phone, Mail, MapPin, Key, Settings, ArrowRight, ChevronRight, Users2, ImageIcon, ExternalLink, Facebook, Instagram, Youtube, Twitter, ArrowUp, ArrowDown, MessageSquare, Sun, Moon, Search } from 'lucide-react';
 import { AppData, QuickLink } from '../../types';

@@ -1,105 +1,4 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useState, useEffect } from 'react';
-import { 
-  BrowserRouter as Router, 
-  Routes, 
-  Route,
-  Navigate,
-  useLocation
-} from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
-import { AppData } from './types';
-import { HelmetProvider } from 'react-helmet-async';
-import { SupabaseProvider, useSupabase } from './components/SupabaseProvider';
-import { supabaseService } from './lib/supabaseService';
-
-// Page Imports
-import HomePage from './pages/HomePage';
-import StaffPage from './pages/StaffPage';
-import GalleryPage from './pages/GalleryPage';
-import NoticesPage from './pages/NoticesPage';
-import EventsPage from './pages/EventsPage';
-import FeesPage from './pages/FeesPage';
-import AchievementsPage from './pages/AchievementsPage';
-import HistoryPage from './pages/HistoryPage';
-import FounderPatronPage from './pages/FounderPatronPage';
-import GoverningMembersPage from './pages/GoverningMembersPage';
-import SchoolAnthemPage from './pages/SchoolAnthemPage';
-import AdmissionPolicyPage from './pages/AdmissionPolicyPage';
-import ScholarshipPage from './pages/ScholarshipPage';
-import StudybaseAppPage from './pages/StudybaseAppPage';
-import JesuitEducationPage from './pages/JesuitEducationPage';
-import SportsComplexPage from './pages/SportsComplexPage';
-import CoCurricularActivitiesPage from './pages/CoCurricularActivitiesPage';
-import AlumniPage from './pages/AlumniPage';
-import SchoolInformationPage from './pages/SchoolInformationPage';
-import ParentObligationsPage from './pages/ParentObligationsPage';
-import CareersPage from './pages/CareersPage';
-import MandatoryDisclosuresPage from './pages/MandatoryDisclosuresPage';
-import FireSafetyPage from './pages/FireSafetyPage';
-import NoticeBoardPage from './pages/NoticeBoardPage';
-import StatutoryArchivesPage from './pages/StatutoryArchivesPage';
-import ContactPage from './pages/ContactPage';
-import AdminPortal from './pages/AdminPortal';
-import TransferCertificatePage from './pages/TransferCertificatePage';
-import FormerRectorsPage from './pages/FormerRectorsPage';
-import FormerPrincipalsPage from './pages/FormerPrincipalsPage';
-import StreamToppersPage from './pages/StreamToppersPage';
-import LaurelDistinctionPage from './pages/LaurelDistinctionPage';
-import XavieriteOfTheYearPage from './pages/XavieriteOfTheYearPage';
-import LeadGracePage from './pages/LeadGracePage';
-import StudentLeadershipPage from './pages/StudentLeadershipPage';
-import ExplorePage from './pages/ExplorePage';
-import SitemapPage from './pages/SitemapPage';
-
-const PageTransition = ({ children }: { children: React.ReactNode }) => {
-  const location = useLocation();
-  
-  useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      easing: 'ease-out-cubic',
-      once: true,
-      offset: 50,
-    });
-  }, []);
-
-  useEffect(() => {
-    AOS.refresh();
-  }, [location.pathname]);
-
-  useEffect(() => {
-    if (location.hash) {
-      setTimeout(() => {
-        const id = location.hash.replace('#', '');
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 500); // Wait for page transition
-    } else {
-      window.scrollTo(0, 0);
-    }
-  }, [location.pathname, location.hash]);
-
-  return (
-    <motion.div
-      key={location.pathname}
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.02 }}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
-};
+import { AppData } from '../types';
 
 export const DEFAULT_DATA: AppData = {
   notices: [
@@ -114,7 +13,6 @@ export const DEFAULT_DATA: AppData = {
     { id: '4', name: 'SR. RUTH MARIAM, SCJM', role: 'COORDINATOR ( JUNIOR SCHOOL )', bio: 'Appointed: 01-04-2025. Status: Confirmed. Full Time. Trained.', image: 'https://picsum.photos/seed/ruth/400/400', type: 'Administration' },
     { id: '5', name: 'MRS. KSHAMA SHARMA', role: 'COORDINATOR-ACADEMICS ( SENIOR SCHOOL )', bio: 'Appointed: 01-04-2002. Status: Confirmed. Full Time. Trained.', image: 'https://picsum.photos/seed/kshama/400/400', type: 'Administration' },
     { id: '6', name: 'MR. ALEX THOMAS', role: 'COORDINATOR-ACTIVITIES ( SENIOR SCHOOL )', bio: 'Appointed: 01-08-1996. Status: Confirmed. Full Time. Trained.', image: 'https://picsum.photos/seed/alex/400/400', type: 'Administration' },
-    // PGT (7-25)
     { id: '7', name: 'ABHISHEK MATHUR', role: 'PGT', bio: 'Appointed: 01-07-2023. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '8', name: 'R. TRIVEDI', role: 'PGT', bio: 'Appointed: 01-07-1994. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '9', name: 'SHAJI THOMAS', role: 'PGT', bio: 'Appointed: 01-04-2003. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
@@ -134,8 +32,6 @@ export const DEFAULT_DATA: AppData = {
     { id: '23', name: 'DEEKSHA CHHABRA', role: 'PGT', bio: 'Appointed: 01-07-2020. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '24', name: 'SANGEETA JOSEPH', role: 'PGT', bio: 'Appointed: 01-07-2022. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '25', name: 'NEHA WHITNEY', role: 'PGT', bio: 'Appointed: 01-07-2025. Status: Contract. Full Time Trained Faculty.', image: '', type: 'Faculty' },
-    
-    // TGT (26-63)
     { id: '26', name: 'M. CASTELINO', role: 'TGT', bio: 'Appointed: 01-07-1994. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '27', name: 'B. ACHARYA', role: 'TGT', bio: 'Appointed: 01-07-1997. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '28', name: 'ASHOK SINGH KACHHWAHA', role: 'TGT', bio: 'Appointed: 01-11-1999. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
@@ -174,8 +70,6 @@ export const DEFAULT_DATA: AppData = {
     { id: '61', name: 'BHUMIKA SHARMA', role: 'TGT', bio: 'Appointed: 01-12-2024. Status: Contract. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '62', name: 'DIVYA SWARUP', role: 'TGT', bio: 'Appointed: 01-07-2023. Status: Contract. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '63', name: 'K.B. ARUN', role: 'TGT', bio: 'Appointed: 01-07-2025. Status: Contract. Full Time Trained Faculty.', image: '', type: 'Faculty' },
-
-    // PRT (64-102)
     { id: '64', name: 'N. CHOPRA', role: 'PRT', bio: 'Appointed: 01-07-1993. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '65', name: 'LALITA PAREEK', role: 'PRT', bio: 'Appointed: 01-07-1994. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '66', name: 'M. ARORA', role: 'PRT', bio: 'Appointed: 01-07-1997. Status: Confirmed. Full Time Trained Faculty.', image: '', type: 'Faculty' },
@@ -215,8 +109,6 @@ export const DEFAULT_DATA: AppData = {
     { id: '100', name: 'RUCHIKA SINGHAL', role: 'PRT', bio: 'Appointed: 01-07-2024. Status: Probation. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '101', name: 'VINITA SINGH', role: 'PRT', bio: 'Appointed: 01-07-2024. Status: Contract. Full Time Trained Faculty.', image: '', type: 'Faculty' },
     { id: '102', name: 'PRAHLAD SINGH', role: 'PRT', bio: 'Appointed: 01-07-2025. Status: Contract. Full Time Trained Faculty.', image: '', type: 'Faculty' },
-
-    // Administrative Staff (103-111)
     { id: '103', name: 'S.G. MATHEW', role: 'OFFICE ASSISTANT', bio: 'Appointed: 01-04-2001. Status: Confirmed. Full Time Trained staff.', image: '', type: 'Administration' },
     { id: '104', name: 'BINU JOHN THOMAS', role: 'ACCOUNTANT', bio: 'Appointed: 01-07-2001. Status: Confirmed. Full Time Trained staff.', image: '', type: 'Administration' },
     { id: '105', name: 'PRATAP LAKRA', role: 'LIBRARIAN', bio: 'Appointed: 01-09-1997. Status: Confirmed. Full Time Trained staff.', image: '', type: 'Administration' },
@@ -410,7 +302,6 @@ export const DEFAULT_DATA: AppData = {
   careers: [],
   career_applications: [],
   mandatory_disclosures: [
-    // SECTION A
     { id: 'md-a1', category: 'A', title: 'Name of the School', content: "St. Xavier's School, Nevta", order_index: 0 },
     { id: 'md-a2', category: 'A', title: 'Affiliation No.', content: '1730818', order_index: 1 },
     { id: 'md-a3', category: 'A', title: 'School Code', content: '11167', order_index: 2 },
@@ -418,8 +309,6 @@ export const DEFAULT_DATA: AppData = {
     { id: 'md-a5', category: 'A', title: 'Principal Name & Qualification', content: 'Fr. Sangeeth Raj, S.J. (M.A., B.Ed.)', order_index: 4 },
     { id: 'md-a6', category: 'A', title: 'School Email ID', content: 'stxaviersnevta@gmail.com', order_index: 5 },
     { id: 'md-a7', category: 'A', title: 'Contact Details', content: '8890531185, 7340023454', order_index: 6 },
-    
-    // SECTION B
     { id: 'md-b1', category: 'B', title: 'Affiliation letter', content: "Copies of affiliation/upgradation letter and recent extension of affiliation, if any", attachmentUrl: '', order_index: 7 },
     { id: 'md-b2', category: 'B', title: 'Trust/Society Certificate', content: "Copies of societies/trust/company registration/renewal certificate as applicable", attachmentUrl: '', order_index: 8 },
     { id: 'md-b3', category: 'B', title: 'NOC Certificate', content: "Copies of No Objection Certificate (NOC) issued, if applicable by the state Govt./UT", attachmentUrl: '', order_index: 9 },
@@ -428,23 +317,15 @@ export const DEFAULT_DATA: AppData = {
     { id: 'md-b6', category: 'B', title: 'Fire Safety Certificate', content: "Copy of Valid Fire safety certificate issued by the competent authority", attachmentUrl: '', order_index: 12 },
     { id: 'md-b7', category: 'B', title: 'DEO Certificate', content: "Copy of the DEO Certificate submitted by the school for affiliation or self-certification", attachmentUrl: '', order_index: 13 },
     { id: 'md-b8', category: 'B', title: 'Health & Sanitation', content: "Copies of valid water, health and sanitation certificates", attachmentUrl: '', order_index: 14 },
-
-    // SECTION C
     { id: 'md-c1', category: 'C', title: 'Fee Structure of the School', content: "Link to official fee structure documentation", attachmentUrl: '', order_index: 15 },
     { id: 'md-c2', category: 'C', title: 'Annual academic calendar', content: "Calendar for the current academic session", attachmentUrl: '', order_index: 16 },
     { id: 'md-c3', category: 'C', title: 'List of SMC', content: "List of School Management Committee members", attachmentUrl: '', order_index: 17 },
     { id: 'md-c4', category: 'C', title: 'List of PTA Members', content: "List of Parent Teachers Association members", attachmentUrl: '', order_index: 18 },
     { id: 'md-c5', category: 'C', title: 'Board Results (Last 3 Years)', content: "Board Examination results for the last three years", attachmentUrl: '', order_index: 19 },
-    
-    // Result Class X
     { id: 'md-c6', category: 'C_TABLE_X', title: '2018-19', content: 'Reg: 276, Passed: 276, Pass%: 100%', order_index: 20 },
     { id: 'md-c7', category: 'C_TABLE_X', title: '2019-20', content: 'Reg: 267, Passed: 267, Pass%: 100%', order_index: 21 },
     { id: 'md-c8', category: 'C_TABLE_X', title: '2020-21', content: 'Reg: 257, Passed: 257, Pass%: 100%', order_index: 22 },
-    
-    // Result Class XII
     { id: 'md-c9', category: 'C_TABLE_XII', title: '2020-21', content: 'Reg: 234, Passed: 234, Pass%: 100%', order_index: 23 },
-
-    // SECTION D
     { id: 'md-d1', category: 'D', title: 'Principal', content: 'Fr. Sangeeth Raj, S.J.', order_index: 24 },
     { id: 'md-d2', category: 'D', title: 'Total No. of Teachers', content: '106', order_index: 25 },
     { id: 'md-d3', category: 'D', title: 'PGT', content: '19', order_index: 26 },
@@ -453,8 +334,6 @@ export const DEFAULT_DATA: AppData = {
     { id: 'md-d6', category: 'D', title: 'Teachers Section Ratio', content: '1:32', order_index: 29 },
     { id: 'md-d7', category: 'D', title: 'Special Educator', content: 'Mrs. Mariamma John', order_index: 30 },
     { id: 'md-d8', category: 'D', title: 'Counsellor & Wellness Teacher', content: 'Mrs. Shilpa Sharma Mishra', order_index: 31 },
-
-    // SECTION E
     { id: 'md-e1', category: 'E', title: 'Total Campus area (in Sq Mtr)', content: '20234.3', order_index: 32 },
     { id: 'md-e2', category: 'E', title: 'No. and size of classrooms', content: '72 Rooms', order_index: 33 },
     { id: 'md-e3', category: 'E', title: 'No. and size of Laboratories', content: '11 Labs', order_index: 34 },
@@ -543,289 +422,3 @@ export const DEFAULT_DATA: AppData = {
     oeuvreDescription: 'A visual collective capturing the vibrant soul of St. Xavier\'s Jaipur.'
   }
 };
-
-const DataLoader = ({ children, data, setData, loading, setLoading }: { children: React.ReactNode, data: AppData, setData: React.Dispatch<React.SetStateAction<AppData>>, loading: boolean, setLoading: (l: boolean) => void }) => {
-  const { isAdmin, loading: authLoading } = useSupabase();
-
-  useEffect(() => {
-    if (authLoading) return;
-
-    const fetchDataAndSeed = async () => {
-      try {
-        const fetchedData = await supabaseService.fetchAllData();
-        
-        let hasData = false;
-        if (fetchedData) {
-          Object.values(fetchedData).forEach(arr => {
-            if (Array.isArray(arr) && arr.length > 0) hasData = true;
-          });
-        }
-        
-        if (hasData && fetchedData) {
-          const merged = { ...DEFAULT_DATA };
-          Object.keys(fetchedData).forEach(key => {
-            const k = key as keyof AppData;
-            const val = fetchedData[k];
-            
-            if (val) {
-              if (Array.isArray(val)) {
-                // IMPORTANT: Only overwrite if the fetched array actually has items,
-                // OR if it's a section where an empty list is a valid user-defined state
-                // (like messages or logs). For content tables, empty often means sync failure.
-                const isContentTable = ['staff', 'notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'marquee', 'popups', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'career_applications'].includes(k);
-                
-                if (val.length > 0 || !isContentTable) {
-                  if (k === 'navigation_menu') {
-                    // Filter out deprecated or duplicate menu items
-                    const filteredVal = (val as any[]).filter(m => 
-                      m.label !== 'Staff Directory' && 
-                      m.label !== 'Our Patron' && 
-                      m.label !== 'School ANthem' &&
-                      m.label !== 'Tenders' &&
-                      m.label !== 'Fee Payment' &&
-                      m.label !== 'Prospectus' &&
-                      m.label !== 'rules & Disciplin' &&
-                      m.label !== 'Rules & Disciplin'
-                    ).map(m => {
-                      // Fix academics directory link if it's stale in the DB
-                      if (m.label === 'Academics Directory' && (m.href === '/academics' || m.href.includes('#academic-regulations'))) {
-                        return { ...m, href: '/jesuit-education-objectives' };
-                      }
-                      return m;
-                    });
-                    
-                    // Deduplicate by label to prevent key collisions even if IDs differ
-                    const seenLabels = new Set();
-                    const deduplicated = filteredVal.filter(m => {
-                      if (seenLabels.has(m.label)) return false;
-                      seenLabels.add(m.label);
-                      return true;
-                    });
-
-                    const fetchedIds = new Set(deduplicated.map(m => m.id));
-                    const missing = DEFAULT_DATA.navigation_menu.filter(m => {
-                      return !fetchedIds.has(m.id) && !seenLabels.has(m.label);
-                    });
-                    merged[k] = [...deduplicated, ...missing] as any;
-                  } else {
-                    merged[k] = val as any;
-                  }
-                }
-              } else {
-                // If it's an object (like settings or content), merge it with DEFAULT_DATA
-                if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
-                  merged[k] = { ...merged[k], ...val } as any;
-                } else {
-                  merged[k] = val as any;
-                }
-              }
-            }
-          });
-          
-          setData(merged);
-        } else if (isAdmin) {
-          console.log('Fresh Supabase detected and user is admin. Starting seeding in background...');
-          // Seed in background but don't block the UI
-          supabaseService.syncAll(DEFAULT_DATA).then(async () => {
-             console.log('[Seeding] Initial seed completed');
-             const finalData = await supabaseService.fetchAllData();
-             if (finalData) {
-               setData(prev => {
-                 const updated = { ...prev };
-                 Object.keys(finalData).forEach(key => {
-                   const k = key as keyof AppData;
-                   const val = finalData[k];
-                   if (Array.isArray(val) && val.length > 0) {
-                     updated[k] = val as any;
-                   } else if (val && typeof val === 'object' && !Array.isArray(val)) {
-                     updated[k] = { ...updated[k], ...val } as any;
-                   }
-                 });
-                 return updated;
-               });
-             }
-          }).catch(e => console.error('[Seeding] Error:', e));
-          
-          setData(DEFAULT_DATA);
-        } else {
-          // Keep default data if not admin and DB is empty
-          console.log('DB is empty. Log in as admin to sync/seed data.');
-          setData(DEFAULT_DATA);
-        }
-      } catch (err) {
-        console.error('Data sync error:', err);
-        setData(DEFAULT_DATA);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDataAndSeed();
-  }, [isAdmin, authLoading]);
-
-  if (loading || authLoading) return (
-    <div className="h-[100dvh] w-screen flex flex-col items-center justify-center bg-school-navy overflow-hidden">
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.5 }}
-        className="relative flex flex-col items-center"
-      >
-        <div className="absolute inset-0 bg-school-gold/10 rounded-full blur-[100px] animate-pulse"></div>
-        <img 
-          src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
-          alt="Legacy Loading" 
-          className="w-40 h-40 relative z-10 brightness-110 drop-shadow-[0_0_30px_rgba(226,180,80,0.3)]"
-        />
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 1 }}
-          className="mt-10 text-center"
-        >
-          <h3 className="text-school-paper font-display text-2xl font-black tracking-[0.3em] uppercase">St. Xavier's</h3>
-          <p className="text-school-gold font-serif italic text-sm mt-2 tracking-widest opacity-60">Established 1941 • Jaipur</p>
-        </motion.div>
-      </motion.div>
-    </div>
-  );
-
-  return <>{children}</>;
-};
-
-export default function App() {
-  const [data, setData] = useState<AppData>(DEFAULT_DATA);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Suppress MetaMask specific connection errors that might be coming from browser extensions
-    // or external scripts in the sandbox environment.
-    const originalError = console.error;
-    const originalWarn = console.warn;
-    
-    const isMetaMaskError = (msg: string) => {
-      const lower = msg.toLowerCase();
-      return lower.includes('metamask') || lower.includes('ethereum') || lower.includes('web3');
-    };
-
-    console.error = (...args) => {
-      const msg = typeof args[0] === 'string' ? args[0] : (args[0]?.message || '');
-      if (isMetaMaskError(msg)) return;
-      originalError.apply(console, args);
-    };
-    
-    console.warn = (...args) => {
-      const msg = typeof args[0] === 'string' ? args[0] : (args[0]?.message || '');
-      if (isMetaMaskError(msg)) return;
-      originalWarn.apply(console, args);
-    };
-
-    const handleMetaMaskError = (event: any) => {
-      const msg = event.message || (event.reason && event.reason.message) || '';
-      if (isMetaMaskError(msg)) {
-        if (event.preventDefault) event.preventDefault();
-        if (event.stopImmediatePropagation) event.stopImmediatePropagation();
-        return true;
-      }
-    };
-
-    window.addEventListener('error', handleMetaMaskError, true);
-    window.addEventListener('unhandledrejection', handleMetaMaskError, true);
-
-    // Global click handler to suppress certain Web3-related events if needed
-    const handleMessage = (e: MessageEvent) => {
-      const msg = e.data?.msg || e.data?.type || '';
-      if (typeof msg === 'string' && isMetaMaskError(msg)) {
-        e.stopImmediatePropagation();
-      }
-    };
-    window.addEventListener('message', handleMessage, true);
-    
-    return () => {
-      window.removeEventListener('message', handleMessage);
-      window.removeEventListener('error', handleMetaMaskError);
-      window.removeEventListener('unhandledrejection', handleMetaMaskError);
-      console.error = originalError;
-      console.warn = originalWarn;
-    };
-  }, []);
-
-  // Disable right click on the entire website
-  useEffect(() => {
-    const handleContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-    };
-
-    document.addEventListener('contextmenu', handleContextMenu);
-
-    return () => {
-      document.removeEventListener('contextmenu', handleContextMenu);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (data.settings?.faviconUrl) {
-      let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
-      if (!link) {
-        link = document.createElement('link');
-        link.rel = 'icon';
-        document.getElementsByTagName('head')[0].appendChild(link);
-      }
-      link.href = data.settings.faviconUrl;
-    }
-  }, [data.settings?.faviconUrl]);
-
-  return (
-    <SupabaseProvider>
-      <DataLoader data={data} setData={setData} loading={loading} setLoading={setLoading}>
-        <HelmetProvider>
-          <Router>
-            <AnimatePresence mode="wait">
-              <Routes>
-                <Route path="/" element={<PageTransition><HomePage data={data} /></PageTransition>} />
-                <Route path="/staff" element={<PageTransition><StaffPage data={data} /></PageTransition>} />
-                <Route path="/gallery" element={<PageTransition><GalleryPage data={data} /></PageTransition>} />
-                <Route path="/notices" element={<PageTransition><NoticesPage data={data} /></PageTransition>} />
-                <Route path="/events" element={<PageTransition><EventsPage data={data} /></PageTransition>} />
-                <Route path="/fees" element={<PageTransition><FeesPage data={data} /></PageTransition>} />
-                <Route path="/achievements" element={<PageTransition><AchievementsPage data={data} /></PageTransition>} />
-                <Route path="/history" element={<PageTransition><HistoryPage data={data} /></PageTransition>} />
-                <Route path="/founder-patron" element={<PageTransition><FounderPatronPage data={data} /></PageTransition>} />
-                <Route path="/governing-members" element={<PageTransition><GoverningMembersPage data={data} /></PageTransition>} />
-                <Route path="/former-rectors" element={<PageTransition><FormerRectorsPage data={data} /></PageTransition>} />
-                <Route path="/former-principals" element={<PageTransition><FormerPrincipalsPage data={data} /></PageTransition>} />
-                <Route path="/anthem" element={<PageTransition><SchoolAnthemPage data={data} /></PageTransition>} />
-                <Route path="/admission-policy" element={<PageTransition><AdmissionPolicyPage data={data} /></PageTransition>} />
-                <Route path="/scholarships" element={<PageTransition><ScholarshipPage data={data} /></PageTransition>} />
-                <Route path="/studybase-app" element={<PageTransition><StudybaseAppPage data={data} /></PageTransition>} />
-                <Route path="/jesuit-education-objectives" element={<PageTransition><JesuitEducationPage data={data} /></PageTransition>} />
-                {/* Redirect old academics route to the new Jesuit education objectives page */}
-                <Route path="/academics" element={<Navigate to="/jesuit-education-objectives" replace />} />
-                <Route path="/sports-complex" element={<PageTransition><SportsComplexPage data={data} /></PageTransition>} />
-                <Route path="/co-curricular" element={<PageTransition><CoCurricularActivitiesPage data={data} /></PageTransition>} />
-                <Route path="/alumni" element={<PageTransition><AlumniPage data={data} /></PageTransition>} />
-                <Route path="/school-info" element={<PageTransition><SchoolInformationPage data={data} /></PageTransition>} />
-                <Route path="/parent-obligations" element={<PageTransition><ParentObligationsPage data={data} /></PageTransition>} />
-                <Route path="/careers" element={<PageTransition><CareersPage data={data} /></PageTransition>} />
-                <Route path="/mandatory-disclosures" element={<PageTransition><MandatoryDisclosuresPage data={data} /></PageTransition>} />
-                <Route path="/statutory-archives" element={<PageTransition><StatutoryArchivesPage data={data} /></PageTransition>} />
-                <Route path="/safety-guidelines" element={<PageTransition><FireSafetyPage data={data} /></PageTransition>} />
-                <Route path="/notice-board" element={<PageTransition><NoticeBoardPage data={data} /></PageTransition>} />
-                <Route path="/transfer-certificate" element={<PageTransition><TransferCertificatePage data={data} /></PageTransition>} />
-                <Route path="/stream-toppers" element={<PageTransition><StreamToppersPage data={data} /></PageTransition>} />
-                <Route path="/laurel-distinction" element={<PageTransition><LaurelDistinctionPage data={data} /></PageTransition>} />
-                <Route path="/xavierite-of-the-year" element={<PageTransition><XavieriteOfTheYearPage data={data} /></PageTransition>} />
-                <Route path="/former-student-leaders" element={<PageTransition><StudentLeadershipPage data={data} /></PageTransition>} />
-                <Route path="/lead-grace" element={<PageTransition><LeadGracePage data={data} /></PageTransition>} />
-                <Route path="/explore" element={<PageTransition><ExplorePage data={data} /></PageTransition>} />
-                <Route path="/contact" element={<PageTransition><ContactPage data={data} /></PageTransition>} />
-                <Route path="/admin" element={<PageTransition><AdminPortal data={data} setData={setData} /></PageTransition>} />
-                <Route path="/sitemap" element={<PageTransition><SitemapPage data={data} /></PageTransition>} />
-              </Routes>
-            </AnimatePresence>
-          </Router>
-        </HelmetProvider>
-      </DataLoader>
-    </SupabaseProvider>
-  );
-}

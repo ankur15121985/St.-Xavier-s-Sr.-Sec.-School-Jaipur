@@ -13,7 +13,7 @@ import {
   PartyPopper,
   FileText
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from '../lib/router-compat';
 
 const AlumniPage = ({ data }: { data: AppData }) => {
   const alumniSections = data.alumni || [];

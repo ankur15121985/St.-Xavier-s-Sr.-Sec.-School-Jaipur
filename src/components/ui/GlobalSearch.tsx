@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search as SearchIcon, X, ArrowRight, FileText, Calendar, Users, Trophy, ImageIcon, Link as LinkIcon, History, MapPin, Phone } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../../lib/router-compat';
 import { AppData } from '../../types';
 
 interface SearchResult {

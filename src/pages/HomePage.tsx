@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useSpring } from 'motion/react';
-import { Link } from 'react-router-dom';
+import { Link } from '../lib/router-compat';
 import { 
   ArrowRight, 
   Trophy, 

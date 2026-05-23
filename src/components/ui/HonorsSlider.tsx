@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link } from 'react-router-dom';
+import { Link } from '../../lib/router-compat';
 import { ChevronLeft, ChevronRight, Quote, ArrowRight } from 'lucide-react';
 import { StudentHonor } from '../../types';
 

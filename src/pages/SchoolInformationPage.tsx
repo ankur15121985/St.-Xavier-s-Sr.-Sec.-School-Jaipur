@@ -15,7 +15,7 @@ import {
   ExternalLink,
   FileText
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from '../lib/router-compat';
 
 const SchoolInformationPage = ({ data }: { data: AppData }) => {
   // Use dynamic sections if available, fallback to empty or default
