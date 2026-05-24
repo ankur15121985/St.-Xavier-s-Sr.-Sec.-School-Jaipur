@@ -138,10 +138,10 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const contentType = res.headers.get('content-type');
         const isNonJson = !contentType || !contentType.includes('application/json');
 
-        // If it is a 404, 405, or any non-JSON error page returned by a static server (like Vercel),
+        // If it is a 404, 405, server 5xx or any non-JSON/corrupted page, 
         // fallback directly to client-side Supabase validation.
-        if (res.status === 404 || res.status === 405 || isNonJson) {
-          console.warn(`[Auth] /api/login returned status ${res.status} (or served non-JSON). Falling back to Supabase.`);
+        if (res.status >= 500 || res.status === 404 || res.status === 405 || isNonJson) {
+          console.warn(`[Auth] /api/login returned status ${res.status}. Falling back to Supabase.`);
           return await supabaseFallbackLogin(username, pass);
         }
 
@@ -178,14 +178,20 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       
     } catch (error: any) {
       console.error('[Auth] Login process error:', error);
-      alert(`Login Error: ${error.message}`);
-      throw error;
+      // Attempt immediate recovery via fallback login before giving up
+      try {
+        console.warn('[Auth] Catch block triggered during login, trying fallback recovery...');
+        return await supabaseFallbackLogin(username, pass);
+      } catch (fallbackErr: any) {
+        alert(`Login Error: ${fallbackErr.message || error.message}`);
+        throw fallbackErr;
+      }
     }
   };
 
   /**
    * Fallback login method that queries Supabase directly.
-   * Useful for deployments on Vercel where the Express server might not be running.
+   * Useful for deployments on Vercel where the Express/local database server might not be running or is read-only.
    */
   const supabaseFallbackLogin = async (username: string, pass: string) => {
     console.log(`[Auth] Executing Supabase fallback login for: ${username}`);
@@ -221,12 +227,12 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         
         // If the table doesn't exist, allow a fallback login to let the admin access and setup
         const isTableMissing = error.code === 'PGRST125' || 
-                               error.code === 'PGRST204' || 
-                               String(error.code) === '404' || 
-                               error.message?.includes('relation "public.admins" does not exist') || 
-                               error.message?.toLowerCase().includes('invalid path') ||
-                               error.message?.toLowerCase().includes('failed to fetch') ||
-                               error.message?.toLowerCase().includes('fetch failed');
+                              error.code === 'PGRST204' || 
+                              String(error.code) === '404' || 
+                              error.message?.includes('relation "public.admins" does not exist') || 
+                              error.message?.toLowerCase().includes('invalid path') ||
+                              error.message?.toLowerCase().includes('failed to fetch') ||
+                              error.message?.toLowerCase().includes('fetch failed');
         if (isTableMissing) {
           console.warn('[Auth] admins table is missing on Supabase. Using safe offline client-side fallback login.');
           const presetUsernames = ['admin', 'ankur15121985', 'ankur24121985', 'school_admin', 'root'];
@@ -252,10 +258,16 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         throw new Error('Invalid username or password.');
       }
 
-      // Check password (Note: Fallback mode expects plain text or matches direct string)
-      // If it's hashed in Supabase but we are on client, we can't easily verify bcrypt here without extra libs.
-      // But we'll try a simple match first.
-      const isValid = data.password === pass;
+      // Check password (Note: Fallback mode supports plain text OR safe browser-compatible client-side bcrypt validation)
+      let isValid = data.password === pass;
+      if (!isValid && data.password && data.password.startsWith('$2b$')) {
+        try {
+          const bcryptModule = await import('bcryptjs');
+          isValid = bcryptModule.default.compareSync(pass, data.password);
+        } catch (bcryptErr) {
+          console.error('[Auth] Failed to run client-side bcrypt validation:', bcryptErr);
+        }
+      }
 
       if (!isValid) {
         throw new Error('Invalid username or password.');
@@ -283,7 +295,8 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       } as any);
       
       localStorage.setItem('school_admin_session', username);
-      // We don't have a JWT token in fallback mode, we just use session
+      // We don't have a JWT/Next.js token in fallback mode, we use offline security bypass token
+      localStorage.setItem('school_admin_token', 'temp-auth-token-bypass');
       console.log('[Auth] Supabase fallback login successful.');
       
     } catch (err: any) {
