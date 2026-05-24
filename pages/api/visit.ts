@@ -20,21 +20,75 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Extract visitor IP address
+  let ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket.remoteAddress || '127.0.0.1';
+  if (Array.isArray(ip)) {
+    ip = ip[0];
+  }
+  if (typeof ip === 'string') {
+    ip = ip.split(',')[0].trim();
+  }
+  if (!ip) {
+    ip = '127.0.0.1';
+  }
+
   let count = 477706; // Standard initial count fallback
+  let isUnique = true;
 
   try {
     const db = getDatabase();
-    
-    // 1. Local SQLite site-stats counter
+
+    // 1. Check uniqueness locally in SQLite first
     try {
-      db.prepare("UPDATE site_stats SET visitor_count = visitor_count + 1 WHERE id = 'main'").run();
+      const existing = db.prepare("SELECT ip FROM visitor_ips WHERE ip = ?").get(ip);
+      if (existing) {
+        isUnique = false;
+      }
+    } catch (sqlErr) {
+      console.warn("[STATS] Local SQLite IP query fail: automatic self-healing...", sqlErr);
+      try {
+        db.exec("CREATE TABLE IF NOT EXISTS visitor_ips (ip TEXT PRIMARY KEY, visited_at TEXT)");
+      } catch (e) {}
+    }
+
+    // 2. Query Supabase if visitor is locally unique but remote check is needed
+    // (e.g. in multi-instance or serverless cold starts)
+    if (isUnique && supabaseServer) {
+      try {
+        const { data: remoteIp, error: ipError } = await supabaseServer
+          .from('visitor_ips')
+          .select('ip')
+          .eq('ip', ip)
+          .maybeSingle();
+
+        if (remoteIp) {
+          isUnique = false;
+          // Store locally to speed up subsequent requests
+          try {
+            db.prepare("INSERT OR IGNORE INTO visitor_ips (ip, visited_at) VALUES (?, ?)").run(ip, new Date().toISOString());
+          } catch (e) {}
+        }
+      } catch (sbErr) {
+        console.warn("[STATS] Supabase IP check exception:", sbErr);
+      }
+    }
+
+    // 3. Update Local SQLite Site Stats
+    try {
+      if (isUnique) {
+        // Record the unique IP and update local visitor count
+        db.prepare("INSERT OR IGNORE INTO visitor_ips (ip, visited_at) VALUES (?, ?)").run(ip, new Date().toISOString());
+        db.prepare("UPDATE site_stats SET visitor_count = visitor_count + 1 WHERE id = 'main'").run();
+      }
       const stats = db.prepare("SELECT visitor_count FROM site_stats WHERE id = 'main'").get() as any;
-      if (stats) count = stats.visitor_count;
+      if (stats) {
+        count = stats.visitor_count;
+      }
     } catch (sqlErr) {
       console.warn("[STATS] Local SQLite visitor save fail:", sqlErr);
     }
 
-    // 2. Supabase Sync (Primary source for serverless deployments)
+    // 4. Update Supabase Sync
     if (supabaseServer) {
       try {
         const { data: sbData, error: fetchError } = await supabaseServer
@@ -42,14 +96,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           .select('visitor_count')
           .eq('id', 'main')
           .maybeSingle();
-        
+
         const currentSbCount = sbData?.visitor_count || count;
-        const newCount = Math.max(currentSbCount + 1, count);
-        
+        let newCount = currentSbCount;
+
+        if (isUnique) {
+          newCount = Math.max(currentSbCount + 1, count);
+        } else {
+          newCount = Math.max(currentSbCount, count);
+        }
+
+        // Upsert unique IP to Supabase if unique
+        if (isUnique) {
+          try {
+            await supabaseServer
+              .from('visitor_ips')
+              .upsert({ ip, visited_at: new Date().toISOString() });
+          } catch (ipSberr) {
+            console.warn("[STATS] Supabase unique IP registration failed:", ipSberr);
+          }
+        }
+
         const { error: updateError } = await supabaseServer
           .from('site_stats')
           .upsert({ id: 'main', visitor_count: newCount, updated_at: new Date().toISOString() });
-        
+
         if (!updateError) {
           count = newCount;
         } else {
@@ -60,7 +131,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    return res.status(200).json({ success: true, count });
+    return res.status(200).json({ success: true, count, isUnique });
   } catch (err: any) {
     console.error('[STATS] Event-driven visitor log failed:', err.message);
     return res.status(200).json({ success: false, count, error: err.message });

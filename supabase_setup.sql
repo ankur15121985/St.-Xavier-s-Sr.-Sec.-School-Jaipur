@@ -66,6 +66,11 @@ CREATE TABLE IF NOT EXISTS site_stats (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
+CREATE TABLE IF NOT EXISTS visitor_ips (
+    ip TEXT PRIMARY KEY,
+    visited_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
 CREATE TABLE IF NOT EXISTS school_history (
     id TEXT PRIMARY KEY,
     title TEXT,

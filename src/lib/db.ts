@@ -76,6 +76,13 @@ export function getDatabase(): Database.Database {
   `);
 
   db.exec(`
+    CREATE TABLE IF NOT EXISTS visitor_ips (
+      ip TEXT PRIMARY KEY,
+      visited_at TEXT
+    )
+  `);
+
+  db.exec(`
     CREATE TABLE IF NOT EXISTS site_settings (
       id TEXT PRIMARY KEY,
       applyNowEnabled INTEGER DEFAULT 1,
