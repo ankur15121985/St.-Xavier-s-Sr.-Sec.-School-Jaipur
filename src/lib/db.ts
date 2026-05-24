@@ -488,6 +488,10 @@ export function getDatabase(): Database.Database {
     } catch (e) {}
   });
 
+  try {
+    db.prepare(`ALTER TABLE mandatory_disclosures ADD COLUMN category TEXT`).run();
+  } catch (e) {}
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS jesuit_page_content (
        id TEXT PRIMARY KEY,

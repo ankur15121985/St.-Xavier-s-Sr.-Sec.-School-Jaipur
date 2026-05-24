@@ -39,7 +39,7 @@ const SCHEMA: Record<string, string[]> = {
   alumni: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   parent_obligations: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   careers: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
-  mandatory_disclosures: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
+  mandatory_disclosures: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url', 'category', 'is_enabled'],
   contact_content: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   scholarships: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url'],
   fire_safety: ['id', 'title', 'heading', 'content', 'order_index', 'attachmentUrl', 'image_url', 'is_enabled'],

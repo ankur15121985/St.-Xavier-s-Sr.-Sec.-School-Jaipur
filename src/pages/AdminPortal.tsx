@@ -1265,7 +1265,100 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
   );
 
   const renderMandatoryDisclosuresSection = () => {
-    const items = (data.mandatory_disclosures || []) as any[];
+    const rawItems = (data.mandatory_disclosures || []) as any[];
+    const items = rawItems.map(item => {
+      if (item.category && item.category !== '') {
+        return item;
+      }
+      
+      let inferred = 'A';
+      const title = (item.title || '').trim().toLowerCase();
+      const content = (item.content || '').trim().toLowerCase();
+      const id = (item.id || '').trim().toLowerCase();
+      
+      if (
+        title.includes('letter') ||
+        title.includes('registration') ||
+        title.includes('certificate') ||
+        title.includes('safety') ||
+        title.includes('noc') ||
+        title.includes('affiliation') ||
+        title.includes('health & sanitation') ||
+        title.includes('water, health') ||
+        title.includes('trust') ||
+        title.includes('self certification') ||
+        title.includes('recognition') ||
+        title.includes('deo')
+      ) {
+        if (title.includes('name of') || title.includes('address') || title.includes('email') || title.includes('contact')) {
+          inferred = 'A';
+        } else {
+          inferred = 'B';
+        }
+      } else if (
+        title.includes('fee') ||
+        title.includes('calendar') ||
+        title.includes('smc') ||
+        title.includes('pta') ||
+        title.includes('board result') ||
+        title.includes('three year result') ||
+        title.includes('school management') ||
+        title.includes('parent teachers')
+      ) {
+        inferred = 'C';
+      } else if (
+        title.includes('class x table') || 
+        title.includes('class x') || 
+        id.includes('class_x') || 
+        id.includes('table_x') ||
+        (title.includes('result') && (content.includes('reg') || content.includes('pass')) && !title.includes('xii'))
+      ) {
+        inferred = 'C_TABLE_X';
+      } else if (
+        title.includes('class xii table') || 
+        title.includes('class xii') || 
+        id.includes('class_xii') || 
+        id.includes('table_xii') ||
+        (title.includes('result') && (content.includes('reg') || content.includes('pass')) && title.includes('xii'))
+      ) {
+        inferred = 'C_TABLE_XII';
+      } else if (
+        title.includes('principal') ||
+        title.includes('teachers') ||
+        title.includes('pgt') ||
+        title.includes('tgt') ||
+        title.includes('prt') ||
+        title.includes('special educator') ||
+        title.includes('counsellor') ||
+        title.includes('wellness teacher') ||
+        title.includes('ratio')
+      ) {
+        inferred = 'D';
+      } else if (
+        title.includes('campus area') ||
+        title.includes('infrastructure') ||
+        title.includes('internet') ||
+        title.includes('sanitary') ||
+        title.includes('sq mtr') ||
+        title.includes('class rooms') ||
+        title.includes('laboratories')
+      ) {
+        inferred = 'E';
+      } else {
+        const o = item.order_index;
+        if (o !== undefined && o !== null) {
+          if (o <= 6) inferred = 'A';
+          else if (o <= 14) inferred = 'B';
+          else if (o <= 19) inferred = 'C';
+          else if (o <= 23) inferred = 'C_TABLE_X';
+          else if (o <= 26) inferred = 'C_TABLE_XII';
+          else if (o <= 31) inferred = 'D';
+          else inferred = 'E';
+        }
+      }
+      return { ...item, category: inferred };
+    });
+
     const categories = [
       { id: 'A', label: 'General Information' },
       { id: 'B', label: 'Documents & Information' },
@@ -1468,41 +1561,56 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
     switch (activeSection) {
       case 'fees':
         return (
-          <div className="mb-12 bg-school-navy p-10 rounded-[40px] shadow-2xl border border-white/5 space-y-8">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-              <div className="flex-1">
-                <h3 className="text-2xl font-serif font-black text-white italic tracking-tight mb-2 flex items-center gap-3">
-                  <FileText size={24} className="text-school-gold" />
-                  Institutional Fee Documentation
-                </h3>
-                <p className="text-white/40 text-xs font-light max-w-lg">This PDF serves as the official blueprint displayed on the public Fees page. Managing committee approved documents should be uploaded here.</p>
+          <div className="space-y-12">
+            <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl border border-white/5 space-y-8">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                <div className="flex-1">
+                  <h3 className="text-2xl font-serif font-black text-white italic tracking-tight mb-2 flex items-center gap-3">
+                    <FileText size={24} className="text-school-gold" />
+                    Institutional Fee Documentation
+                  </h3>
+                  <p className="text-white/40 text-xs font-light max-w-lg">This PDF serves as the official blueprint displayed on the public Fees page. Managing committee approved documents should be uploaded here.</p>
+                </div>
+                <div className="flex flex-wrap gap-4">
+                  <label className="px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap">
+                    {uploadingPath === 'settings-global-feesPdfUrl' ? 'Uploading...' : 'Upload Official PDF'}
+                    <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleFileUpload(e, 'global', 'feesPdfUrl', 'settings')} disabled={!!uploadingPath} />
+                  </label>
+                  {data.settings.feesPdfUrl && (
+                    <a 
+                      href={data.settings.feesPdfUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-8 py-4 bg-white/10 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-white/20 transition-all border border-white/10"
+                    >
+                      View Live Link
+                    </a>
+                  )}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-4">
-                <label className="px-8 py-4 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap">
-                  {uploadingPath === 'settings-global-feesPdfUrl' ? 'Uploading...' : 'Upload Official PDF'}
-                  <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleFileUpload(e, 'global', 'feesPdfUrl', 'settings')} disabled={!!uploadingPath} />
-                </label>
-                {data.settings.feesPdfUrl && (
-                  <a 
-                    href={data.settings.feesPdfUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="px-8 py-4 bg-white/10 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-white/20 transition-all border border-white/10"
-                  >
-                    View Live Link
-                  </a>
-                )}
+              {data.settings.feesPdfUrl && (
+                <div className="aspect-[16/10] w-full bg-white rounded-[40px] overflow-hidden shadow-2xl border border-white/10 relative group bg-school-paper">
+                  <iframe 
+                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(data.settings.feesPdfUrl)}&embedded=true`}
+                    className="w-full h-full border-none"
+                    title="Fee Documentation Preview"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-6">
+              <div className="border-b border-school-navy/5 pb-4">
+                <h3 className="text-2xl font-serif font-black text-school-navy italic tracking-tight flex items-center gap-3">
+                  <CreditCard size={24} className="text-school-gold" strokeWidth={1} />
+                  Dynamic School Fee Schedules
+                </h3>
+                <p className="text-xs text-school-ink/60 mt-1">Configure class-wise standard tuition, admission fees, annual development schedules and quarterly terms.</p>
+              </div>
+              <div className="grid gap-6">
+                {Array.isArray(data.fees) && data.fees.map((item: any) => renderItemCard(item, 'fees'))}
               </div>
             </div>
-            {data.settings.feesPdfUrl && (
-              <div className="aspect-[16/10] w-full bg-white rounded-[40px] overflow-hidden shadow-2xl border border-white/10 relative group bg-school-paper">
-                <iframe 
-                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(data.settings.feesPdfUrl)}&embedded=true`}
-                  className="w-full h-full border-none"
-                  title="Fee Documentation Preview"
-                />
-              </div>
-            )}
           </div>
         );
       case 'about':

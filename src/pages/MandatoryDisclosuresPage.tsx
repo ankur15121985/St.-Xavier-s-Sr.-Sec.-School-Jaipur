@@ -14,9 +14,104 @@ const MandatoryDisclosuresPage = ({ data }: { data: AppData }) => {
   const tableCellClasses = "px-6 py-4 text-sm font-bold text-school-navy border border-school-ink/10 bg-white";
   const tableSrClasses = "px-4 py-4 text-center text-xs font-black text-school-ink/40 border border-school-ink/10 bg-school-paper";
 
+  const normalizedDisclosures = React.useMemo(() => {
+    return (data.mandatory_disclosures || []).map(item => {
+      if (item.category && item.category !== '') {
+        return item;
+      }
+      
+      let inferred = 'A';
+      const title = (item.title || '').trim().toLowerCase();
+      const content = (item.content || '').trim().toLowerCase();
+      const id = (item.id || '').trim().toLowerCase();
+      
+      if (
+        title.includes('letter') ||
+        title.includes('registration') ||
+        title.includes('certificate') ||
+        title.includes('safety') ||
+        title.includes('noc') ||
+        title.includes('affiliation') ||
+        title.includes('health & sanitation') ||
+        title.includes('water, health') ||
+        title.includes('trust') ||
+        title.includes('self certification') ||
+        title.includes('recognition') ||
+        title.includes('deo')
+      ) {
+        if (title.includes('name of') || title.includes('address') || title.includes('email') || title.includes('contact')) {
+          inferred = 'A';
+        } else {
+          inferred = 'B';
+        }
+      } else if (
+        title.includes('fee') ||
+        title.includes('calendar') ||
+        title.includes('smc') ||
+        title.includes('pta') ||
+        title.includes('board result') ||
+        title.includes('three year result') ||
+        title.includes('school management') ||
+        title.includes('parent teachers')
+      ) {
+        inferred = 'C';
+      } else if (
+        title.includes('class x table') || 
+        title.includes('class x') || 
+        id.includes('class_x') || 
+        id.includes('table_x') ||
+        (title.includes('result') && (content.includes('reg') || content.includes('pass')) && !title.includes('xii'))
+      ) {
+        inferred = 'C_TABLE_X';
+      } else if (
+        title.includes('class xii table') || 
+        title.includes('class xii') || 
+        id.includes('class_xii') || 
+        id.includes('table_xii') ||
+        (title.includes('result') && (content.includes('reg') || content.includes('pass')) && title.includes('xii'))
+      ) {
+        inferred = 'C_TABLE_XII';
+      } else if (
+        title.includes('principal') ||
+        title.includes('teachers') ||
+        title.includes('pgt') ||
+        title.includes('tgt') ||
+        title.includes('prt') ||
+        title.includes('special educator') ||
+        title.includes('counsellor') ||
+        title.includes('wellness teacher') ||
+        title.includes('ratio')
+      ) {
+        inferred = 'D';
+      } else if (
+        title.includes('campus area') ||
+        title.includes('infrastructure') ||
+        title.includes('internet') ||
+        title.includes('sanitary') ||
+        title.includes('sq mtr') ||
+        title.includes('class rooms') ||
+        title.includes('laboratories')
+      ) {
+        inferred = 'E';
+      } else {
+        const o = item.order_index;
+        if (o !== undefined && o !== null) {
+          if (o <= 6) inferred = 'A';
+          else if (o <= 14) inferred = 'B';
+          else if (o <= 19) inferred = 'C';
+          else if (o <= 23) inferred = 'C_TABLE_X';
+          else if (o <= 26) inferred = 'C_TABLE_XII';
+          else if (o <= 31) inferred = 'D';
+          else inferred = 'E';
+        }
+      }
+      return { ...item, category: inferred };
+    });
+  }, [data.mandatory_disclosures]);
+
   // Grouping logic for dynamic disclosures
   const getSectionItems = (category: string) => {
-    return (data.mandatory_disclosures || [])
+    return normalizedDisclosures
       .filter(item => item.category === category && item.is_enabled !== false)
       .sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
   };
