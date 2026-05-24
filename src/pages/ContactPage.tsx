@@ -50,11 +50,62 @@ const ContactPage = ({ data }: { data: AppData }) => {
         <meta name="description" content="Get in touch with St. Xavier's Senior Secondary School, Jaipur. Address, phone numbers, and official email for inquiries." />
       </Helmet>
       {/* Hero Section */}
-      <section className="relative pt-40 pb-32 overflow-hidden bg-school-navy text-white rounded-b-[80px] md:rounded-b-[120px]">
-        <div className="absolute inset-0 bg-school-gold/5 blur-[120px] rounded-full translate-x-1/4 -translate-y-1/2" />
-        <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-school-gold/20 rounded-full" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] border border-school-gold/10 rounded-full" />
+      <section className="relative pt-40 pb-32 overflow-hidden bg-[#0c061e] text-white rounded-b-[80px] md:rounded-b-[120px]">
+        {/* Immersive Dark Gradient Background with Aurora Lights */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Base gradient */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0c061e] via-school-navy to-[#180a3a]" />
+          
+          {/* Purple Glow */}
+          <motion.div 
+            animate={{
+              x: [-100, 100, -100],
+              y: [-50, 50, -50],
+              scale: [1, 1.25, 1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{
+              duration: 18,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute -top-1/3 -left-1/4 w-[75%] h-[75%] rounded-full bg-school-accent/50 blur-[120px] mix-blend-screen"
+          />
+
+          {/* Golden Glow */}
+          <motion.div 
+            animate={{
+              x: [100, -100, 100],
+              y: [50, -50, 50],
+              scale: [1.2, 0.9, 1.2],
+              opacity: [0.25, 0.45, 0.25],
+            }}
+            transition={{
+              duration: 22,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute -bottom-1/3 -right-1/4 w-[85%] h-[85%] rounded-full bg-school-gold/40 blur-[140px] mix-blend-screen"
+          />
+
+          {/* Deep Navy/Blue Glow */}
+          <motion.div 
+            animate={{
+              x: [-50, 50, -50],
+              y: [100, -100, 100],
+              scale: [0.85, 1.15, 0.85],
+              opacity: [0.15, 0.3, 0.15],
+            }}
+            transition={{
+              duration: 26,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute top-1/4 left-1/4 w-[60%] h-[60%] rounded-full bg-school-navy blur-[100px] mix-blend-screen"
+          />
+
+          {/* Subtle Grid Pattern Overlay */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:40px_40px] opacity-40" />
         </div>
         
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center space-y-12">

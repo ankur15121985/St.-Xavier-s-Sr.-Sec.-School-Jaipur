@@ -14,6 +14,7 @@ import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { motion } from 'motion/react';
 import { DigitalCampus } from '../../types';
+import { useWebGLAvailable } from '../../lib/webgl';
 
 const Model = ({ url }: { url: string }) => {
   const isObj = url.toLowerCase().endsWith('.obj');
@@ -27,6 +28,7 @@ const Model = ({ url }: { url: string }) => {
   const { scene } = useGLTF(url);
   return <primitive object={scene} />;
 };
+
 
 const Student = ({ delay = 0, speed = 1, x = 0 }: { delay?: number, speed?: number, x?: number }) => {
   const ref = useRef<THREE.Group>(null);
@@ -116,6 +118,8 @@ const CampusSceneContent = ({ modelUrl }: { modelUrl?: string }) => {
 export const Campus3D = ({ config }: { config?: DigitalCampus }) => {
   if (config && config.is_enabled === false) return null;
 
+  const isWebGL = useWebGLAvailable();
+
   const title = config?.title || 'Legacy in Motion.';
   const titleParts = title.split(' ');
   const lastWord = titleParts.pop() || '';
@@ -150,27 +154,51 @@ export const Campus3D = ({ config }: { config?: DigitalCampus }) => {
       </div>
 
       <div className="w-full md:flex-1 h-[600px] relative mt-10 md:mt-0 rounded-[40px] overflow-hidden border border-black/5 bg-white shadow-2xl">
-        <Canvas 
-          shadows 
-          dpr={[1, 2]}
-          camera={{ position: [0, 5, 20], fov: 35 }}
-          gl={{ antialias: true }}
-          style={{ background: '#f8fafc' }}
-        >
-          <ambientLight intensity={1.5} />
-          <directionalLight position={[10, 10, 10]} intensity={2} castShadow />
-          <pointLight position={[-10, 5, -5]} color="#002147" intensity={3} />
-          
-          <CampusSceneContent modelUrl={config?.model_url} />
-          
-          <OrbitControls 
-            enableZoom={false} 
-            autoRotate 
-            autoRotateSpeed={1} 
-            maxPolarAngle={Math.PI / 2}
-            minPolarAngle={Math.PI / 4}
-          />
-        </Canvas>
+        {isWebGL ? (
+          <Canvas 
+            shadows 
+            dpr={[1, 2]}
+            camera={{ position: [0, 5, 20], fov: 35 }}
+            gl={{ antialias: true }}
+            style={{ background: '#f8fafc' }}
+          >
+            <ambientLight intensity={1.5} />
+            <directionalLight position={[10, 10, 10]} intensity={2} castShadow />
+            <pointLight position={[-10, 5, -5]} color="#002147" intensity={3} />
+            
+            <CampusSceneContent modelUrl={config?.model_url} />
+            
+            <OrbitControls 
+              enableZoom={false} 
+              autoRotate 
+              autoRotateSpeed={1} 
+              maxPolarAngle={Math.PI / 2}
+              minPolarAngle={Math.PI / 4}
+            />
+          </Canvas>
+        ) : (
+          <div className="w-full h-full bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center p-8 relative overflow-hidden">
+            <div className="absolute inset-0 bg-radial-[at_center_center] from-transparent to-black/[0.02] dark:to-white/[0.02]" />
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-school-accent/10 flex items-center justify-between px-10">
+              <div className="w-2 h-2 bg-school-accent/30 rounded-full" />
+              <div className="w-2 h-2 bg-school-accent/30 rounded-full" />
+            </div>
+
+            <svg className="w-48 h-48 text-school-navy/10 dark:text-white/10 mb-6 animate-pulse" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1">
+              <rect x="15" y="20" width="30" height="40" rx="3" />
+              <rect x="55" y="25" width="30" height="30" rx="3" />
+              <circle cx="50" cy="50" r="12" strokeDasharray="2 2" />
+              <path d="M50 10 L50 90 M10 50 L90 50" strokeWidth="0.5" strokeDasharray="1 3" />
+            </svg>
+            
+            <p className="text-school-navy/60 dark:text-white/60 font-serif text-2xl italic text-center mb-1">
+              Saint Xavier's Estate
+            </p>
+            <p className="text-school-ink/40 dark:text-white/40 text-[10px] uppercase tracking-widest text-center font-bold">
+              Interlinked Academic Courtyards & Historic Quad
+            </p>
+          </div>
+        )}
         
         {/* Helper UI Overlay */}
         <div className="absolute inset-0 pointer-events-none border-[12px] border-white/50" />

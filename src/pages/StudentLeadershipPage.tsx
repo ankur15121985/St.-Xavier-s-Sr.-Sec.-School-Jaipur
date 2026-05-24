@@ -6,6 +6,8 @@ import * as THREE from 'three';
 import Layout from '../components/layout/Layout';
 import { AppData, FormerStudentLeader } from '../types';
 import { GraduationCap, Calendar, ShieldCheck, Award } from 'lucide-react';
+import { useWebGLAvailable } from '../lib/webgl';
+
 
 // Three.js Background Component with more active effects
 const ParticleField = () => {
@@ -41,23 +43,56 @@ const ParticleField = () => {
 };
 
 const BackgroundScene = () => {
+  const isWebGL = useWebGLAvailable();
+
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
-      <Canvas camera={{ position: [0, 0, 5] }}>
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} intensity={2} color="#ffffff" />
-        <ParticleField />
-        <Float speed={2} rotationIntensity={1} floatIntensity={2}>
-          <Sphere args={[1, 100, 200]} scale={1.5} position={[-4, 2, -2]}>
-            <MeshDistortMaterial color="#002147" speed={3} distort={0.4} />
-          </Sphere>
-        </Float>
-        <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1.5}>
-          <Sphere args={[1, 100, 200]} scale={1} position={[4, -2, -3]}>
-            <MeshDistortMaterial color="#d4af37" speed={2} distort={0.3} />
-          </Sphere>
-        </Float>
-      </Canvas>
+    <div className="fixed inset-0 z-0 pointer-events-none opacity-40 overflow-hidden">
+      {isWebGL ? (
+        <Canvas camera={{ position: [0, 0, 5] }}>
+          <ambientLight intensity={0.5} />
+          <pointLight position={[10, 10, 10]} intensity={2} color="#ffffff" />
+          <ParticleField />
+          <Float speed={2} rotationIntensity={1} floatIntensity={2}>
+            <Sphere args={[1, 100, 200]} scale={1.5} position={[-4, 2, -2]}>
+              <MeshDistortMaterial color="#002147" speed={3} distort={0.4} />
+            </Sphere>
+          </Float>
+          <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1.5}>
+            <Sphere args={[1, 100, 200]} scale={1} position={[4, -2, -3]}>
+              <MeshDistortMaterial color="#d4af37" speed={2} distort={0.3} />
+            </Sphere>
+          </Float>
+        </Canvas>
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-between opacity-35">
+          <motion.div
+            animate={{
+              x: [-100, 100, -100],
+              y: [-50, 50, -50],
+              scale: [1, 1.3, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute -top-20 -left-20 w-96 h-96 bg-school-accent/40 blur-[120px] rounded-full"
+          />
+          <motion.div
+            animate={{
+              x: [100, -100, 100],
+              y: [50, -50, 50],
+              scale: [1.3, 1, 1.3],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute -bottom-20 -right-20 w-[450px] h-[450px] bg-school-gold/30 blur-[150px] rounded-full"
+          />
+        </div>
+      )}
     </div>
   );
 };

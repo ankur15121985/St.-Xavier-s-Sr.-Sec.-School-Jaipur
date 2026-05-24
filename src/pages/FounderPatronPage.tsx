@@ -12,17 +12,73 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
         <meta name="description" content="Learn about St. Ignatius of Loyola and St. Francis Xavier, the pillars of the Society of Jesus and the inspiration behind St. Xavier's School." />
       </Helmet>
       <div className="bg-school-paper min-h-screen">
-        {/* Banner Section */}
-        <section className="relative h-[40vh] md:h-[50vh] overflow-hidden bg-school-navy">
-          <div className="absolute inset-0 bg-gradient-to-br from-school-navy to-school-navy/80"></div>
-          <div className="absolute inset-0 flex items-center justify-center text-center px-6">
+        {/* Banner Section with Immersive Aurora Lights */}
+        <section className="relative h-[40vh] md:h-[50vh] overflow-hidden bg-[#0d0725] flex items-center justify-center">
+          {/* Enhanced Aurora Lights Background Animation */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {/* Base dark ambient layers */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0d0725] via-school-navy to-[#120531]" />
+            
+            {/* Aurora Light Wave 1 - Vibrant Purple (school-accent) */}
+            <motion.div 
+              animate={{
+                x: [-120, 120, -120],
+                y: [-60, 60, -60],
+                scale: [1, 1.35, 1],
+                opacity: [0.25, 0.45, 0.25],
+              }}
+              transition={{
+                duration: 16,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="absolute -top-1/4 -left-1/4 w-[85%] h-[85%] rounded-full bg-school-accent/70 blur-[130px] mix-blend-screen"
+            />
+
+            {/* Aurora Light Wave 2 - Radiant Pink (school-gold) */}
+            <motion.div 
+              animate={{
+                x: [120, -120, 120],
+                y: [60, -60, 60],
+                scale: [1.25, 0.85, 1.25],
+                opacity: [0.2, 0.4, 0.2],
+              }}
+              transition={{
+                duration: 20,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="absolute -bottom-1/4 -right-1/4 w-[90%] h-[90%] rounded-full bg-school-gold/60 blur-[150px] mix-blend-screen"
+            />
+
+            {/* Aurora Light Wave 3 - Neon Green (school-neon) */}
+            <motion.div 
+              animate={{
+                x: [-60, 60, -60],
+                y: [120, -120, 120],
+                scale: [0.9, 1.25, 0.9],
+                opacity: [0.12, 0.28, 0.12],
+              }}
+              transition={{
+                duration: 24,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="absolute top-10 left-1/3 w-[65%] h-[65%] rounded-full bg-school-neon/50 blur-[110px] mix-blend-screen"
+            />
+
+            {/* Subtle Grid Pattern Overlay */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px]" />
+          </div>
+
+          <div className="absolute inset-0 flex items-center justify-center text-center px-6 z-10">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1 }}
               className="max-w-4xl"
             >
-              <div className="w-12 md:w-20 h-1.5 bg-school-gold mx-auto mb-10 rounded-full shadow-[0_0_20px_rgba(226,180,80,0.4)]"></div>
+              <div className="w-12 md:w-20 h-1.5 bg-school-gold mx-auto mb-10 rounded-full shadow-[0_0_20px_rgba(255,0,146,0.6)]"></div>
               <h1 className="text-5xl sm:text-6xl md:text-8xl font-serif font-black text-white tracking-tight mb-8 italic leading-[1.1] drop-shadow-2xl">
                 Our Founder <span className="text-school-gold">&</span> Patron
               </h1>
