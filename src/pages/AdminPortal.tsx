@@ -5,7 +5,8 @@ import {
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
   Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, RefreshCw,
   Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink,
-  Type, Palette, Bold, Italic, Briefcase, ShieldCheck, Activity, Send, Clock, Database, Download
+  Type, Palette, Bold, Italic, Briefcase, ShieldCheck, Activity, Send, Clock, Database, Download,
+  Phone, MapPin
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
@@ -1788,9 +1789,10 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
             )}
 
             <div className="grid md:grid-cols-2 gap-8">
-              <div className="glass-surface p-10 rounded-[40px] border border-school-ink/5 space-y-10 group">
+              <div className="glass-surface p-10 rounded-[40px] border border-school-ink/5 space-y-8 group">
                 <h3 className="text-xl font-black text-school-navy uppercase italic tracking-tight border-b border-school-navy/5 pb-4">Portal Constants</h3>
-                <div className="space-y-6">
+                
+                <div className="space-y-4">
                   <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Active Academic Session</label>
                   <input 
                     value={data.settings.currentSession || ''}
@@ -1798,7 +1800,34 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                     className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
                   />
                 </div>
-                <div className="space-y-6 pt-4 border-t border-school-navy/5">
+
+                <div className="space-y-4 pt-4 border-t border-school-navy/5">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-school-gold">Admissions Floating CTA Customization</h4>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Floating CTA Display Label</label>
+                      <input 
+                        value={data.settings.applyNowLabel || ''}
+                        onChange={(e) => handleUpdate('global', 'applyNowLabel', e.target.value, 'settings')}
+                        placeholder="e.g. Apply 2026-27"
+                        className="w-full bg-school-ink/5 border-none rounded-2xl py-3.5 px-6 text-sm font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Floating CTA Action Link / PDF URL</label>
+                      <input 
+                        value={data.settings.applyNowUrl || ''}
+                        onChange={(e) => handleUpdate('global', 'applyNowUrl', e.target.value, 'settings')}
+                        placeholder="e.g. https://xaviersjaipur.edu.in/.../file.pdf"
+                        className="w-full bg-school-ink/5 border-none rounded-2xl py-3.5 px-6 text-sm font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all text-xs font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-school-navy/5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Indian Flag on Main Header</label>
                   <div className="flex items-center gap-4">
                     <button 
@@ -1851,7 +1880,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                    { key: 'showGallery', label: 'Campus Gallery' },
                    { key: 'showLeadership', label: 'Regency Personnel' },
                    { key: 'showHonors', label: 'Student Triumphs' },
-                   { key: 'careerFormEnabled', label: 'Careers Application Form' }
+                   { key: 'careerFormEnabled', label: 'Careers Application Form' },
+                   { key: 'applyNowEnabled', label: 'Admissions Floating CTA' }
                  ].map((item) => (
                    <div key={item.key} className="bg-school-ink/5 p-6 rounded-3xl border border-school-ink/5 flex items-center justify-between">
                      <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">{item.label}</span>
@@ -2090,6 +2120,203 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        );
+      }
+      case 'contact_content': {
+        return (
+          <div className="space-y-12">
+            <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div>
+                <h2 className="text-3xl font-serif font-black text-white italic tracking-tight mb-2">Contact & Communications Registry</h2>
+                <p className="text-xs text-white/40 leading-relaxed max-w-xl">Configure all public contact methods, phone registry numbers, emails, location addresses, office hours, and interactive maps.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Box 1: Email Channels */}
+              <div className="bg-school-paper p-8 rounded-[40px] border border-school-ink/10 shadow-sm space-y-6">
+                <div className="border-b border-school-ink/5 pb-4">
+                  <h3 className="text-lg font-serif font-black text-school-navy flex items-center gap-2">
+                    <Mail className="text-school-gold" size={20} /> Electronic Communication
+                  </h3>
+                  <p className="text-[10px] text-school-ink/30 uppercase font-black tracking-widest mt-1">Manage global email triggers & public mail correspondence</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Global Topbar & Footer Correspondence Email</label>
+                    <input 
+                      type="email" 
+                      value={data.settings.contactEmail || ''} 
+                      onChange={(e) => handleUpdate('global', 'contactEmail', e.target.value ?? '', 'settings')}
+                      placeholder="e.g. xavier41jaipur@gmail.com"
+                      className="w-full bg-white border border-school-ink/10 rounded-2xl px-5 py-4 text-xs font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none"
+                    />
+                    <p className="text-[9px] text-school-ink/30 mt-1">Syncs the primary email shown across the top navigation bar and site footer handles.</p>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Detail Page Contact Correspondence Email</label>
+                    <input 
+                      type="email" 
+                      value={data.content.schoolEmail || ''} 
+                      onChange={(e) => handleUpdate('global', 'schoolEmail', e.target.value ?? '', 'content')}
+                      placeholder="e.g. xavier41jaipur@gmail.com"
+                      className="w-full bg-white border border-school-ink/10 rounded-2xl px-5 py-4 text-xs font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none"
+                    />
+                    <p className="text-[9px] text-school-ink/30 mt-1">Syncs the official contact correspondence email displayed directly on the /contact route.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Box 2: Telephony Registry */}
+              <div className="bg-school-paper p-8 rounded-[40px] border border-school-ink/10 shadow-sm space-y-6">
+                <div className="border-b border-school-ink/5 pb-4">
+                  <h3 className="text-lg font-serif font-black text-school-navy flex items-center gap-2">
+                    <Phone className="text-school-gold" size={20} /> Telephony & Hotline Registry
+                  </h3>
+                  <p className="text-[10px] text-school-ink/30 uppercase font-black tracking-widest mt-1">Configure helpline desk numbers for parent enquiries</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Header Topbar Hotline Number Label</label>
+                    <input 
+                      type="text" 
+                      value={data.settings.contactPhone || ''} 
+                      onChange={(e) => handleUpdate('global', 'contactPhone', e.target.value ?? '', 'settings')}
+                      placeholder="e.g. 0141-2372336 (Senior School)"
+                      className="w-full bg-white border border-school-ink/10 rounded-2xl px-5 py-4 text-xs font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none"
+                    />
+                    <p className="text-[9px] text-school-ink/30 mt-1">Hotline line displayed prominently at the top header bar of every page.</p>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Contact Page Senior School Desk</label>
+                    <input 
+                      type="text" 
+                      value={data.content.seniorSchoolPhone || ''} 
+                      onChange={(e) => handleUpdate('global', 'seniorSchoolPhone', e.target.value ?? '', 'content')}
+                      placeholder="e.g. 0141-2372336"
+                      className="w-full bg-white border border-school-ink/10 rounded-2xl px-5 py-4 text-xs font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Contact Page Junior School Desk</label>
+                    <input 
+                      type="text" 
+                      value={data.content.juniorSchoolPhone || ''} 
+                      onChange={(e) => handleUpdate('global', 'juniorSchoolPhone', e.target.value ?? '', 'content')}
+                      placeholder="e.g. 0141-2367792, 2376569"
+                      className="w-full bg-white border border-school-ink/10 rounded-2xl px-5 py-4 text-xs font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Box 3: Campus Map & Terrain Location */}
+              <div className="bg-school-paper p-8 rounded-[40px] border border-school-ink/10 shadow-sm space-y-6">
+                <div className="border-b border-school-ink/5 pb-4">
+                  <h3 className="text-lg font-serif font-black text-school-navy flex items-center gap-2">
+                    <MapPin className="text-school-gold" size={20} /> Campus Terrain & Interactive Map Coordinates
+                  </h3>
+                  <p className="text-[10px] text-school-ink/30 uppercase font-black tracking-widest mt-1">Configure campus address labels and Google Map API queries</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Campus Primary Address Label</label>
+                    <input 
+                      type="text" 
+                      value={data.content.schoolAddress || ''} 
+                      onChange={(e) => handleUpdate('global', 'schoolAddress', e.target.value ?? '', 'content')}
+                      placeholder="e.g. Bhagwan Das Road"
+                      className="w-full bg-white border border-school-ink/10 rounded-2xl px-5 py-4 text-xs font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Official Website Link URL</label>
+                    <input 
+                      type="text" 
+                      value={data.content.schoolWebsite || ''} 
+                      onChange={(e) => handleUpdate('global', 'schoolWebsite', e.target.value ?? '', 'content')}
+                      placeholder="e.g. www.xaviersjaipur.edu.in"
+                      className="w-full bg-white border border-school-ink/10 rounded-2xl px-5 py-4 text-xs font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Google Maps Query Address String</label>
+                    <textarea 
+                      value={data.content.schoolAddressQuery || ''} 
+                      onChange={(e) => handleUpdate('global', 'schoolAddressQuery', e.target.value ?? '', 'content')}
+                      placeholder="e.g. St. Xavier's Senior Secondary School, Bhagwan Das Rd, C Scheme, Jaipur, Rajasthan 302001"
+                      className="w-full bg-white border border-school-ink/10 rounded-2xl px-5 py-4 text-xs font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none h-24 resize-none"
+                    />
+                    <p className="text-[9px] text-school-ink/30 mt-1">This query determines both the active Google directions calculation link and the embedded interactive iframe map.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Box 4: Office Timings Labels */}
+              <div className="bg-school-paper p-8 rounded-[40px] border border-school-ink/10 shadow-sm space-y-6">
+                <div className="border-b border-school-ink/5 pb-4">
+                  <h3 className="text-lg font-serif font-black text-school-navy flex items-center gap-2">
+                    <Clock className="text-school-gold" size={20} /> Office Hours & Timings Labels
+                  </h3>
+                  <p className="text-[10px] text-school-ink/30 uppercase font-black tracking-widest mt-1">Change operational office banners displayed globally</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Top Hero Office Hours Label (Short)</label>
+                    <input 
+                      type="text" 
+                      value={data.content.officeHoursShort || ''} 
+                      onChange={(e) => handleUpdate('global', 'officeHoursShort', e.target.value ?? '', 'content')}
+                      placeholder="e.g. Office Hrs: 8AM - 2PM"
+                      className="w-full bg-white border border-school-ink/10 rounded-2xl px-5 py-4 text-xs font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Top Hero Office Operational Days Label (Short)</label>
+                    <input 
+                      type="text" 
+                      value={data.content.officeDaysShort || ''} 
+                      onChange={(e) => handleUpdate('global', 'officeDaysShort', e.target.value ?? '', 'content')}
+                      placeholder="e.g. Mon - Sat Service"
+                      className="w-full bg-white border border-school-ink/10 rounded-2xl px-5 py-4 text-xs font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Bottom Map Office Hours Label (Long)</label>
+                    <input 
+                      type="text" 
+                      value={data.content.officeHoursLong || ''} 
+                      onChange={(e) => handleUpdate('global', 'officeHoursLong', e.target.value ?? '', 'content')}
+                      placeholder="e.g. Office: 8:00 AM - 2:00 PM"
+                      className="w-full bg-white border border-school-ink/10 rounded-2xl px-5 py-4 text-xs font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40 mb-1 block">Bottom Map Operational Days Label (Long)</label>
+                    <input 
+                      type="text" 
+                      value={data.content.officeDaysLong || ''} 
+                      onChange={(e) => handleUpdate('global', 'officeDaysLong', e.target.value ?? '', 'content')}
+                      placeholder="e.g. Monday — Saturday"
+                      className="w-full bg-white border border-school-ink/10 rounded-2xl px-5 py-4 text-xs font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );

@@ -40,7 +40,7 @@ const ContactPage = ({ data }: { data: AppData }) => {
     }
   };
 
-  const mapQuery = "St. Xavier's Senior Secondary School, Bhagwan Das Rd, C Scheme, Jaipur, Rajasthan 302001";
+  const mapQuery = data.content.schoolAddressQuery || "St. Xavier's Senior Secondary School, Bhagwan Das Rd, C Scheme, Jaipur, Rajasthan 302001";
   const encodedQuery = encodeURIComponent(mapQuery);
 
   return (
@@ -143,11 +143,11 @@ const ContactPage = ({ data }: { data: AppData }) => {
           >
             <div className="flex items-center gap-3 px-6 py-3 bg-white/5 rounded-2xl border border-white/10">
               <Clock size={18} className="text-school-gold" />
-              <span className="text-sm font-bold uppercase tracking-widest text-white/60">Office Hrs: 8AM - 2PM</span>
+              <span className="text-sm font-bold uppercase tracking-widest text-white/60">{data.content.officeHoursShort || 'Office Hrs: 8AM - 2PM'}</span>
             </div>
             <div className="flex items-center gap-3 px-6 py-3 bg-white/5 rounded-2xl border border-white/10">
               <Calendar size={18} className="text-school-gold" />
-              <span className="text-sm font-bold uppercase tracking-widest text-white/60">Mon - Sat Service</span>
+              <span className="text-sm font-bold uppercase tracking-widest text-white/60">{data.content.officeDaysShort || 'Mon - Sat Service'}</span>
             </div>
           </motion.div>
         </div>
@@ -354,11 +354,11 @@ const ContactPage = ({ data }: { data: AppData }) => {
             <div className="flex flex-col gap-4">
                <div className="flex items-center gap-4 font-bold">
                  <Clock className="text-school-gold" size={20} />
-                 <span>Office: 8:00 AM - 2:00 PM</span>
+                 <span>{data.content.officeHoursLong || 'Office: 8:00 AM - 2:00 PM'}</span>
                </div>
                <div className="flex items-center gap-4 font-bold">
                  <Calendar className="text-school-gold" size={20} />
-                 <span>Monday — Saturday</span>
+                 <span>{data.content.officeDaysLong || 'Monday — Saturday'}</span>
                </div>
             </div>
             <a 
