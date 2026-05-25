@@ -3,43 +3,54 @@ import { useAppData } from '../src/context/AppDataContext';
 import { motion, AnimatePresence } from 'motion/react';
 import React, { useEffect } from 'react';
 
-import HomePage from '../src/pages/HomePage';
-import StaffPage from '../src/pages/StaffPage';
-import GalleryPage from '../src/pages/GalleryPage';
-import NoticesPage from '../src/pages/NoticesPage';
-import EventsPage from '../src/pages/EventsPage';
-import FeesPage from '../src/pages/FeesPage';
-import AchievementsPage from '../src/pages/AchievementsPage';
-import HistoryPage from '../src/pages/HistoryPage';
-import FounderPatronPage from '../src/pages/FounderPatronPage';
-import GoverningMembersPage from '../src/pages/GoverningMembersPage';
-import FormerRectorsPage from '../src/pages/FormerRectorsPage';
-import FormerPrincipalsPage from '../src/pages/FormerPrincipalsPage';
-import SchoolAnthemPage from '../src/pages/SchoolAnthemPage';
-import AdmissionPolicyPage from '../src/pages/AdmissionPolicyPage';
-import ScholarshipPage from '../src/pages/ScholarshipPage';
-import StudybaseAppPage from '../src/pages/StudybaseAppPage';
-import JesuitEducationPage from '../src/pages/JesuitEducationPage';
-import SportsComplexPage from '../src/pages/SportsComplexPage';
-import CoCurricularActivitiesPage from '../src/pages/CoCurricularActivitiesPage';
-import AlumniPage from '../src/pages/AlumniPage';
-import SchoolInformationPage from '../src/pages/SchoolInformationPage';
-import ParentObligationsPage from '../src/pages/ParentObligationsPage';
-import CareersPage from '../src/pages/CareersPage';
-import MandatoryDisclosuresPage from '../src/pages/MandatoryDisclosuresPage';
-import StatutoryArchivesPage from '../src/pages/StatutoryArchivesPage';
-import FireSafetyPage from '../src/pages/FireSafetyPage';
-import NoticeBoardPage from '../src/pages/NoticeBoardPage';
-import TransferCertificatePage from '../src/pages/TransferCertificatePage';
-import StreamToppersPage from '../src/pages/StreamToppersPage';
-import LaurelDistinctionPage from '../src/pages/LaurelDistinctionPage';
-import XavieriteOfTheYearPage from '../src/pages/XavieriteOfTheYearPage';
-import StudentLeadershipPage from '../src/pages/StudentLeadershipPage';
-import LeadGracePage from '../src/pages/LeadGracePage';
-import ExplorePage from '../src/pages/ExplorePage';
-import ContactPage from '../src/pages/ContactPage';
-import AdminPortal from '../src/pages/AdminPortal';
-import SitemapPage from '../src/pages/SitemapPage';
+import dynamic from 'next/dynamic';
+
+const ElegantLoader = () => (
+  <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6">
+    <div className="w-12 h-12 border-2 border-school-navy/10 border-t-school-accent rounded-full animate-spin mb-4" />
+    <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-school-navy/40 dark:text-white/40 font-mono">
+      St. Xavier's Jaipur
+    </span>
+  </div>
+);
+
+const HomePage = dynamic(() => import('../src/pages/HomePage'), { loading: ElegantLoader });
+const StaffPage = dynamic(() => import('../src/pages/StaffPage'), { loading: ElegantLoader });
+const GalleryPage = dynamic(() => import('../src/pages/GalleryPage'), { loading: ElegantLoader });
+const NoticesPage = dynamic(() => import('../src/pages/NoticesPage'), { loading: ElegantLoader });
+const EventsPage = dynamic(() => import('../src/pages/EventsPage'), { loading: ElegantLoader });
+const FeesPage = dynamic(() => import('../src/pages/FeesPage'), { loading: ElegantLoader });
+const AchievementsPage = dynamic(() => import('../src/pages/AchievementsPage'), { loading: ElegantLoader });
+const HistoryPage = dynamic(() => import('../src/pages/HistoryPage'), { loading: ElegantLoader });
+const FounderPatronPage = dynamic(() => import('../src/pages/FounderPatronPage'), { loading: ElegantLoader });
+const GoverningMembersPage = dynamic(() => import('../src/pages/GoverningMembersPage'), { loading: ElegantLoader });
+const FormerRectorsPage = dynamic(() => import('../src/pages/FormerRectorsPage'), { loading: ElegantLoader });
+const FormerPrincipalsPage = dynamic(() => import('../src/pages/FormerPrincipalsPage'), { loading: ElegantLoader });
+const SchoolAnthemPage = dynamic(() => import('../src/pages/SchoolAnthemPage'), { loading: ElegantLoader });
+const AdmissionPolicyPage = dynamic(() => import('../src/pages/AdmissionPolicyPage'), { loading: ElegantLoader });
+const ScholarshipPage = dynamic(() => import('../src/pages/ScholarshipPage'), { loading: ElegantLoader });
+const StudybaseAppPage = dynamic(() => import('../src/pages/StudybaseAppPage'), { loading: ElegantLoader });
+const JesuitEducationPage = dynamic(() => import('../src/pages/JesuitEducationPage'), { loading: ElegantLoader });
+const SportsComplexPage = dynamic(() => import('../src/pages/SportsComplexPage'), { loading: ElegantLoader });
+const CoCurricularActivitiesPage = dynamic(() => import('../src/pages/CoCurricularActivitiesPage'), { loading: ElegantLoader });
+const AlumniPage = dynamic(() => import('../src/pages/AlumniPage'), { loading: ElegantLoader });
+const SchoolInformationPage = dynamic(() => import('../src/pages/SchoolInformationPage'), { loading: ElegantLoader });
+const ParentObligationsPage = dynamic(() => import('../src/pages/ParentObligationsPage'), { loading: ElegantLoader });
+const CareersPage = dynamic(() => import('../src/pages/CareersPage'), { loading: ElegantLoader });
+const MandatoryDisclosuresPage = dynamic(() => import('../src/pages/MandatoryDisclosuresPage'), { loading: ElegantLoader });
+const StatutoryArchivesPage = dynamic(() => import('../src/pages/StatutoryArchivesPage'), { loading: ElegantLoader });
+const FireSafetyPage = dynamic(() => import('../src/pages/FireSafetyPage'), { loading: ElegantLoader });
+const NoticeBoardPage = dynamic(() => import('../src/pages/NoticeBoardPage'), { loading: ElegantLoader });
+const TransferCertificatePage = dynamic(() => import('../src/pages/TransferCertificatePage'), { loading: ElegantLoader });
+const StreamToppersPage = dynamic(() => import('../src/pages/StreamToppersPage'), { loading: ElegantLoader });
+const LaurelDistinctionPage = dynamic(() => import('../src/pages/LaurelDistinctionPage'), { loading: ElegantLoader });
+const XavieriteOfTheYearPage = dynamic(() => import('../src/pages/XavieriteOfTheYearPage'), { loading: ElegantLoader });
+const StudentLeadershipPage = dynamic(() => import('../src/pages/StudentLeadershipPage'), { loading: ElegantLoader });
+const LeadGracePage = dynamic(() => import('../src/pages/LeadGracePage'), { loading: ElegantLoader });
+const ExplorePage = dynamic(() => import('../src/pages/ExplorePage'), { loading: ElegantLoader });
+const ContactPage = dynamic(() => import('../src/pages/ContactPage'), { loading: ElegantLoader });
+const AdminPortal = dynamic(() => import('../src/pages/AdminPortal'), { loading: ElegantLoader });
+const SitemapPage = dynamic(() => import('../src/pages/SitemapPage'), { loading: ElegantLoader });
 
 export default function CatchAllPage() {
   const router = useRouter();

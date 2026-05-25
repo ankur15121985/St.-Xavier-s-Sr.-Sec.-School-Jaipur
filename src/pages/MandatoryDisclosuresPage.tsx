@@ -211,7 +211,17 @@ const MandatoryDisclosuresPage = ({ data }: { data: AppData }) => {
                     {sectionB.map((item, i) => (
                       <tr key={item.id}>
                         <td className={tableSrClasses}>{i + 1}</td>
-                        <td className={tableCellClasses}>{item.content}</td>
+                        <td className={tableCellClasses}>
+                          <div>{item.title}</div>
+                          {item.content && 
+                            item.content.trim() !== '' && 
+                            item.content.trim() !== item.title.trim() && 
+                            !item.content.toLowerCase().startsWith('enter details') && (
+                              <div className="text-[11px] text-school-ink/50 font-normal normal-case tracking-normal mt-1 leading-relaxed">
+                                {item.content}
+                              </div>
+                          )}
+                        </td>
                         <td className={tableCellClasses}>
                           {item.attachmentUrl ? (
                             <a href={item.attachmentUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-school-gold hover:underline">

@@ -1978,6 +1978,122 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
             </div>
           </div>
         );
+      case 'gallery': {
+        const galleryItems = (data.gallery || []) as any[];
+        return (
+          <div className="space-y-8">
+            <div className="bg-school-navy p-10 rounded-[40px] shadow-2xl border border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div>
+                <h3 className="text-3xl font-serif font-black text-white italic tracking-tight mb-2">School Media Gallery</h3>
+                <p className="text-white/40 text-xs">Manage all institutional photo assets, captions, and academic sessions in a single cohesive grid.</p>
+              </div>
+              <div className="flex gap-4">
+                {selectedIds.size > 0 && (
+                  <button
+                    onClick={() => setItemToDelete(Array.from(selectedIds))}
+                    className="px-6 py-3 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all outline-none"
+                  >
+                    Delete Selected ({selectedIds.size})
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-school-paper p-8 md:p-10 rounded-[40px] border border-school-ink/10 shadow-sm">
+              {galleryItems.length === 0 ? (
+                <div className="text-center py-20">
+                  <p className="text-school-ink/40 font-serif italic text-lg">No gallery images found.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {galleryItems.map((item) => (
+                    <div 
+                      key={item.id} 
+                      className={`relative bg-white rounded-3xl overflow-hidden border transition-all p-4 flex flex-col justify-between group h-full ${
+                        selectedIds.has(item.id) ? 'border-school-gold ring-1 ring-school-gold/20 shadow-md' : 'border-school-ink/5 hover:shadow-md'
+                      }`}
+                    >
+                      {/* Selection checkbox & simple delete controls */}
+                      <div className="absolute top-6 left-6 z-10 flex items-center gap-2">
+                        <button 
+                          onClick={() => toggleSelect(item.id)} 
+                          className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all outline-none ${
+                            selectedIds.has(item.id) ? 'bg-school-gold border-school-gold text-school-navy' : 'bg-white/80 backdrop-blur-xs border-school-ink/20 hover:border-school-ink/40'
+                          }`}
+                        >
+                          {selectedIds.has(item.id) && <Check size={12} strokeWidth={4} />}
+                        </button>
+                      </div>
+
+                      <div className="absolute top-6 right-6 z-10">
+                        <button 
+                          onClick={() => setItemToDelete(item.id)}
+                          className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm opacity-0 group-hover:opacity-100"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+
+                      {/* Image Preview with order controls */}
+                      <div className="aspect-[4/3] w-full bg-slate-100 rounded-2xl overflow-hidden relative shadow-inner mb-4">
+                        <img 
+                          src={item.url} 
+                          className="w-full h-full object-cover select-none" 
+                          alt={item.caption || 'Gallery Image'}
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded text-[8px] font-mono text-white">
+                          Index: {item.order_index || 0}
+                        </div>
+                      </div>
+
+                      {/* Editable Fields (Caption & Session) & Status Toggle */}
+                      <div className="space-y-4 flex-1 flex flex-col justify-between">
+                        <div className="space-y-3">
+                          <div>
+                            <label className="text-[8px] font-black uppercase tracking-widest text-school-ink/30 mb-1 block">Caption / Designation</label>
+                            <input 
+                              type="text" 
+                              value={item.caption || ''} 
+                              onChange={(e) => handleUpdate(item.id, 'caption', e.target.value, 'gallery')}
+                              placeholder="e.g. Annual Function"
+                              className="w-full bg-school-ink/5 border-none rounded-xl px-3 py-2 text-xs font-black text-school-navy focus:ring-1 focus:ring-school-gold/20 outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-[8px] font-black uppercase tracking-widest text-school-ink/30 mb-1 block">Academic Session</label>
+                            <input 
+                              type="text" 
+                              value={item.session || ''} 
+                              onChange={(e) => handleUpdate(item.id, 'session', e.target.value, 'gallery')}
+                              placeholder="e.g. 2024-25"
+                              className="w-full bg-school-ink/5 border-none rounded-xl px-3 py-2 text-xs font-black text-school-navy focus:ring-1 focus:ring-school-gold/20 outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="pt-2 border-t border-school-ink/5 flex items-center justify-between gap-2 mt-2">
+                          <button 
+                            onClick={() => handleUpdate(item.id, 'is_enabled', item.is_enabled === false, 'gallery')}
+                            className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                              item.is_enabled !== false 
+                                ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' 
+                                : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20'
+                            }`}
+                          >
+                            {item.is_enabled !== false ? 'Enabled' : 'Disabled'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
       case 'content':
         return (
           <div className="space-y-12">
@@ -2046,6 +2162,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16 lg:gap-20 w-full pb-20">
         {Object.entries({
           ...item,
+          ...(section === 'gallery' ? { session: item.session || '' } : {}),
           ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section) ? { attachmentUrl: item.attachmentUrl || '', display_type: item.display_type || 'tile' } : {})
         }).filter(([k]) => {
           if (k === 'id' || k === 'page_id' || k === 'section_key') return false;

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppData } from '../types';
 import Layout from '../components/layout/Layout';
 import { motion, AnimatePresence } from 'motion/react';
 import { Helmet } from 'react-helmet-async';
-import { Maximize2, X, Camera, Calendar, Image as ImageIcon, ChevronDown } from 'lucide-react';
+import { Maximize2, X, Camera, Calendar, Image as ImageIcon, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const GalleryPage = ({ data }: { data: AppData }) => {
   const [selectedImage, setSelectedImage] = useState<typeof data.gallery[0] | null>(null);
@@ -11,6 +11,41 @@ const GalleryPage = ({ data }: { data: AppData }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const filteredGallery = data.gallery.filter(item => item.is_enabled !== false);
+
+  const currentImageIndex = selectedImage 
+    ? filteredGallery.findIndex(item => item.id === selectedImage.id) 
+    : -1;
+
+  const handleNextImage = () => {
+    if (currentImageIndex !== -1 && filteredGallery.length > 0) {
+      const nextIndex = (currentImageIndex + 1) % filteredGallery.length;
+      setSelectedImage(filteredGallery[nextIndex]);
+    }
+  };
+
+  const handlePrevImage = () => {
+    if (currentImageIndex !== -1 && filteredGallery.length > 0) {
+      const prevIndex = (currentImageIndex - 1 + filteredGallery.length) % filteredGallery.length;
+      setSelectedImage(filteredGallery[prevIndex]);
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedImage) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') {
+        handleNextImage();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrevImage();
+      } else if (e.key === 'Escape') {
+        setSelectedImage(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage, currentImageIndex]);
 
   const groupedGallery = filteredGallery.reduce((acc, item) => {
     const session = item.session || 'Institutional Archives';
@@ -144,7 +179,7 @@ const GalleryPage = ({ data }: { data: AppData }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] flex items-center justify-center p-6 md:p-12"
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-12"
             >
               <div 
                 className="absolute inset-0 bg-school-navy/95 backdrop-blur-2xl"
@@ -154,24 +189,56 @@ const GalleryPage = ({ data }: { data: AppData }) => {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="relative w-full max-w-7xl h-full flex flex-col items-center justify-center"
+                className="relative w-full max-w-5xl h-[85vh] flex flex-col items-center justify-center px-4 md:px-16"
               >
+                {/* Close Button */}
                 <button 
                   onClick={() => setSelectedImage(null)}
-                  className="absolute top-0 right-0 m-4 md:-mr-12 md:-mt-12 w-12 h-12 rounded-full bg-white/10 hover:bg-white text-white hover:text-school-navy flex items-center justify-center transition-all z-20"
+                  className="absolute top-2 right-2 md:top-0 md:right-4 w-12 h-12 rounded-full bg-white/10 hover:bg-white text-white hover:text-school-navy flex items-center justify-center transition-all z-40 outline-none shadow-lg"
+                  aria-label="Close lightbox"
                 >
                   <X size={24} />
                 </button>
-                <div className="w-full h-full rounded-[40px] overflow-hidden border-8 border-white/10 shadow-2xl relative">
+
+                {/* Left/Previous Chevron Arrow */}
+                {filteredGallery.length > 1 && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrevImage();
+                    }}
+                    className="absolute left-6 md:left-2 top-1/2 -translate-y-1/2 w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/10 hover:bg-white text-white hover:text-school-navy flex items-center justify-center transition-all z-30 shadow-2xl group outline-none"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft size={28} className="group-hover:-translate-x-0.5 transition-transform" />
+                  </button>
+                )}
+
+                {/* Right/Next Chevron Arrow */}
+                {filteredGallery.length > 1 && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNextImage();
+                    }}
+                    className="absolute right-6 md:right-2 top-1/2 -translate-y-1/2 w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/10 hover:bg-white text-white hover:text-school-navy flex items-center justify-center transition-all z-30 shadow-2xl group outline-none"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight size={28} className="group-hover:translate-x-0.5 transition-transform" />
+                  </button>
+                )}
+
+                {/* Photo Framing */}
+                <div className="w-full h-full rounded-[30px] md:rounded-[40px] overflow-hidden border-4 md:border-8 border-white/10 shadow-2xl relative">
                   <img 
                     src={selectedImage.url} 
-                    className="w-full h-full object-contain bg-black/20"
+                    className="w-full h-full object-contain bg-black/20 select-none"
                     alt={selectedImage.caption}
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-x-0 bottom-0 p-8 md:p-12 bg-gradient-to-t from-black/80 to-transparent">
-                    <h5 className="text-white font-serif italic text-3xl md:text-5xl font-black mb-4">{selectedImage.caption}</h5>
-                    <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.4em]">Official Photographic Record • St. Xavier's, Jaipur</p>
+                  <div className="absolute inset-x-0 bottom-0 p-6 md:p-12 bg-gradient-to-t from-black/8 w-full from-black/90 to-transparent">
+                    <h5 className="text-white font-serif italic text-2xl md:text-5xl font-black mb-2 md:mb-4">{selectedImage.caption}</h5>
+                    <p className="text-white/40 text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em]">Official Photographic Record • St. Xavier's, Jaipur</p>
                   </div>
                 </div>
               </motion.div>

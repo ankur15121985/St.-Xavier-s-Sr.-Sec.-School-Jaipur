@@ -9,7 +9,9 @@ import ScrollButtons from '../ui/ScrollButtons';
 import PopupMessage from '../ui/PopupMessage';
 import { GlobalSearch } from '../ui/GlobalSearch';
 import { LanguageSelector } from '../ui/LanguageSelector';
-import { NavThreeBackground } from '../ui/NavThreeBackground';
+import dynamic from 'next/dynamic';
+
+const NavThreeBackground = dynamic(() => import('../ui/NavThreeBackground').then(m => m.NavThreeBackground), { ssr: false });
 import IndianFlag from '../ui/IndianFlag';
 import CanvasFooterEffect from '../ui/CanvasFooterEffect';
 import SidebarLinks from './SidebarLinks';

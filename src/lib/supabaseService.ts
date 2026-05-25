@@ -3,6 +3,19 @@ import { supabase, getIsSupabasePlaceholder } from '../supabaseClient';
 
 export const supabaseService = {
   async fetchAllData(): Promise<Partial<AppData>> {
+    // Clear fallback/state cache values from localStorage to guarantee fresh database loads
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        Object.keys(window.localStorage).forEach(key => {
+          if (key.startsWith('fallback_school_')) {
+            window.localStorage.removeItem(key);
+          }
+        });
+      } catch (cacheErr) {
+        console.warn('[Cache Clear] Failed to clear key caches:', cacheErr);
+      }
+    }
+
     try {
       if (getIsSupabasePlaceholder()) {
         console.warn('[Supabase Service] Placeholder client detected. Bypassing client-side fetch and utilizing local SQLite database server directly.');
@@ -181,7 +194,13 @@ export const supabaseService = {
     } catch (err) {
       console.warn('Supabase fetch failed, falling back to local server:', err);
       try {
-        const res = await fetch('/api/data');
+        const res = await fetch(`/api/data?t=${Date.now()}`, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
         const contentType = res.headers.get('content-type');
         const isNonJson = !contentType || !contentType.includes('application/json');
         if (!res.ok || isNonJson || res.status === 404 || res.status === 405) {

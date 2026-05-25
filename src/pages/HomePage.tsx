@@ -12,8 +12,10 @@ import {
 } from 'lucide-react';
 
 import Layout from '../components/layout/Layout';
-import { FocusVisual } from '../components/ui/FocusVisual';
-import { Campus3D } from '../components/ui/Campus3D';
+import dynamic from 'next/dynamic';
+
+const FocusVisual = dynamic(() => import('../components/ui/FocusVisual').then(m => m.FocusVisual), { ssr: false });
+const Campus3D = dynamic(() => import('../components/ui/Campus3D').then(m => m.Campus3D), { ssr: false });
 import { AppData } from '../types';
 
 import { Carousel } from '../components/ui/Carousel';
@@ -22,6 +24,20 @@ import { AnnouncementModal } from '../components/ui/AnnouncementModal';
 import { Marquee } from '../components/ui/Marquee';
 
 import { Helmet } from 'react-helmet-async';
+
+const getSmallImageUrl = (url: string) => {
+  if (!url) return 'https://picsum.photos/seed/placeholder/150/150';
+  if (url.includes('lh3.googleusercontent.com')) {
+    if (url.includes('=')) {
+      return url.split('=')[0] + '=w150-h150-c';
+    }
+    return url + '=w150-h150-c';
+  }
+  if (url.includes('picsum.photos')) {
+    return url.replace(/\/\d+\/\d+$/, '/150/150');
+  }
+  return url;
+};
 
 const HomePage = ({ data }: { data: AppData }) => {
   const carouselImages = data.carousel && data.carousel.length > 0 
@@ -460,13 +476,38 @@ const HomePage = ({ data }: { data: AppData }) => {
 
                   <div className="relative z-10">
                      <div className="flex -space-x-4 mb-6">
-                       {[...Array(4)].map((_, i) => (
-                         <div key={i} className="inline-block h-12 w-12 rounded-2xl ring-4 ring-white dark:ring-slate-900 bg-slate-200 group-hover:ring-school-navy transition-all overflow-hidden">
-                           <img src={`https://i.pravatar.cc/150?u=${i + 10}`} className="w-full h-full object-cover" />
-                         </div>
-                       ))}
+                       {(() => {
+                         const activeGallery = data.gallery?.filter(img => img.is_enabled !== false) || [];
+                         const displayItems = activeGallery.slice(0, 4);
+                         const fallbacksCount = Math.max(0, 4 - displayItems.length);
+                         
+                         return (
+                           <>
+                             {displayItems.map((img) => (
+                               <div key={img.id} className="inline-block h-12 w-12 rounded-2xl ring-4 ring-white dark:ring-slate-900 bg-slate-200 group-hover:ring-school-navy transition-all overflow-hidden relative" title={img.caption}>
+                                 <img 
+                                   src={getSmallImageUrl(img.url)} 
+                                   className="w-full h-full object-cover" 
+                                   alt={img.caption || 'Gallery thumbnail'} 
+                                   referrerPolicy="no-referrer"
+                                 />
+                               </div>
+                             ))}
+                             {[...Array(fallbacksCount)].map((_, i) => (
+                               <div key={`fallback-${i}`} className="inline-block h-12 w-12 rounded-2xl ring-4 ring-white dark:ring-slate-900 bg-slate-200 group-hover:ring-school-navy transition-all overflow-hidden">
+                                 <img 
+                                   src={`https://picsum.photos/seed/fallback-identity-${i}/150/150`} 
+                                   className="w-full h-full object-cover" 
+                                   alt="Alumni thumbnail fallback"
+                                   referrerPolicy="no-referrer"
+                                 />
+                               </div>
+                             ))}
+                           </>
+                         );
+                       })()}
                        <div className="inline-block h-12 w-12 rounded-2xl ring-4 ring-white dark:ring-slate-900 bg-school-accent flex items-center justify-center text-[10px] font-black text-white group-hover:ring-school-navy">
-                         +5K
+                         +{Math.max(4000, data.gallery?.filter(img => img.is_enabled !== false).length || 0)}
                        </div>
                      </div>
                      <div className="h-[2px] w-full bg-black/5 group-hover:bg-white/10" />
