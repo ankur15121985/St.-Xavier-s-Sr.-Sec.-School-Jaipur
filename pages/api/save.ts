@@ -29,8 +29,8 @@ const SCHEMA: Record<string, string[]> = {
   achievements: ['id', 'title', 'year', 'description', 'attachmentUrl'],
   transfer_certificates: ['id', 'admission_number', 'dob', 'student_name', 'attachmentUrl'],
   studentHonors: ['id', 'name', 'category', 'result', 'subtext', 'image', 'order_index', 'attachmentUrl'],
-  menu: ['id', 'label', 'href', 'parent_id', 'order_index', 'attachmentUrl'],
-  navigation_menu: ['id', 'label', 'href', 'parent_id', 'order_index', 'attachmentUrl'],
+  menu: ['id', 'label', 'href', 'parent_id', 'order_index', 'attachmentUrl', 'is_enabled'],
+  navigation_menu: ['id', 'label', 'href', 'parent_id', 'order_index', 'attachmentUrl', 'is_enabled'],
   faqs: ['id', 'question', 'answer', 'category', 'order_index', 'attachmentUrl'],
   messages: ['id', 'name', 'email', 'subject', 'message', 'timestamp', 'status', 'attachmentUrl'],
   popups: ['id', 'title', 'type', 'content', 'buttonText', 'buttonLink', 'isActive', 'order_index', 'attachmentUrl'],
@@ -60,6 +60,7 @@ const SCHEMA: Record<string, string[]> = {
   career_applications: [
     'id', 'application_no', 'category', 'full_name', 'parent_spouse_name', 'mobile_number', 'email', 'gender', 'dob', 'aadhar_number', 'address', 'photo_url', 'user_ip', 'declaration_accepted', 'major_subject', 'minor_subject_1', 'minor_subject_2', 'salary_expected', 'tet_details', 'interests', 'responsibilities_handled', 'statement_of_purpose', 'other_experience', 'education_qualifications', 'teaching_experience', 'achievements', 'teacher_category', 'created_at', 'status'
   ],
+  logs: ['id', 'user', 'action', 'details', 'timestamp'],
   settings: ['id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 'contactEmail', 'contactPhone', 'contactAddress', 'currentSession', 'feesPdfUrl', 'popupMessage', 'popupEnabled', 'googleSearchConsoleKey', 'bingWebmasterKey', 'indexNowKey', 'ogTitle', 'ogDescription', 'ogImage'],
   content: [
     'id', 'heroTitle1', 'heroTitle2', 'heroBadge', 'heroDescription', 'carouselBranding',

@@ -2390,6 +2390,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
         {Object.entries({
           ...item,
           ...(section === 'gallery' ? { session: item.session || '' } : {}),
+          ...(section === 'navigation_menu' ? { is_enabled: item.is_enabled !== false } : {}),
           ...( ['notices', 'fees', 'links', 'events', 'achievements', 'transfer_certificates', 'navigation_menu', 'carousel', 'marquee', 'popups', 'useful_links', 'custom_content', 'activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'scholarships', 'jesuit_page_content'].includes(section) ? { attachmentUrl: item.attachmentUrl || '', display_type: item.display_type || 'tile' } : {})
         }).filter(([k]) => {
           if (k === 'id' || k === 'page_id' || k === 'section_key') return false;
@@ -2533,10 +2534,10 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
               </select>
             ) : field === 'isActive' || field === 'isPriority' || field === 'is_enabled' ? (
               <button 
-                onClick={() => handleUpdate(item.id, field as string, !item[field], section)}
-                className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${item[field] ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20'}`}
+                onClick={() => handleUpdate(item.id, field as string, item[field] === false ? true : false, section)}
+                className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${item[field] !== false ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20'}`}
               >
-                {item[field] 
+                {item[field] !== false 
                   ? (field === 'isPriority' ? 'Priority Item' : 'Active / Enabled')
                   : (field === 'isPriority' ? 'Set as Priority' : 'Inactive / Disabled')}
               </button>
@@ -2970,6 +2971,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.label = 'New Menu Item';
       newItem.href = '#';
       newItem.parent_id = null;
+      newItem.is_enabled = true;
       newItem.order_index = (data.navigation_menu?.filter(m => !m.parent_id).length || 0);
     } else if (tableStr === 'faqs') {
       newItem.question = 'New Question';
@@ -3420,7 +3422,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                   type="text" 
                   value={loginUsername}
                   onChange={(e) => setLoginUsername(e.target.value)}
-                  placeholder="ankur15121985"
+                  placeholder="Enter Username"
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-school-gold/50 transition-all font-medium"
                   required
                 />

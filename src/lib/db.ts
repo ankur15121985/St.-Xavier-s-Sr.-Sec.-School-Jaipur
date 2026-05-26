@@ -191,9 +191,14 @@ export function getDatabase(): Database.Database {
       href TEXT NOT NULL,
       parent_id TEXT,
       order_index INTEGER NOT NULL,
-      attachmentUrl TEXT
+      attachmentUrl TEXT,
+      is_enabled INTEGER DEFAULT 1
     )
   `);
+
+  try {
+    db.prepare("ALTER TABLE menu ADD COLUMN is_enabled INTEGER DEFAULT 1").run();
+  } catch (e) {}
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS studentHonors (
@@ -972,7 +977,7 @@ export async function fetchServerData() {
       rows = rows.map(r => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
     } else if (table === 'useful_links') {
       rows = rows.map(r => ({ ...r, isPriority: Boolean(r.isPriority) }));
-    } else if (['studentHonors', 'co_curricular_activities', 'custom_content', 'fire_safety'].includes(table)) {
+    } else if (['studentHonors', 'co_curricular_activities', 'custom_content', 'fire_safety', 'menu'].includes(table)) {
       rows = rows.map(r => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
     }
     
