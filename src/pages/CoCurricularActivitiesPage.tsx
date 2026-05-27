@@ -223,16 +223,16 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
                   );
                 }
 
-                // Default: Tile
+                // Default: Tile (without image)
                 return (
                   <motion.div 
                     key={item.id}
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="bg-white rounded-[48px] p-12 md:p-16 border border-school-ink/5 shadow-xl flex flex-col lg:flex-row gap-16 items-center hover:shadow-2xl transition-all duration-700 relative group overflow-hidden"
+                    className="bg-white rounded-[48px] p-12 md:p-16 border border-school-ink/5 shadow-xl hover:shadow-2xl transition-all duration-700 relative group overflow-hidden"
                   >
-                    <div className="relative z-10 flex-1">
+                    <div className="relative z-10 w-full">
                       <div className="inline-flex items-center gap-3 px-4 py-2 bg-school-gold/10 rounded-full text-school-gold text-[10px] font-black uppercase tracking-widest mb-8">
                         <Award size={14} />
                         {item.category || 'Focus Area'}
@@ -243,7 +243,7 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
                       </h3>
                       
                       <div 
-                        className="text-school-ink/70 font-light leading-relaxed text-xl mb-10 italic"
+                        className="text-school-ink/70 font-light leading-relaxed text-xl mb-10 italic max-w-5xl"
                         dangerouslySetInnerHTML={{ __html: item.content }}
                       />
                       
@@ -256,18 +256,6 @@ const CoCurricularActivitiesPage = ({ data }: { data: AppData }) => {
                           Official Guidelines <FileText size={16} />
                         </a>
                       )}
-                    </div>
-
-                    <div className="w-full lg:w-[450px] relative shrink-0">
-                      <div className="aspect-[4/5] rounded-[48px] overflow-hidden border border-school-ink/10 shadow-2xl">
-                        <img 
-                          src={item.image_url || 'https://images.unsplash.com/photo-1544652478-6653e09f18a2?auto=format&fit=crop&q=80&w=800'} 
-                          alt={item.title} 
-                          className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
-                      <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-school-gold/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                     </div>
                   </motion.div>
                 );

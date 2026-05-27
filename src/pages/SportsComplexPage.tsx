@@ -134,20 +134,20 @@ const SportsComplexPage = ({ data }: { data: AppData }) => {
            </motion.div>
         </section>
 
-        {/* Image Grid Placeholder */}
+        {/* Image Grid */}
         <section className="py-24 border-t border-school-ink/10">
            <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group">
-                 <img src="https://picsum.photos/seed/sports1/600/600" alt="Sports Action" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
+              <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group shadow-lg">
+                 <img src="/batson_sports_complex_facade.png" alt="Fr. Batson Sports Complex Facade" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
               </div>
-              <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group md:mt-12">
-                 <img src="https://picsum.photos/seed/sports2/600/600" alt="Swimming Pool" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
+              <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group shadow-lg md:mt-12">
+                 <img src="/batson_shooting_range.png" alt="Indoor Shooting Range" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
               </div>
-              <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group">
-                 <img src="https://picsum.photos/seed/sports3/600/600" alt="Track" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
+              <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group shadow-lg">
+                 <img src="/batson_badminton_court.png" alt="Indoor Badminton Courts" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
               </div>
-              <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group md:mt-12">
-                 <img src="https://picsum.photos/seed/sports4/600/600" alt="Indoor Courts" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-110" referrerPolicy="no-referrer" />
+              <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group shadow-lg md:mt-12">
+                 <img src="/batson_sports_complex_overview.png" alt="Sports Complex Building and Field Overview" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
               </div>
            </div>
         </section>
