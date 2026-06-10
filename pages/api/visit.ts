@@ -20,16 +20,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Extract visitor IP address
-  let ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket.remoteAddress || '127.0.0.1';
-  if (Array.isArray(ip)) {
-    ip = ip[0];
-  }
-  if (typeof ip === 'string') {
-    ip = ip.split(',')[0].trim();
-  }
+  // Extract visitor IP address or use custom client-provided visitorId
+  let ip = (req.query.visitorId as string) || '';
   if (!ip) {
-    ip = '127.0.0.1';
+    let rawIp = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket.remoteAddress || '127.0.0.1';
+    if (Array.isArray(rawIp)) {
+      rawIp = rawIp[0];
+    }
+    if (typeof rawIp === 'string') {
+      rawIp = rawIp.split(',')[0].trim();
+    }
+    ip = rawIp || '127.0.0.1';
   }
 
   let count = 477706; // Standard initial count fallback

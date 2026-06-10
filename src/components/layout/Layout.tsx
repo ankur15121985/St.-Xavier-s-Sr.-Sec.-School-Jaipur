@@ -69,7 +69,15 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
     const fetchStats = async () => {
       try {
         console.log('[Layout] Fetching visitor count...');
-        const response = await fetch('/api/visit');
+        let visitorId = '';
+        if (typeof window !== 'undefined') {
+          visitorId = localStorage.getItem('st_xaviers_visitor_id') || '';
+          if (!visitorId) {
+            visitorId = 'v_' + Date.now() + '_' + Math.random().toString(36).substring(2, 12);
+            localStorage.setItem('st_xaviers_visitor_id', visitorId);
+          }
+        }
+        const response = await fetch(`/api/visit?visitorId=${encodeURIComponent(visitorId)}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

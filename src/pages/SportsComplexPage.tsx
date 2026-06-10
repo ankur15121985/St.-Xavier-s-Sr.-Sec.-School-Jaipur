@@ -138,16 +138,16 @@ const SportsComplexPage = ({ data }: { data: AppData }) => {
         <section className="py-24 border-t border-school-ink/10">
            <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group shadow-lg">
-                 <img src="/batson_sports_complex_facade.png" alt="Fr. Batson Sports Complex Facade" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
+                 <img src="/batson_sports_complex_facade.webp" alt="Fr. Batson Sports Complex Facade" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
               </div>
               <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group shadow-lg md:mt-12">
-                 <img src="/batson_shooting_range.png" alt="Indoor Shooting Range" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
+                 <img src="/batson_shooting_range.webp" alt="Indoor Shooting Range" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
               </div>
               <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group shadow-lg">
-                 <img src="/batson_badminton_court.png" alt="Indoor Badminton Courts" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
+                 <img src="/batson_badminton_court.webp" alt="Indoor Badminton Courts" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
               </div>
               <div className="aspect-square bg-school-ink/5 rounded-[32px] overflow-hidden group shadow-lg md:mt-12">
-                 <img src="/batson_sports_complex_overview.png" alt="Sports Complex Building and Field Overview" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
+                 <img src="/batson_sports_complex_overview.webp" alt="Sports Complex Building and Field Overview" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
               </div>
            </div>
         </section>

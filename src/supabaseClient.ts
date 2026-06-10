@@ -89,7 +89,7 @@ export async function uploadFile(file: File, folder: string = 'misc'): Promise<s
   const { error: uploadError } = await supabase.storage
     .from(bucket)
     .upload(filePath, file, {
-      cacheControl: '3600',
+      cacheControl: 'public, max-age=31536000, immutable',
       upsert: true
     });
 
