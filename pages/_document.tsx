@@ -10,10 +10,10 @@ export default function Document() {
         <meta name="author" content="St. Xavier's Sr. Sec. School, Jaipur" />
         <meta property="og:title" content="St. Xavier's Sr. Sec. School, Jaipur" />
         <meta property="og:description" content="A Legacy of Excellence in Education Since 1941." />
-        <meta property="og:image" content="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" />
+        <meta property="og:image" content="https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <link rel="icon" type="image/png" href="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" />
+        <link rel="icon" type="image/png" href="https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
