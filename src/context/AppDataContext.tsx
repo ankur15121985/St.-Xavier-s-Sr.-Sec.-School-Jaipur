@@ -191,7 +191,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode; initialData?
             >
               <div className="absolute inset-0 bg-school-gold/10 rounded-full blur-[100px] animate-pulse"></div>
               <img 
-                src="https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png" 
+                src="https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png" 
                 alt="Legacy Loading" 
                 className="w-40 h-40 relative z-10 brightness-110 drop-shadow-[0_0_30px_rgba(226,180,80,0.3)]"
               />

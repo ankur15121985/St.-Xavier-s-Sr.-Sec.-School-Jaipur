@@ -1,34 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getDatabase } from '../../../src/lib/db';
 
-// Helper function to recursively rewrite Supabase Storage URLs to point to our media proxy
-function rewriteSupabaseUrls(obj: any): any {
-  if (obj === null || obj === undefined) {
-    return obj;
-  }
-
-  if (typeof obj === 'string') {
-    if (obj.includes('.supabase.co/storage/v1/object/public/')) {
-      return `/api/media-proxy?url=${encodeURIComponent(obj)}`;
-    }
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.map(item => rewriteSupabaseUrls(item));
-  }
-
-  if (typeof obj === 'object') {
-    const newObj: any = {};
-    for (const key of Object.keys(obj)) {
-      newObj[key] = rewriteSupabaseUrls(obj[key]);
-    }
-    return newObj;
-  }
-
-  return obj;
-}
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -43,8 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     if (tc) {
       console.log(`[TC SEARCH API] Match found for ${admissionNumber}`);
-      const optimizedTc = rewriteSupabaseUrls(tc);
-      return res.status(200).json(optimizedTc);
+      return res.status(200).json(tc);
     } else {
       console.warn(`[TC SEARCH API] No match for ${admissionNumber} with DOB ${dob}`);
       return res.status(404).json({ error: 'Certificate not found. Please verify details.' });
