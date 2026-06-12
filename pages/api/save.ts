@@ -1,5 +1,5 @@
 import { NextApiResponse } from 'next';
-import { getDatabase } from '../../src/lib/db';
+import { getDatabase, clearServerDataCache } from '../../src/lib/db';
 import { authenticateToken, AuthenticatedRequest } from '../../src/lib/auth';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
@@ -171,6 +171,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
     }
 
     console.log(`[SQL SUCCESS] Local ${table} item persisted via API save.`);
+    clearServerDataCache();
     return res.status(200).json({ success: true });
   } catch (err: any) {
     console.error(`[SQL ERROR] SAVE FAILED:`, err.message);

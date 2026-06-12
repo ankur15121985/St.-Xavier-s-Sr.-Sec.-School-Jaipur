@@ -1,5 +1,5 @@
 import { NextApiResponse } from 'next';
-import { getDatabase } from '../../src/lib/db';
+import { getDatabase, clearServerDataCache } from '../../src/lib/db';
 import { authenticateToken, AuthenticatedRequest } from '../../src/lib/auth';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
@@ -133,6 +133,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       console.error("[AUDIT] Delete log failed:", logErr);
     }
 
+    clearServerDataCache();
     return res.status(200).json({ success: true, changes: result.changes });
   } catch (err: any) {
     console.error(`[SQL DELETE ERROR]`, err.message);

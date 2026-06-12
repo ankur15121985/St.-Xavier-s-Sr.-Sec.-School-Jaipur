@@ -6,16 +6,48 @@ import { createClient } from '@supabase/supabase-js';
 // Global cache to prevent multiple connections in Next.js HMR development mode
 let dbInstance: Database.Database | null = null;
 
+let serverDataCache: any = null;
+let serverDataCacheExpiresAt: number = 0;
+const CACHE_TTL_MS = 60000; // Cache for 60 seconds (1 minute)
+
+export function clearServerDataCache(): void {
+  console.log('[CACHE] Clearing server data cache (mutation transpired).');
+  serverDataCache = null;
+  serverDataCacheExpiresAt = 0;
+}
+
+export function handleDatabaseError(err: any): void {
+  if (err && err.message && err.message.toLowerCase().includes('malformed')) {
+    console.error("[DB] Malformed database error detected. Unlinking and rebuilding...", err.message);
+    if (dbInstance) {
+      try {
+        dbInstance.close();
+      } catch (e) {}
+      dbInstance = null;
+    }
+    const dbPath = path.join(process.cwd(), 'database.sqlite');
+    try {
+      const fs = require('fs');
+      if (fs.existsSync(dbPath)) {
+        fs.unlinkSync(dbPath);
+        console.log("[DB] Successfully deleted malformed sqlite file.");
+      }
+    } catch (unlinkErr: any) {
+      console.error("[DB] Unlink corrupt database failed:", unlinkErr.message);
+    }
+  }
+}
+
 export function getDatabase(): Database.Database {
   if (dbInstance) {
     try {
       dbInstance.prepare("SELECT 1").get();
+      // Fast verify key table
+      dbInstance.prepare("SELECT id FROM site_stats LIMIT 1").get();
       return dbInstance;
     } catch (err: any) {
       if (err.message && err.message.toLowerCase().includes('malformed')) {
-        console.error("[DB] Cached database is malformed, re-opening database...");
-        try { dbInstance.close(); } catch (e) {}
-        dbInstance = null;
+        handleDatabaseError(err);
       } else {
         throw err;
       }
@@ -700,6 +732,11 @@ export function getDatabase(): Database.Database {
 }
 
 export async function fetchServerData() {
+  const now = Date.now();
+  if (serverDataCache && now < serverDataCacheExpiresAt) {
+    return serverDataCache;
+  }
+
   const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
@@ -941,6 +978,8 @@ export async function fetchServerData() {
         });
         processed.settings = convertedSettings;
 
+        serverDataCache = processed;
+        serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
         return processed;
       }
     } catch (e: any) {
@@ -1047,5 +1086,7 @@ export async function fetchServerData() {
   });
   data.settings = convertedSettings;
 
+  serverDataCache = data;
+  serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
   return data;
 }
