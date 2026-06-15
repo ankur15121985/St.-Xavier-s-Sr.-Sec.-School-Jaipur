@@ -8,7 +8,7 @@ let dbInstance: Database.Database | null = null;
 
 let serverDataCache: any = null;
 let serverDataCacheExpiresAt: number = 0;
-const CACHE_TTL_MS = 1800000; // Cache for 30 minutes (extremely optimized!)
+const CACHE_TTL_MS = 86400000; // Cache for 24 hours (hyper optimized with automatic mutation cache bust)
 
 export function clearServerDataCache(): void {
   console.log('[CACHE] Clearing server data cache (mutation transpired).');
@@ -901,6 +901,31 @@ export function getLocalSQLiteData() {
   return data;
 }
 
+export function proxySupabaseUrls(obj: any): any {
+  if (obj === null || obj === undefined) return obj;
+  if (typeof obj === 'string') {
+    if (obj.includes('.supabase.co/storage/v1/object/public/')) {
+      if (!obj.startsWith('/api/img?url=')) {
+        return `/api/img?url=${encodeURIComponent(obj)}`;
+      }
+    }
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => proxySupabaseUrls(item));
+  }
+  if (typeof obj === 'object') {
+    const res: any = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        res[key] = proxySupabaseUrls(obj[key]);
+      }
+    }
+    return res;
+  }
+  return obj;
+}
+
 export async function fetchServerData() {
   const now = Date.now();
   if (serverDataCache && now < serverDataCacheExpiresAt) {
@@ -914,9 +939,10 @@ export async function fetchServerData() {
   const localData = getLocalSQLiteData();
 
   if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes('placeholder-project-id')) {
-    serverDataCache = localData;
+    const proxied = proxySupabaseUrls(localData);
+    serverDataCache = proxied;
     serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
-    return localData;
+    return proxied;
   }
 
   // 2. Perform SINGLE-ROW query to Supabase to check content version timestamp
@@ -942,9 +968,10 @@ export async function fetchServerData() {
 
     if (contentTimeErr) {
       console.warn('[Server Cache Manager] Querying content timestamp failed, using local fallback:', contentTimeErr.message);
-      serverDataCache = localData;
+      const proxied = proxySupabaseUrls(localData);
+      serverDataCache = proxied;
       serverDataCacheExpiresAt = Date.now() + 60000; // try again in 1 minute on failure
-      return localData;
+      return proxied;
     }
 
     const defaultTime = '2026-06-15T00:00:00.000Z';
@@ -960,9 +987,10 @@ export async function fetchServerData() {
     // COMPARE TIMESTAMPS
     if (localContentUpdatedAt && localContentUpdatedAt === remoteContentUpdatedAt) {
       console.log(`[Server Cache Manager] Cache VALID (${localContentUpdatedAt}). Skipping concurrent fetch of all tables.`);
-      serverDataCache = localData;
+      const proxied = proxySupabaseUrls(localData);
+      serverDataCache = proxied;
       serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
-      return localData;
+      return proxied;
     }
 
     console.log(`[Server Cache Manager] Cache STALE. Local: ${localContentUpdatedAt}, Remote: ${remoteContentUpdatedAt}. Syncing fresh tables...`);
@@ -1131,14 +1159,16 @@ export async function fetchServerData() {
     const processed = getLocalSQLiteData();
     processed.supabaseTableStatus = supabaseTableStatus;
 
-    serverDataCache = processed;
+    const proxied = proxySupabaseUrls(processed);
+    serverDataCache = proxied;
     serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
-    return processed;
+    return proxied;
 
   } catch (err: any) {
     console.warn('[Server Cache Manager] Fetch error, returning local SQLite:', err.message);
-    serverDataCache = localData;
+    const proxied = proxySupabaseUrls(localData);
+    serverDataCache = proxied;
     serverDataCacheExpiresAt = Date.now() + 60000; // retry in 1 minute on failure
-    return localData;
+    return proxied;
   }
 }

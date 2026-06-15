@@ -10,10 +10,10 @@ export default function Document() {
         <meta name="author" content="St. Xavier's Sr. Sec. School, Jaipur" />
         <meta property="og:title" content="St. Xavier's Sr. Sec. School, Jaipur" />
         <meta property="og:description" content="A Legacy of Excellence in Education Since 1941." />
-        <meta property="og:image" content="https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png" />
+        <meta property="og:image" content="/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <link rel="icon" type="image/png" href="https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png" />
+        <link rel="icon" type="image/png" href="/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

@@ -11,7 +11,7 @@ const LeadGracePage: React.FC<LeadGracePageProps> = ({ data }) => {
   const content = data.lead_grace?.[0] || {
     heading: 'Lead with Grace',
     content: 'We cultivate individuals of character, resilient in spirit and enlightened in soul. Education is the journey of becoming.',
-    image_url: 'https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png'
+    image_url: '/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png'
   };
 
   return (
@@ -47,7 +47,7 @@ const LeadGracePage: React.FC<LeadGracePageProps> = ({ data }) => {
               <div className="absolute -inset-4 bg-school-gold/10 rounded-[40px] blur-2xl"></div>
               <div className="relative aspect-[4/5] rounded-[40px] overflow-hidden border-8 border-white shadow-2xl">
                 <img 
-                  src={content.image_url || 'https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png'} 
+                  src={content.image_url || '/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png'} 
                   alt="Lead Grace" 
                   className="w-full h-full object-cover"
                   loading="lazy"

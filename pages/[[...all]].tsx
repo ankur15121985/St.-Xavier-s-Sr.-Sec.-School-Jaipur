@@ -212,6 +212,11 @@ export async function getServerSideProps(context: any) {
   // Extract accurate pathname without query strings
   const pathname = rawUrl.split('?')[0] || '';
 
+  // Apply CDN-friendly caching tags for public pages so browsers and global edge CDN cache the rendered HTML document
+  if (res && pathname !== '/admin' && !pathname.startsWith('/api')) {
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+  }
+
   try {
     const initialData = await fetchServerData();
     const settings = initialData?.settings || {};
