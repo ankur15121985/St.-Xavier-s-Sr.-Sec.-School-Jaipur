@@ -530,7 +530,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                onClick={async () => {
                  setSavePending(true);
                  try {
-                   await supabaseService.fetchAllData();
+                   await supabaseService.fetchAllData(true);
                    showToast('Career data re-synchronized from Supabase');
                  } catch (err: any) {
                    showToast(`Sync failed: ${err.message}`, 'error');
@@ -3643,7 +3643,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                         setSavePending(true);
                         // Trigger a schema reload notify directly from client if we have a function for it
                         // Or just try a sync all which might force a retry
-                        await supabaseService.fetchAllData();
+                        await supabaseService.fetchAllData(true);
                         showToast('Schema cache refresh requested', 'success');
                         setShowSchemaError(false);
                       } catch (err) {

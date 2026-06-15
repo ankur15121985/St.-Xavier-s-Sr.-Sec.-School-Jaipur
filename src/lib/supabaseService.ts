@@ -2,7 +2,7 @@ import { AppData } from '../types';
 import { supabase, getIsSupabasePlaceholder } from '../supabaseClient';
 
 export const supabaseService = {
-  async fetchAllData(): Promise<Partial<AppData>> {
+  async fetchAllData(forceFresh: boolean = false): Promise<Partial<AppData>> {
     // Clear fallback/state cache values from localStorage to guarantee fresh database loads
     if (typeof window !== 'undefined' && window.localStorage) {
       try {
@@ -20,7 +20,8 @@ export const supabaseService = {
     // Fetch consolidated data from Server API FIRST. Since Server API has cache TTL of 30 minutes, 
     // this avoids doing 43 database queries over and over for every student/visitor on page load.
     try {
-      const res = await fetch(`/api/data?t=${Date.now()}`);
+      const url = forceFresh ? `/api/data?t=${Date.now()}` : '/api/data';
+      const res = await fetch(url);
       const contentType = res.headers.get('content-type');
       if (res.ok && contentType && contentType.includes('application/json')) {
         const resJson = await res.json();

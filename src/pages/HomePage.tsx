@@ -327,8 +327,8 @@ const HomePage = ({ data }: { data: AppData }) => {
         </section>
       )}
 
-      {/* Distinction Section - Redesigned Hyper-Focused Excellence */}
-      {data.settings?.showDistinction !== false && (
+      {/* Distinction Section - Redesigned Hyper-Focused Excellence (Temporarily Disabled) */}
+      {false && data.settings?.showDistinction !== false && (
         <section className="py-12 md:py-20 relative overflow-hidden bg-school-paper">
           <FocusVisual />
           
@@ -519,8 +519,8 @@ const HomePage = ({ data }: { data: AppData }) => {
         </section>
       )}
 
-      {/* 3D Campus Animation / Virtual Tour */}
-      {data.settings?.showVirtualCampus !== false && data.digital_campus?.is_enabled !== false && (
+      {/* 3D Campus Animation / Virtual Tour (Temporarily Disabled) */}
+      {false && data.settings?.showVirtualCampus !== false && data.digital_campus?.is_enabled !== false && (
         <section className="relative w-full h-[100dvh] overflow-hidden">
           <Campus3D config={data.digital_campus} />
         </section>

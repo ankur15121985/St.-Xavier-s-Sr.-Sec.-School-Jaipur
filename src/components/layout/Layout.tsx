@@ -506,7 +506,14 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               <div className="flex justify-between items-center p-6 border-b border-black/5 dark:border-white/5 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md sticky top-0 z-10" style={{ position: '-webkit-sticky', WebkitBackdropFilter: 'blur(12px)' }}>
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 bg-white dark:bg-slate-800 p-2 rounded-2xl shadow-sm border border-black/5 dark:border-white/5">
-                    <img src={data.settings?.siteLogo || "https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png"} alt="Logo" className="w-full h-full object-contain" />
+                    <img 
+                      src="https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png" 
+                      alt="Logo" 
+                      className="w-full h-full object-contain" 
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png";
+                      }}
+                    />
                   </div>
                 </div>
                 <button 
