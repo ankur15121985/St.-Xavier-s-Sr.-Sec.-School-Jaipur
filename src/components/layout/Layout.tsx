@@ -78,11 +78,13 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             localStorage.setItem('st_xaviers_visitor_id', visitorId);
           }
           isSessionTracked = sessionStorage.getItem('st_xaviers_visited_session') || 'false';
-          if (isSessionTracked !== 'true') {
-            sessionStorage.setItem('st_xaviers_visited_session', 'true');
+          if (isSessionTracked === 'true') {
+            console.log('[Layout] Session already tracked. Skipping visitor API call.');
+            return;
           }
+          sessionStorage.setItem('st_xaviers_visited_session', 'true');
         }
-        const response = await fetch(`/api/visit?visitorId=${encodeURIComponent(visitorId)}&sessionTracked=${isSessionTracked}`);
+        const response = await fetch(`/api/visit?visitorId=${encodeURIComponent(visitorId)}&sessionTracked=false`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

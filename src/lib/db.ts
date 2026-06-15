@@ -8,7 +8,7 @@ let dbInstance: Database.Database | null = null;
 
 let serverDataCache: any = null;
 let serverDataCacheExpiresAt: number = 0;
-const CACHE_TTL_MS = 60000; // Cache for 60 seconds (1 minute)
+const CACHE_TTL_MS = 1800000; // Cache for 30 minutes (extremely optimized!)
 
 export function clearServerDataCache(): void {
   console.log('[CACHE] Clearing server data cache (mutation transpired).');
@@ -658,6 +658,20 @@ export function getDatabase(): Database.Database {
   });
 
   // Seeds
+  try {
+    const statsInfo = db.pragma("table_info(site_stats)") as any[];
+    if (!statsInfo.some(c => c.name === 'updated_at')) {
+      db.exec("ALTER TABLE site_stats ADD COLUMN updated_at TEXT");
+    }
+  } catch (e) {}
+
+  try {
+    const statsInfo = db.pragma("table_info(site_stats)") as any[];
+    if (!statsInfo.some(c => c.name === 'content_updated_at')) {
+      db.exec("ALTER TABLE site_stats ADD COLUMN content_updated_at TEXT");
+    }
+  } catch (e) {}
+
   const stats = db.prepare("SELECT id FROM site_stats WHERE id = 'main'").get();
   if (!stats) {
     db.prepare("INSERT INTO site_stats (id, visitor_count) VALUES ('main', 477706)").run();
@@ -731,263 +745,7 @@ export function getDatabase(): Database.Database {
   return db;
 }
 
-export async function fetchServerData() {
-  const now = Date.now();
-  if (serverDataCache && now < serverDataCacheExpiresAt) {
-    return serverDataCache;
-  }
-
-  const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
-  if (SUPABASE_URL && SUPABASE_KEY && !SUPABASE_URL.includes('placeholder-project-id')) {
-    try {
-      const cleanUrl = SUPABASE_URL.trim().replace('/rest/v1/', '').replace('/rest/v1', '').replace(/\/$/, '');
-      const supabaseServer = createClient(cleanUrl, SUPABASE_KEY);
-
-      console.log('[Server Supabase] Fetching dynamic live tables...');
-      const collections = [
-         'notices', 'staff', 'gallery', 'fees', 'links', 
-         'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs', 'former_leaders',
-         'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content', 'lead_grace', 'school_history',
-         'activities', 'co_curricular_activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content', 'scholarships', 'fire_safety', 'site_stats', 'career_applications'
-      ];
-
-      const results: any = {};
-      let successCount = 0;
-      const supabaseTableStatus: Record<string, 'online' | 'offline'> = {};
-
-      const fetchTasks = [
-        ...collections.map(async (colName) => {
-          try {
-            const { data, error } = await supabaseServer.from(colName).select('*');
-            if (error) {
-              supabaseTableStatus[colName] = 'offline';
-              console.log(`[Server Supabase] Optional table '${colName}' not yet configured/live in Supabase. Falling back to local database.`);
-              // Try to retrieve from SQLite specifically for this table
-              try {
-                const db = getDatabase();
-                const sqlTable = colName === 'navigation_menu' ? 'menu' : colName;
-                const localRows = db.prepare(`SELECT * FROM "${sqlTable}"`).all() as any[];
-                results[colName] = localRows || [];
-                successCount++;
-              } catch (liteErr: any) {
-                results[colName] = [];
-              }
-            } else {
-              supabaseTableStatus[colName] = 'online';
-              results[colName] = data || [];
-              successCount++;
-            }
-          } catch (e: any) {
-            supabaseTableStatus[colName] = 'offline';
-            console.log(`[Server Supabase] Table '${colName}' exception (${e.message}). Falling back to local database.`);
-            try {
-              const db = getDatabase();
-              const sqlTable = colName === 'navigation_menu' ? 'menu' : colName;
-              const localRows = db.prepare(`SELECT * FROM "${sqlTable}"`).all() as any[];
-              results[colName] = localRows || [];
-              successCount++;
-            } catch (liteErr) {
-              results[colName] = [];
-            }
-          }
-        }),
-        // Settings
-        (async () => {
-          try {
-            let { data, error } = await supabaseServer.from('site_settings').select('*').limit(1).maybeSingle();
-            if (error || !data) {
-              const fallback = await supabaseServer.from('settings').select('*').limit(1).maybeSingle();
-              data = fallback.data;
-            }
-            if (data) {
-              results.settings = data;
-              successCount++;
-              supabaseTableStatus['settings'] = 'online';
-            } else {
-              supabaseTableStatus['settings'] = 'offline';
-              const db = getDatabase();
-              let localSettings = db.prepare(`SELECT * FROM site_settings WHERE id = 'global'`).get() as any;
-              if (!localSettings) {
-                try {
-                  localSettings = db.prepare(`SELECT * FROM settings WHERE id = 'global'`).get() as any;
-                } catch (e) {}
-              }
-              if (localSettings) {
-                results.settings = localSettings;
-                successCount++;
-              }
-            }
-          } catch (e: any) {
-            supabaseTableStatus['settings'] = 'offline';
-            console.log('[Server Supabase] Settings fetch issue, using local SQLite Settings:', e.message);
-            try {
-              const db = getDatabase();
-              let localSettings = db.prepare(`SELECT * FROM site_settings WHERE id = 'global'`).get() as any;
-              if (!localSettings) {
-                localSettings = db.prepare(`SELECT * FROM settings WHERE id = 'global'`).get() as any;
-              }
-              if (localSettings) {
-                results.settings = localSettings;
-                successCount++;
-              }
-            } catch (liteErr) {}
-          }
-        })(),
-        // Digital Campus
-        (async () => {
-          try {
-            const { data, error } = await supabaseServer.from('digital_campus').select('*').limit(1).maybeSingle();
-            if (data) {
-              results.digital_campus = data;
-              successCount++;
-              supabaseTableStatus['digital_campus'] = 'online';
-            } else {
-              supabaseTableStatus['digital_campus'] = 'offline';
-              const db = getDatabase();
-              const dc = db.prepare(`SELECT * FROM digital_campus`).all() as any[];
-              if (dc && dc[0]) {
-                results.digital_campus = dc[0];
-                successCount++;
-              } else {
-                results.digital_campus = { id: 'current', title: 'Legacy in Motion', is_enabled: true };
-              }
-            }
-          } catch (e: any) {
-            supabaseTableStatus['digital_campus'] = 'offline';
-            console.log('[Server Supabase] Digital Campus fetch issue, using local SQLite DC:', e.message);
-            try {
-              const db = getDatabase();
-              const dc = db.prepare(`SELECT * FROM digital_campus`).all() as any[];
-              if (dc && dc[0]) {
-                results.digital_campus = dc[0];
-                successCount++;
-              }
-            } catch (liteErr) {}
-          }
-        })(),
-        // Content (Key Value structure)
-        (async () => {
-          try {
-            const { data, error } = await supabaseServer.from('content').select('*');
-            if (data && Array.isArray(data)) {
-              const contentObj: Record<string, string> = {};
-              data.forEach((row: any) => {
-                if (row.key) {
-                  contentObj[row.key] = row.value || '';
-                }
-              });
-              results.content = contentObj;
-              successCount++;
-              supabaseTableStatus['content'] = 'online';
-            } else {
-              supabaseTableStatus['content'] = 'offline';
-              const db = getDatabase();
-              const rows = db.prepare(`SELECT * FROM "content"`).all() as any[];
-              const contentObj: Record<string, string> = {};
-              rows.forEach((row: any) => {
-                if (row.key) {
-                  contentObj[row.key] = row.value || '';
-                }
-              });
-              results.content = contentObj;
-              successCount++;
-            }
-          } catch (e: any) {
-            supabaseTableStatus['content'] = 'offline';
-            console.log('[Server Supabase] Content fetch issue, using local SQLite Content:', e.message);
-            try {
-              const db = getDatabase();
-              const rows = db.prepare(`SELECT * FROM "content"`).all() as any[];
-              const contentObj: Record<string, string> = {};
-              rows.forEach((row: any) => {
-                if (row.key) {
-                  contentObj[row.key] = row.value || '';
-                }
-              });
-              results.content = contentObj;
-              successCount++;
-            } catch (liteErr) {}
-          }
-        })()
-      ];
-
-      await Promise.all(fetchTasks);
-
-      if (successCount > 0) {
-        console.log(`[Server Supabase] Live Sync from Supabase verified. Synced ${successCount} database streams.`);
-        
-        const processed: any = {};
-        
-        collections.forEach(colName => {
-          let rows = results[colName] || [];
-          if (['popups', 'marquee'].includes(colName)) {
-            rows = rows.map((r: any) => ({ ...r, isActive: Boolean(r.isActive) }));
-          } else if (colName === 'staff') {
-            rows = rows.map((r: any) => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
-          } else if (colName === 'useful_links') {
-            rows = rows.map((r: any) => ({ ...r, isPriority: Boolean(r.isPriority) }));
-          } else if (['studentHonors', 'co_curricular_activities', 'custom_content', 'fire_safety'].includes(colName)) {
-            rows = rows.map((r: any) => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
-          }
-          processed[colName] = rows;
-        });
-
-        processed.menu = processed.navigation_menu || [];
-        processed.navigation_menu = processed.navigation_menu || [];
-        processed.supabaseTableStatus = supabaseTableStatus;
-
-        // Digital Campus
-        if (results.digital_campus) {
-          processed.digital_campus = {
-            ...results.digital_campus,
-            is_enabled: Boolean(results.digital_campus.is_enabled)
-          };
-        } else {
-          processed.digital_campus = { id: 'current', title: 'Legacy in Motion', is_enabled: true };
-        }
-
-        // Content
-        processed.content = results.content || {};
-
-        // Settings
-        const rawSettings = results.settings || {
-          id: 'global',
-          applyNowEnabled: true,
-          applyNowUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
-          applyNowLabel: 'Apply 2026-27',
-          siteName: "St. Xavier's Sr. Sec. School, Jaipur",
-          siteLogo: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
-          contactEmail: 'xavier41jaipur@gmail.com',
-          contactPhone: '0141-2372336, 2362436',
-          contactAddress: 'Bhagwan Das Road, C-Scheme, Jaipur - 302001, Rajasthan, India',
-          currentSession: '2025-26',
-          showCarousel: true, showMarquee: true, showAbout: true, showFeature: true, showVision: true, 
-          showInsights: true, showPrincipalMessage: true, showDistinction: true, showGallery: true, 
-          showLeadership: true, showHonors: true, popupEnabled: true, popupMessage: 'Welcome to St. Xavier\'s, C-scheme.',
-          flagEnabled: true, careerFormEnabled: true, faviconUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
-          googleSearchConsoleKey: '', bingWebmasterKey: '', indexNowKey: '', ogTitle: '', ogDescription: '', ogImage: ''
-        };
-
-        const convertedSettings = { ...rawSettings };
-        Object.keys(rawSettings).forEach(key => {
-          if (key.startsWith('show') || key.endsWith('Enabled')) {
-            convertedSettings[key] = Boolean(rawSettings[key] ?? true);
-          }
-        });
-        processed.settings = convertedSettings;
-
-        serverDataCache = processed;
-        serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
-        return processed;
-      }
-    } catch (e: any) {
-      console.warn('[Server Supabase] Error during remote fetch sequence. Falling back to local SQLite:', e.message);
-    }
-  }
-
-  // Fallback to local SQLite Database (Server Mode)
+export function getLocalSQLiteData() {
   const db = getDatabase();
   const data: any = {};
   const tables = [
@@ -1086,7 +844,247 @@ export async function fetchServerData() {
   });
   data.settings = convertedSettings;
 
-  serverDataCache = data;
-  serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
   return data;
+}
+
+export async function fetchServerData() {
+  const now = Date.now();
+  if (serverDataCache && now < serverDataCacheExpiresAt) {
+    return serverDataCache;
+  }
+
+  const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+  // 1. Fetch from local SQLite first immediately
+  const localData = getLocalSQLiteData();
+
+  if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes('placeholder-project-id')) {
+    serverDataCache = localData;
+    serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
+    return localData;
+  }
+
+  // 2. Perform SINGLE-ROW query to Supabase to check content version timestamp
+  try {
+    const cleanUrl = SUPABASE_URL.trim().replace('/rest/v1/', '').replace('/rest/v1', '').replace(/\/$/, '');
+    const supabaseServer = createClient(cleanUrl, SUPABASE_KEY);
+
+    const db = getDatabase();
+    let localContentUpdatedAt: string | null = null;
+    try {
+      const stats = db.prepare("SELECT content_updated_at FROM site_stats WHERE id = 'main'").get() as any;
+      if (stats && stats.content_updated_at) {
+        localContentUpdatedAt = stats.content_updated_at;
+      }
+    } catch (e) {}
+
+    // Check remote timestamp
+    const { data: remoteStats, error: statsErr } = await supabaseServer
+      .from('site_stats')
+      .select('content_updated_at')
+      .eq('id', 'main')
+      .maybeSingle();
+
+    if (statsErr) {
+      console.warn('[Server Cache Manager] Querying stats timestamp failed, using local fallback:', statsErr.message);
+      serverDataCache = localData;
+      serverDataCacheExpiresAt = Date.now() + 60000; // try again in 1 minute on failure
+      return localData;
+    }
+
+    const defaultTime = '2026-06-15T00:00:00.000Z';
+    const remoteContentUpdatedAt = remoteStats?.content_updated_at || defaultTime;
+
+    // If remote has no timestamp yet (legacy DB), prime it asynchronously
+    if (!remoteStats?.content_updated_at) {
+      try {
+        await supabaseServer.from('site_stats').upsert({ id: 'main', content_updated_at: defaultTime });
+      } catch (e) {}
+    }
+
+    // COMPARE TIMESTAMPS
+    if (localContentUpdatedAt && localContentUpdatedAt === remoteContentUpdatedAt) {
+      console.log(`[Server Cache Manager] Cache VALID (${localContentUpdatedAt}). Skipping concurrent fetch of all tables.`);
+      serverDataCache = localData;
+      serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
+      return localData;
+    }
+
+    console.log(`[Server Cache Manager] Cache STALE. Local: ${localContentUpdatedAt}, Remote: ${remoteContentUpdatedAt}. Syncing fresh tables...`);
+
+    const collections = [
+       'notices', 'staff', 'gallery', 'fees', 'links', 
+       'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs', 'former_leaders',
+       'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content', 'lead_grace', 'school_history',
+       'activities', 'co_curricular_activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content', 'scholarships', 'fire_safety', 'site_stats', 'career_applications'
+    ];
+
+    const results: any = {};
+    let successCount = 0;
+    const supabaseTableStatus: Record<string, 'online' | 'offline'> = {};
+
+    const fetchTasks = [
+      ...collections.map(async (colName) => {
+        try {
+          const { data, error } = await supabaseServer.from(colName).select('*');
+          if (error) {
+            supabaseTableStatus[colName] = 'offline';
+            results[colName] = localData[colName] || [];
+          } else {
+            supabaseTableStatus[colName] = 'online';
+            results[colName] = data || [];
+            successCount++;
+
+            // Sync to local SQLite
+            const sqliteTable = colName === 'navigation_menu' ? 'menu' : colName;
+            try {
+              if (Array.isArray(data) && data.length > 0) {
+                const columnsInfo = db.pragma(`table_info("${sqliteTable}")`) as any[];
+                if (columnsInfo && columnsInfo.length > 0) {
+                  const columns = columnsInfo.map(c => c.name);
+                  
+                  if (sqliteTable !== 'logs' && sqliteTable !== 'visitor_ips') {
+                    db.prepare(`DELETE FROM "${sqliteTable}"`).run();
+                  }
+
+                  db.transaction(() => {
+                    data.forEach((row: any) => {
+                      const rowKeys = Object.keys(row).filter(k => columns.includes(k));
+                      if (rowKeys.length > 0) {
+                        const placeholders = rowKeys.map(() => '?').join(',');
+                        const values = rowKeys.map(k => {
+                          const val = row[k];
+                          if (typeof val === 'boolean') return val ? 1 : 0;
+                          return val;
+                        });
+                        const query = `INSERT OR REPLACE INTO "${sqliteTable}" (${rowKeys.map(k => `"${k}"`).join(',')}) VALUES (${placeholders})`;
+                        db.prepare(query).run(values);
+                      }
+                    });
+                  })();
+                }
+              }
+            } catch (liteErr: any) {
+              console.warn(`[Local Cache Sync] Table ${sqliteTable} write issue:`, liteErr.message);
+            }
+          }
+        } catch (e) {
+          supabaseTableStatus[colName] = 'offline';
+          results[colName] = localData[colName] || [];
+        }
+      }),
+      // Settings
+      (async () => {
+        try {
+          let { data, error } = await supabaseServer.from('site_settings').select('*').limit(1).maybeSingle();
+          if (error || !data) {
+            const fallback = await supabaseServer.from('settings').select('*').limit(1).maybeSingle();
+            data = fallback.data;
+          }
+          if (data) {
+            results.settings = data;
+            successCount++;
+            supabaseTableStatus['settings'] = 'online';
+
+            try {
+              const columnsInfo = db.pragma(`table_info("site_settings")`) as any[];
+              const columns = columnsInfo.map(c => c.name);
+              const rowKeys = Object.keys(data).filter(k => columns.includes(k));
+              const placeholders = rowKeys.map(() => '?').join(',');
+              const values = rowKeys.map(k => {
+                const val = data[k];
+                if (typeof val === 'boolean') return val ? 1 : 0;
+                return val;
+              });
+              const query = `INSERT OR REPLACE INTO "site_settings" (${rowKeys.map(k => `"${k}"`).join(',')}) VALUES (${placeholders})`;
+              db.prepare(query).run(values);
+            } catch (liteErr) {}
+          } else {
+            results.settings = localData.settings;
+          }
+        } catch (e) {
+          results.settings = localData.settings;
+        }
+      })(),
+      // Digital Campus
+      (async () => {
+        try {
+          const { data, error } = await supabaseServer.from('digital_campus').select('*').limit(1).maybeSingle();
+          if (data) {
+            results.digital_campus = data;
+            successCount++;
+            supabaseTableStatus['digital_campus'] = 'online';
+
+            try {
+              const columnsInfo = db.pragma(`table_info("digital_campus")`) as any[];
+              const columns = columnsInfo.map(c => c.name);
+              const rowKeys = Object.keys(data).filter(k => columns.includes(k));
+              const placeholders = rowKeys.map(() => '?').join(',');
+              const values = rowKeys.map(k => {
+                const val = data[k];
+                if (typeof val === 'boolean') return val ? 1 : 0;
+                return val;
+              });
+              const query = `INSERT OR REPLACE INTO "digital_campus" (${rowKeys.map(k => `"${k}"`).join(',')}) VALUES (${placeholders})`;
+              db.prepare(query).run(values);
+            } catch (liteErr) {}
+          } else {
+            results.digital_campus = localData.digital_campus;
+          }
+        } catch (e) {
+          results.digital_campus = localData.digital_campus;
+        }
+      })(),
+      // Content (Key Value structure)
+      (async () => {
+        try {
+          const { data, error } = await supabaseServer.from('content').select('*');
+          if (data && Array.isArray(data)) {
+            const contentObj: Record<string, string> = {};
+            data.forEach((row: any) => {
+              if (row.key) {
+                contentObj[row.key] = row.value || '';
+              }
+            });
+            results.content = contentObj;
+            successCount++;
+            supabaseTableStatus['content'] = 'online';
+
+            try {
+              data.forEach((row: any) => {
+                if (row.key) {
+                  db.prepare(`INSERT OR REPLACE INTO "content" (key, value) VALUES (?, ?)`).run(row.key, row.value || '');
+                }
+              });
+            } catch (liteErr) {}
+          } else {
+            results.content = localData.content;
+          }
+        } catch (e) {
+          results.content = localData.content;
+        }
+      })()
+    ];
+
+    await Promise.all(fetchTasks);
+
+    // Save final content timestamp to local SQLite so subsequent requests hit cache
+    try {
+      db.prepare("UPDATE site_stats SET content_updated_at = ? WHERE id = 'main'").run(remoteContentUpdatedAt);
+    } catch (e) {}
+
+    const processed = getLocalSQLiteData();
+    processed.supabaseTableStatus = supabaseTableStatus;
+
+    serverDataCache = processed;
+    serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
+    return processed;
+
+  } catch (err: any) {
+    console.warn('[Server Cache Manager] Fetch error, returning local SQLite:', err.message);
+    serverDataCache = localData;
+    serverDataCacheExpiresAt = Date.now() + 60000; // retry in 1 minute on failure
+    return localData;
+  }
 }

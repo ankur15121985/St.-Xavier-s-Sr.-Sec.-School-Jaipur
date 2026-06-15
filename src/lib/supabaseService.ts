@@ -16,6 +16,60 @@ export const supabaseService = {
       }
     }
 
+    // --- HIGH-PERFORMANCE STATIC-AND-DYNAMIC OPTIMIZATION ---
+    // Fetch consolidated data from Server API FIRST. Since Server API has cache TTL of 30 minutes, 
+    // this avoids doing 43 database queries over and over for every student/visitor on page load.
+    try {
+      const res = await fetch(`/api/data?t=${Date.now()}`);
+      const contentType = res.headers.get('content-type');
+      if (res.ok && contentType && contentType.includes('application/json')) {
+        const resJson = await res.json();
+
+        // Harmonize SQLite tables with client naming conventions
+        if (resJson.menu && !resJson.navigation_menu) {
+          resJson.navigation_menu = resJson.menu;
+        }
+
+        // Harmonize content structured schema (column-row to key-value record object)
+        if (Array.isArray(resJson.content)) {
+          const contentObj: Record<string, string> = {};
+          if (resJson.content.length > 0) {
+            const firstRow = resJson.content[0];
+            Object.keys(firstRow).forEach(key => {
+              if (key !== 'id') {
+                contentObj[key] = String(firstRow[key] ?? '');
+              }
+            });
+          }
+          resJson.content = contentObj;
+        } else if (resJson.content && typeof resJson.content === 'object') {
+          const contentObj: Record<string, string> = {};
+          Object.keys(resJson.content).forEach(key => {
+            if (key !== 'id') {
+              contentObj[key] = String(resJson.content[key] ?? '');
+            }
+          });
+          resJson.content = contentObj;
+        }
+
+        // Harmonize settings booleans
+        if (resJson.settings && typeof resJson.settings === 'object' && !Array.isArray(resJson.settings)) {
+          const mappedSettings = { ...resJson.settings };
+          Object.keys(mappedSettings).forEach(key => {
+            if (key.startsWith('show') || key.endsWith('Enabled')) {
+              mappedSettings[key] = Boolean(mappedSettings[key]);
+            }
+          });
+          resJson.settings = mappedSettings;
+        }
+
+        return resJson;
+      }
+    } catch (e) {
+      console.warn('[Supabase Service] Server API dynamic API fetch failed, trying direct browser query fallback...', e);
+    }
+
+    // --- CONCURRENT FALLBACK DIRECT FETCH (ONLY IF WEB SERVER API FAILS) ---
     try {
       if (getIsSupabasePlaceholder()) {
         console.warn('[Supabase Service] Placeholder client detected. Bypassing client-side fetch and utilizing local SQLite database server directly.');
@@ -47,7 +101,6 @@ export const supabaseService = {
             if (error) {
               console.warn(`[Supabase] Table ${colName} missing or inaccessible:`, error.message);
               flagNetworkError(error.message);
-              // Do NOT populate empty results for key tables on network error to allow proper fallback
               if (!networkErrorOccurred) {
                 (results as any)[colName] = [];
               }
@@ -135,7 +188,6 @@ export const supabaseService = {
         })()
       ];
 
-      // Concurrent fetch for all tasks
       try {
         await Promise.all(fetchTasks);
       } catch (err: any) {
@@ -143,16 +195,13 @@ export const supabaseService = {
         flagNetworkError(err.message);
       }
 
-      // If a network connection error was hit, or if absolutely zero tables succeeded, raise exception to trigger clean local fallback
       if (networkErrorOccurred || successCount === 0) {
         throw new Error('Supabase project is unreachable or offline.');
       }
 
-      // If we got some results, merge them. If it's completely empty, triggered catch fallback.
       if (Object.keys(results).length > 0) {
         console.log(`[Supabase] Successfully fetched ${Object.keys(results).length} tables`);
         
-        // Merge with local fallback storage if present, to preserve user edits
         collections.forEach(colName => {
           if (colName === 'settings') {
             const cache = localStorage.getItem('fallback_school_settings');
@@ -192,98 +241,41 @@ export const supabaseService = {
       
       throw new Error('No data received from Supabase');
     } catch (err) {
-      console.warn('Supabase fetch failed, falling back to local server:', err);
-      try {
-        const res = await fetch(`/api/data?t=${Date.now()}`, {
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
+      console.warn('Supabase fetch failed, falling back to local fallback:', err);
+      
+      const cachedResults: Partial<AppData> = {};
+      const collections: (keyof AppData)[] = [
+        'notices', 'staff', 'gallery', 'fees', 'links', 
+        'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs', 'former_leaders',
+        'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content', 'lead_grace', 'digital_campus',
+        'activities', 'co_curricular_activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content', 'scholarships', 'fire_safety', 'site_stats', 'career_applications'
+      ];
+      
+      collections.forEach(colName => {
+        if (colName === 'settings') {
+          const cache = localStorage.getItem('fallback_school_settings');
+          if (cache) {
+            try { cachedResults.settings = JSON.parse(cache); } catch {}
           }
-        });
-        const contentType = res.headers.get('content-type');
-        const isNonJson = !contentType || !contentType.includes('application/json');
-        if (!res.ok || isNonJson || res.status === 404 || res.status === 405) {
-          throw new Error('Local server database is offline (static mode)');
-        }
-        const resJson = await res.json();
-
-        // Harmonize SQLite tables with client naming conventions
-        if (resJson.menu && !resJson.navigation_menu) {
-          resJson.navigation_menu = resJson.menu;
-        }
-
-        // Harmonize content structured schema (column-row to key-value record object)
-        if (Array.isArray(resJson.content)) {
-          const contentObj: Record<string, string> = {};
-          if (resJson.content.length > 0) {
-            const firstRow = resJson.content[0];
-            Object.keys(firstRow).forEach(key => {
-              if (key !== 'id') {
-                contentObj[key] = String(firstRow[key] ?? '');
+        } else if (colName === 'content') {
+          const cache = localStorage.getItem('fallback_school_content');
+          if (cache) {
+            try { cachedResults.content = JSON.parse(cache); } catch {}
+          }
+        } else {
+          const cache = localStorage.getItem(`fallback_school_data_${colName}`);
+          if (cache) {
+            try {
+              const list = JSON.parse(cache);
+              if (Array.isArray(list)) {
+                (cachedResults as any)[colName] = list;
               }
-            });
+            } catch {}
           }
-          resJson.content = contentObj;
-        } else if (resJson.content && typeof resJson.content === 'object') {
-          const contentObj: Record<string, string> = {};
-          Object.keys(resJson.content).forEach(key => {
-            if (key !== 'id') {
-              contentObj[key] = String(resJson.content[key] ?? '');
-            }
-          });
-          resJson.content = contentObj;
         }
-
-        // Harmonize settings booleans
-        if (resJson.settings && typeof resJson.settings === 'object' && !Array.isArray(resJson.settings)) {
-          const mappedSettings = { ...resJson.settings };
-          Object.keys(mappedSettings).forEach(key => {
-            if (key.startsWith('show') || key.endsWith('Enabled')) {
-              mappedSettings[key] = Boolean(mappedSettings[key]);
-            }
-          });
-          resJson.settings = mappedSettings;
-        }
-
-        return resJson;
-      } catch (localError) {
-        console.error('All database sources failed. Loading from browser storage as custom fallback.', localError);
-        
-        const cachedResults: Partial<AppData> = {};
-        const collections: (keyof AppData)[] = [
-          'notices', 'staff', 'gallery', 'fees', 'links', 
-          'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs', 'former_leaders',
-          'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content', 'lead_grace', 'digital_campus',
-          'activities', 'co_curricular_activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content', 'scholarships', 'fire_safety', 'site_stats', 'career_applications'
-        ];
-        
-        collections.forEach(colName => {
-          if (colName === 'settings') {
-            const cache = localStorage.getItem('fallback_school_settings');
-            if (cache) {
-              try { cachedResults.settings = JSON.parse(cache); } catch {}
-            }
-          } else if (colName === 'content') {
-            const cache = localStorage.getItem('fallback_school_content');
-            if (cache) {
-              try { cachedResults.content = JSON.parse(cache); } catch {}
-            }
-          } else {
-            const cache = localStorage.getItem(`fallback_school_data_${colName}`);
-            if (cache) {
-              try {
-                const list = JSON.parse(cache);
-                if (Array.isArray(list)) {
-                  (cachedResults as any)[colName] = list;
-                }
-              } catch {}
-            }
-          }
-        });
-        
-        return cachedResults;
-      }
+      });
+      
+      return cachedResults;
     }
   },
 

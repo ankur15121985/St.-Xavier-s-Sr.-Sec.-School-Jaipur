@@ -171,6 +171,19 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
     }
 
     console.log(`[SQL SUCCESS] Local ${table} item persisted via API save.`);
+
+    // Update local and remote content timestamp to propagate cache changes
+    const newTimestamp = new Date().toISOString();
+    try {
+      db.prepare("UPDATE site_stats SET content_updated_at = ? WHERE id = 'main'").run(newTimestamp);
+    } catch (e) {}
+
+    if (supabaseServer) {
+      try {
+        await supabaseServer.from('site_stats').upsert({ id: 'main', content_updated_at: newTimestamp });
+      } catch (e) {}
+    }
+
     clearServerDataCache();
     return res.status(200).json({ success: true });
   } catch (err: any) {
