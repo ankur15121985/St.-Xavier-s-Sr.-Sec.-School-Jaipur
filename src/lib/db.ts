@@ -60,7 +60,7 @@ export function getDatabase(): Database.Database {
   try {
     const fs = require('fs');
     if (fs.existsSync(dbPath)) {
-      const tempDb = new Database(dbPath);
+      const tempDb = new Database(dbPath, { timeout: 10000 });
       try {
         tempDb.prepare("SELECT 1").get();
         // Also verify stats table
@@ -86,7 +86,10 @@ export function getDatabase(): Database.Database {
     console.warn("[DB] Database pre-startup scan details:", initErr.message);
   }
 
-  const db = new Database(dbPath);
+  const db = new Database(dbPath, { timeout: 10000 });
+  try {
+    db.pragma('journal_mode = WAL');
+  } catch (e) {}
   dbInstance = db;
 
   // 1. Initial table structures
