@@ -622,8 +622,8 @@ const HomePage = ({ data }: { data: AppData }) => {
         </section>
       )}
 
-      {/* Student Honors / Congratulations Slider */}
-      {data.settings?.showHonors !== false && data.studentHonors?.filter(h => h.is_enabled !== false).length > 0 && (
+      {/* Student Honors / Congratulations Slider (Temporarily Disabled) */}
+      {false && data.settings?.showHonors !== false && data.studentHonors?.filter(h => h.is_enabled !== false).length > 0 && (
         <div className="bg-transparent pb-32">
           <HonorsSlider honors={data.studentHonors.filter(h => h.is_enabled !== false)} />
         </div>

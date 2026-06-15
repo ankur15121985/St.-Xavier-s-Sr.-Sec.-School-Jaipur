@@ -25,16 +25,21 @@ export function handleDatabaseError(err: any): void {
       } catch (e) {}
       dbInstance = null;
     }
-    const dbPath = path.join(process.cwd(), 'database.sqlite');
+    const fs = require('fs');
+    const primaryPath = '/tmp/database.sqlite';
+    const fallbackPath = path.join(process.cwd(), 'database.sqlite');
     try {
-      const fs = require('fs');
-      if (fs.existsSync(dbPath)) {
-        fs.unlinkSync(dbPath);
-        console.log("[DB] Successfully deleted malformed sqlite file.");
+      if (fs.existsSync(primaryPath)) {
+        fs.unlinkSync(primaryPath);
+        console.log("[DB] Successfully deleted malformed sqlite file in /tmp.");
       }
-    } catch (unlinkErr: any) {
-      console.error("[DB] Unlink corrupt database failed:", unlinkErr.message);
-    }
+    } catch (e) {}
+    try {
+      if (fs.existsSync(fallbackPath)) {
+        fs.unlinkSync(fallbackPath);
+        console.log("[DB] Successfully deleted malformed sqlite file in workspace.");
+      }
+    } catch (e) {}
   }
 }
 
@@ -54,7 +59,34 @@ export function getDatabase(): Database.Database {
     }
   }
 
-  const dbPath = path.join(process.cwd(), 'database.sqlite');
+  // Choose /tmp path as the primary target for production compatibility with serverless environments
+  let dbPath = '/tmp/database.sqlite';
+  const fs = require('fs');
+  const localOrigPath = path.join(process.cwd(), 'database.sqlite');
+  
+  // Create /tmp folder if it does not exist
+  try {
+    const tmpDir = path.dirname(dbPath);
+    if (!fs.existsSync(tmpDir)) {
+      fs.mkdirSync(tmpDir, { recursive: true });
+    }
+  } catch (err) {}
+
+  // Migrate existing data from process.cwd() database to /tmp if not already done
+  try {
+    if (fs.existsSync(localOrigPath)) {
+      if (!fs.existsSync(dbPath)) {
+        try {
+          fs.copyFileSync(localOrigPath, dbPath);
+          console.log("[DB] Database template copied from workspace to /tmp for writable state.");
+        } catch (copyErr: any) {
+          console.warn("[DB] Failed to copy database template from workspace to /tmp:", copyErr.message);
+        }
+      }
+    }
+  } catch (e) {}
+
+  let useFallback = false;
 
   try {
     const db = new Database(dbPath, { timeout: 15000 });
@@ -71,21 +103,41 @@ export function getDatabase(): Database.Database {
     if (err.message && err.message.toLowerCase().includes('malformed')) {
       console.error("[DB] SQLite database file is malformed. Deleting and self-healing...", err.message);
       try {
-        const fs = require('fs');
         if (fs.existsSync(dbPath)) {
           fs.unlinkSync(dbPath);
         }
       } catch (unlinkErr) {}
       
+      try {
+        const db = new Database(dbPath, { timeout: 15000 });
+        try {
+          db.pragma('journal_mode = TRUNCATE');
+          db.pragma('synchronous = NORMAL');
+        } catch (e) {}
+        dbInstance = db;
+      } catch (recreateErr: any) {
+        useFallback = true;
+      }
+    } else {
+      console.error("[DB] Primary DB path /tmp failed, setting flag to use workspace fallback:", err.message);
+      useFallback = true;
+    }
+  }
+
+  if (useFallback) {
+    console.log("[DB] Falling back to process.cwd() database.sqlite path");
+    dbPath = localOrigPath;
+    try {
       const db = new Database(dbPath, { timeout: 15000 });
       try {
         db.pragma('journal_mode = TRUNCATE');
         db.pragma('synchronous = NORMAL');
       } catch (e) {}
+      db.prepare("SELECT 1").get();
       dbInstance = db;
-    } else {
-      console.error("[DB] Error opening SQLite database:", err.message);
-      throw err;
+    } catch (fallbackErr: any) {
+      console.error("[DB] Critical: Fallback SQLite also failed:", fallbackErr.message);
+      throw fallbackErr;
     }
   }
 
