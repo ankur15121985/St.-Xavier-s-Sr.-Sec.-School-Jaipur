@@ -133,15 +133,15 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       console.error("[AUDIT] Delete log failed:", logErr);
     }
 
-    // Update local and remote content timestamp to propagate cache changes
+    // Update local and remote content timestamp via 'content' table key 'content_updated_at' to propagate cache changes
     const newTimestamp = new Date().toISOString();
     try {
-      db.prepare("UPDATE site_stats SET content_updated_at = ? WHERE id = 'main'").run(newTimestamp);
+      db.prepare("INSERT OR REPLACE INTO content (key, value) VALUES ('content_updated_at', ?)").run(newTimestamp);
     } catch (e) {}
 
     if (supabaseServer) {
       try {
-        await supabaseServer.from('site_stats').upsert({ id: 'main', content_updated_at: newTimestamp });
+        await supabaseServer.from('content').upsert({ key: 'content_updated_at', value: newTimestamp });
       } catch (e) {}
     }
 

@@ -873,33 +873,33 @@ export async function fetchServerData() {
     const db = getDatabase();
     let localContentUpdatedAt: string | null = null;
     try {
-      const stats = db.prepare("SELECT content_updated_at FROM site_stats WHERE id = 'main'").get() as any;
-      if (stats && stats.content_updated_at) {
-        localContentUpdatedAt = stats.content_updated_at;
+      const row = db.prepare("SELECT value FROM content WHERE key = 'content_updated_at'").get() as any;
+      if (row && row.value) {
+        localContentUpdatedAt = row.value;
       }
     } catch (e) {}
 
-    // Check remote timestamp
-    const { data: remoteStats, error: statsErr } = await supabaseServer
-      .from('site_stats')
-      .select('content_updated_at')
-      .eq('id', 'main')
+    // Check remote timestamp from content table first (highly compatible, avoids site_stats schema changes)
+    const { data: remoteContentRow, error: contentTimeErr } = await supabaseServer
+      .from('content')
+      .select('value')
+      .eq('key', 'content_updated_at')
       .maybeSingle();
 
-    if (statsErr) {
-      console.warn('[Server Cache Manager] Querying stats timestamp failed, using local fallback:', statsErr.message);
+    if (contentTimeErr) {
+      console.warn('[Server Cache Manager] Querying content timestamp failed, using local fallback:', contentTimeErr.message);
       serverDataCache = localData;
       serverDataCacheExpiresAt = Date.now() + 60000; // try again in 1 minute on failure
       return localData;
     }
 
     const defaultTime = '2026-06-15T00:00:00.000Z';
-    const remoteContentUpdatedAt = remoteStats?.content_updated_at || defaultTime;
+    const remoteContentUpdatedAt = remoteContentRow?.value || defaultTime;
 
     // If remote has no timestamp yet (legacy DB), prime it asynchronously
-    if (!remoteStats?.content_updated_at) {
+    if (!remoteContentRow?.value) {
       try {
-        await supabaseServer.from('site_stats').upsert({ id: 'main', content_updated_at: defaultTime });
+        await supabaseServer.from('content').upsert({ key: 'content_updated_at', value: defaultTime });
       } catch (e) {}
     }
 
@@ -1071,7 +1071,7 @@ export async function fetchServerData() {
 
     // Save final content timestamp to local SQLite so subsequent requests hit cache
     try {
-      db.prepare("UPDATE site_stats SET content_updated_at = ? WHERE id = 'main'").run(remoteContentUpdatedAt);
+      db.prepare("INSERT OR REPLACE INTO content (key, value) VALUES ('content_updated_at', ?)").run(remoteContentUpdatedAt);
     } catch (e) {}
 
     const processed = getLocalSQLiteData();

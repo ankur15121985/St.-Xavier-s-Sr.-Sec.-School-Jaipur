@@ -55,11 +55,13 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const checkAdminStatus = (u: User | null) => {
+    if (localStorage.getItem('school_admin_session')) {
+      setIsAdmin(true);
+      return;
+    }
+
     if (!u) {
-      // Don't reset if we have a custom session
-      if (!localStorage.getItem('school_admin_session')) {
-        setIsAdmin(false);
-      }
+      setIsAdmin(false);
       return;
     }
     const bootstrapEmail = 'ankur15121985@gmail.com';
@@ -74,6 +76,18 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     
     const checkUser = async () => {
       try {
+        const customAdmin = localStorage.getItem('school_admin_session');
+        if (customAdmin) {
+          setIsAdmin(true);
+          setUser({ 
+            email: customAdmin, 
+            id: 'custom-admin',
+            user_metadata: { full_name: customAdmin }
+          } as any);
+          setLoading(false);
+          return;
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
         const u = session?.user ?? null;
         if (u) {
@@ -90,11 +104,23 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     checkUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const customAdmin = localStorage.getItem('school_admin_session');
+      if (customAdmin) {
+        setIsAdmin(true);
+        setUser({ 
+          email: customAdmin, 
+          id: 'custom-admin',
+          user_metadata: { full_name: customAdmin }
+        } as any);
+        setLoading(false);
+        return;
+      }
+
       const u = session?.user ?? null;
       if (u) {
         setUser(u);
         checkAdminStatus(u);
-      } else if (!localStorage.getItem('school_admin_session')) {
+      } else {
         setUser(null);
         setIsAdmin(false);
       }
