@@ -42,55 +42,54 @@ export function getDatabase(): Database.Database {
   if (dbInstance) {
     try {
       dbInstance.prepare("SELECT 1").get();
-      // Fast verify key table
-      dbInstance.prepare("SELECT id FROM site_stats LIMIT 1").get();
       return dbInstance;
     } catch (err: any) {
       if (err.message && err.message.toLowerCase().includes('malformed')) {
         handleDatabaseError(err);
       } else {
-        throw err;
+        // Safe reset if the connection had a non-malformed issue
+        try { dbInstance.close(); } catch (e) {}
+        dbInstance = null;
       }
     }
   }
 
   const dbPath = path.join(process.cwd(), 'database.sqlite');
 
-  // Self-heal/recovery for malformed SQLite databases
   try {
-    const fs = require('fs');
-    if (fs.existsSync(dbPath)) {
-      const tempDb = new Database(dbPath, { timeout: 10000 });
+    const db = new Database(dbPath, { timeout: 15000 });
+    // Use TRUNCATE journal mode and NORMAL synchronicity for fast, robust execution without memory-mapped WAL/.shm files
+    try {
+      db.pragma('journal_mode = TRUNCATE');
+      db.pragma('synchronous = NORMAL');
+    } catch (e) {}
+
+    // Verify connection works perfectly
+    db.prepare("SELECT 1").get();
+    dbInstance = db;
+  } catch (err: any) {
+    if (err.message && err.message.toLowerCase().includes('malformed')) {
+      console.error("[DB] SQLite database file is malformed. Deleting and self-healing...", err.message);
       try {
-        tempDb.prepare("SELECT 1").get();
-        // Also verify stats table
-        try {
-          tempDb.prepare("SELECT id FROM site_stats LIMIT 1").get();
-        } catch (tableErr) {}
-        tempDb.close();
-      } catch (testErr: any) {
-        try { tempDb.close(); } catch (e) {}
-        if (testErr.message && testErr.message.toLowerCase().includes('malformed')) {
-          console.error("[DB] SQLite database file is malformed. Deleting the corrupt database for automatic self-healing:", testErr.message);
-          try {
-            fs.unlinkSync(dbPath);
-          } catch (unlinkErr: any) {
-            console.error("[DB] Failed to delete corrupt database file:", unlinkErr.message);
-          }
-        } else {
-          throw testErr;
+        const fs = require('fs');
+        if (fs.existsSync(dbPath)) {
+          fs.unlinkSync(dbPath);
         }
-      }
+      } catch (unlinkErr) {}
+      
+      const db = new Database(dbPath, { timeout: 15000 });
+      try {
+        db.pragma('journal_mode = TRUNCATE');
+        db.pragma('synchronous = NORMAL');
+      } catch (e) {}
+      dbInstance = db;
+    } else {
+      console.error("[DB] Error opening SQLite database:", err.message);
+      throw err;
     }
-  } catch (initErr: any) {
-    console.warn("[DB] Database pre-startup scan details:", initErr.message);
   }
 
-  const db = new Database(dbPath, { timeout: 10000 });
-  try {
-    db.pragma('journal_mode = WAL');
-  } catch (e) {}
-  dbInstance = db;
+  const db = dbInstance!;
 
   // 1. Initial table structures
   db.exec(`
