@@ -31,23 +31,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (fs.existsSync(cachePath)) {
     try {
       const stats = fs.statSync(cachePath);
-      res.setHeader('Content-Type', contentType);
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-      res.setHeader('Content-Length', stats.size);
-      
-      const readStream = fs.createReadStream(cachePath);
-      return readStream.pipe(res);
+      if (stats.size > 0) {
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        res.setHeader('Content-Length', stats.size);
+        
+        const readStream = fs.createReadStream(cachePath);
+        return readStream.pipe(res);
+      } else {
+        // Delete empty or corrupt cached files
+        try { fs.unlinkSync(cachePath); } catch (_) {}
+      }
     } catch (e) {
       // fallback to refetching on error
     }
   }
 
-  // Fetch the remote file
+  // Fetch the remote file with SSL-error resistance and standard 302 Redirection fallback
   try {
-    https.get(url, (remoteRes) => {
+    const options = {
+      rejectUnauthorized: false,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'image/*,application/pdf,*/*'
+      }
+    };
+    https.get(url, options, (remoteRes) => {
       if (remoteRes.statusCode !== 200) {
-        res.status(remoteRes.statusCode || 500).end();
-        return;
+        console.warn(`[Proxy] Remote fetch status ${remoteRes.statusCode}, redirecting to source URL`);
+        return res.redirect(302, url);
       }
 
       // Read Content-Type from original response
@@ -63,9 +75,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       remoteRes.pipe(res);
 
     }).on('error', (err) => {
-      res.status(500).end('Proxy error: ' + err.message);
+      console.warn('[Proxy] Connection error, redirecting:', err.message);
+      return res.redirect(302, url);
     });
   } catch (err: any) {
-    res.status(500).end(err.message);
+    console.warn('[Proxy] Exception, redirecting:', err.message);
+    return res.redirect(302, url);
   }
 }

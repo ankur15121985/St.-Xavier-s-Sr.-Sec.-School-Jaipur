@@ -30,6 +30,7 @@ interface NavLink {
 }
 
 const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
+  const fallbackLogo = "/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png";
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [visitorCount, setVisitorCount] = useState<number | null>(() => {
@@ -238,9 +239,12 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 <div className="flex items-center gap-4 relative pr-12 lg:pr-0">
                   <Link to="/" className={`shrink-0 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-16 h-16 md:w-[100px] md:h-[100px]'}`}>
                     <img 
-                      src={data.settings?.siteLogo || "/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png"} 
+                      src={data.settings?.siteLogo || fallbackLogo} 
                       alt="Logo" 
                       className="w-full h-full object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = fallbackLogo;
+                      }}
                     />
                   </Link>
                   <div className="flex flex-col justify-center min-w-0">
@@ -362,9 +366,12 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               <div className="flex items-center gap-4 relative pr-12 lg:pr-0">
                 <Link to="/" className={`shrink-0 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-10 h-10 md:w-[70px] md:h-[70px]'}`}>
                   <img 
-                    src={data.settings?.siteLogo || "/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png"} 
+                    src={data.settings?.siteLogo || fallbackLogo} 
                     alt="Logo" 
                     className="w-full h-full object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = fallbackLogo;
+                    }}
                   />
                 </Link>
                 <div className="flex flex-col min-w-0">
@@ -507,11 +514,11 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 bg-white dark:bg-slate-800 p-2 rounded-2xl shadow-sm border border-black/5 dark:border-white/5">
                     <img 
-                      src={data.settings?.siteLogo || "/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png"} 
+                      src={data.settings?.siteLogo || fallbackLogo} 
                       alt="Logo" 
                       className="w-full h-full object-contain" 
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png";
+                        (e.target as HTMLImageElement).src = fallbackLogo;
                       }}
                     />
                   </div>
@@ -638,9 +645,12 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-[40px] flex flex-col md:flex-row items-center gap-8 md:gap-12" style={{ WebkitBackdropFilter: 'blur(24px)' }}>
               <div className="w-24 h-24 md:w-32 md:h-32 shrink-0 bg-white p-4 rounded-3xl shadow-inner">
                  <img 
-                   src={data.settings?.siteLogo || "/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png"} 
+                   src={data.settings?.siteLogo || fallbackLogo} 
                    alt="St. Xavier's Logo" 
                    className="w-full h-full object-contain"
+                   onError={(e) => {
+                     (e.target as HTMLImageElement).src = fallbackLogo;
+                   }}
                  />
               </div>
               <div className="flex flex-col text-center md:text-left space-y-4">
