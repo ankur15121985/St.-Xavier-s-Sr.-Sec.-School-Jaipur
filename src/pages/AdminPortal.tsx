@@ -54,8 +54,6 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [isLegacyAuthenticated, setIsLegacyAuthenticated] = useState(false);
-  const [showLegacyForm, setShowLegacyForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [detailedApp, setDetailedApp] = useState<CareerApplication | null>(null);
@@ -3398,7 +3396,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     </div>
   );
 
-  if (!isAdmin && !isLegacyAuthenticated) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen bg-school-navy flex items-center justify-center p-6 relative overflow-hidden">
         <motion.div 
@@ -3496,18 +3494,6 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
 
   return (
     <div className="min-h-screen bg-school-paper flex font-sans relative pt-10 md:pt-0">
-      <AnimatePresence>
-        {isLegacyAuthenticated && (
-          <motion.div 
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="fixed top-0 left-0 right-0 z-[100] bg-school-gold text-school-navy px-6 py-2.5 flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest shadow-lg"
-          >
-            <Check size={14} />
-            Authenticated Session Active
-          </motion.div>
-        )}
-      </AnimatePresence>
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (

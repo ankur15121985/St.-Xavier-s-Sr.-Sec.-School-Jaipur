@@ -58,7 +58,7 @@ export function initializeSupabase(url: string, key: string) {
     SUPABASE_ANON_KEY = key;
     safeUrl = cleanedUrl;
     safeKey = key;
-    console.log('[Supabase Client] Dynamically initialized with server credentials (cleaned URL).');
+    console.log('[Supabase Client] Dynamically initialized with public credentials (cleaned URL).');
   }
 }
 

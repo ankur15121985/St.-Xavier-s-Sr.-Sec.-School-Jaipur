@@ -133,17 +133,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Synchronize admin status with Supabase Postgres session for RLS
   useEffect(() => {
     if (isAdmin && configLoaded) {
-      console.log('[Auth] Synchronizing admin status with Supabase RLS...');
-      // Use the helper function to set the admin secret in the Postgres session
-      supabase.rpc('set_config_admin', { 
-        val: 'st-xaviers-admin-authenticated' 
-      }).then(({ error }) => {
-        if (error) {
-          console.warn('[Auth] Failed to set RLS admin marker. Data visibility might be limited.', error);
-        } else {
-          console.log('[Auth] RLS admin marker active.');
-        }
-      });
+      console.log('[Auth] Admin session verified.');
     }
   }, [isAdmin, configLoaded]);
 

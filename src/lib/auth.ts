@@ -1,7 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-fallback-only-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('[AUTH] FATAL: JWT_SECRET environment variable is missing.');
+}
 
 export interface AuthenticatedRequest extends NextApiRequest {
   user?: {
@@ -22,12 +25,19 @@ export function authenticateToken(req: AuthenticatedRequest, res: NextApiRespons
   }
 
   try {
+    if (!JWT_SECRET) {
+      throw new Error('JWT_SECRET not configured');
+    }
     const user = jwt.verify(token, JWT_SECRET) as any;
     req.user = user;
     return true;
   } catch (err: any) {
     console.error(`[AUTH] Invalid token for ${req.method} ${req.url}:`, err.message);
-    res.status(403).json({ error: 'Session expired or invalid' });
+    if (err.message === 'JWT_SECRET not configured') {
+      res.status(500).json({ error: 'Server authentication misconfigured' });
+    } else {
+      res.status(403).json({ error: 'Session expired or invalid' });
+    }
     return false;
   }
 }

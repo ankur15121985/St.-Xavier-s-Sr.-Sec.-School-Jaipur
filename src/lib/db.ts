@@ -773,18 +773,22 @@ export function getDatabase(): Database.Database {
   // Admin seed
   const adminCount = db.prepare("SELECT COUNT(*) as count FROM admins").get() as any;
   if ((adminCount?.count || 0) === 0) {
-    const rootUser = process.env.INITIAL_ADMIN_USERNAME || 'admin';
-    const rootPass = process.env.INITIAL_ADMIN_PASSWORD || 'admin123';
+    const rootUser = process.env.INITIAL_ADMIN_USERNAME;
+    const rootPass = process.env.INITIAL_ADMIN_PASSWORD;
     
-    console.log(`[DB] Seeding initial admin user: ${rootUser}`);
-    bcrypt.hash(rootPass, 12).then((hashedPass) => {
-      db.prepare("INSERT INTO admins (id, username, password, role) VALUES (?, ?, ?, ?)").run(
-        'root-admin',
-        rootUser,
-        hashedPass,
-        'admin'
-      );
-    });
+    if (rootUser && rootPass) {
+      console.log(`[DB] Seeding initial admin user: ${rootUser}`);
+      bcrypt.hash(rootPass, 12).then((hashedPass) => {
+        db.prepare("INSERT INTO admins (id, username, password, role) VALUES (?, ?, ?, ?)").run(
+          'root-admin',
+          rootUser,
+          hashedPass,
+          'admin'
+        );
+      });
+    } else {
+      console.warn('[DB] Skipping initial admin seed: INITIAL_ADMIN_USERNAME or INITIAL_ADMIN_PASSWORD missing.');
+    }
 
     const secondaryUser = process.env.SECONDARY_ADMIN_USERNAME;
     const secondaryPass = process.env.SECONDARY_ADMIN_PASSWORD;
