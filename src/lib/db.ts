@@ -941,8 +941,8 @@ export async function fetchServerData() {
   const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
   const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
-  
   const SUPABASE_KEY = SERVICE_KEY || ANON_KEY;
+  const isUsingServiceRole = !!SERVICE_KEY;
 
   // 1. Fetch from local SQLite first immediately
   const localData = getLocalSQLiteData();
@@ -987,7 +987,7 @@ export async function fetchServerData() {
     const remoteContentUpdatedAt = remoteContentRow?.value || defaultTime;
 
     // If remote has no timestamp yet (legacy DB), prime it asynchronously
-    if (!remoteContentRow?.value) {
+    if (!remoteContentRow?.value && isUsingServiceRole) {
       try {
         await supabaseServer.from('content').upsert({ key: 'content_updated_at', value: defaultTime });
       } catch (e) {}
@@ -1003,6 +1003,9 @@ export async function fetchServerData() {
     }
 
     console.log(`[Server Cache Manager] Cache STALE. Local: ${localContentUpdatedAt}, Remote: ${remoteContentUpdatedAt}. Syncing fresh tables...`);
+    if (!isUsingServiceRole) {
+      console.warn('[Server Cache Manager] WARNING: Syncing without SUPABASE_SERVICE_ROLE_KEY. Private tables (messages, etc) will be skipped to prevent local data wipe.');
+    }
 
     const collections = [
        'notices', 'staff', 'gallery', 'fees', 'links', 
@@ -1011,17 +1014,27 @@ export async function fetchServerData() {
        'activities', 'co_curricular_activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content', 'scholarships', 'fire_safety', 'site_stats', 'career_applications'
     ];
 
+    const privateTables = ['messages', 'career_applications', 'transfer_certificates', 'admins', 'logs', 'visitor_ips'];
+
     const results: any = {};
     let successCount = 0;
-    const supabaseTableStatus: Record<string, 'online' | 'offline'> = {};
+    const supabaseTableStatus: Record<string, 'online' | 'offline' | 'skipped'> = {};
 
     const fetchTasks = [
       ...collections.map(async (colName) => {
         try {
+          // PROTECTION: Skip private tables if not using service role to avoid RLS empty-result wipe
+          if (privateTables.includes(colName) && !isUsingServiceRole) {
+            supabaseTableStatus[colName] = 'skipped';
+            results[colName] = localData[colName] || [];
+            return;
+          }
+
           const { data, error } = await supabaseServer.from(colName).select('*');
           if (error) {
             supabaseTableStatus[colName] = 'offline';
             results[colName] = localData[colName] || [];
+            console.error(`[Server Cache Sync] Error fetching ${colName}:`, error.message);
           } else {
             supabaseTableStatus[colName] = 'online';
             results[colName] = data || [];
@@ -1030,7 +1043,11 @@ export async function fetchServerData() {
             // Sync to local SQLite
             const sqliteTable = colName === 'navigation_menu' ? 'menu' : colName;
             try {
-              if (Array.isArray(data) && data.length > 0) {
+              if (Array.isArray(data)) {
+                // Special case: if we got exactly 0 rows for a private table, and we ARE using service role, 
+                // we should probably still allow the wipe because it's authoritative. 
+                // But if it's 0 rows and we are NOT using service role, we already skipped it above.
+
                 const columnsInfo = db.pragma(`table_info("${sqliteTable}")`) as any[];
                 if (columnsInfo && columnsInfo.length > 0) {
                   const columns = columnsInfo.map(c => c.name);
@@ -1039,21 +1056,23 @@ export async function fetchServerData() {
                     db.prepare(`DELETE FROM "${sqliteTable}"`).run();
                   }
 
-                  db.transaction(() => {
-                    data.forEach((row: any) => {
-                      const rowKeys = Object.keys(row).filter(k => columns.includes(k));
-                      if (rowKeys.length > 0) {
-                        const placeholders = rowKeys.map(() => '?').join(',');
-                        const values = rowKeys.map(k => {
-                          const val = row[k];
-                          if (typeof val === 'boolean') return val ? 1 : 0;
-                          return val;
-                        });
-                        const query = `INSERT OR REPLACE INTO "${sqliteTable}" (${rowKeys.map(k => `"${k}"`).join(',')}) VALUES (${placeholders})`;
-                        db.prepare(query).run(values);
-                      }
-                    });
-                  })();
+                  if (data.length > 0) {
+                    db.transaction(() => {
+                      data.forEach((row: any) => {
+                        const rowKeys = Object.keys(row).filter(k => columns.includes(k));
+                        if (rowKeys.length > 0) {
+                          const placeholders = rowKeys.map(() => '?').join(',');
+                          const values = rowKeys.map(k => {
+                            const val = row[k];
+                            if (typeof val === 'boolean') return val ? 1 : 0;
+                            return val;
+                          });
+                          const query = `INSERT OR REPLACE INTO "${sqliteTable}" (${rowKeys.map(k => `"${k}"`).join(',')}) VALUES (${placeholders})`;
+                          db.prepare(query).run(values);
+                        }
+                      });
+                    })();
+                  }
                 }
               }
             } catch (liteErr: any) {

@@ -266,7 +266,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       // If we are here, it means /api/login failed. 
       console.warn('[Auth] Browser-side admin query is restricted by RLS. Please ensure SUPABASE_SERVICE_ROLE_KEY is set in your environment secrets for server-side validation.');
       
-      throw new Error('Login failed. Please check your credentials or ensure SUPABASE_SERVICE_ROLE_KEY is configured in AI Studio Secrets.');
+      throw new Error('Username or password wrong');
       
     } catch (err: any) {
       console.error('[Auth] Supabase Fallback Login failed:', err);
