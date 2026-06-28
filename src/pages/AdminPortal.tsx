@@ -2682,7 +2682,12 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
             showToast(`Settings (${field}) updated in Supabase`);
           } catch (err: any) {
             console.error('Settings sync failed:', err);
-            showToast(`Settings sync failed: ${err.message?.slice(0, 50)}`, 'error');
+            const msg = err.message?.toLowerCase() || '';
+            if (msg.includes('session expired') || msg.includes('403') || msg.includes('authentication required')) {
+              showToast(`Session expired. Please logout and login again.`, 'error');
+            } else {
+              showToast(`Settings sync failed: ${err.message?.slice(0, 50)}`, 'error');
+            }
           } finally {
             setSavePending(false);
           }

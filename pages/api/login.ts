@@ -25,18 +25,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let user = db.prepare("SELECT * FROM admins WHERE username = ?").get(username) as any;
     
     // 2. If not in SQLite, try Supabase with Service Role (Bypassing RLS)
-    if (!user && SUPABASE_URL && SUPABASE_SERVICE_KEY) {
-      console.log(`[AUTH] User ${username} not in SQLite, checking Supabase with Service Role...`);
-      const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-      const { data: supUser, error: supError } = await supabaseAdmin
-        .from('admins')
-        .select('*')
-        .eq('username', username)
-        .maybeSingle();
-      
-      if (!supError && supUser) {
-        console.log(`[AUTH] Found user ${username} in Supabase.`);
-        user = supUser;
+    if (!user) {
+      if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+        console.error(`[AUTH] Service Role Key is missing! Cannot check Supabase admins table with RLS enabled. Please add SUPABASE_SERVICE_ROLE_KEY to secrets.`);
+      } else {
+        console.log(`[AUTH] User ${username} not in SQLite, checking Supabase with Service Role...`);
+        try {
+          const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+          const { data: supUser, error: supError } = await supabaseAdmin
+            .from('admins')
+            .select('*')
+            .eq('username', username)
+            .maybeSingle();
+          
+          if (!supError && supUser) {
+            console.log(`[AUTH] Found user ${username} in Supabase via Service Role.`);
+            user = supUser;
+          } else if (supError) {
+            console.error(`[AUTH] Supabase query error:`, supError.message);
+          }
+        } catch (err) {
+          console.error(`[AUTH] Failed to initialize Supabase Admin client:`, err);
+        }
       }
     }
 
