@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from '../../lib/router-compat';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Phone, Mail, MapPin, Key, Settings, ArrowRight, ChevronRight, Users2, ImageIcon, ExternalLink, Facebook, Instagram, Youtube, Twitter, ArrowUp, ArrowDown, MessageSquare, Sun, Moon, Search } from 'lucide-react';
+import { Menu, X, Phone, Mail, MapPin, Settings, ArrowRight, ChevronRight, Users2, ImageIcon, ExternalLink, Facebook, Instagram, Youtube, Twitter, ArrowUp, ArrowDown, MessageSquare, Sun, Moon, Search } from 'lucide-react';
 import { AppData, QuickLink } from '../../types';
 
 import { Helmet } from 'react-helmet-async';
@@ -280,9 +280,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                            <p className="text-3xl font-black text-school-navy dark:text-school-accent italic opacity-20">1941</p>
                         </div>
                       )}
-                      <Link to="/admin" className={`flex items-center gap-2 bg-school-navy text-white rounded-full uppercase tracking-widest font-black shadow-lg hover:scale-105 transition-all ${isScrolled ? 'px-4 py-2 text-[9px]' : 'px-6 py-2.5 text-[11px]'}`}>
-                        <Key size={isScrolled ? 12 : 14} /> Admin Login
-                      </Link>
+
                    </div>
 
                    {/* Mobile Menu Button - High Visibility */}
@@ -409,12 +407,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   >
                     {isDark ? <Sun size={18} /> : <Moon size={18} />}
                   </button>
-                  <Link 
-                    to="/admin" 
-                    className="flex items-center gap-2 px-6 py-2.5 bg-school-navy text-white rounded-full text-[11px] uppercase tracking-widest font-black shadow-lg hover:scale-105 active:scale-95 transition-all"
-                  >
-                    <Key size={14} /> Admin Login
-                  </Link>
+
                 </div>
 
                 {/* Mobile/Tablet Actions */}
@@ -604,9 +597,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                      >
                         {isDark ? <Sun size={18} /> : <Moon size={18} />} Switch to {isDark ? 'Light' : 'Dark'} Mode
                      </button>
-                     <Link to="/admin" onClick={() => setIsNavOpen(false)} className="flex items-center gap-3 text-slate-600 dark:text-slate-400 font-bold hover:text-school-accent transition-colors">
-                        <Key size={18} /> Admin Portal
-                     </Link>
+
                      <Link to="/contact" onClick={() => setIsNavOpen(false)} className="flex items-center gap-3 text-slate-600 dark:text-slate-400 font-bold hover:text-school-accent transition-colors">
                         <MessageSquare size={18} /> Connect With Us
                      </Link>

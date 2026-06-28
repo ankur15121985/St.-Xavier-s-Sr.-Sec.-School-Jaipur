@@ -146,6 +146,28 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const usernameLogin = async (username: string, pass: string) => {
     console.log(`[Auth] Attempting login for: ${username}`);
+    
+    // Check if it looks like an email - if so, try proper Supabase Auth first
+    if (username.includes('@')) {
+      try {
+        console.log('[Auth] Detected email, attempting Supabase Auth sign-in...');
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+          email: username,
+          password: pass
+        });
+        
+        if (!authError && authData.user) {
+          console.log('[Auth] Supabase Auth successful.');
+          setUser(authData.user);
+          setIsAdmin(true);
+          return;
+        }
+        console.warn('[Auth] Supabase Auth failed, trying legacy methods:', authError?.message);
+      } catch (err) {
+        console.warn('[Auth] Supabase Auth exception:', err);
+      }
+    }
+
     try {
       let res;
       try {
