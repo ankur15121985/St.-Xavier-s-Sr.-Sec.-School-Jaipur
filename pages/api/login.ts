@@ -8,9 +8,36 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-fallback-only-change-in-produc
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+// Simple in-memory rate limiter
+const loginAttempts = new Map<string, { count: number, lastAttempt: number }>();
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
+const MAX_ATTEMPTS = 5;
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const clientIp = (req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || 'unknown').split(',')[0];
+  const now = Date.now();
+
+  // Clean up old entries periodically (could be more sophisticated, but fine for this scope)
+  if (Math.random() < 0.1) {
+    for (const [ip, data] of loginAttempts.entries()) {
+      if (now - data.lastAttempt > RATE_LIMIT_WINDOW) {
+        loginAttempts.delete(ip);
+      }
+    }
+  }
+
+  // Check rate limit
+  const attempts = loginAttempts.get(clientIp);
+  if (attempts && attempts.count >= MAX_ATTEMPTS && now - attempts.lastAttempt < RATE_LIMIT_WINDOW) {
+    const remainingTime = Math.ceil((RATE_LIMIT_WINDOW - (now - attempts.lastAttempt)) / 60000);
+    console.warn(`[AUTH] Rate limit exceeded for IP: ${clientIp}. Retrying in ${remainingTime} minutes.`);
+    return res.status(429).json({ 
+      error: `Too many login attempts. Please try again in ${remainingTime} minutes.` 
+    });
   }
 
   const { username, password } = req.body;
@@ -52,6 +79,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!user) {
       console.warn(`[AUTH] Login failed: User ${username} not found in any database`);
+      
+      // Track failed attempt
+      const current = loginAttempts.get(clientIp) || { count: 0, lastAttempt: now };
+      loginAttempts.set(clientIp, { count: current.count + 1, lastAttempt: now });
+      
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
@@ -60,14 +92,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (user.password && user.password.startsWith('$2b$')) {
       validPassword = await bcrypt.compare(password, user.password);
     } else {
-      // Support plain text fallback for legacy migrations
-      validPassword = user.password === password;
+      // DANGER: Plain text fallback is disabled for security
+      console.error(`[AUTH] User ${username} has a non-hashed password. Access denied for security.`);
+      validPassword = false;
     }
 
     if (!validPassword) {
       console.warn(`[AUTH] Login failed: Incorrect password for ${username}`);
+      
+      // Track failed attempt
+      const current = loginAttempts.get(clientIp) || { count: 0, lastAttempt: now };
+      loginAttempts.set(clientIp, { count: current.count + 1, lastAttempt: now });
+      
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+
+    // Success! Clear attempts for this IP
+    loginAttempts.delete(clientIp);
 
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role || 'admin' },

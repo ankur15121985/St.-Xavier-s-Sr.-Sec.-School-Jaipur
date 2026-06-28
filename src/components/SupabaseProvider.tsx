@@ -261,46 +261,11 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const supabaseFallbackLogin = async (username: string, pass: string) => {
     console.log(`[Auth] Executing Supabase fallback login for: ${username}`);
     try {
-      if (getIsSupabasePlaceholder()) {
-        console.warn('[Auth] Placeholder Supabase client detected in fallback login. Performing safe offline bypass.');
-        const presetUsernames = ['admin', 'ankur15121985', 'ankur24121985', 'school_admin', 'root'];
-        if (presetUsernames.includes(username.toLowerCase())) {
-          setIsAdmin(true);
-          setUser({ 
-            email: `${username}@fallback-school.edu`, 
-            id: 'offline-admin-fallback',
-            user_metadata: { full_name: 'School Administrator (Fallback)' }
-          } as any);
-          localStorage.setItem('school_admin_session', username);
-          localStorage.setItem('school_admin_token', 'temp-auth-token-bypass');
-          localStorage.setItem('supabase_schema_warning', 'true');
-          console.log('[Auth] Supabase fallback login successful (uninitialized DB bypass).');
-          return;
-        }
-        throw new Error('Invalid credentials');
-      }
-
       // With hardened RLS, the anon browser client CANNOT query the admins table.
       // We now rely on the /api/login route which uses the Service Role Key.
       // If we are here, it means /api/login failed. 
       console.warn('[Auth] Browser-side admin query is restricted by RLS. Please ensure SUPABASE_SERVICE_ROLE_KEY is set in your environment secrets for server-side validation.');
       
-      // Allow a few preset emergency usernames for recovery if needed, 
-      // but don't try to query the table as it will just fail with RLS errors.
-      const presetUsernames = ['admin', 'ankur15121985', 'ankur24121985', 'school_admin', 'root'];
-      if (presetUsernames.includes(username.toLowerCase()) && (pass === 'admin123' || pass === 'school@123')) {
-          console.log('[Auth] Emergency bypass login successful.');
-          setIsAdmin(true);
-          setUser({ 
-            email: `${username}@emergency-bypass`, 
-            id: 'emergency-bypass',
-            user_metadata: { full_name: 'Emergency Bypass Admin' }
-          } as any);
-          localStorage.setItem('school_admin_session', username);
-          localStorage.setItem('school_admin_token', 'emergency-bypass-token');
-          return;
-      }
-
       throw new Error('Login failed. Please check your credentials or ensure SUPABASE_SERVICE_ROLE_KEY is configured in AI Studio Secrets.');
       
     } catch (err: any) {

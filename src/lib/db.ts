@@ -776,6 +776,7 @@ export function getDatabase(): Database.Database {
     const rootUser = process.env.INITIAL_ADMIN_USERNAME || 'admin';
     const rootPass = process.env.INITIAL_ADMIN_PASSWORD || 'admin123';
     
+    console.log(`[DB] Seeding initial admin user: ${rootUser}`);
     bcrypt.hash(rootPass, 12).then((hashedPass) => {
       db.prepare("INSERT INTO admins (id, username, password, role) VALUES (?, ?, ?, ?)").run(
         'root-admin',
@@ -785,15 +786,20 @@ export function getDatabase(): Database.Database {
       );
     });
 
-    const secondaryUser = 'ankur15121985';
-    bcrypt.hash('ankur24121985', 12).then((secondaryHashed) => {
-      db.prepare("INSERT INTO admins (id, username, password, role) VALUES (?, ?, ?, ?)").run(
-        'ankur-admin',
-        secondaryUser,
-        secondaryHashed,
-        'admin'
-      );
-    });
+    const secondaryUser = process.env.SECONDARY_ADMIN_USERNAME;
+    const secondaryPass = process.env.SECONDARY_ADMIN_PASSWORD;
+    
+    if (secondaryUser && secondaryPass) {
+      console.log(`[DB] Seeding secondary admin user: ${secondaryUser}`);
+      bcrypt.hash(secondaryPass, 12).then((secondaryHashed) => {
+        db.prepare("INSERT INTO admins (id, username, password, role) VALUES (?, ?, ?, ?)").run(
+          'secondary-admin',
+          secondaryUser,
+          secondaryHashed,
+          'admin'
+        );
+      });
+    }
   }
 
   return db;
