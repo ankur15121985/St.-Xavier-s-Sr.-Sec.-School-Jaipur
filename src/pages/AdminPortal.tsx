@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from '../lib/router-compat';
 import { 
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
-  Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, RefreshCw,
+  Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, RefreshCw, DownloadCloud,
   Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink,
   Type, Palette, Bold, Italic, Briefcase, ShieldCheck, Activity, Send, Clock, Database, Download,
   Phone, MapPin
@@ -1677,6 +1677,18 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                    <Database size={14} /> Copy Storage Fix SQL
                  </button>
                  <button 
+                   onClick={handlePullAll} 
+                   disabled={uploadingPath === 'global-pull'}
+                   className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-2 outline-none font-bold ${
+                     uploadingPath === 'global-pull'
+                       ? 'bg-white/10 text-white/40 cursor-not-allowed'
+                       : 'bg-indigo-500 text-white hover:bg-indigo-600 hover:scale-105 active:scale-95'
+                   }`}
+                 >
+                   <DownloadCloud size={14} className={uploadingPath === 'global-pull' ? 'animate-spin' : ''} />
+                   {uploadingPath === 'global-pull' ? 'Pulling...' : 'Pull All from Cloud'}
+                 </button>
+                 <button 
                    onClick={handleSaveAll} 
                    disabled={uploadingPath === 'global'}
                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-2 outline-none font-bold ${
@@ -1686,7 +1698,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                    }`}
                  >
                    <RefreshCw size={14} className={uploadingPath === 'global' ? 'animate-spin' : ''} />
-                   {uploadingPath === 'global' ? 'Syncing...' : 'Sync Entire DB to Supabase'}
+                   {uploadingPath === 'global' ? 'Syncing...' : 'Push All to Supabase'}
                  </button>
               </div>
             </div>
@@ -3109,6 +3121,26 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       showToast('Entire database synced successfully to Supabase');
     } catch (err) {
       showToast('Critical sync failure', 'error');
+    } finally {
+      setUploadingPath(null);
+      setSavePending(false);
+    }
+  };
+
+  const handlePullAll = async () => {
+    setUploadingPath('global-pull');
+    setSavePending(true);
+    try {
+      const freshData = await supabaseService.fetchAllData(true);
+      if (freshData && Object.keys(freshData).length > 0) {
+        setData(prev => ({ ...prev, ...freshData }));
+        showToast('All data pulled and synchronized from Cloud Database');
+      } else {
+        throw new Error('No data returned from Cloud');
+      }
+    } catch (err: any) {
+      console.error('Pull failed:', err);
+      showToast(`Pull failed: ${err.message}`, 'error');
     } finally {
       setUploadingPath(null);
       setSavePending(false);

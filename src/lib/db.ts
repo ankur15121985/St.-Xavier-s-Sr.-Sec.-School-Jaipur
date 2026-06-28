@@ -932,9 +932,9 @@ export function proxySupabaseUrls(obj: any): any {
   return obj;
 }
 
-export async function fetchServerData() {
+export async function fetchServerData(force: boolean = false) {
   const now = Date.now();
-  if (serverDataCache && now < serverDataCacheExpiresAt) {
+  if (!force && serverDataCache && now < serverDataCacheExpiresAt) {
     return serverDataCache;
   }
 
@@ -944,10 +944,13 @@ export async function fetchServerData() {
   const SUPABASE_KEY = SERVICE_KEY || ANON_KEY;
   const isUsingServiceRole = !!SERVICE_KEY;
 
+  console.log(`[Server Cache Manager] Sync attempt. Force: ${force}, ServiceRole: ${isUsingServiceRole}`);
+
   // 1. Fetch from local SQLite first immediately
   const localData = getLocalSQLiteData();
 
   if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes('placeholder-project-id')) {
+    console.log('[Server Cache Manager] Supabase not configured. Using local data only.');
     const proxied = proxySupabaseUrls(localData);
     serverDataCache = proxied;
     serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
@@ -994,7 +997,7 @@ export async function fetchServerData() {
     }
 
     // COMPARE TIMESTAMPS
-    if (localContentUpdatedAt && localContentUpdatedAt === remoteContentUpdatedAt) {
+    if (!force && localContentUpdatedAt && localContentUpdatedAt === remoteContentUpdatedAt) {
       console.log(`[Server Cache Manager] Cache VALID (${localContentUpdatedAt}). Skipping concurrent fetch of all tables.`);
       const proxied = proxySupabaseUrls(localData);
       serverDataCache = proxied;
@@ -1002,7 +1005,7 @@ export async function fetchServerData() {
       return proxied;
     }
 
-    console.log(`[Server Cache Manager] Cache STALE. Local: ${localContentUpdatedAt}, Remote: ${remoteContentUpdatedAt}. Syncing fresh tables...`);
+    console.log(`[Server Cache Manager] Cache STALE or FORCE. Local: ${localContentUpdatedAt}, Remote: ${remoteContentUpdatedAt}. Syncing fresh tables...`);
     if (!isUsingServiceRole) {
       console.warn('[Server Cache Manager] WARNING: Syncing without SUPABASE_SERVICE_ROLE_KEY. Private tables (messages, etc) will be skipped to prevent local data wipe.');
     }
@@ -1030,12 +1033,19 @@ export async function fetchServerData() {
             return;
           }
 
+          console.log(`[Server Cache Sync] Fetching ${colName}...`);
           const { data, error } = await supabaseServer.from(colName).select('*');
           if (error) {
             supabaseTableStatus[colName] = 'offline';
             results[colName] = localData[colName] || [];
-            console.error(`[Server Cache Sync] Error fetching ${colName}:`, error.message);
+            
+            if (error.message.includes('Could not find the table') || error.message.includes('does not exist')) {
+              console.warn(`[Server Cache Sync] Table ${colName} missing in Supabase (skipping):`, error.message);
+            } else {
+              console.error(`[Server Cache Sync] Error fetching ${colName}:`, error.message);
+            }
           } else {
+            console.log(`[Server Cache Sync] Fetched ${colName}: ${data?.length || 0} rows`);
             supabaseTableStatus[colName] = 'online';
             results[colName] = data || [];
             successCount++;
