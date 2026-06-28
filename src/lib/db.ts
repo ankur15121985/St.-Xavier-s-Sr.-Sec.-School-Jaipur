@@ -1001,7 +1001,9 @@ export async function fetchServerData(force: boolean = false) {
     }
 
     // COMPARE TIMESTAMPS
-    if (!force && localContentUpdatedAt && localContentUpdatedAt === remoteContentUpdatedAt) {
+    const isLocalDataPopulated = Object.values(localData).some(val => Array.isArray(val) && val.length > 0);
+    
+    if (!force && isLocalDataPopulated && localContentUpdatedAt && localContentUpdatedAt === remoteContentUpdatedAt) {
       console.log(`[Server Cache Manager] Cache VALID (${localContentUpdatedAt}). Skipping concurrent fetch of all tables.`);
       const proxied = proxySupabaseUrls(localData);
       serverDataCache = proxied;
@@ -1009,7 +1011,7 @@ export async function fetchServerData(force: boolean = false) {
       return proxied;
     }
 
-    console.log(`[Server Cache Manager] Cache STALE or FORCE. Local: ${localContentUpdatedAt}, Remote: ${remoteContentUpdatedAt}. Syncing fresh tables...`);
+    console.log(`[Server Cache Manager] Cache STALE, EMPTY, or FORCE. Local: ${localContentUpdatedAt}, Remote: ${remoteContentUpdatedAt}, LocalPopulated: ${isLocalDataPopulated}. Syncing fresh tables...`);
     if (!isUsingServiceRole) {
       console.warn('[Server Cache Manager] WARNING: Syncing without SUPABASE_SERVICE_ROLE_KEY. Private tables (messages, etc) will be skipped to prevent local data wipe.');
     }

@@ -58,6 +58,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [detailedApp, setDetailedApp] = useState<CareerApplication | null>(null);
   const [showSchemaError, setShowSchemaError] = useState(false);
+  const [supabaseStatus, setSupabaseStatus] = useState<any>(null);
+  const [isDebugOpen, setIsDebugOpen] = useState(false);
 
   const isUploading = !!uploadingPath;
 
@@ -1675,6 +1677,13 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                    <Database size={14} /> Copy Storage Fix SQL
                  </button>
                  <button 
+                   onClick={checkSupabaseHealth}
+                   className="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-2 outline-none font-bold bg-amber-500 text-white hover:bg-amber-600 hover:scale-105 active:scale-95"
+                 >
+                   <Activity size={14} className={uploadingPath === 'debug' ? 'animate-spin' : ''} />
+                   Supabase Health Audit
+                 </button>
+                 <button 
                    onClick={handlePullAll} 
                    disabled={uploadingPath === 'global-pull'}
                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-2 outline-none font-bold ${
@@ -3129,12 +3138,29 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     setUploadingPath('global-pull');
     setSavePending(true);
     try {
+      showToast('Contacting Server to pull latest cloud data...');
       const freshData = await supabaseService.fetchAllData(true);
       if (freshData && Object.keys(freshData).length > 0) {
-        setData(prev => ({ ...prev, ...freshData }));
-        showToast('All data pulled and synchronized from Cloud Database');
+        setData(prev => {
+          const merged = { ...prev };
+          Object.keys(freshData).forEach(key => {
+            const k = key as keyof AppData;
+            const val = freshData[k];
+            if (val) {
+              if (Array.isArray(val)) {
+                if (val.length > 0) merged[k] = val as any;
+              } else if (typeof val === 'object') {
+                merged[k] = { ...merged[k], ...val } as any;
+              } else {
+                merged[k] = val as any;
+              }
+            }
+          });
+          return merged;
+        });
+        showToast('All data successfully pulled from Cloud Database');
       } else {
-        throw new Error('No data returned from Cloud');
+        throw new Error('No data found in Cloud Database. Ensure your Supabase tables are initialized and populated.');
       }
     } catch (err: any) {
       console.error('Pull failed:', err);
@@ -3142,6 +3168,21 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     } finally {
       setUploadingPath(null);
       setSavePending(false);
+    }
+  };
+
+  const checkSupabaseHealth = async () => {
+    setUploadingPath('debug');
+    try {
+      const res = await fetch('/api/connectivity-test');
+      const health = await res.json();
+      setSupabaseStatus(health);
+      setIsDebugOpen(true);
+      showToast('Supabase connection audit complete');
+    } catch (err: any) {
+      showToast('Failed to run connectivity audit', 'error');
+    } finally {
+      setUploadingPath(null);
     }
   };
 
@@ -3496,6 +3537,89 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     <div className="min-h-screen bg-school-paper flex font-sans relative pt-10 md:pt-0">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
+        {isDebugOpen && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsDebugOpen(false)}
+              className="absolute inset-0 bg-school-navy/80 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+            >
+              <div className="p-8 bg-school-navy text-white flex justify-between items-center">
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter">Supabase Health Audit</h3>
+                  <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Real-time Cloud Database Connectivity Check</p>
+                </div>
+                <button onClick={() => setIsDebugOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-8 space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Connection Status</p>
+                    <p className={`text-xl font-black ${supabaseStatus?.connected ? 'text-green-500' : 'text-red-500'}`}>
+                      {supabaseStatus?.connected ? 'ONLINE' : 'OFFLINE'}
+                    </p>
+                  </div>
+                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Service Role Key</p>
+                    <p className={`text-xl font-black ${supabaseStatus?.hasServiceRole ? 'text-green-500' : 'text-amber-500'}`}>
+                      {supabaseStatus?.hasServiceRole ? 'ACTIVE' : 'MISSING'}
+                    </p>
+                  </div>
+                </div>
+
+                {supabaseStatus?.tables && (
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Table Inventory & Row Counts</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {Object.entries(supabaseStatus.tables).map(([name, status]: [string, any]) => (
+                        <div key={name} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl">
+                          <span className="text-[11px] font-bold text-slate-600 truncate mr-2">{name}</span>
+                          {status.error ? (
+                            <span className="text-[9px] font-black text-red-500 bg-red-50 px-2 py-1 rounded-md uppercase">Missing</span>
+                          ) : (
+                            <span className="text-[11px] font-black text-school-navy bg-slate-100 px-2 py-1 rounded-md">
+                              {status.count} rows
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {supabaseStatus?.error && (
+                  <div className="p-6 bg-red-50 rounded-2xl border border-red-100 text-red-600">
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-2">Audit Exception</p>
+                    <p className="text-sm font-medium leading-relaxed">{supabaseStatus.error}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-8 bg-slate-50 border-t border-slate-100 flex gap-4">
+                <button 
+                  onClick={() => {
+                    setIsDebugOpen(false);
+                    handlePullAll();
+                  }}
+                  className="flex-1 py-4 bg-school-navy text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  Force Cloud Sync Now
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
         {isSidebarOpen && (
           <motion.div 
             initial={{ opacity: 0 }}
