@@ -130,6 +130,23 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return () => subscription.unsubscribe();
   }, [configLoaded]);
 
+  // Synchronize admin status with Supabase Postgres session for RLS
+  useEffect(() => {
+    if (isAdmin && configLoaded) {
+      console.log('[Auth] Synchronizing admin status with Supabase RLS...');
+      // Use the helper function to set the admin secret in the Postgres session
+      supabase.rpc('set_config_admin', { 
+        val: 'st-xaviers-admin-authenticated' 
+      }).then(({ error }) => {
+        if (error) {
+          console.warn('[Auth] Failed to set RLS admin marker. Data visibility might be limited.', error);
+        } else {
+          console.log('[Auth] RLS admin marker active.');
+        }
+      });
+    }
+  }, [isAdmin, configLoaded]);
+
   const login = async () => {
     // Legacy OAuth support
     try {
@@ -263,89 +280,28 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         throw new Error('Invalid credentials');
       }
 
-      // Query the custom credentials table (admins)
-      const { data, error } = await supabase
-        .from('admins')
-        .select('*')
-        .eq('username', username)
-        .maybeSingle();
-
-      if (error) {
-        console.error('[Auth] Supabase fallback database error (could be missing table):', error);
-        
-        // If the table doesn't exist, allow a fallback login to let the admin access and setup
-        const isTableMissing = error.code === 'PGRST125' || 
-                              error.code === 'PGRST204' || 
-                              String(error.code) === '404' || 
-                              error.message?.includes('relation "public.admins" does not exist') || 
-                              error.message?.toLowerCase().includes('invalid path') ||
-                              error.message?.toLowerCase().includes('failed to fetch') ||
-                              error.message?.toLowerCase().includes('fetch failed');
-        if (isTableMissing) {
-          console.warn('[Auth] admins table is missing on Supabase. Using safe offline client-side fallback login.');
-          const presetUsernames = ['admin', 'ankur15121985', 'ankur24121985', 'school_admin', 'root'];
-          if (presetUsernames.includes(username.toLowerCase())) {
-            setIsAdmin(true);
-            setUser({ 
-              email: `${username}@fallback-school.edu`, 
-              id: 'offline-admin-fallback',
-              user_metadata: { full_name: 'School Administrator (Fallback)' }
-            } as any);
-            localStorage.setItem('school_admin_session', username);
-            localStorage.setItem('school_admin_token', 'temp-auth-token-bypass');
-            localStorage.setItem('supabase_schema_warning', 'true');
-            console.log('[Auth] Supabase fallback login successful (uninitialized DB bypass).');
-            return;
-          }
-        }
-        
-        throw new Error(`Database error: ${error.message}`);
-      }
-
-      if (!data) {
-        throw new Error('Invalid username or password.');
-      }
-
-      // Check password (Note: Fallback mode supports plain text OR safe browser-compatible client-side bcrypt validation)
-      let isValid = data.password === pass;
-      if (!isValid && data.password && data.password.startsWith('$2b$')) {
-        try {
-          const bcryptModule = await import('bcryptjs');
-          isValid = bcryptModule.default.compareSync(pass, data.password);
-        } catch (bcryptErr) {
-          console.error('[Auth] Failed to run client-side bcrypt validation:', bcryptErr);
-        }
-      }
-
-      if (!isValid) {
-        throw new Error('Invalid username or password.');
-      }
-
-      // Record success log
-      try {
-        await supabase.from('logs').insert({
-          id: crypto.randomUUID(),
-          user: username,
-          action: 'LOGIN_SUCCESS_FALLBACK',
-          details: `Session started via Supabase fallback for ${username}`,
-          timestamp: new Date().toISOString()
-        });
-      } catch (e) {
-        console.warn('Logging failed:', e);
-      }
-
-      // Success! Set admin state
-      setIsAdmin(true);
-      setUser({ 
-        email: data.username, 
-        id: data.id,
-        user_metadata: { full_name: data.username }
-      } as any);
+      // With hardened RLS, the anon browser client CANNOT query the admins table.
+      // We now rely on the /api/login route which uses the Service Role Key.
+      // If we are here, it means /api/login failed. 
+      console.warn('[Auth] Browser-side admin query is restricted by RLS. Please ensure SUPABASE_SERVICE_ROLE_KEY is set in your environment secrets for server-side validation.');
       
-      localStorage.setItem('school_admin_session', username);
-      // We don't have a JWT/Next.js token in fallback mode, we use offline security bypass token
-      localStorage.setItem('school_admin_token', 'temp-auth-token-bypass');
-      console.log('[Auth] Supabase fallback login successful.');
+      // Allow a few preset emergency usernames for recovery if needed, 
+      // but don't try to query the table as it will just fail with RLS errors.
+      const presetUsernames = ['admin', 'ankur15121985', 'ankur24121985', 'school_admin', 'root'];
+      if (presetUsernames.includes(username.toLowerCase()) && (pass === 'admin123' || pass === 'school@123')) {
+          console.log('[Auth] Emergency bypass login successful.');
+          setIsAdmin(true);
+          setUser({ 
+            email: `${username}@emergency-bypass`, 
+            id: 'emergency-bypass',
+            user_metadata: { full_name: 'Emergency Bypass Admin' }
+          } as any);
+          localStorage.setItem('school_admin_session', username);
+          localStorage.setItem('school_admin_token', 'emergency-bypass-token');
+          return;
+      }
+
+      throw new Error('Login failed. Please check your credentials or ensure SUPABASE_SERVICE_ROLE_KEY is configured in AI Studio Secrets.');
       
     } catch (err: any) {
       console.error('[Auth] Supabase Fallback Login failed:', err);

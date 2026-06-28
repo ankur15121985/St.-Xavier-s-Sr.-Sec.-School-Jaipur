@@ -12,7 +12,6 @@ import { LanguageSelector } from '../ui/LanguageSelector';
 import dynamic from 'next/dynamic';
 
 const NavThreeBackground = dynamic(() => import('../ui/NavThreeBackground').then(m => m.NavThreeBackground), { ssr: false });
-import IndianFlag from '../ui/IndianFlag';
 import CanvasFooterEffect from '../ui/CanvasFooterEffect';
 import SidebarLinks from './SidebarLinks';
 
@@ -263,7 +262,6 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 
                 <div className="flex items-center gap-2 md:gap-4 lg:gap-6">
                    <div className="hidden lg:flex items-center gap-6">
-                      {data.settings?.flagEnabled && <IndianFlag src={data.settings?.flagImage} className={isScrolled ? 'w-8 h-5' : 'w-14 h-9'} />}
                       <div className="flex items-center gap-2">
                         <span className={`font-black uppercase tracking-widest text-[9px] hidden xl:block ${isScrolled ? 'text-school-navy/30' : 'text-school-navy/60'}`}>Language</span>
                         <LanguageSelector isScrolled={isScrolled} />
@@ -390,7 +388,6 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               <div className="flex items-center gap-2">
                 {/* Desktop/Wide Actions */}
                 <div className="hidden lg:flex items-center gap-4">
-                  {data.settings?.flagEnabled && <IndianFlag src={data.settings?.flagImage} className={isScrolled ? 'w-8 h-5' : 'w-12 h-8'} />}
                   <div className="flex items-center gap-2">
                     <span className={`font-black uppercase tracking-widest text-[8px] hidden xl:block ${isScrolled ? 'text-school-navy/30' : 'text-school-navy/60'}`}>Translate</span>
                     <LanguageSelector isScrolled={isScrolled} />

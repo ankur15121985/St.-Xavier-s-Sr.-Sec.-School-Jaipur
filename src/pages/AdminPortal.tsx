@@ -1827,20 +1827,6 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                   </div>
                 </div>
 
-                <div className="space-y-4 pt-4 border-t border-school-navy/5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Indian Flag on Main Header</label>
-                  <div className="flex items-center gap-4">
-                    <button 
-                      onClick={() => handleUpdate('global', 'flagEnabled', !data.settings.flagEnabled, 'settings')}
-                      className={`w-20 h-10 rounded-full relative transition-all ${data.settings.flagEnabled !== false ? 'bg-emerald-500' : 'bg-school-ink/10'}`}
-                    >
-                      <motion.div animate={{ x: data.settings.flagEnabled !== false ? 44 : 4 }} className="w-8 h-8 rounded-full bg-white shadow-lg absolute top-1 left-0" />
-                    </button>
-                    <span className="text-xs font-black text-school-navy">
-                      {data.settings.flagEnabled !== false ? 'Show Indian Flag' : 'Hide Indian Flag'}
-                    </span>
-                  </div>
-                </div>
               </div>
               <div className="glass-surface p-10 rounded-[40px] border border-school-ink/5 space-y-10 group">
                 <h3 className="text-xl font-black text-school-navy uppercase italic tracking-tight border-b border-school-navy/5 pb-4">Global Announcement Popup</h3>
