@@ -29,14 +29,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     url: cleanUrl ? `${cleanUrl.slice(0, 30)}...` : 'MISSING',
     detectedKeys: {
       VITE_URL: !!process.env.VITE_SUPABASE_URL,
-      SUPABASE_URL: !!process.env.SUPABASE_URL,
       NEXT_PUBLIC_URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
       SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-      RAW_SERVICE_KEY: !!process.env.SERVICE_ROLE_KEY,
       SUPABASE_SERVICE_KEY: !!process.env.SUPABASE_SERVICE_KEY,
-      ANON_KEY: !!process.env.SUPABASE_ANON_KEY,
+      SERVICE_ROLE: !!process.env.SERVICE_ROLE_KEY,
+      VITE_SERVICE_ROLE: !!process.env.VITE_SUPABASE_SERVICE_ROLE_KEY,
       VITE_ANON: !!process.env.VITE_SUPABASE_ANON_KEY,
+      ANON_KEY: !!process.env.SUPABASE_ANON_KEY,
       JWT_SECRET: !!process.env.JWT_SECRET
+    },
+    hints: {
+      requiredServiceRole: 'SUPABASE_SERVICE_ROLE_KEY',
+      requiredJwtSecret: 'JWT_SECRET'
     },
     tables: {}
   };

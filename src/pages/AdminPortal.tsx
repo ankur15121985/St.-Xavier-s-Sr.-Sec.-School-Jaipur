@@ -3603,7 +3603,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Environment Discovery</p>
-                    <span className="text-[9px] font-bold text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded">v2.1</span>
+                    <span className="text-[9px] font-bold text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded">v2.2</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {supabaseStatus?.detectedKeys ? Object.entries(supabaseStatus.detectedKeys).map(([key, found]) => (
@@ -3615,11 +3615,56 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                       <p className="text-[10px] text-slate-400 italic">No keys detected in environment.</p>
                     )}
                   </div>
+                  
+                  {supabaseStatus?.hints && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                      {!supabaseStatus.detectedKeys?.SERVICE_ROLE_KEY && (
+                        <div className="p-2 bg-white rounded-lg border border-slate-100 flex items-center justify-between">
+                          <span className="text-[9px] font-mono text-slate-500">Add to Secrets:</span>
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText('SUPABASE_SERVICE_ROLE_KEY');
+                              showToast('Key name copied to clipboard');
+                            }}
+                            className="text-[9px] font-black text-school-navy bg-school-navy/5 px-2 py-1 rounded hover:bg-school-navy/10 transition-colors"
+                          >
+                            COPY NAME
+                          </button>
+                        </div>
+                      )}
+                      {!supabaseStatus.detectedKeys?.JWT_SECRET && (
+                        <div className="p-2 bg-white rounded-lg border border-slate-100 flex items-center justify-between">
+                          <span className="text-[9px] font-mono text-slate-500">Add to Secrets:</span>
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText('JWT_SECRET');
+                              showToast('Key name copied to clipboard');
+                            }}
+                            className="text-[9px] font-black text-school-navy bg-school-navy/5 px-2 py-1 rounded hover:bg-school-navy/10 transition-colors"
+                          >
+                            COPY NAME
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {supabaseStatus?.url && (
                     <p className="text-[9px] font-mono text-slate-400 break-all bg-white/50 p-2 rounded-lg border border-slate-100">
                       ENDPOINT: {supabaseStatus.url}
                     </p>
                   )}
+
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem('school_admin_token');
+                      localStorage.removeItem('school_admin_user');
+                      window.location.reload();
+                    }}
+                    className="w-full py-2 bg-red-50 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-colors border border-red-100"
+                  >
+                    Force Logout & Reset Session
+                  </button>
                 </div>
 
                 {!supabaseStatus?.hasServiceRole && (
@@ -3637,21 +3682,44 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 )}
 
                 {supabaseStatus?.tables && (
-                  <div className="space-y-3">
-                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Table Inventory & Row Counts</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {Object.entries(supabaseStatus.tables).map(([name, status]: [string, any]) => (
-                        <div key={name} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl">
-                          <span className="text-[11px] font-bold text-slate-600 truncate mr-2">{name}</span>
-                          {status.error ? (
-                            <span className="text-[9px] font-black text-red-500 bg-red-50 px-2 py-1 rounded-md uppercase">Missing</span>
-                          ) : (
-                            <span className="text-[11px] font-black text-school-navy bg-slate-100 px-2 py-1 rounded-md">
-                              {status.count} rows
-                            </span>
-                          )}
-                        </div>
-                      ))}
+                  <div className="space-y-4">
+                    <div className="p-4 bg-school-gold/5 rounded-2xl border border-school-gold/20 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[10px] font-black uppercase text-school-gold tracking-widest">Database Permission Fixer</p>
+                        <ShieldCheck size={14} className="text-school-gold" />
+                      </div>
+                      <p className="text-[10px] text-school-gold font-medium leading-normal">
+                        If tables show 0 rows but you have data, your Supabase RLS policies might be blocking the connection.
+                      </p>
+                      <button 
+                        onClick={() => {
+                          const tables = Object.keys(supabaseStatus.tables);
+                          const sql = tables.map(t => `ALTER TABLE "${t}" DISABLE ROW LEVEL SECURITY;\nGRANT ALL ON TABLE "${t}" TO anon, authenticated, service_role, postgres;`).join('\n');
+                          navigator.clipboard.writeText(sql);
+                          showToast('SQL Fix Script copied! Paste into Supabase SQL Editor.');
+                        }}
+                        className="w-full py-2 bg-school-gold text-school-navy rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-school-gold/80 transition-colors shadow-sm"
+                      >
+                        Copy SQL Fix Script
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Table Inventory & Row Counts</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {Object.entries(supabaseStatus.tables).map(([name, status]: [string, any]) => (
+                          <div key={name} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl">
+                            <span className="text-[11px] font-bold text-slate-600 truncate mr-2">{name}</span>
+                            {status.error ? (
+                              <span className="text-[9px] font-black text-red-500 bg-red-50 px-2 py-1 rounded-md uppercase">Missing</span>
+                            ) : (
+                              <span className="text-[11px] font-black text-school-navy bg-slate-100 px-2 py-1 rounded-md">
+                                {status.count} rows
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
