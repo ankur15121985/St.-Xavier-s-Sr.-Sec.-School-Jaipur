@@ -942,32 +942,34 @@ export async function fetchServerData(force: boolean = false) {
     return serverDataCache;
   }
 
-  const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  const ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-    const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
-    const SUPABASE_KEY = SERVICE_KEY || ANON_KEY;
-    const isUsingServiceRole = !!SERVICE_KEY;
+  const SUPABASE_URL = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
+  const ANON_KEY = (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim();
+  const SERVICE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '').trim();
+  const SUPABASE_KEY = SERVICE_KEY || ANON_KEY;
+  const isUsingServiceRole = !!SERVICE_KEY;
 
-    console.log(`[Server Cache Manager] Sync attempt. Force: ${force}, ServiceRole: ${isUsingServiceRole}`);
+  console.log(`[Server Cache Manager] Sync attempt. Force: ${force}, ServiceRole: ${isUsingServiceRole}`);
 
-    // 1. Fetch from local SQLite first immediately
-    const localData = getLocalSQLiteData();
+  // 1. Fetch from local SQLite first immediately
+  const localData = getLocalSQLiteData();
 
-    if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes('placeholder-project-id')) {
-      console.log('[Server Cache Manager] Supabase not configured. Using local data only.');
-      const proxied = proxySupabaseUrls(localData);
-      serverDataCache = proxied;
-      serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
-      return proxied;
-    }
+  if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes('placeholder-project-id')) {
+    console.log('[Server Cache Manager] Supabase not configured. Using local data only.');
+    const proxied = proxySupabaseUrls(localData);
+    serverDataCache = proxied;
+    serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
+    return proxied;
+  }
 
-    // 2. Perform SINGLE-ROW query to Supabase to check content version timestamp
-    let remoteContentUpdatedAt = 'FORCE_SYNC';
-    let localContentUpdatedAt: string | null = null;
-    
-    try {
-      const cleanUrl = SUPABASE_URL.trim().replace('/rest/v1/', '').replace('/rest/v1', '').replace(/\/$/, '');
-      const supabaseServer = createClient(cleanUrl, SUPABASE_KEY);
+  // 2. Perform SINGLE-ROW query to Supabase to check content version timestamp
+  let remoteContentUpdatedAt = 'FORCE_SYNC';
+  let localContentUpdatedAt: string | null = null;
+  
+  try {
+    const cleanUrl = SUPABASE_URL
+      .replace(/\/rest\/v1\/?$/, '') 
+      .replace(/\/$/, '');
+    const supabaseServer = createClient(cleanUrl, SUPABASE_KEY);
 
       const db = getDatabase();
       try {

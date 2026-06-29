@@ -3143,7 +3143,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       }
 
       if (!health.hasServiceRole) {
-        showToast('Warning: Service Role Key missing. Inquiries will be skipped.', 'warning');
+        showToast('Warning: Service Role Key missing. Inquiries will be skipped.', 'error');
       }
 
       showToast('Step 2: Pulling Latest Cloud Data...');
@@ -3596,6 +3596,20 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                     </p>
                   </div>
                 </div>
+
+                {supabaseStatus?.detectedKeys && (
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Environment Discovery</p>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(supabaseStatus.detectedKeys).map(([key, found]) => (
+                        <div key={key} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${found ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-500'}`}>
+                          <div className={`w-1.5 h-1.5 rounded-full ${found ? 'bg-green-500' : 'bg-slate-400'}`} />
+                          {key}: {found ? 'FOUND' : 'NULL'}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {!supabaseStatus?.hasServiceRole && (
                   <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl flex gap-3">
