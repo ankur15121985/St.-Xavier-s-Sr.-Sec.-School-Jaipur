@@ -1033,15 +1033,11 @@ export async function fetchServerData(force: boolean = false) {
     const fetchTasks = [
       ...collections.map(async (colName) => {
         try {
-          // PROTECTION: Skip private tables if not using service role to avoid RLS empty-result wipe
-          if (privateTables.includes(colName) && !isUsingServiceRole) {
-            supabaseTableStatus[colName] = 'skipped';
-            results[colName] = localData[colName] || [];
-            return;
-          }
-
+          // PROTECTION: If not using service role, we still attempt fetch. 
+          // We only skip the local wipe if we get 0 rows and suspect RLS is blocking us.
           console.log(`[Server Cache Sync] Fetching ${colName}...`);
           const { data, error } = await supabaseServer.from(colName).select('*');
+          
           if (error) {
             supabaseTableStatus[colName] = 'offline';
             results[colName] = localData[colName] || [];
@@ -1052,7 +1048,22 @@ export async function fetchServerData(force: boolean = false) {
               console.error(`[Server Cache Sync] Error fetching ${colName}:`, error.message);
             }
           } else {
-            console.log(`[Server Cache Sync] Fetched ${colName}: ${data?.length || 0} rows`);
+            const rowCount = data?.length || 0;
+            console.log(`[Server Cache Sync] Fetched ${colName}: ${rowCount} rows`);
+            
+            // If we are NOT using service role and got 0 rows for a private table, 
+            // it might be RLS blocking us. In this case, we prefer to KEEP local data 
+            // instead of wiping it, UNLESS local data is already empty.
+            const isPossiblyBlocked = !isUsingServiceRole && rowCount === 0 && privateTables.includes(colName);
+            const hasLocalData = (localData[colName]?.length || 0) > 0;
+
+            if (isPossiblyBlocked && hasLocalData) {
+              console.warn(`[Server Cache Sync] Potential RLS block for ${colName} (0 rows fetched without Service Role). Preserving local cache.`);
+              supabaseTableStatus[colName] = 'online'; // Mark as online but we didn't update
+              results[colName] = localData[colName];
+              return;
+            }
+
             supabaseTableStatus[colName] = 'online';
             results[colName] = data || [];
             successCount++;
@@ -1061,14 +1072,11 @@ export async function fetchServerData(force: boolean = false) {
             const sqliteTable = colName === 'navigation_menu' ? 'menu' : colName;
             try {
               if (Array.isArray(data)) {
-                // Special case: if we got exactly 0 rows for a private table, and we ARE using service role, 
-                // we should probably still allow the wipe because it's authoritative. 
-                // But if it's 0 rows and we are NOT using service role, we already skipped it above.
-
                 const columnsInfo = db.pragma(`table_info("${sqliteTable}")`) as any[];
                 if (columnsInfo && columnsInfo.length > 0) {
                   const columns = columnsInfo.map(c => c.name);
                   
+                  // Clear local table before sync (standard behavior)
                   if (sqliteTable !== 'logs' && sqliteTable !== 'visitor_ips') {
                     db.prepare(`DELETE FROM "${sqliteTable}"`).run();
                   }
