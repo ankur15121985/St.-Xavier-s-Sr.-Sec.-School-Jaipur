@@ -52,7 +52,7 @@ const ContactPage = dynamic(() => import('../src/pages/ContactPage'), { loading:
 const AdminPortal = dynamic(() => import('../src/pages/AdminPortal'), { loading: ElegantLoader });
 const SitemapPage = dynamic(() => import('../src/pages/SitemapPage'), { loading: ElegantLoader });
 
-export default function CatchAllPage() {
+export default function CatchAllPage({ googleMapsKey }: { googleMapsKey?: string }) {
   const router = useRouter();
   const { data, setData } = useAppData();
   
@@ -175,7 +175,7 @@ export default function CatchAllPage() {
       component = <ExplorePage data={data} />;
       break;
     case '/contact':
-      component = <ContactPage data={data} />;
+      component = <ContactPage data={data} googleMapsKey={googleMapsKey} />;
       break;
     case '/admin':
       component = <AdminPortal data={data} setData={setData} />;
@@ -220,6 +220,9 @@ export async function getServerSideProps(context: any) {
   try {
     const initialData = await fetchServerData();
     const settings = initialData?.settings || {};
+    
+    // Inject Maps Key from environment (Secrets)
+    const googleMapsKey = process.env.GOOGLE_MAPS_PLATFORM_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_PLATFORM_KEY || null;
 
     // 1. Google Search Console dynamic HTML file verification
     // Auto-responds to any google[hash].html with the corresponding verification proof
@@ -261,6 +264,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         initialData: serialized,
+        googleMapsKey,
       },
     };
   } catch (err: any) {

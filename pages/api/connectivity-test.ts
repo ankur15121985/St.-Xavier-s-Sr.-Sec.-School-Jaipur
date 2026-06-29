@@ -36,7 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       VITE_SERVICE_ROLE: !!process.env.VITE_SUPABASE_SERVICE_ROLE_KEY,
       VITE_ANON: !!process.env.VITE_SUPABASE_ANON_KEY,
       ANON_KEY: !!process.env.SUPABASE_ANON_KEY,
-      JWT_SECRET: !!process.env.JWT_SECRET
+      JWT_SECRET: !!process.env.JWT_SECRET,
+      GOOGLE_MAPS: !!(process.env.GOOGLE_MAPS_PLATFORM_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_PLATFORM_KEY || process.env.VITE_GOOGLE_MAPS_PLATFORM_KEY)
     },
     hints: {
       requiredServiceRole: 'SUPABASE_SERVICE_ROLE_KEY',

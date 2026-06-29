@@ -6,7 +6,7 @@ import Layout from '../components/layout/Layout';
 import { AppData, ContactMessage } from '../types';
 import { supabaseService } from '../lib/supabaseService';
 
-const ContactPage = ({ data }: { data: AppData }) => {
+const ContactPage = ({ data, googleMapsKey }: { data: AppData, googleMapsKey?: string }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,6 +15,7 @@ const ContactPage = ({ data }: { data: AppData }) => {
   });
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [activeFaq, setActiveFaq] = useState<string | null>(data.faqs?.[0]?.id || null);
+  const [useLegacyMap, setUseLegacyMap] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +43,14 @@ const ContactPage = ({ data }: { data: AppData }) => {
 
   const mapQuery = data.content.schoolAddressQuery || "St. Xavier's Senior Secondary School, Bhagwan Das Rd, C Scheme, Jaipur, Rajasthan 302001";
   const encodedQuery = encodeURIComponent(mapQuery);
+
+  // Determine which map source to use. 
+  // Prefer official Embed API if a key is provided, fallback to legacy if not.
+  const GOOGLE_MAPS_KEY = googleMapsKey || process.env.NEXT_PUBLIC_GOOGLE_MAPS_PLATFORM_KEY || process.env.VITE_GOOGLE_MAPS_PLATFORM_KEY;
+  
+  const mapUrl = (GOOGLE_MAPS_KEY && !useLegacyMap)
+    ? `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_KEY}&q=${encodedQuery}`
+    : `https://maps.google.com/maps?q=${encodedQuery}&t=&z=14&ie=UTF8&iwloc=B&output=embed`;
 
   return (
     <Layout data={data}>
@@ -375,7 +384,7 @@ const ContactPage = ({ data }: { data: AppData }) => {
                {/* Embed Map Logic */}
                <iframe 
                  title="School Location Map"
-                 src={`https://maps.google.com/maps?q=${encodedQuery}&t=&z=14&ie=UTF8&iwloc=B&output=embed`} 
+                 src={mapUrl} 
                  width="100%" 
                  height="100%" 
                  style={{ border: 0 }} 
@@ -385,6 +394,12 @@ const ContactPage = ({ data }: { data: AppData }) => {
                />
                
                <div className="absolute bottom-6 right-6 flex gap-3">
+                 <button 
+                   onClick={() => setUseLegacyMap(!useLegacyMap)}
+                   className={`px-4 py-2 backdrop-blur shadow-lg rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${useLegacyMap ? 'bg-school-gold text-school-navy border-school-gold' : 'bg-white/90 text-school-ink border-school-ink/5'}`}
+                 >
+                   {useLegacyMap ? 'Using Basic Map' : 'Troubleshoot Map'}
+                 </button>
                  <div className="px-4 py-2 bg-white/90 backdrop-blur shadow-lg rounded-full text-[10px] font-black uppercase tracking-widest border border-school-ink/5">
                    Interactive Campus Map
                  </div>

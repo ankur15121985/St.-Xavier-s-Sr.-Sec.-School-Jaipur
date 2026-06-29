@@ -3702,6 +3702,25 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                       >
                         Copy SQL Fix Script
                       </button>
+
+                      <button 
+                        onClick={async () => {
+                          try {
+                            const res = await fetch('/api/data?force=true');
+                            if (res.ok) {
+                              showToast('Fresh Sync Completed');
+                              setTimeout(() => window.location.reload(), 1000);
+                            } else {
+                              showToast('Sync Failed', 'error');
+                            }
+                          } catch (e) {
+                            showToast('Sync Error', 'error');
+                          }
+                        }}
+                        className="w-full py-2 bg-school-navy text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-school-navy/80 transition-colors shadow-sm"
+                      >
+                        Force Database Re-Sync
+                      </button>
                     </div>
 
                     <div className="space-y-3">
