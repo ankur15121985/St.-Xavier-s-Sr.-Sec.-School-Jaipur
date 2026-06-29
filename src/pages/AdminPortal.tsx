@@ -5,7 +5,7 @@ import {
   Bell, Calendar, Users2, ImageIcon, CreditCard, Link as LinkIcon, Award, Menu,
   Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, RefreshCw, DownloadCloud,
   Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink,
-  Type, Palette, Bold, Italic, Briefcase, ShieldCheck, Activity, Send, Clock, Database, Download,
+  Type, Palette, Bold, Italic, Briefcase, ShieldCheck, ShieldAlert, Activity, Send, Clock, Database, Download,
   Phone, MapPin
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
@@ -1677,23 +1677,16 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                    <Database size={14} /> Copy Storage Fix SQL
                  </button>
                  <button 
-                   onClick={checkSupabaseHealth}
-                   className="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-2 outline-none font-bold bg-amber-500 text-white hover:bg-amber-600 hover:scale-105 active:scale-95"
-                 >
-                   <Activity size={14} className={uploadingPath === 'debug' ? 'animate-spin' : ''} />
-                   Supabase Health Audit
-                 </button>
-                 <button 
                    onClick={handlePullAll} 
-                   disabled={uploadingPath === 'global-pull'}
+                   disabled={uploadingPath === 'global-pull' || uploadingPath === 'debug'}
                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-2 outline-none font-bold ${
-                     uploadingPath === 'global-pull'
+                     uploadingPath === 'global-pull' || uploadingPath === 'debug'
                        ? 'bg-white/10 text-white/40 cursor-not-allowed'
                        : 'bg-indigo-500 text-white hover:bg-indigo-600 hover:scale-105 active:scale-95'
                    }`}
                  >
-                   <DownloadCloud size={14} className={uploadingPath === 'global-pull' ? 'animate-spin' : ''} />
-                   {uploadingPath === 'global-pull' ? 'Pulling...' : 'Pull All from Cloud'}
+                   <DownloadCloud size={14} className={uploadingPath === 'global-pull' || uploadingPath === 'debug' ? 'animate-spin' : ''} />
+                   {uploadingPath === 'global-pull' ? 'Syncing...' : 'Sync & Audit Cloud Data'}
                  </button>
                  <button 
                    onClick={handleSaveAll} 
@@ -3135,11 +3128,30 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
   };
 
   const handlePullAll = async () => {
+    if (uploadingPath) return;
     setUploadingPath('global-pull');
     setSavePending(true);
     try {
-      showToast('Contacting Server to pull latest cloud data...');
+      showToast('Step 1: Auditing Cloud Connectivity...');
+      const healthRes = await fetch('/api/connectivity-test');
+      const health = await healthRes.json();
+      setSupabaseStatus(health);
+
+      if (!health.connected) {
+        setIsDebugOpen(true);
+        throw new Error(`Cloud connection failed: ${health.error || 'Unknown error'}`);
+      }
+
+      if (!health.hasServiceRole) {
+        showToast('Warning: Service Role Key missing. Inquiries will be skipped.', 'warning');
+      }
+
+      showToast('Step 2: Pulling Latest Cloud Data...');
       const freshData = await supabaseService.fetchAllData(true);
+      
+      const remoteMessagesCount = freshData?.messages?.length || 0;
+      const remoteApplicationsCount = freshData?.career_applications?.length || 0;
+      
       if (freshData && Object.keys(freshData).length > 0) {
         setData(prev => {
           const merged = { ...prev };
@@ -3158,13 +3170,20 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
           });
           return merged;
         });
-        showToast('All data successfully pulled from Cloud Database');
+        
+        showToast(health.hasServiceRole ? 'Full Cloud Sync Successful' : 'Sync completed (Limited visibility)');
+        
+        // Auto-open audit if critical tables are empty and service role is missing
+        if (!health.hasServiceRole && (activeSection === 'messages' || activeSection === 'career_applications')) {
+          setIsDebugOpen(true);
+        }
       } else {
-        throw new Error('No data found in Cloud Database. Ensure your Supabase tables are initialized and populated.');
+        setIsDebugOpen(true);
+        throw new Error('No data found in Cloud Database.');
       }
     } catch (err: any) {
       console.error('Pull failed:', err);
-      showToast(`Pull failed: ${err.message}`, 'error');
+      showToast(err.message || 'Synchronization Failed', 'error');
     } finally {
       setUploadingPath(null);
       setSavePending(false);
@@ -3577,6 +3596,20 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                     </p>
                   </div>
                 </div>
+
+                {!supabaseStatus?.hasServiceRole && (
+                  <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl flex gap-3">
+                    <div className="p-2 bg-amber-100 rounded-lg h-fit">
+                      <ShieldAlert size={18} className="text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-black uppercase text-amber-900 tracking-tight">Privacy Limitation Detected</p>
+                      <p className="text-[10px] text-amber-700 font-medium leading-normal mt-1">
+                        Without the <span className="font-bold">SUPABASE_SERVICE_ROLE_KEY</span>, inquiries and applications are hidden by Cloud security policies. Add the key in AI Studio Secrets to sync private data.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {supabaseStatus?.tables && (
                   <div className="space-y-3">

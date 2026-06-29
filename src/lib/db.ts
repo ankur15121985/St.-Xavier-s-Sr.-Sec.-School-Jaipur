@@ -944,74 +944,73 @@ export async function fetchServerData(force: boolean = false) {
 
   const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-  const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
-  const SUPABASE_KEY = SERVICE_KEY || ANON_KEY;
-  const isUsingServiceRole = !!SERVICE_KEY;
+    const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
+    const SUPABASE_KEY = SERVICE_KEY || ANON_KEY;
+    const isUsingServiceRole = !!SERVICE_KEY;
 
-  console.log(`[Server Cache Manager] Sync attempt. Force: ${force}, ServiceRole: ${isUsingServiceRole}`);
+    console.log(`[Server Cache Manager] Sync attempt. Force: ${force}, ServiceRole: ${isUsingServiceRole}`);
 
-  // 1. Fetch from local SQLite first immediately
-  const localData = getLocalSQLiteData();
+    // 1. Fetch from local SQLite first immediately
+    const localData = getLocalSQLiteData();
 
-  if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes('placeholder-project-id')) {
-    console.log('[Server Cache Manager] Supabase not configured. Using local data only.');
-    const proxied = proxySupabaseUrls(localData);
-    serverDataCache = proxied;
-    serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
-    return proxied;
-  }
-
-  // 2. Perform SINGLE-ROW query to Supabase to check content version timestamp
-  try {
-    const cleanUrl = SUPABASE_URL.trim().replace('/rest/v1/', '').replace('/rest/v1', '').replace(/\/$/, '');
-    const supabaseServer = createClient(cleanUrl, SUPABASE_KEY);
-
-    const db = getDatabase();
-    let localContentUpdatedAt: string | null = null;
-    try {
-      const row = db.prepare("SELECT value FROM content WHERE key = 'content_updated_at'").get() as any;
-      if (row && row.value) {
-        localContentUpdatedAt = row.value;
-      }
-    } catch (e) {}
-
-    // Check remote timestamp from content table first (highly compatible, avoids site_stats schema changes)
-    const { data: remoteContentRow, error: contentTimeErr } = await supabaseServer
-      .from('content')
-      .select('value')
-      .eq('key', 'content_updated_at')
-      .maybeSingle();
-
-    if (contentTimeErr) {
-      console.warn('[Server Cache Manager] Querying content timestamp failed, using local fallback:', contentTimeErr.message);
-      const proxied = proxySupabaseUrls(localData);
-      serverDataCache = proxied;
-      serverDataCacheExpiresAt = Date.now() + 60000; // try again in 1 minute on failure
-      return proxied;
-    }
-
-    const defaultTime = '2026-06-15T00:00:00.000Z';
-    const remoteContentUpdatedAt = remoteContentRow?.value || defaultTime;
-
-    // If remote has no timestamp yet (legacy DB), prime it asynchronously
-    if (!remoteContentRow?.value && isUsingServiceRole) {
-      try {
-        await supabaseServer.from('content').upsert({ key: 'content_updated_at', value: defaultTime });
-      } catch (e) {}
-    }
-
-    // COMPARE TIMESTAMPS
-    const isLocalDataPopulated = Object.values(localData).some(val => Array.isArray(val) && val.length > 0);
-    
-    if (!force && isLocalDataPopulated && localContentUpdatedAt && localContentUpdatedAt === remoteContentUpdatedAt) {
-      console.log(`[Server Cache Manager] Cache VALID (${localContentUpdatedAt}). Skipping concurrent fetch of all tables.`);
+    if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes('placeholder-project-id')) {
+      console.log('[Server Cache Manager] Supabase not configured. Using local data only.');
       const proxied = proxySupabaseUrls(localData);
       serverDataCache = proxied;
       serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
       return proxied;
     }
 
-    console.log(`[Server Cache Manager] Cache STALE, EMPTY, or FORCE. Local: ${localContentUpdatedAt}, Remote: ${remoteContentUpdatedAt}, LocalPopulated: ${isLocalDataPopulated}. Syncing fresh tables...`);
+    // 2. Perform SINGLE-ROW query to Supabase to check content version timestamp
+    let remoteContentUpdatedAt = 'FORCE_SYNC';
+    let localContentUpdatedAt: string | null = null;
+    
+    try {
+      const cleanUrl = SUPABASE_URL.trim().replace('/rest/v1/', '').replace('/rest/v1', '').replace(/\/$/, '');
+      const supabaseServer = createClient(cleanUrl, SUPABASE_KEY);
+
+      const db = getDatabase();
+      try {
+        const row = db.prepare("SELECT value FROM content WHERE key = 'content_updated_at'").get() as any;
+        if (row && row.value) {
+          localContentUpdatedAt = row.value;
+        }
+      } catch (e) {}
+
+      // Check remote timestamp from content table first
+      const { data: remoteContentRow, error: contentTimeErr } = await supabaseServer
+        .from('content')
+        .select('value')
+        .eq('key', 'content_updated_at')
+        .maybeSingle();
+
+      if (contentTimeErr) {
+        console.warn('[Server Cache Manager] Querying content timestamp failed (table might be missing), proceeding to check tables directly:', contentTimeErr.message);
+        remoteContentUpdatedAt = 'UNKNOWN'; 
+      } else {
+        const defaultTime = '2026-06-15T00:00:00.000Z';
+        remoteContentUpdatedAt = remoteContentRow?.value || defaultTime;
+
+        // If remote has no timestamp yet (legacy DB), prime it asynchronously
+        if (!remoteContentRow?.value && isUsingServiceRole) {
+          try {
+            await supabaseServer.from('content').upsert({ key: 'content_updated_at', value: defaultTime });
+          } catch (e) {}
+        }
+      }
+
+      // COMPARE TIMESTAMPS
+      const isLocalDataPopulated = Object.values(localData).some(val => Array.isArray(val) && val.length > 0);
+      
+      if (!force && isLocalDataPopulated && localContentUpdatedAt && remoteContentUpdatedAt !== 'UNKNOWN' && localContentUpdatedAt === remoteContentUpdatedAt) {
+        console.log(`[Server Cache Manager] Cache VALID (${localContentUpdatedAt}). Skipping concurrent fetch of all tables.`);
+        const proxied = proxySupabaseUrls(localData);
+        serverDataCache = proxied;
+        serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
+        return proxied;
+      }
+
+      console.log(`[Server Cache Manager] Cache STALE, EMPTY, or FORCE. Local: ${localContentUpdatedAt}, Remote: ${remoteContentUpdatedAt}, LocalPopulated: ${isLocalDataPopulated}. Syncing fresh tables...`);
     if (!isUsingServiceRole) {
       console.warn('[Server Cache Manager] WARNING: Syncing without SUPABASE_SERVICE_ROLE_KEY. Private tables (messages, etc) will be skipped to prevent local data wipe.');
     }

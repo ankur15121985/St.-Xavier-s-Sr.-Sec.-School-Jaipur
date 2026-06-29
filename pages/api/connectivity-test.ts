@@ -44,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         const { count, error } = await supabase.from(name).select('*', { count: 'exact', head: true });
         status.tables[name] = {
-          count: count || 0,
+          count: count !== null ? count : 0,
           error: error ? error.message : null
         };
       } catch (e: any) {
@@ -53,6 +53,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     await Promise.all(tableChecks);
+
+    // Also check for 'inquiries' as a fallback since the user mentioned it
+    try {
+      const { count, error } = await supabase.from('inquiries').select('*', { count: 'exact', head: true });
+      if (!error && count !== null) {
+        status.tables['inquiries'] = { count, error: null };
+      }
+    } catch (e) {}
 
     return res.status(200).json(status);
   } catch (err: any) {
