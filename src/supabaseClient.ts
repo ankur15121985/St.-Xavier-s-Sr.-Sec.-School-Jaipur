@@ -2,9 +2,15 @@ import { createClient } from '@supabase/supabase-js';
 
 const cleanSupabaseUrl = (url?: string): string => {
   if (!url) return '';
-  return url.trim()
-    .replace(/\/rest\/v1\/?$/, '') 
-    .replace(/\/$/, '');
+  const trimmed = url.trim();
+  try {
+    const urlObj = new URL(trimmed);
+    return `${urlObj.protocol}//${urlObj.host}`;
+  } catch (e) {
+    return trimmed
+      .replace(/\/rest\/v1\/?$/, '') 
+      .replace(/\/$/, '');
+  }
 };
 
 const getStaticEnv = (): { url?: string; key?: string } => {

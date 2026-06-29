@@ -2691,19 +2691,22 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
             } catch (logErr) {
               console.warn('Failed to save audit log:', logErr);
             }
-            showToast(`Settings (${field}) updated in Supabase`);
+            showToast(`Settings (${field}) updated successfully`);
           } catch (err: any) {
             console.error('Settings sync failed:', err);
             const msg = err.message?.toLowerCase() || '';
-            if (msg.includes('session expired') || msg.includes('403') || msg.includes('authentication required')) {
-              showToast(`Session expired. Please logout and login again.`, 'error');
+            const isAuthError = msg.includes('session expired') || msg.includes('403') || msg.includes('authentication required') || msg.includes('invalid session');
+            
+            if (isAuthError) {
+              showToast(`Session Expired: Please logout and login again to continue.`, 'error');
+              setIsDebugOpen(true); // Open audit to show them why
             } else {
-              showToast(`Settings sync failed: ${err.message?.slice(0, 50)}`, 'error');
+              showToast(`Save Error: ${err.message?.slice(0, 80)}`, 'error');
             }
           } finally {
             setSavePending(false);
           }
-        }, 1000);
+        }, 800);
 
         return { ...prev, settings: updatedSettings };
       });
@@ -3597,19 +3600,27 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                   </div>
                 </div>
 
-                {supabaseStatus?.detectedKeys && (
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                  <div className="flex items-center justify-between">
                     <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Environment Discovery</p>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(supabaseStatus.detectedKeys).map(([key, found]) => (
-                        <div key={key} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${found ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-500'}`}>
-                          <div className={`w-1.5 h-1.5 rounded-full ${found ? 'bg-green-500' : 'bg-slate-400'}`} />
-                          {key}: {found ? 'FOUND' : 'NULL'}
-                        </div>
-                      ))}
-                    </div>
+                    <span className="text-[9px] font-bold text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded">v2.1</span>
                   </div>
-                )}
+                  <div className="flex flex-wrap gap-2">
+                    {supabaseStatus?.detectedKeys ? Object.entries(supabaseStatus.detectedKeys).map(([key, found]) => (
+                      <div key={key} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${found ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-500'}`}>
+                        <div className={`w-1.5 h-1.5 rounded-full ${found ? 'bg-green-500' : 'bg-slate-400'}`} />
+                        {key}: {found ? 'FOUND' : 'NULL'}
+                      </div>
+                    )) : (
+                      <p className="text-[10px] text-slate-400 italic">No keys detected in environment.</p>
+                    )}
+                  </div>
+                  {supabaseStatus?.url && (
+                    <p className="text-[9px] font-mono text-slate-400 break-all bg-white/50 p-2 rounded-lg border border-slate-100">
+                      ENDPOINT: {supabaseStatus.url}
+                    </p>
+                  )}
+                </div>
 
                 {!supabaseStatus?.hasServiceRole && (
                   <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl flex gap-3">

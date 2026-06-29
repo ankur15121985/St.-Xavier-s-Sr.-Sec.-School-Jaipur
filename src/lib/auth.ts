@@ -30,7 +30,11 @@ export function authenticateToken(req: AuthenticatedRequest, res: NextApiRespons
     return true;
   } catch (err: any) {
     console.error(`[AUTH] Invalid token for ${req.method} ${req.url}:`, err.message);
-    res.status(403).json({ error: 'Session expired or invalid' });
+    const isExpired = err.message?.includes('expired');
+    res.status(403).json({ 
+      error: isExpired ? 'Session expired. Please logout and login again.' : 'Invalid session. Please login again.',
+      details: err.message 
+    });
     return false;
   }
 }

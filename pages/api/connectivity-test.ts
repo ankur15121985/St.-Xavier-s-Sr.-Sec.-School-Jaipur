@@ -9,19 +9,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const SUPABASE_KEY = SERVICE_KEY || ANON_KEY;
   
   // Robust URL cleaning: SDK needs ONLY the base project URL (e.g. https://xyz.supabase.co)
-  const cleanUrl = SUPABASE_URL
-    .replace(/\/rest\/v1\/?$/, '') // Remove /rest/v1 or /rest/v1/
-    .replace(/\/$/, '');           // Remove trailing slash
+  let cleanUrl = '';
+  try {
+    if (SUPABASE_URL) {
+      const urlObj = new URL(SUPABASE_URL.trim());
+      cleanUrl = `${urlObj.protocol}//${urlObj.host}`;
+    }
+  } catch (e) {
+    // Fallback if URL is invalid as-is
+    cleanUrl = SUPABASE_URL
+      .trim()
+      .replace(/\/rest\/v1\/?$/, '') 
+      .replace(/\/$/, '');
+  }
   
   const status: any = {
     connected: false,
     hasServiceRole: !!SERVICE_KEY,
-    url: cleanUrl ? `${cleanUrl.slice(0, 25)}...` : 'MISSING',
+    url: cleanUrl ? `${cleanUrl.slice(0, 30)}...` : 'MISSING',
     detectedKeys: {
-      url: !!SUPABASE_URL,
-      anon: !!ANON_KEY,
-      serviceRole: !!SERVICE_KEY,
-      standardRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+      VITE_URL: !!process.env.VITE_SUPABASE_URL,
+      SUPABASE_URL: !!process.env.SUPABASE_URL,
+      NEXT_PUBLIC_URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      RAW_SERVICE_KEY: !!process.env.SERVICE_ROLE_KEY,
+      SUPABASE_SERVICE_KEY: !!process.env.SUPABASE_SERVICE_KEY,
+      ANON_KEY: !!process.env.SUPABASE_ANON_KEY,
+      VITE_ANON: !!process.env.VITE_SUPABASE_ANON_KEY,
+      JWT_SECRET: !!process.env.JWT_SECRET
     },
     tables: {}
   };
