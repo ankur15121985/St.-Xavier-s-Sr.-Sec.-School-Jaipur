@@ -3193,6 +3193,49 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     }
   };
 
+  const handlePushAll = async () => {
+    if (uploadingPath) return;
+    setUploadingPath('global-push');
+    setSavePending(true);
+    try {
+      showToast('Step 1: Auditing Cloud Connectivity...');
+      const healthRes = await fetch('/api/connectivity-test');
+      const health = await healthRes.json();
+      setSupabaseStatus(health);
+
+      if (!health.connected) {
+        setIsDebugOpen(true);
+        throw new Error(`Cloud connection failed: ${health.error || 'Unknown error'}`);
+      }
+
+      showToast('Step 2: Pushing Local Data to Cloud...');
+      
+      // Push settings and content first
+      await supabaseService.saveItem('settings', data.settings);
+      await supabaseService.saveItem('content', data.content);
+      
+      // Push collections
+      const collections: (keyof AppData)[] = ['staff', 'notices', 'gallery', 'links', 'events', 'fees', 'curriculum', 'co_curricular', 'scholarships', 'digital_campus'];
+      
+      for (const section of collections) {
+        const items = data[section];
+        if (Array.isArray(items)) {
+          for (const item of items) {
+            await supabaseService.saveItem(section, item);
+          }
+        }
+      }
+      
+      showToast('Bulk Push to Cloud Successful');
+    } catch (err: any) {
+      console.error('Push failed:', err);
+      showToast(err.message || 'Cloud Push Failed', 'error');
+    } finally {
+      setUploadingPath(null);
+      setSavePending(false);
+    }
+  };
+
   const checkSupabaseHealth = async () => {
     setUploadingPath('debug');
     try {
@@ -3792,15 +3835,26 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 )}
               </div>
 
-              <div className="p-8 bg-slate-50 border-t border-slate-100 flex gap-4">
+              <div className="p-8 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row gap-4">
+                <button 
+                  onClick={() => {
+                    setIsDebugOpen(false);
+                    handlePushAll();
+                  }}
+                  className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                >
+                  <UploadCloud size={16} />
+                  Push Local to Cloud
+                </button>
                 <button 
                   onClick={() => {
                     setIsDebugOpen(false);
                     handlePullAll();
                   }}
-                  className="flex-1 py-4 bg-school-navy text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="flex-1 py-4 bg-school-navy text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                 >
-                  Force Cloud Sync Now
+                  <DownloadCloud size={16} />
+                  Pull Cloud to Local
                 </button>
               </div>
             </motion.div>

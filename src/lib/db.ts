@@ -197,7 +197,9 @@ export function getDatabase(): Database.Database {
       indexNowKey TEXT DEFAULT '',
       ogTitle TEXT DEFAULT '',
       ogDescription TEXT DEFAULT '',
-      ogImage TEXT DEFAULT ''
+      ogImage TEXT DEFAULT '',
+      showVirtualCampus INTEGER DEFAULT 1,
+      careerFormEnabled INTEGER DEFAULT 1
     )
   `);
 
@@ -489,9 +491,44 @@ export function getDatabase(): Database.Database {
       indexNowKey TEXT DEFAULT '',
       ogTitle TEXT DEFAULT '',
       ogDescription TEXT DEFAULT '',
-      ogImage TEXT DEFAULT ''
+      ogImage TEXT DEFAULT '',
+      careerFormEnabled INTEGER DEFAULT 1
     )
   `);
+
+  // Migration: Ensure new columns exist in settings and site_settings
+  const addColumn = (table: string, column: string, type: string) => {
+    try {
+      db.exec(`ALTER TABLE "${table}" ADD COLUMN "${column}" ${type}`);
+    } catch (e) {
+      // Column likely already exists
+    }
+  };
+
+  const newToggleColumns = [
+    'showCarousel', 'showMarquee', 'showAbout', 'showFeature', 'showVision', 
+    'showInsights', 'showPrincipalMessage', 'showDistinction', 'showVirtualCampus', 
+    'showGallery', 'showLeadership', 'showHonors', 'careerFormEnabled', 'flagEnabled', 'popupEnabled'
+  ];
+
+  newToggleColumns.forEach(col => {
+    addColumn('settings', col, 'INTEGER DEFAULT 1');
+    addColumn('site_settings', col, 'INTEGER DEFAULT 1');
+  });
+  
+  addColumn('settings', 'googleSearchConsoleKey', "TEXT DEFAULT ''");
+  addColumn('settings', 'bingWebmasterKey', "TEXT DEFAULT ''");
+  addColumn('settings', 'indexNowKey', "TEXT DEFAULT ''");
+  addColumn('settings', 'ogTitle', "TEXT DEFAULT ''");
+  addColumn('settings', 'ogDescription', "TEXT DEFAULT ''");
+  addColumn('settings', 'ogImage', "TEXT DEFAULT ''");
+  
+  addColumn('site_settings', 'googleSearchConsoleKey', "TEXT DEFAULT ''");
+  addColumn('site_settings', 'bingWebmasterKey', "TEXT DEFAULT ''");
+  addColumn('site_settings', 'indexNowKey', "TEXT DEFAULT ''");
+  addColumn('site_settings', 'ogTitle', "TEXT DEFAULT ''");
+  addColumn('site_settings', 'ogDescription', "TEXT DEFAULT ''");
+  addColumn('site_settings', 'ogImage', "TEXT DEFAULT ''");
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS school_info (
