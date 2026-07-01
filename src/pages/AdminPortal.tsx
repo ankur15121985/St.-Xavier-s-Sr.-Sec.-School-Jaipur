@@ -1667,38 +1667,38 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
               </div>
               <div className="flex flex-wrap gap-4 relative z-10">
                  <button 
+                   onClick={handlePushAll} 
+                   disabled={uploadingPath === 'global-push' || uploadingPath === 'debug'}
+                   className={`px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-2xl flex items-center gap-2 outline-none ${
+                     uploadingPath === 'global-push' || uploadingPath === 'debug'
+                       ? 'bg-white/10 text-white/40 cursor-not-allowed'
+                       : 'bg-emerald-600 text-white hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98]'
+                   }`}
+                 >
+                   {uploadingPath === 'global-push' ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />}
+                   Push Local to Cloud
+                 </button>
+                 <button 
+                   onClick={handlePullAll} 
+                   disabled={uploadingPath === 'global-pull' || uploadingPath === 'debug'}
+                   className={`px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-2xl flex items-center gap-2 outline-none ${
+                     uploadingPath === 'global-pull' || uploadingPath === 'debug'
+                       ? 'bg-white/10 text-white/40 cursor-not-allowed'
+                       : 'bg-indigo-500 text-white hover:bg-indigo-600 hover:scale-[1.02] active:scale-[0.98]'
+                   }`}
+                 >
+                   {uploadingPath === 'global-pull' ? <Loader2 size={16} className="animate-spin" /> : <DownloadCloud size={16} />}
+                   Pull Cloud to Local
+                 </button>
+                 <button 
                    onClick={() => {
                      const sql = `-- SUPABASE STORAGE SETUP\n-- Run this in SQL Editor to fix "Bucket not found" errors\n\nINSERT INTO storage.buckets (id, name, public) \nVALUES ('career_assets', 'career_assets', true) \nON CONFLICT (id) DO NOTHING;\n\nCREATE POLICY "Public Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'career_assets');\nCREATE POLICY "Public View" ON storage.objects FOR SELECT USING (bucket_id = 'career_assets');`;
                      navigator.clipboard.writeText(sql);
                      showToast('Storage Fix SQL copied!');
                    }}
-                   className="px-6 py-3 bg-school-gold text-school-navy rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl flex items-center gap-2 outline-none font-bold"
+                   className="px-6 py-4 bg-white/5 text-white/60 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all border border-white/10 flex items-center gap-2"
                  >
-                   <Database size={14} /> Copy Storage Fix SQL
-                 </button>
-                 <button 
-                   onClick={handlePullAll} 
-                   disabled={uploadingPath === 'global-pull' || uploadingPath === 'debug'}
-                   className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-2 outline-none font-bold ${
-                     uploadingPath === 'global-pull' || uploadingPath === 'debug'
-                       ? 'bg-white/10 text-white/40 cursor-not-allowed'
-                       : 'bg-indigo-500 text-white hover:bg-indigo-600 hover:scale-105 active:scale-95'
-                   }`}
-                 >
-                   <DownloadCloud size={14} className={uploadingPath === 'global-pull' || uploadingPath === 'debug' ? 'animate-spin' : ''} />
-                   {uploadingPath === 'global-pull' ? 'Syncing...' : 'Sync & Audit Cloud Data'}
-                 </button>
-                 <button 
-                   onClick={handleSaveAll} 
-                   disabled={uploadingPath === 'global'}
-                   className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-2 outline-none font-bold ${
-                     uploadingPath === 'global'
-                       ? 'bg-white/10 text-white/40 cursor-not-allowed'
-                       : 'bg-emerald-500 text-white hover:bg-emerald-600 hover:scale-105 active:scale-95'
-                   }`}
-                 >
-                   <RefreshCw size={14} className={uploadingPath === 'global' ? 'animate-spin' : ''} />
-                   {uploadingPath === 'global' ? 'Syncing...' : 'Push All to Supabase'}
+                   <Database size={14} /> Fix Storage
                  </button>
               </div>
             </div>
@@ -1802,7 +1802,22 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
 
             <div className="grid md:grid-cols-2 gap-8">
               <div className="glass-surface p-10 rounded-[40px] border border-school-ink/5 space-y-8 group">
-                <h3 className="text-xl font-black text-school-navy uppercase italic tracking-tight border-b border-school-navy/5 pb-4">Portal Constants</h3>
+                <div className="flex justify-between items-center border-b border-school-navy/5 pb-4">
+                  <h3 className="text-xl font-black text-school-navy uppercase italic tracking-tight">Portal Constants</h3>
+                  <button 
+                    onClick={() => {
+                      setSavePending(true);
+                      supabaseService.saveItem('settings', data.settings)
+                        .then(() => showToast('Constants saved successfully'))
+                        .catch(err => showToast(`Save Failed: ${err.message}`, 'error'))
+                        .finally(() => setSavePending(false));
+                    }}
+                    className="p-3 bg-school-gold text-school-navy rounded-xl shadow-lg hover:scale-110 active:scale-90 transition-all"
+                    title="Manual Save"
+                  >
+                    <Check size={16} />
+                  </button>
+                </div>
                 
                 <div className="space-y-4">
                   <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Active Academic Session</label>
@@ -1863,7 +1878,22 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
               </div>
             </div>
             <div className="glass-surface p-10 rounded-[40px] border border-school-ink/5 space-y-10">
-              <h3 className="text-xl font-black text-school-navy uppercase italic tracking-tight">Section Visibility Toggles</h3>
+              <div className="flex justify-between items-center border-b border-school-navy/5 pb-4">
+                <h3 className="text-xl font-black text-school-navy uppercase italic tracking-tight">Section Visibility Toggles</h3>
+                <button 
+                  onClick={() => {
+                    setSavePending(true);
+                    supabaseService.saveItem('settings', data.settings)
+                      .then(() => showToast('Visibility settings saved successfully'))
+                      .catch(err => showToast(`Save Failed: ${err.message}`, 'error'))
+                      .finally(() => setSavePending(false));
+                  }}
+                  className="p-3 bg-emerald-500 text-white rounded-xl shadow-lg hover:scale-110 active:scale-90 transition-all"
+                  title="Manual Save Visibility"
+                >
+                  <Check size={16} />
+                </button>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                  {[
                    { key: 'showCarousel', label: 'Primary Carousel' },
@@ -3104,26 +3134,53 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     }
   };
 
-  const handleSaveAll = async () => {
-    setUploadingPath('global');
+  const handlePushAll = async () => {
+    if (uploadingPath) return;
+    setUploadingPath('global-push');
     setSavePending(true);
     try {
+      showToast('Step 1: Auditing Cloud Connectivity...');
+      const healthRes = await fetch('/api/connectivity-test');
+      const health = await healthRes.json();
+      setSupabaseStatus(health);
+
+      if (!health.connected) {
+        setIsDebugOpen(true);
+        throw new Error(`Cloud connection failed: ${health.error || 'Unknown error'}`);
+      }
+
+      showToast('Step 2: Syncing Local Data to Cloud...');
+      
+      // Use the efficient syncAll method from supabaseService
       await supabaseService.syncAll(data);
+      
+      // Also save settings and content which syncAll handles
+      await supabaseService.saveItem('settings', data.settings);
+      await supabaseService.saveItem('content', data.content);
+
       // Audit Log
       try {
         await supabaseService.saveItem('logs', {
-          id: `log_${Date.now()}`,
+          id: `log_push_${Date.now()}`,
           user: user?.email || 'anonymous',
-          action: 'SYNC_ALL',
-          details: `Manual sync of all tables triggered by admin`,
+          action: 'PUSH_ALL',
+          details: `Manual bulk push to cloud initiated`,
           timestamp: new Date().toISOString()
         });
       } catch (logErr) {
         console.warn('Failed to save audit log:', logErr);
       }
-      showToast('Entire database synced successfully to Supabase');
-    } catch (err) {
-      showToast('Critical sync failure', 'error');
+      
+      showToast('Local changes successfully pushed to Cloud Storage', 'success');
+    } catch (err: any) {
+      console.error('Push failed:', err);
+      const isAuthError = err.message?.toLowerCase().includes('session') || err.message?.toLowerCase().includes('auth');
+      if (isAuthError) {
+        showToast('Authentication Error: Please logout and login again.', 'error');
+        setIsDebugOpen(true);
+      } else {
+        showToast(err.message || 'Cloud Push Failed', 'error');
+      }
     } finally {
       setUploadingPath(null);
       setSavePending(false);
@@ -3145,15 +3202,8 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         throw new Error(`Cloud connection failed: ${health.error || 'Unknown error'}`);
       }
 
-      if (!health.hasServiceRole) {
-        showToast('Warning: Service Role Key missing. Inquiries will be skipped.', 'error');
-      }
-
-      showToast('Step 2: Pulling Latest Cloud Data...');
+      showToast('Step 2: Fetching Latest Cloud Data...');
       const freshData = await supabaseService.fetchAllData(true);
-      
-      const remoteMessagesCount = freshData?.messages?.length || 0;
-      const remoteApplicationsCount = freshData?.career_applications?.length || 0;
       
       if (freshData && Object.keys(freshData).length > 0) {
         setData(prev => {
@@ -3174,12 +3224,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
           return merged;
         });
         
-        showToast(health.hasServiceRole ? 'Full Cloud Sync Successful' : 'Sync completed (Limited visibility)');
-        
-        // Auto-open audit if critical tables are empty and service role is missing
-        if (!health.hasServiceRole && (activeSection === 'messages' || activeSection === 'career_applications')) {
-          setIsDebugOpen(true);
-        }
+        showToast('Successfully updated local view from Cloud storage', 'success');
       } else {
         setIsDebugOpen(true);
         throw new Error('No data found in Cloud Database.');
@@ -3187,49 +3232,6 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     } catch (err: any) {
       console.error('Pull failed:', err);
       showToast(err.message || 'Synchronization Failed', 'error');
-    } finally {
-      setUploadingPath(null);
-      setSavePending(false);
-    }
-  };
-
-  const handlePushAll = async () => {
-    if (uploadingPath) return;
-    setUploadingPath('global-push');
-    setSavePending(true);
-    try {
-      showToast('Step 1: Auditing Cloud Connectivity...');
-      const healthRes = await fetch('/api/connectivity-test');
-      const health = await healthRes.json();
-      setSupabaseStatus(health);
-
-      if (!health.connected) {
-        setIsDebugOpen(true);
-        throw new Error(`Cloud connection failed: ${health.error || 'Unknown error'}`);
-      }
-
-      showToast('Step 2: Pushing Local Data to Cloud...');
-      
-      // Push settings and content first
-      await supabaseService.saveItem('settings', data.settings);
-      await supabaseService.saveItem('content', data.content);
-      
-      // Push collections
-      const collections: (keyof AppData)[] = ['staff', 'notices', 'gallery', 'links', 'events', 'fees', 'curriculum', 'co_curricular', 'scholarships', 'digital_campus'];
-      
-      for (const section of collections) {
-        const items = data[section];
-        if (Array.isArray(items)) {
-          for (const item of items) {
-            await supabaseService.saveItem(section, item);
-          }
-        }
-      }
-      
-      showToast('Bulk Push to Cloud Successful');
-    } catch (err: any) {
-      console.error('Push failed:', err);
-      showToast(err.message || 'Cloud Push Failed', 'error');
     } finally {
       setUploadingPath(null);
       setSavePending(false);
@@ -3831,6 +3833,19 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                   <div className="p-6 bg-red-50 rounded-2xl border border-red-100 text-red-600">
                     <p className="text-[10px] font-black uppercase tracking-widest mb-2">Audit Exception</p>
                     <p className="text-sm font-medium leading-relaxed">{supabaseStatus.error}</p>
+                    {(supabaseStatus.error.toLowerCase().includes('session') || supabaseStatus.error.toLowerCase().includes('login') || supabaseStatus.error.toLowerCase().includes('403')) && (
+                      <button 
+                        onClick={() => {
+                          logout();
+                          setIsDebugOpen(false);
+                          window.location.reload();
+                        }}
+                        className="w-full mt-4 py-4 bg-rose-600 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-lg hover:bg-rose-700 transition-all flex items-center justify-center gap-2"
+                      >
+                        <Key size={16} />
+                        Logout & Re-authenticate
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
