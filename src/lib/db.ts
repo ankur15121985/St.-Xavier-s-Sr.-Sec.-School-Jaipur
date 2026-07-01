@@ -880,6 +880,21 @@ export function getLocalSQLiteData() {
     } catch (e) {}
   }
   
+  if (settings) {
+    // Convert SQLite integers (0/1) to Booleans for frontend consistency
+    const toggleKeys = [
+      'applyNowEnabled', 'showCarousel', 'showMarquee', 'showAbout', 'showFeature', 
+      'showVision', 'showInsights', 'showPrincipalMessage', 'showDistinction', 
+      'showVirtualCampus', 'showGallery', 'showLeadership', 'showHonors', 
+      'popupEnabled', 'flagEnabled', 'careerFormEnabled'
+    ];
+    toggleKeys.forEach(key => {
+      if (key in settings) {
+        settings[key] = settings[key] === null ? true : Boolean(settings[key]);
+      }
+    });
+  }
+  
   if (!settings) {
     settings = {
       id: 'global',

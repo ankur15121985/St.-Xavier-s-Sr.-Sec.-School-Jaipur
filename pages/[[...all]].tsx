@@ -222,7 +222,7 @@ export async function getServerSideProps(context: any) {
     const settings = initialData?.settings || {};
     
     // Inject Maps Key from environment (Secrets)
-    const googleMapsKey = process.env.GOOGLE_MAPS_PLATFORM_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_PLATFORM_KEY || null;
+    const googleMapsKey = (process.env.GOOGLE_MAPS_PLATFORM_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_PLATFORM_KEY || '').trim() || null;
 
     // 1. Google Search Console dynamic HTML file verification
     // Auto-responds to any google[hash].html with the corresponding verification proof

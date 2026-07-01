@@ -3600,71 +3600,112 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                   </div>
                 </div>
 
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Environment Discovery</p>
-                    <span className="text-[9px] font-bold text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded">v2.2</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {supabaseStatus?.detectedKeys ? Object.entries(supabaseStatus.detectedKeys).map(([key, found]) => (
-                      <div key={key} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${found ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-500'}`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${found ? 'bg-green-500' : 'bg-slate-400'}`} />
-                        {key}: {found ? 'FOUND' : 'NULL'}
-                      </div>
-                    )) : (
-                      <p className="text-[10px] text-slate-400 italic">No keys detected in environment.</p>
-                    )}
-                  </div>
-                  
-                  {supabaseStatus?.hints && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                      {!supabaseStatus.detectedKeys?.SERVICE_ROLE_KEY && (
-                        <div className="p-2 bg-white rounded-lg border border-slate-100 flex items-center justify-between">
-                          <span className="text-[9px] font-mono text-slate-500">Add to Secrets:</span>
-                          <button 
-                            onClick={() => {
-                              navigator.clipboard.writeText('SUPABASE_SERVICE_ROLE_KEY');
-                              showToast('Key name copied to clipboard');
-                            }}
-                            className="text-[9px] font-black text-school-navy bg-school-navy/5 px-2 py-1 rounded hover:bg-school-navy/10 transition-colors"
-                          >
-                            COPY NAME
-                          </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Environment Discovery</p>
+                      <span className="text-[9px] font-bold text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded">v2.3</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {supabaseStatus?.detectedKeys ? Object.entries(supabaseStatus.detectedKeys).map(([key, found]) => (
+                        <div key={key} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${found ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-500'}`}>
+                          <div className={`w-1.5 h-1.5 rounded-full ${found ? 'bg-green-500' : 'bg-slate-400'}`} />
+                          {key}: {found ? 'FOUND' : 'NULL'}
                         </div>
-                      )}
-                      {!supabaseStatus.detectedKeys?.JWT_SECRET && (
-                        <div className="p-2 bg-white rounded-lg border border-slate-100 flex items-center justify-between">
-                          <span className="text-[9px] font-mono text-slate-500">Add to Secrets:</span>
-                          <button 
-                            onClick={() => {
-                              navigator.clipboard.writeText('JWT_SECRET');
-                              showToast('Key name copied to clipboard');
-                            }}
-                            className="text-[9px] font-black text-school-navy bg-school-navy/5 px-2 py-1 rounded hover:bg-school-navy/10 transition-colors"
-                          >
-                            COPY NAME
-                          </button>
-                        </div>
+                      )) : (
+                        <p className="text-[10px] text-slate-400 italic">No keys detected in environment.</p>
                       )}
                     </div>
-                  )}
+                    
+                    {supabaseStatus?.hints && (
+                      <div className="grid grid-cols-1 gap-2 mt-2">
+                        {!supabaseStatus.detectedKeys?.GOOGLE_MAPS && (
+                          <div className="p-2 bg-amber-50 rounded-lg border border-amber-100 flex items-center justify-between">
+                            <span className="text-[9px] font-bold text-amber-700 uppercase">Missing: Google Maps Key</span>
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText('GOOGLE_MAPS_PLATFORM_KEY');
+                                showToast('Key name copied!');
+                              }}
+                              className="text-[9px] font-black text-amber-800 bg-amber-200 px-2 py-1 rounded shadow-sm hover:bg-amber-300 transition-colors"
+                            >
+                              COPY NAME
+                            </button>
+                          </div>
+                        )}
+                        {supabaseStatus.detectedKeys?.GOOGLE_MAPS && (
+                          <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 space-y-1">
+                            <p className="text-[10px] font-bold text-blue-700 uppercase">Maps Setup Guide</p>
+                            <p className="text-[9px] text-blue-600 leading-tight">
+                              If the map shows <b>"Invalid Key"</b>, verify you have enabled the <b>Maps Embed API</b> in your Google Cloud Project. 
+                              Also check for HTTP Referrer restrictions that might block this domain.
+                            </p>
+                          </div>
+                        )}
+                        {!supabaseStatus.detectedKeys?.SERVICE_ROLE_KEY && (
+                          <div className="p-2 bg-white rounded-lg border border-slate-100 flex items-center justify-between">
+                            <span className="text-[9px] font-mono text-slate-500">Add to Secrets:</span>
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText('SUPABASE_SERVICE_ROLE_KEY');
+                                showToast('Key name copied');
+                              }}
+                              className="text-[9px] font-black text-school-navy bg-school-navy/5 px-2 py-1 rounded hover:bg-school-navy/10 transition-colors"
+                            >
+                              SUPABASE_SERVICE_ROLE_KEY
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
-                  {supabaseStatus?.url && (
-                    <p className="text-[9px] font-mono text-slate-400 break-all bg-white/50 p-2 rounded-lg border border-slate-100">
-                      ENDPOINT: {supabaseStatus.url}
+                    {supabaseStatus?.url && (
+                      <p className="text-[9px] font-mono text-slate-400 break-all bg-white/50 p-2 rounded-lg border border-slate-100">
+                        ENDPOINT: {supabaseStatus.url}
+                      </p>
+                    )}
+
+                    <button 
+                      onClick={() => {
+                        localStorage.removeItem('school_admin_token');
+                        localStorage.removeItem('school_admin_user');
+                        localStorage.removeItem('supabase_schema_warning');
+                        window.location.reload();
+                      }}
+                      className="w-full py-2 bg-red-50 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-colors border border-red-100"
+                    >
+                      Force Logout & Reset Session
+                    </button>
+                  </div>
+
+                  <div className="p-4 bg-slate-900 rounded-2xl border border-white/5 space-y-4 shadow-2xl">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Client Data Inspector</p>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => console.log('Current Data:', data)}
+                          className="text-[9px] font-bold text-slate-400 bg-white/5 px-2 py-1 rounded hover:bg-white/10"
+                        >
+                          FULL LOG
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-[160px] pr-2 custom-scrollbar">
+                      {Object.entries(data).map(([key, val]) => (
+                        <div key={key} className="p-2 bg-white/5 rounded-lg border border-white/5 flex flex-col gap-0.5">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter truncate">{key}</span>
+                          <span className={`text-[11px] font-bold ${Array.isArray(val) ? (val.length > 0 ? 'text-green-400' : 'text-amber-400') : 'text-slate-300'}`}>
+                            {Array.isArray(val) ? `${val.length} rows` : typeof val === 'object' ? 'Object' : 'Scalar'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <p className="text-[9px] text-slate-500 leading-tight italic">
+                      If counts are 0 but Supabase shows rows below, the local SQLite cache is empty. Use <b>Force Database Re-Sync</b>.
                     </p>
-                  )}
-
-                  <button 
-                    onClick={() => {
-                      localStorage.removeItem('school_admin_token');
-                      localStorage.removeItem('school_admin_user');
-                      window.location.reload();
-                    }}
-                    className="w-full py-2 bg-red-50 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-colors border border-red-100"
-                  >
-                    Force Logout & Reset Session
-                  </button>
+                  </div>
                 </div>
 
                 {!supabaseStatus?.hasServiceRole && (

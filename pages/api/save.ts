@@ -63,7 +63,15 @@ const SCHEMA: Record<string, string[]> = {
     'id', 'application_no', 'category', 'full_name', 'parent_spouse_name', 'mobile_number', 'email', 'gender', 'dob', 'aadhar_number', 'address', 'photo_url', 'user_ip', 'declaration_accepted', 'major_subject', 'minor_subject_1', 'minor_subject_2', 'salary_expected', 'tet_details', 'interests', 'responsibilities_handled', 'statement_of_purpose', 'other_experience', 'education_qualifications', 'teaching_experience', 'achievements', 'teacher_category', 'created_at', 'status'
   ],
   logs: ['id', 'user', 'action', 'details', 'timestamp'],
-  settings: ['id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 'contactEmail', 'contactPhone', 'contactAddress', 'currentSession', 'feesPdfUrl', 'popupMessage', 'popupEnabled', 'googleSearchConsoleKey', 'bingWebmasterKey', 'indexNowKey', 'ogTitle', 'ogDescription', 'ogImage'],
+  settings: [
+    'id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 
+    'contactEmail', 'contactPhone', 'contactAddress', 'currentSession', 'feesPdfUrl', 
+    'popupMessage', 'popupEnabled', 'googleSearchConsoleKey', 'bingWebmasterKey', 
+    'indexNowKey', 'ogTitle', 'ogDescription', 'ogImage',
+    'showCarousel', 'showMarquee', 'showAbout', 'showFeature', 'showVision', 
+    'showInsights', 'showPrincipalMessage', 'showDistinction', 'showVirtualCampus', 
+    'showGallery', 'showLeadership', 'showHonors', 'careerFormEnabled', 'flagEnabled'
+  ],
   content: [
     'id', 'heroTitle1', 'heroTitle2', 'heroBadge', 'heroDescription', 'carouselBranding',
     'aboutBadge', 'aboutTitle1', 'aboutTitle2', 'aboutDescription', 'mottoTitle', 'mottoDescription',
