@@ -2700,167 +2700,156 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
 
     const sanitizedValue = sanitize(value);
 
+    // 1. Update local state immediately for UI responsiveness
     if (section === 'settings') {
-      setData(prev => {
-        const updatedSettings = { ...prev.settings, [field]: sanitizedValue };
-        
-        const timerId = `save-settings`;
-        if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
-        (window as any)[timerId] = setTimeout(async () => {
-          setSavePending(true);
+      const updatedSettings = { ...data.settings, [field]: sanitizedValue };
+      setData(prev => ({ ...prev, settings: updatedSettings }));
+      
+      const timerId = `save-settings`;
+      if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+      (window as any)[timerId] = setTimeout(async () => {
+        setSavePending(true);
+        try {
+          await supabaseService.saveItem('settings', updatedSettings);
           try {
-            await supabaseService.saveItem('settings', updatedSettings);
-            try {
-              await supabaseService.saveItem('logs', {
-                id: `log_set_${Date.now()}`,
-                user: user?.email || 'anonymous',
-                action: 'UPDATE_SETTINGS',
-                details: `Updated setting ${field} to ${sanitizedValue}`,
-                timestamp: new Date().toISOString()
-              });
-            } catch (logErr) {
-              console.warn('Failed to save audit log:', logErr);
-            }
-            showToast(`Settings (${field}) updated successfully`);
-          } catch (err: any) {
-            console.error('Settings sync failed:', err);
-            const msg = err.message?.toLowerCase() || '';
-            const isAuthError = msg.includes('session expired') || msg.includes('403') || msg.includes('authentication required') || msg.includes('invalid session');
-            
-            if (isAuthError) {
-              showToast(`Session Expired: Please logout and login again to continue.`, 'error');
-              setIsDebugOpen(true); // Open audit to show them why
-            } else {
-              showToast(`Save Error: ${err.message?.slice(0, 80)}`, 'error');
-            }
-          } finally {
-            setSavePending(false);
+            await supabaseService.saveItem('logs', {
+              id: `log_set_${Date.now()}`,
+              user: user?.email || 'anonymous',
+              action: 'UPDATE_SETTINGS',
+              details: `Updated setting ${field} to ${sanitizedValue}`,
+              timestamp: new Date().toISOString()
+            });
+          } catch (logErr) {
+            console.warn('Failed to save audit log:', logErr);
           }
-        }, 800);
-
-        return { ...prev, settings: updatedSettings };
-      });
+          showToast(`Settings (${field}) updated successfully`);
+        } catch (err: any) {
+          console.error('Settings sync failed:', err);
+          const rawMsg = err?.message || 'Unknown error';
+          const msg = rawMsg.toLowerCase();
+          const isAuthError = msg.includes('session expired') || msg.includes('403') || msg.includes('authentication required') || msg.includes('invalid session');
+          
+          if (isAuthError) {
+            showToast(`Session Expired: Please logout and login again to continue.`, 'error');
+            setIsDebugOpen(true); 
+          } else {
+            showToast(`Save Error: ${rawMsg.slice(0, 80)}`, 'error');
+          }
+        } finally {
+          setSavePending(false);
+        }
+      }, 800);
       return;
     }
 
     if (section === 'content') {
-      setData(prev => {
-        const updatedContent = { ...prev.content, [field]: sanitizedValue };
-        
-        const timerId = `save-content`;
-        if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
-        (window as any)[timerId] = setTimeout(async () => {
-          setSavePending(true);
+      const updatedContent = { ...data.content, [field]: sanitizedValue };
+      setData(prev => ({ ...prev, content: updatedContent }));
+      
+      const timerId = `save-content`;
+      if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+      (window as any)[timerId] = setTimeout(async () => {
+        setSavePending(true);
+        try {
+          await supabaseService.saveItem('content', { [field]: sanitizedValue });
           try {
-            // Optimization: Only sync the specific key that changed
-            await supabaseService.saveItem('content', { [field]: sanitizedValue });
-            try {
-              await supabaseService.saveItem('logs', {
-                id: `log_cont_${Date.now()}`,
-                user: user?.email || 'anonymous',
-                action: 'UPDATE_CONTENT',
-                details: `Updated narrative content for ${field}`,
-                timestamp: new Date().toISOString()
-              });
-            } catch (logErr) {
-              console.warn('Failed to save audit log:', logErr);
-            }
-            showToast('Content narrative synced to Supabase');
-          } catch (err: any) {
-            console.error('Content sync failed:', err);
-            showToast(`Content sync failed: ${err.message?.slice(0, 50)}`, 'error');
-          } finally {
-            setSavePending(false);
+            await supabaseService.saveItem('logs', {
+              id: `log_cont_${Date.now()}`,
+              user: user?.email || 'anonymous',
+              action: 'UPDATE_CONTENT',
+              details: `Updated narrative content for ${field}`,
+              timestamp: new Date().toISOString()
+            });
+          } catch (logErr) {
+            console.warn('Failed to save audit log:', logErr);
           }
-        }, 1000);
-
-        return { ...prev, content: updatedContent };
-      });
+          showToast('Content narrative synced');
+        } catch (err: any) {
+          console.error('Content sync failed:', err);
+          showToast(`Sync failed: ${(err?.message || 'Unknown').slice(0, 50)}`, 'error');
+        } finally {
+          setSavePending(false);
+        }
+      }, 1000);
       return;
     }
 
     if (section === 'digital_campus') {
-      setData(prev => {
-        const updatedDC = { ...(prev.digital_campus || { id: 'current', title: 'Legacy in Motion', is_enabled: true }), [field]: sanitizedValue };
-        
-        const timerId = `save-digital-campus`;
-        if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
-        (window as any)[timerId] = setTimeout(async () => {
-          setSavePending(true);
-          try {
-            await supabaseService.saveItem('digital_campus', updatedDC);
-            try {
-              await supabaseService.saveItem('logs', {
-                id: `log_dc_${Date.now()}`,
-                user: user?.email || 'anonymous',
-                action: 'UPDATE_DIGITAL_CAMPUS',
-                details: `Updated Digital Campus item: ${field}`,
-                timestamp: new Date().toISOString()
-              });
-            } catch (logErr) {
-              console.warn('Failed to save audit log:', logErr);
-            }
-            showToast('Digital Campus updated');
-          } catch (err: any) {
-            console.error('Digital Campus sync failed:', err);
-            showToast(`Sync failed: ${err.message?.slice(0, 50)}`, 'error');
-          } finally {
-            setSavePending(false);
-          }
-        }, 1000);
-
-        return { ...prev, digital_campus: updatedDC };
-      });
+      const updatedDC = { ...(data.digital_campus || { id: 'current', title: 'Digital Campus', is_enabled: true }), [field]: sanitizedValue };
+      setData(prev => ({ ...prev, digital_campus: updatedDC }));
+      
+      const timerId = `save-digital-campus`;
+      if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+      (window as any)[timerId] = setTimeout(async () => {
+        setSavePending(true);
+        try {
+          await supabaseService.saveItem('digital_campus', updatedDC);
+          showToast('Digital Campus updated');
+        } catch (err: any) {
+          console.error('Digital Campus sync failed:', err);
+          showToast(`Sync failed: ${(err?.message || 'Unknown').slice(0, 50)}`, 'error');
+        } finally {
+          setSavePending(false);
+        }
+      }, 1000);
       return;
     }
 
+    // Default collection handling (Staff, Notices, etc.)
     setData(prev => {
       const currentItems = (prev[section] as any[]) || [];
       let itemFound = false;
-      let newItems = currentItems.map((item: any) => {
+      const newItems = currentItems.map((item: any) => {
         if (item.id === id) {
           itemFound = true;
-          return { ...item, [field]: sanitizedValue };
+          const updatedItem = { ...item, [field]: sanitizedValue };
+          
+          // SIDE EFFECT: Schedule save for this specific item
+          const timerId = `save-${section as string}-${id}`;
+          if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+          (window as any)[timerId] = setTimeout(async () => {
+            setSavePending(true);
+            try {
+              await supabaseService.saveItem(section, updatedItem);
+              showToast(`Synced ${section} update`);
+            } catch (err: any) {
+              console.error('Sync failed:', err);
+              let msg = err?.message || 'Unknown network error';
+              if (typeof msg === 'string' && msg.startsWith('{')) {
+                try { msg = JSON.parse(msg).error || msg; } catch(e) {}
+              }
+              showToast(`Sync failed: ${msg}`, 'error');
+            } finally {
+              setSavePending(false);
+            }
+          }, 1000);
+
+          return updatedItem;
         }
         return item;
       });
 
       if (!itemFound && (section === 'school_history' || section === 'lead_grace')) {
-        // Special singleton handling: if id doesn't exist, create it (usually 'main' or 'lg1')
-        newItems = [...currentItems, { id, [field]: sanitizedValue }];
-      }
-
-      const updatedItem = newItems.find((i: any) => i.id === id);
-
-      // Auto-save logic with debounce
-      const timerId = `save-${section as string}-${id}`;
-      if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
-      (window as any)[timerId] = setTimeout(async () => {
-        if (updatedItem) {
+        const newItem = { id, [field]: sanitizedValue };
+        
+        // Schedule save for new singleton
+        const timerId = `save-${section as string}-${id}`;
+        if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+        (window as any)[timerId] = setTimeout(async () => {
           setSavePending(true);
           try {
-            await supabaseService.saveItem(section, updatedItem);
-            try {
-              await supabaseService.saveItem('logs', {
-                id: `log_upd_${Date.now()}`,
-                user: user?.email || 'anonymous',
-                action: 'UPDATE_ITEM',
-                details: `Updated ${field} for item ${id} in ${section}`,
-                timestamp: new Date().toISOString()
-              });
-            } catch (logErr) {
-              console.warn('Failed to save audit log:', logErr);
-            }
-            showToast(`Synced ${section} to Supabase`);
+            await supabaseService.saveItem(section, newItem);
+            showToast(`Created ${section} entry`);
           } catch (err: any) {
             console.error('Sync failed:', err);
-            const msg = err.message.startsWith('{') ? JSON.parse(err.message).error : err.message;
-            showToast(`Sync failed: ${msg}`, 'error');
+            showToast(`Sync failed: ${err?.message || 'Unknown'}`, 'error');
           } finally {
             setSavePending(false);
           }
-        }
-      }, 1000);
+        }, 1000);
+
+        return { ...prev, [section]: [...currentItems, newItem] };
+      }
 
       return { ...prev, [section]: newItems };
     });
@@ -4133,7 +4122,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         {!searchQuery && activeSection !== 'settings' && activeSection !== 'content' && activeSection !== 'logs' && (
           <div className="flex flex-wrap gap-4 shrink-0">
             {savePending && (
-              <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} onClick={handleSaveAll} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-emerald-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">
+              <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} onClick={handlePushAll} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-emerald-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">
                 <Check size={16} /> Save
               </motion.button>
             )}
