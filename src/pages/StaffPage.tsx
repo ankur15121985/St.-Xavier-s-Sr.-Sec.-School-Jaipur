@@ -9,15 +9,16 @@ const StaffPage = ({ data }: { data: AppData }) => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const sortedStaff = useMemo(() => {
+    if (!data?.staff || !Array.isArray(data.staff)) return [];
     return [...data.staff].sort((a, b) => {
       let valA = (a[sortBy] || '').toString().toLowerCase();
       let valB = (b[sortBy] || '').toString().toLowerCase();
 
       // Special handling for Appointment Details (bio) to try and extract date if requested
       // but alphabetical is a safer default "according to Appointment Details"
-      if (sortBy === 'bio') {
-        const dateA = a.bio.match(/Appointed: (\d{2}-\d{2}-\d{4})/);
-        const dateB = b.bio.match(/Appointed: (\d{2}-\d{2}-\d{4})/);
+      if (sortBy === 'bio' && valA && valB) {
+        const dateA = valA.match(/Appointed: (\d{2}-\d{2}-\d{4})/);
+        const dateB = valB.match(/Appointed: (\d{2}-\d{2}-\d{4})/);
         
         if (dateA && dateB) {
           const [dayA, monthA, yearA] = dateA[1].split('-').map(Number);

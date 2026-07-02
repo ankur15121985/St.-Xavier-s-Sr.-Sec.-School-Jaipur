@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from '../lib/router-compat';
 import { 
@@ -60,6 +60,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
   const [showSchemaError, setShowSchemaError] = useState(false);
   const [supabaseStatus, setSupabaseStatus] = useState<any>(null);
   const [isDebugOpen, setIsDebugOpen] = useState(false);
+  const dataRef = useRef(data);
+  useEffect(() => { dataRef.current = data; }, [data]);
 
   const isUploading = !!uploadingPath;
 
@@ -1807,7 +1809,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                   <button 
                     onClick={() => {
                       setSavePending(true);
-                      supabaseService.saveItem('settings', data.settings)
+                      supabaseService.saveItem('settings', dataRef.current.settings)
                         .then(() => showToast('Constants saved successfully'))
                         .catch(err => showToast(`Save Failed: ${err.message}`, 'error'))
                         .finally(() => setSavePending(false));
@@ -1883,7 +1885,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                 <button 
                   onClick={() => {
                     setSavePending(true);
-                    supabaseService.saveItem('settings', data.settings)
+                    supabaseService.saveItem('settings', dataRef.current.settings)
                       .then(() => showToast('Visibility settings saved successfully'))
                       .catch(err => showToast(`Save Failed: ${err.message}`, 'error'))
                       .finally(() => setSavePending(false));
@@ -2700,41 +2702,21 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
 
     const sanitizedValue = sanitize(value);
 
-    // 1. Update local state immediately for UI responsiveness
+    // 1. Settings handling
     if (section === 'settings') {
-      const updatedSettings = { ...data.settings, [field]: sanitizedValue };
-      setData(prev => ({ ...prev, settings: updatedSettings }));
+      setData(prev => ({ ...prev, settings: { ...prev.settings, [field]: sanitizedValue } }));
       
       const timerId = `save-settings`;
       if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
       (window as any)[timerId] = setTimeout(async () => {
         setSavePending(true);
         try {
-          await supabaseService.saveItem('settings', updatedSettings);
-          try {
-            await supabaseService.saveItem('logs', {
-              id: `log_set_${Date.now()}`,
-              user: user?.email || 'anonymous',
-              action: 'UPDATE_SETTINGS',
-              details: `Updated setting ${field} to ${sanitizedValue}`,
-              timestamp: new Date().toISOString()
-            });
-          } catch (logErr) {
-            console.warn('Failed to save audit log:', logErr);
-          }
+          await supabaseService.saveItem('settings', dataRef.current.settings);
           showToast(`Settings (${field}) updated successfully`);
         } catch (err: any) {
           console.error('Settings sync failed:', err);
           const rawMsg = err?.message || 'Unknown error';
-          const msg = rawMsg.toLowerCase();
-          const isAuthError = msg.includes('session expired') || msg.includes('403') || msg.includes('authentication required') || msg.includes('invalid session');
-          
-          if (isAuthError) {
-            showToast(`Session Expired: Please logout and login again to continue.`, 'error');
-            setIsDebugOpen(true); 
-          } else {
-            showToast(`Save Error: ${rawMsg.slice(0, 80)}`, 'error');
-          }
+          showToast(`Save Error: ${rawMsg.slice(0, 80)}`, 'error');
         } finally {
           setSavePending(false);
         }
@@ -2742,27 +2724,17 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       return;
     }
 
+    // 2. Content handling
     if (section === 'content') {
-      const updatedContent = { ...data.content, [field]: sanitizedValue };
-      setData(prev => ({ ...prev, content: updatedContent }));
+      setData(prev => ({ ...prev, content: { ...prev.content, [field]: sanitizedValue } }));
       
       const timerId = `save-content`;
       if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
       (window as any)[timerId] = setTimeout(async () => {
         setSavePending(true);
         try {
-          await supabaseService.saveItem('content', { [field]: sanitizedValue });
-          try {
-            await supabaseService.saveItem('logs', {
-              id: `log_cont_${Date.now()}`,
-              user: user?.email || 'anonymous',
-              action: 'UPDATE_CONTENT',
-              details: `Updated narrative content for ${field}`,
-              timestamp: new Date().toISOString()
-            });
-          } catch (logErr) {
-            console.warn('Failed to save audit log:', logErr);
-          }
+          // Sync specific field or whole content? Supabase saveItem handles it
+          await supabaseService.saveItem('content', dataRef.current.content);
           showToast('Content narrative synced');
         } catch (err: any) {
           console.error('Content sync failed:', err);
@@ -2774,16 +2746,16 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       return;
     }
 
+    // 3. Digital Campus handling
     if (section === 'digital_campus') {
-      const updatedDC = { ...(data.digital_campus || { id: 'current', title: 'Digital Campus', is_enabled: true }), [field]: sanitizedValue };
-      setData(prev => ({ ...prev, digital_campus: updatedDC }));
+      setData(prev => ({ ...prev, digital_campus: { ...(prev.digital_campus || { id: 'current', title: 'Digital Campus', is_enabled: true }), [field]: sanitizedValue } }));
       
       const timerId = `save-digital-campus`;
       if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
       (window as any)[timerId] = setTimeout(async () => {
         setSavePending(true);
         try {
-          await supabaseService.saveItem('digital_campus', updatedDC);
+          await supabaseService.saveItem('digital_campus', dataRef.current.digital_campus);
           showToast('Digital Campus updated');
         } catch (err: any) {
           console.error('Digital Campus sync failed:', err);
@@ -2795,64 +2767,46 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       return;
     }
 
-    // Default collection handling (Staff, Notices, etc.)
+    // 4. Default collection handling (Staff, Notices, etc.)
+    // Update local state first
     setData(prev => {
-      const currentItems = (prev[section] as any[]) || [];
+      const prevItems = (prev[section] as any[]) || [];
       let itemFound = false;
-      const newItems = currentItems.map((item: any) => {
+      const newItems = prevItems.map((item: any) => {
         if (item.id === id) {
           itemFound = true;
-          const updatedItem = { ...item, [field]: sanitizedValue };
-          
-          // SIDE EFFECT: Schedule save for this specific item
-          const timerId = `save-${section as string}-${id}`;
-          if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
-          (window as any)[timerId] = setTimeout(async () => {
-            setSavePending(true);
-            try {
-              await supabaseService.saveItem(section, updatedItem);
-              showToast(`Synced ${section} update`);
-            } catch (err: any) {
-              console.error('Sync failed:', err);
-              let msg = err?.message || 'Unknown network error';
-              if (typeof msg === 'string' && msg.startsWith('{')) {
-                try { msg = JSON.parse(msg).error || msg; } catch(e) {}
-              }
-              showToast(`Sync failed: ${msg}`, 'error');
-            } finally {
-              setSavePending(false);
-            }
-          }, 1000);
-
-          return updatedItem;
+          return { ...item, [field]: sanitizedValue };
         }
         return item;
       });
 
       if (!itemFound && (section === 'school_history' || section === 'lead_grace')) {
-        const newItem = { id, [field]: sanitizedValue };
-        
-        // Schedule save for new singleton
-        const timerId = `save-${section as string}-${id}`;
-        if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
-        (window as any)[timerId] = setTimeout(async () => {
-          setSavePending(true);
-          try {
-            await supabaseService.saveItem(section, newItem);
-            showToast(`Created ${section} entry`);
-          } catch (err: any) {
-            console.error('Sync failed:', err);
-            showToast(`Sync failed: ${err?.message || 'Unknown'}`, 'error');
-          } finally {
-            setSavePending(false);
-          }
-        }, 1000);
-
-        return { ...prev, [section]: [...currentItems, newItem] };
+        return { ...prev, [section]: [...prevItems, { id, [field]: sanitizedValue }] };
       }
 
       return { ...prev, [section]: newItems };
     });
+
+    // Schedule side effect
+    const timerId = `save-${section as string}-${id}`;
+    if ((window as any)[timerId]) clearTimeout((window as any)[timerId]);
+    (window as any)[timerId] = setTimeout(async () => {
+      setSavePending(true);
+      try {
+        const items = (dataRef.current[section] as any[]) || [];
+        const itemToSave = items.find(i => i.id === id);
+        if (itemToSave) {
+          await supabaseService.saveItem(section, itemToSave);
+          showToast(`Synced ${section} update`);
+        }
+      } catch (err: any) {
+        console.error('Sync failed:', err);
+        let msg = err?.message || 'Unknown network error';
+        showToast(`Sync failed: ${msg}`, 'error');
+      } finally {
+        setSavePending(false);
+      }
+    }, 1000);
   };
 
   const handleBulkUpdate = async () => {
@@ -3134,18 +3088,17 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       setSupabaseStatus(health);
 
       if (!health.connected) {
-        setIsDebugOpen(true);
         throw new Error(`Cloud connection failed: ${health.error || 'Unknown error'}`);
       }
-
+      
       showToast('Step 2: Syncing Local Data to Cloud...');
       
       // Use the efficient syncAll method from supabaseService
       await supabaseService.syncAll(data);
       
       // Also save settings and content which syncAll handles
-      await supabaseService.saveItem('settings', data.settings);
-      await supabaseService.saveItem('content', data.content);
+      await supabaseService.saveItem('settings', dataRef.current.settings);
+      await supabaseService.saveItem('content', dataRef.current.content);
 
       // Audit Log
       try {
@@ -3163,12 +3116,11 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       showToast('Local changes successfully pushed to Cloud Storage', 'success');
     } catch (err: any) {
       console.error('Push failed:', err);
-      const isAuthError = err.message?.toLowerCase().includes('session') || err.message?.toLowerCase().includes('auth');
+      const isAuthError = err.message?.toLowerCase().includes('session') || err.message?.toLowerCase().includes('auth') || err.message?.toLowerCase().includes('403');
       if (isAuthError) {
-        showToast('Authentication Error: Please logout and login again.', 'error');
-        setIsDebugOpen(true);
+        showToast('Session Expired: Please Logout and Login again to refresh credentials.', 'error');
       } else {
-        showToast(err.message || 'Cloud Push Failed', 'error');
+        showToast(`Push failed: ${err.message || 'Network error'}`, 'error');
       }
     } finally {
       setUploadingPath(null);
@@ -3187,7 +3139,6 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       setSupabaseStatus(health);
 
       if (!health.connected) {
-        setIsDebugOpen(true);
         throw new Error(`Cloud connection failed: ${health.error || 'Unknown error'}`);
       }
 
@@ -3215,12 +3166,16 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         
         showToast('Successfully updated local view from Cloud storage', 'success');
       } else {
-        setIsDebugOpen(true);
         throw new Error('No data found in Cloud Database.');
       }
     } catch (err: any) {
       console.error('Pull failed:', err);
-      showToast(err.message || 'Synchronization Failed', 'error');
+      const isAuthError = err.message?.toLowerCase().includes('session') || err.message?.toLowerCase().includes('auth') || err.message?.toLowerCase().includes('403');
+      if (isAuthError) {
+        showToast('Session Expired: Please Logout and Login again.', 'error');
+      } else {
+        showToast(err.message || 'Synchronization Failed', 'error');
+      }
     } finally {
       setUploadingPath(null);
       setSavePending(false);
@@ -3944,6 +3899,12 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
               </div>
            )}
            <button onClick={() => navigate('/')} className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-white flex items-center gap-3 transition-colors"><ChevronRight size={14} className="rotate-180" /> Exit Portal</button>
+           <button 
+             onClick={checkSupabaseHealth} 
+             className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-school-gold/40 hover:text-school-gold flex items-center gap-3 transition-colors"
+           >
+             <Activity size={14} /> Check Sync Health
+           </button>
         </div>
       </aside>
 
