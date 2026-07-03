@@ -3,7 +3,19 @@ import { createClient } from '@supabase/supabase-js';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'st-xaviers-school-default-secure-secret-change-me';
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+
+const cleanSupabaseUrl = (url?: string): string => {
+  if (!url) return '';
+  const trimmed = url.trim();
+  try {
+    const urlObj = new URL(trimmed);
+    return `${urlObj.protocol}//${urlObj.host}`;
+  } catch (e) {
+    return trimmed.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+  }
+};
+
+const SUPABASE_URL = cleanSupabaseUrl(process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL);
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
