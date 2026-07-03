@@ -243,7 +243,7 @@ export const DEFAULT_DATA: AppData = {
   popups: [],
   marquee: [
     { id: 'm1', text: 'St. Xavier\'s School, Jaipur - A Legacy of Excellence since 1941.', link: '#', isActive: true, order_index: 0 },
-    { id: 'm2', text: 'Admissions Open for Academic Session 2026-27. Apply now!', link: '/admission-policy', isActive: true, order_index: 1 },
+    { id: 'm2', text: 'Admissions Open for Academic Session 2026-27. Apply now!', link: '/admission-policy', isActive: false, order_index: 1 },
   ],
   former_student_leaders: [
     { id: 'fsl1', name: 'Master Aryan Pareek', role: 'Head Boy', academic_year: '2023-24', order_index: 0 },

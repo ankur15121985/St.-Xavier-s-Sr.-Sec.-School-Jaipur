@@ -35,7 +35,7 @@ export const Marquee = ({ items }: MarqueeProps) => {
               {item.text}
             </span>
             
-            {(item.link || item.attachmentUrl) && (
+            {((item.link && item.link !== '#' && item.link !== '') || item.attachmentUrl) && (
               <a 
                 href={item.attachmentUrl || item.link}
                 target="_blank"

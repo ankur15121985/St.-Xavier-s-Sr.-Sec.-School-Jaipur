@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'st-xaviers-school-default-secure-secret-change-me';
+const JWT_SECRET = 'st-xaviers-school-2024-secure-jwt-key-v1';
 
 const cleanSupabaseUrl = (url?: string): string => {
   if (!url) return '';
