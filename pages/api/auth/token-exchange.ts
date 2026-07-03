@@ -23,13 +23,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    console.log('[AUTH EXCHANGE] Received exchange request for token (first 10 chars):', supabaseToken.substring(0, 10));
     // 1. Verify the token with Supabase
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const { data: { user }, error } = await supabase.auth.getUser(supabaseToken);
 
     if (error || !user) {
-      return res.status(401).json({ error: 'Invalid Supabase session' });
+      console.error('[AUTH EXCHANGE] Supabase getUser error:', error?.message);
+      return res.status(401).json({ error: 'Invalid Supabase session', details: error?.message });
     }
+
+    console.log('[AUTH EXCHANGE] User verified:', user.email);
 
     // 2. Check if user is an admin
     const bootstrapEmail = 'ankur15121985@gmail.com';

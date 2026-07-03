@@ -16,7 +16,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
   }
 
   if (req.method === 'POST') {
-    if (!authenticateToken(req, res)) {
+    if (!await authenticateToken(req, res)) {
       return;
     }
 
@@ -33,7 +33,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
   }
 
   if (req.method === 'DELETE') {
-    if (!authenticateToken(req, res)) {
+    if (!await authenticateToken(req, res)) {
       return;
     }
 

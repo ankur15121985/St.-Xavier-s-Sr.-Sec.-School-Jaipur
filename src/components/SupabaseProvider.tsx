@@ -112,17 +112,22 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
         const u = session?.user ?? null;
         if (u) {
+          if (session?.access_token) {
+            localStorage.setItem('school_admin_token', session.access_token);
+          }
           setUser(u);
           const bootstrapEmail = 'ankur15121985@gmail.com';
           const isSpecialAdmin = u.email === bootstrapEmail || u.app_metadata?.role === 'admin';
           setIsAdmin(isSpecialAdmin);
           
           if (isSpecialAdmin) {
+            console.log('[Supabase Provider] Detected admin user on mount. Ensuring token...');
             await exchangeToken(session);
           }
         } else {
           const customAdmin = localStorage.getItem('school_admin_session');
           if (customAdmin) {
+            console.log('[Supabase Provider] Detected legacy custom admin session.');
             setIsAdmin(true);
             setUser({ 
               email: customAdmin, 
@@ -141,6 +146,10 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     checkUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.access_token) {
+        localStorage.setItem('school_admin_token', session.access_token);
+      }
+
       const customAdmin = localStorage.getItem('school_admin_session');
       if (customAdmin) {
         setIsAdmin(true);

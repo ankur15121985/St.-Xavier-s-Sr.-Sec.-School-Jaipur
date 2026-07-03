@@ -55,7 +55,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!authenticateToken(req, res)) {
+  if (!await authenticateToken(req, res)) {
     return;
   }
 

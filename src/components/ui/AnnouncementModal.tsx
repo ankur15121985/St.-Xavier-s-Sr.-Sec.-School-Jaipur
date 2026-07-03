@@ -12,7 +12,7 @@ export const AnnouncementModal = ({ popups, settings }: AnnouncementModalProps) 
   // Use either active popups from the list OR a virtual popup from settings if enabled
   const activePopups = [...popups.filter(p => p.isActive)];
   
-  if (activePopups.length === 0 && settings?.popupEnabled && settings?.popupMessage) {
+  if (activePopups.length === 0 && settings?.popupEnabled === true && settings?.popupMessage) {
     activePopups.push({
       id: 'settings-popup',
       title: 'Institutional Announcement',
