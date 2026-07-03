@@ -240,18 +240,7 @@ export const DEFAULT_DATA: AppData = {
     { id: 'f2', question: 'Is there a transport facility?', answer: 'Yes, the school provides bus facilities covering most major parts of Jaipur city.', category: 'General', order_index: 1 }
   ],
   messages: [],
-  popups: [
-    {
-      id: 'p1',
-      title: 'Welcome to St. Xavier\'s',
-      type: 'text',
-      content: 'Welcome to St. Xavier\'s, C-scheme. Admissions for the academic session 2026-27 are now open. Please visit the admission portal for details.',
-      buttonText: 'Admission Portal',
-      buttonLink: '/studybase-app',
-      isActive: false,
-      order_index: 0
-    }
-  ],
+  popups: [],
   marquee: [
     { id: 'm1', text: 'St. Xavier\'s School, Jaipur - A Legacy of Excellence since 1941.', link: '#', isActive: true, order_index: 0 },
     { id: 'm2', text: 'Admissions Open for Academic Session 2026-27. Apply now!', link: '/admission-policy', isActive: true, order_index: 1 },
@@ -357,7 +346,7 @@ export const DEFAULT_DATA: AppData = {
   logs: [],
   settings: {
     id: 'global',
-    applyNowEnabled: true,
+    applyNowEnabled: false,
     applyNowUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
     applyNowLabel: 'Apply 2026-27',
     siteName: "St. Xavier's, C-scheme",

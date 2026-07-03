@@ -190,9 +190,6 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         <meta name="twitter:description" content={data.settings?.ogDescription || "St. Xavier's Senior Secondary School, Jaipur - A premier Jesuit institution dedicated to holistic development and educational excellence since 1941."} />
         <meta name="twitter:image" content={data.settings?.ogImage || data.settings?.siteLogo || "/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png"} />
       </Helmet>
-      {/* Admin Institutional Popup - High level */}
-      {data.settings && <PopupMessage settings={data.settings} />}
-
       {/* Persistent Resource Sidebar */}
       <SidebarLinks links={data.useful_links || []} />
 

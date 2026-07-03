@@ -1,14 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ExternalLink, FileText, ImageIcon, MessageSquare } from 'lucide-react';
-import { AnnouncementPopup } from '../../types';
+import { AnnouncementPopup, AppSettings } from '../../types';
 
 interface AnnouncementModalProps {
   popups: AnnouncementPopup[];
+  settings?: AppSettings;
 }
 
-export const AnnouncementModal = ({ popups }: AnnouncementModalProps) => {
-  const activePopups = popups.filter(p => p.isActive).sort((a, b) => a.order_index - b.order_index);
+export const AnnouncementModal = ({ popups, settings }: AnnouncementModalProps) => {
+  // Use either active popups from the list OR a virtual popup from settings if enabled
+  const activePopups = [...popups.filter(p => p.isActive)];
+  
+  if (activePopups.length === 0 && settings?.popupEnabled && settings?.popupMessage) {
+    activePopups.push({
+      id: 'settings-popup',
+      title: 'Institutional Announcement',
+      type: 'text',
+      content: settings.popupMessage,
+      isActive: true,
+      order_index: -1
+    });
+  }
+
+  activePopups.sort((a, b) => a.order_index - b.order_index);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
 

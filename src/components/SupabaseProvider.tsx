@@ -89,34 +89,21 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           localStorage.setItem('school_admin_session', userData.username);
           localStorage.setItem('school_admin_token', token);
           console.log('[Auth] Token exchange successful. Admin session persisted.');
+          return token;
         }
       } catch (err) {
         console.error('[Auth] Token exchange failed:', err);
       }
+      return null;
     };
 
     const checkUser = async () => {
       try {
-        const customAdmin = localStorage.getItem('school_admin_session');
-        if (customAdmin) {
-          setIsAdmin(true);
-          setUser({ 
-            email: customAdmin, 
-            id: 'custom-admin',
-            user_metadata: { full_name: customAdmin }
-          } as any);
-          setLoading(false);
-          return;
-        }
-
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('[Supabase Provider] Session retrieval error:', sessionError.message);
-          // If refresh token is invalid/not found, clear the session to prevent infinite error loops
-          if (sessionError.message?.toLowerCase().includes('refresh_token') || 
-              sessionError.message?.toLowerCase().includes('refresh token')) {
-            console.warn('[Supabase Provider] Invalid refresh token detected. Signing out...');
+          if (sessionError.message?.toLowerCase().includes('refresh_token')) {
             await supabase.auth.signOut();
           }
           setLoading(false);
@@ -130,20 +117,22 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           const isSpecialAdmin = u.email === bootstrapEmail || u.app_metadata?.role === 'admin';
           setIsAdmin(isSpecialAdmin);
           
-          // If they are a Supabase admin but don't have a custom token yet, exchange it
-          if (isSpecialAdmin && !localStorage.getItem('school_admin_token')) {
+          if (isSpecialAdmin) {
             await exchangeToken(session);
+          }
+        } else {
+          const customAdmin = localStorage.getItem('school_admin_session');
+          if (customAdmin) {
+            setIsAdmin(true);
+            setUser({ 
+              email: customAdmin, 
+              id: 'custom-admin',
+              user_metadata: { full_name: customAdmin }
+            } as any);
           }
         }
       } catch (err: any) {
         console.error('Supabase getSession error:', err);
-        // Catch-all for SDK internal errors like "Refresh Token Not Found"
-        if (err.message?.includes('Refresh Token')) {
-          console.warn('[Supabase Provider] Critical refresh token error. Clearing auth state.');
-          localStorage.removeItem('supabase.auth.token'); // Fallback for old SDK versions
-          setUser(null);
-          setIsAdmin(false);
-        }
       } finally {
         setLoading(false);
       }
