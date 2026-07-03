@@ -74,6 +74,27 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     console.log('[Auth] Setting up Supabase Auth listener...');
     
+    const exchangeToken = async (sbSession: any) => {
+      if (!sbSession?.access_token) return;
+      try {
+        console.log('[Auth] Exchanging Supabase session for custom API token...');
+        const res = await fetch('/api/auth/token-exchange', {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${sbSession.access_token}`
+          }
+        });
+        if (res.ok) {
+          const { token, user: userData } = await res.json();
+          localStorage.setItem('school_admin_session', userData.username);
+          localStorage.setItem('school_admin_token', token);
+          console.log('[Auth] Token exchange successful. Admin session persisted.');
+        }
+      } catch (err) {
+        console.error('[Auth] Token exchange failed:', err);
+      }
+    };
+
     const checkUser = async () => {
       try {
         const customAdmin = localStorage.getItem('school_admin_session');
@@ -105,7 +126,14 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const u = session?.user ?? null;
         if (u) {
           setUser(u);
-          checkAdminStatus(u);
+          const bootstrapEmail = 'ankur15121985@gmail.com';
+          const isSpecialAdmin = u.email === bootstrapEmail || u.app_metadata?.role === 'admin';
+          setIsAdmin(isSpecialAdmin);
+          
+          // If they are a Supabase admin but don't have a custom token yet, exchange it
+          if (isSpecialAdmin && !localStorage.getItem('school_admin_token')) {
+            await exchangeToken(session);
+          }
         }
       } catch (err: any) {
         console.error('Supabase getSession error:', err);
@@ -123,7 +151,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     checkUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       const customAdmin = localStorage.getItem('school_admin_session');
       if (customAdmin) {
         setIsAdmin(true);
@@ -139,7 +167,13 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const u = session?.user ?? null;
       if (u) {
         setUser(u);
-        checkAdminStatus(u);
+        const bootstrapEmail = 'ankur15121985@gmail.com';
+        const isSpecialAdmin = u.email === bootstrapEmail || u.app_metadata?.role === 'admin';
+        setIsAdmin(isSpecialAdmin);
+
+        if (event === 'SIGNED_IN' && isSpecialAdmin) {
+          await exchangeToken(session);
+        }
       } else {
         setUser(null);
         setIsAdmin(false);
