@@ -990,23 +990,19 @@ export function proxySupabaseUrls(obj: any): any {
 
 export async function fetchServerData(force: boolean = false) {
   const now = Date.now();
-  if (!force && serverDataCache && now < serverDataCacheExpiresAt) {
-    return serverDataCache;
-  }
-
+  
   const SUPABASE_URL = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
   const ANON_KEY = (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim();
   const SERVICE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE || '').trim();
   const SUPABASE_KEY = SERVICE_KEY || ANON_KEY;
   const isUsingServiceRole = !!SERVICE_KEY;
 
-  console.log(`[Server Cache Manager] Sync attempt. Force: ${force}, ServiceRole: ${isUsingServiceRole}`);
-
-  // 1. Fetch from local SQLite first immediately
   const localData = getLocalSQLiteData();
 
   if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes('placeholder-project-id')) {
-    console.log('[Server Cache Manager] Supabase not configured. Using local data only.');
+    if (!force && serverDataCache && now < serverDataCacheExpiresAt) {
+      return serverDataCache;
+    }
     const proxied = proxySupabaseUrls(localData);
     serverDataCache = proxied;
     serverDataCacheExpiresAt = Date.now() + CACHE_TTL_MS;
@@ -1022,36 +1018,35 @@ export async function fetchServerData(force: boolean = false) {
       .replace(/\/rest\/v1\/?$/, '') 
       .replace(/\/$/, '');
     const supabaseServer = createClient(cleanUrl, SUPABASE_KEY);
-
-      const db = getDatabase();
-      try {
-        const row = db.prepare("SELECT value FROM content WHERE key = 'content_updated_at'").get() as any;
-        if (row && row.value) {
-          localContentUpdatedAt = row.value;
-        }
-      } catch (e) {}
-
-      // Check remote timestamp from content table first
-      const { data: remoteContentRow, error: contentTimeErr } = await supabaseServer
-        .from('content')
-        .select('value')
-        .eq('key', 'content_updated_at')
-        .maybeSingle();
-
-      if (contentTimeErr) {
-        console.warn('[Server Cache Manager] Querying content timestamp failed (table might be missing), proceeding to check tables directly:', contentTimeErr.message);
-        remoteContentUpdatedAt = 'UNKNOWN'; 
-      } else {
-        const defaultTime = '2026-06-15T00:00:00.000Z';
-        remoteContentUpdatedAt = remoteContentRow?.value || defaultTime;
-
-        // If remote has no timestamp yet (legacy DB), prime it asynchronously
-        if (!remoteContentRow?.value && isUsingServiceRole) {
-          try {
-            await supabaseServer.from('content').upsert({ key: 'content_updated_at', value: defaultTime });
-          } catch (e) {}
-        }
+    const db = getDatabase();
+    
+    try {
+      const row = db.prepare("SELECT value FROM content WHERE key = 'content_updated_at'").get() as any;
+      if (row && row.value) {
+        localContentUpdatedAt = row.value;
       }
+    } catch (e) {}
+
+    // Check remote timestamp from content table first
+    const { data: remoteContentRow, error: contentTimeErr } = await supabaseServer
+      .from('content')
+      .select('value')
+      .eq('key', 'content_updated_at')
+      .maybeSingle();
+
+    if (!contentTimeErr && remoteContentRow?.value) {
+      remoteContentUpdatedAt = remoteContentRow.value;
+      
+      // CRITICAL: If remote matches local AND we have a memory cache, return it!
+      if (!force && serverDataCache && localContentUpdatedAt === remoteContentUpdatedAt && now < serverDataCacheExpiresAt) {
+        return serverDataCache;
+      }
+    }
+
+    if (contentTimeErr) {
+      console.warn('[Server Cache Manager] Querying content timestamp failed:', contentTimeErr.message);
+      remoteContentUpdatedAt = 'UNKNOWN'; 
+    }
 
       // COMPARE TIMESTAMPS
       const isLocalDataPopulated = Object.values(localData).some(val => Array.isArray(val) && val.length > 0);

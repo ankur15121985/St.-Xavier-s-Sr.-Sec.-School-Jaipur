@@ -280,6 +280,20 @@ export const supabaseService = {
     }
   },
 
+  /**
+   * Updates the global timestamp in Supabase to signal that data has changed.
+   * This ensures the server-side cache manager (db.ts) knows to invalidate its cache.
+   */
+  async updateRemoteTimestamp(): Promise<void> {
+    try {
+      const now = new Date().toISOString();
+      await supabase.from('content').upsert({ key: 'content_updated_at', value: now }, { onConflict: 'key' });
+      console.log(`[Supabase Sync] Remote timestamp updated to ${now}`);
+    } catch (e) {
+      console.warn('[Supabase Sync Warning] Failed to update remote timestamp:', e);
+    }
+  },
+
   async saveItem(section: keyof AppData, item: any): Promise<void> {
     console.log(`[Sync] Saving item to ${section}:`, item.id || 'new');
     
@@ -485,6 +499,10 @@ export const supabaseService = {
           cloudSaveSucceeded = true;
         }
       }
+      
+      if (cloudSaveSucceeded) {
+        await this.updateRemoteTimestamp();
+      }
     } catch (err: any) {
       console.warn(`[Supabase Service Soft Exception] ${section}:`, err.message || err);
     }
@@ -499,31 +517,28 @@ export const supabaseService = {
   async deleteItem(section: keyof AppData, id: string): Promise<void> {
     try {
       // 1. Delete from Supabase
-      try {
-        const targetTable = section === 'settings' ? 'site_settings' : section as string;
-        const matchField = section === 'content' ? 'key' : 'id';
-        let { error } = await supabase.from(targetTable).delete().eq(matchField, id);
-        
-        if (error && section === 'settings' && targetTable === 'site_settings') {
-          const errMsg = error.message?.toLowerCase() || '';
-          const isTableMissing = error.code === 'PGRST125' || 
-                                 error.code === 'PGRST204' || 
-                                 String(error.code) === '404' || 
-                                 errMsg.includes('site_settings') || 
-                                 errMsg.includes('invalid path') || 
-                                 errMsg.includes('relation "public.site_settings" does not exist');
-          if (isTableMissing) {
-            console.warn(`[Supabase Sync] 'site_settings' table not found on delete. Trying fallback to 'settings' table...`);
-            const fallbackResult = await supabase.from('settings').delete().eq(matchField, id);
-            error = fallbackResult.error;
-          }
+      const targetTable = section === 'settings' ? 'site_settings' : section as string;
+      const matchField = section === 'content' ? 'key' : 'id';
+      let { error } = await supabase.from(targetTable).delete().eq(matchField, id);
+      
+      if (error && section === 'settings' && targetTable === 'site_settings') {
+        const errMsg = error.message?.toLowerCase() || '';
+        const isTableMissing = error.code === 'PGRST125' || 
+                               error.code === 'PGRST204' || 
+                               String(error.code) === '404' || 
+                               errMsg.includes('site_settings') || 
+                               errMsg.includes('invalid path') || 
+                               errMsg.includes('relation "public.site_settings" does not exist');
+        if (isTableMissing) {
+          console.warn(`[Supabase Sync] 'site_settings' table not found on delete. Trying fallback to 'settings' table...`);
+          const fallbackResult = await supabase.from('settings').delete().eq(matchField, id);
+          error = fallbackResult.error;
         }
-        
-        if (error) throw error;
-        console.log(`[Supabase Sync] ${targetTable} item deleted`);
-      } catch (err: any) {
-        console.warn('[Supabase Sync Warning] Failed to delete from Supabase:', err.message);
       }
+      
+      if (error) throw error;
+      console.log(`[Supabase Sync] ${targetTable} item deleted`);
+      await this.updateRemoteTimestamp();
 
       // 2. Delete from local server or localStorage fallback
       let isStaticHosting = false;
@@ -537,6 +552,11 @@ export const supabaseService = {
           },
           body: JSON.stringify({ table: section, id })
         });
+        
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `Server delete failed with status ${res.status}`);
+        }
         
         const contentType = res.headers.get('content-type');
         const isNonJson = !contentType || !contentType.includes('application/json');

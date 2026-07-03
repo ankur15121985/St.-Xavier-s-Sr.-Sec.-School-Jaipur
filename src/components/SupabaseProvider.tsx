@@ -88,14 +88,34 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           return;
         }
 
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('[Supabase Provider] Session retrieval error:', sessionError.message);
+          // If refresh token is invalid/not found, clear the session to prevent infinite error loops
+          if (sessionError.message?.toLowerCase().includes('refresh_token') || 
+              sessionError.message?.toLowerCase().includes('refresh token')) {
+            console.warn('[Supabase Provider] Invalid refresh token detected. Signing out...');
+            await supabase.auth.signOut();
+          }
+          setLoading(false);
+          return;
+        }
+
         const u = session?.user ?? null;
         if (u) {
           setUser(u);
           checkAdminStatus(u);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Supabase getSession error:', err);
+        // Catch-all for SDK internal errors like "Refresh Token Not Found"
+        if (err.message?.includes('Refresh Token')) {
+          console.warn('[Supabase Provider] Critical refresh token error. Clearing auth state.');
+          localStorage.removeItem('supabase.auth.token'); // Fallback for old SDK versions
+          setUser(null);
+          setIsAdmin(false);
+        }
       } finally {
         setLoading(false);
       }

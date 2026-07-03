@@ -629,7 +629,7 @@ const HomePage = ({ data }: { data: AppData }) => {
         </div>
       )}
 
-      <AnnouncementModal popups={data.popups || []} />
+      {data.settings?.popupEnabled !== false && <AnnouncementModal popups={data.popups || []} />}
     </Layout>
   );
 };

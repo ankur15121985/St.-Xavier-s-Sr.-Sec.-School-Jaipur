@@ -11,6 +11,9 @@ const SUPABASE_KEY = SERVICE_KEY || ANON_KEY;
 
 let supabaseServer: any = null;
 if (SUPABASE_URL && SUPABASE_KEY) {
+  if (!SERVICE_KEY) {
+    console.warn('[SUPABASE] SERVICE_ROLE_KEY is missing. Delete operations may fail due to RLS if the project is hardened.');
+  }
   try {
     const cleanUrl = SUPABASE_URL.trim().replace('/rest/v1/', '').replace('/rest/v1', '').replace(/\/$/, '');
     supabaseServer = createClient(cleanUrl, SUPABASE_KEY);

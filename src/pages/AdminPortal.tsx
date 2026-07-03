@@ -2847,6 +2847,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     try {
       for (const id of idList) {
         await supabaseService.deleteItem(activeSection as any, id);
+        console.log(`[Admin] Deleted ${activeSection}/${id}`);
       }
 
       // Audit Log for deletion
@@ -2862,7 +2863,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         console.warn('Failed to save audit log:', logErr);
       }
       
-      showToast(`Successfully deleted from ${activeSection as string}`);
+      showToast(`Successfully deleted ${idList.length} items from ${activeSection as string}`, 'success');
       setData(prev => {
         const current = prev[activeSection];
         if (Array.isArray(current)) {
@@ -2877,7 +2878,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       setSelectedIds(new Set());
     } catch (err: any) {
       console.error('Delete failed:', err);
-      const msg = err.message.startsWith('{') ? JSON.parse(err.message).error : err.message;
+      const msg = err.message?.startsWith('{') ? JSON.parse(err.message).error : (err.message || 'Unknown error');
       showToast(`Deletion failed: ${msg}`, 'error');
     } finally {
       setSavePending(false);
