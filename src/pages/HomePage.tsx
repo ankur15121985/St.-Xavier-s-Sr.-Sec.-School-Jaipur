@@ -40,13 +40,22 @@ const getSmallImageUrl = (url: string) => {
 };
 
 const HomePage = ({ data }: { data: AppData }) => {
-  const carouselImages = data.carousel && data.carousel.length > 0 
-    ? data.carousel.filter(c => c.is_enabled ).map(c => c.url) 
-    : [
-        "https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600",
-        "https://lh3.googleusercontent.com/d/1ZfP3k6bFiwdZdEe3CI_U6KhBkAEaybUs=w1600",
-        "https://lh3.googleusercontent.com/d/187y5AfGgvXnofNL6h85uU1rpdfaWYDCH=w1600"
-      ];
+  const carouselImages = (data.carousel && data.carousel.length > 0 
+    ? data.carousel.filter(c => c.is_enabled !== false).map(c => c.url) 
+    : []).filter(url => !!url);
+  
+  const finalCarouselImages = carouselImages.length > 0 ? carouselImages : [
+    "https://lh3.googleusercontent.com/d/1C-_jZCL-OpkhhOV_R6oTGRfNxkhBIkHN=w1600",
+    "https://lh3.googleusercontent.com/d/1ZfP3k6bFiwdZdEe3CI_U6KhBkAEaybUs=w1600",
+    "https://lh3.googleusercontent.com/d/187y5AfGgvXnofNL6h85uU1rpdfaWYDCH=w1600"
+  ];
+
+  const activeGallery = data.gallery?.filter(img => img.is_enabled !== false) || [];
+  const activeNotices = data.notices?.filter(n => n.is_enabled !== false) || [];
+  const activeEvents = data.events?.filter(e => e.is_enabled !== false) || [];
+  const activeMarquee = (data.marquee || []).filter(i => i.isActive !== false);
+  const activeStaff = data.staff?.filter(s => (s.type === 'Management' || s.type === 'Administration') && s.is_enabled !== false) || [];
+  const activeHonors = data.studentHonors?.filter(h => h.is_enabled !== false) || [];
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -76,24 +85,24 @@ const HomePage = ({ data }: { data: AppData }) => {
       <div className="h-[64px] md:h-[102px] lg:h-[134px]" />
 
       {/* Full Width Dynamic Carousel */}
-      {!!data.settings?.showCarousel && carouselImages.length > 0 && (
+      {data.settings?.showCarousel !== false && data.settings?.showCarousel !== 0 && finalCarouselImages.length > 0 && (
         <motion.section 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="w-full h-[calc(100dvh-64px)] md:h-[calc(100dvh-102px)] lg:h-[calc(100dvh-134px)] overflow-hidden relative"
         >
-          <Carousel images={carouselImages} />
+          <Carousel images={finalCarouselImages} />
         </motion.section>
       )}
 
       {/* Marquee Section */}
-      {!!data.settings?.showMarquee && (
-        <Marquee items={(data.marquee || []).filter(i => i.isActive )} />
+      {data.settings?.showMarquee !== false && data.settings?.showMarquee !== 0 && (
+        <Marquee items={activeMarquee} />
       )}
 
       {/* About St. Xavier's School - Introduction Section */}
-      {!!data.settings?.showAbout && (
+      {data.settings?.showAbout !== false && data.settings?.showAbout !== 0 && (
         <section id="about-section" className="py-12 md:py-16 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-20 items-center">
@@ -149,7 +158,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Feature Section - Simple Clean */}
-      {!!data.settings?.showFeature && (
+      {data.settings?.showFeature !== false && data.settings?.showFeature !== 0 && (
         <section className="py-16 md:py-20 relative">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-24 items-center">
@@ -176,8 +185,8 @@ const HomePage = ({ data }: { data: AppData }) => {
                  transition={{ duration: 0.8 }}
                  className="relative aspect-square"
               >
-                <div className="h-full w-full rounded-3xl overflow-hidden shadow-xl border border-black/5">
-                   <img src={carouselImages[0]} className="w-full h-full object-cover" alt="Feature" />
+               <div className="h-full w-full rounded-3xl overflow-hidden shadow-xl border border-black/5">
+                   <img src={finalCarouselImages[0]} className="w-full h-full object-cover" alt="Feature" />
                 </div>
               </motion.div>
             </div>
@@ -186,7 +195,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Vision Section - Minimal Clean */}
-      {!!data.settings?.showVision && (
+      {data.settings?.showVision !== false && data.settings?.showVision !== 0 && (
         <motion.section 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -203,7 +212,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Insights Section - Simple Clean */}
-      {!!data.settings?.showInsights && (data.notices?.filter(n => n.is_enabled ).length > 0 || data.events?.filter(e => e.is_enabled ).length > 0) && (
+      {data.settings?.showInsights !== false && data.settings?.showInsights !== 0 && (activeNotices.length > 0 || activeEvents.length > 0) && (
         <section className="py-16 md:py-20 overflow-hidden">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
@@ -215,7 +224,7 @@ const HomePage = ({ data }: { data: AppData }) => {
           </motion.div>
 
           <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-8">
-             {data.notices?.filter(n => n.is_enabled ).length > 0 && (
+             {activeNotices.length > 0 && (
                <motion.div 
                  initial={{ opacity: 0, x: -30 }}
                  whileInView={{ opacity: 1, x: 0 }}
@@ -225,7 +234,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                >
                   <h4 className="text-2xl font-bold mb-8">Notice Board</h4>
                   <div className="space-y-4">
-                    {data.notices.filter(n => n.is_enabled ).slice(0, 3).map((n) => (
+                    {activeNotices.slice(0, 3).map((n) => (
                       <Link key={n.id} to="/notices" className="block p-5 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-school-accent/5 transition-all border border-black/5">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{n.date}</p>
                         <h5 className="text-lg font-bold text-school-navy dark:text-white leading-tight">{n.title}</h5>
@@ -235,7 +244,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                </motion.div>
              )}
 
-             {data.events?.filter(e => e.is_enabled ).length > 0 && (
+             {activeEvents.length > 0 && (
                <motion.div 
                  initial={{ opacity: 0, x: 30 }}
                  whileInView={{ opacity: 1, x: 0 }}
@@ -245,7 +254,7 @@ const HomePage = ({ data }: { data: AppData }) => {
                >
                   <h4 className="text-2xl font-bold mb-8 text-school-navy dark:text-white">Upcoming Events</h4>
                   <div className="space-y-6">
-                    {data.events.filter(e => e.is_enabled ).slice(0, 3).map((e) => {
+                    {activeEvents.slice(0, 3).map((e) => {
                       const eventDate = new Date(e.date);
                       const day = isNaN(eventDate.getTime()) ? '??' : eventDate.getDate();
                       const month = isNaN(eventDate.getTime()) ? '???' : eventDate.toLocaleString('default', { month: 'short' });
@@ -271,7 +280,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Principal Message Section - Slick Editorial */}
-      {!!data.settings?.showPrincipalMessage && (
+      {data.settings?.showPrincipalMessage !== false && data.settings?.showPrincipalMessage !== 0 && (
         <section className="py-16 md:py-20 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-24 lg:gap-32 items-center">
@@ -328,7 +337,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Visual Narrative Grid - Simple Gallery */}
-      {!!data.settings?.showGallery && data.gallery?.filter(img => img.is_enabled ).length > 0 && (
+      {data.settings?.showGallery !== false && data.settings?.showGallery !== 0 && activeGallery.length > 0 && (
         <section className="py-12 md:py-16">
           <div className="max-w-7xl mx-auto px-6">
             <motion.div 
@@ -343,7 +352,7 @@ const HomePage = ({ data }: { data: AppData }) => {
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-               {data.gallery.filter(img => img.is_enabled ).slice(0, 6).map((img, i) => (
+               {activeGallery.slice(0, 6).map((img, i) => (
                   <motion.div
                     key={img.id}
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -369,7 +378,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Leadership Section - Regency Registry Style */}
-      {!!data.settings?.showLeadership && data.staff?.filter(s => (s.type === 'Management' || s.type === 'Administration') && s.is_enabled ).length > 0 && (
+      {data.settings?.showLeadership !== false && data.settings?.showLeadership !== 0 && activeStaff.length > 0 && (
         <section className="py-32">
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <motion.div 
@@ -389,7 +398,7 @@ const HomePage = ({ data }: { data: AppData }) => {
             </motion.div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-12 gap-x-12">
-              {data.staff.filter(s => (s.type === 'Management' || s.type === 'Administration') && s.is_enabled ).slice(0, 6).map((s, i) => (
+              {activeStaff.slice(0, 6).map((s, i) => (
                 <motion.div 
                   key={s.id}
                   initial={{ opacity: 0, x: -20 }}
@@ -423,10 +432,10 @@ const HomePage = ({ data }: { data: AppData }) => {
         </section>
       )}
 
-      {/* Student Honors / Congratulations Slider (Temporarily Disabled) */}
-      {false && data.settings?.showHonors  && data.studentHonors?.filter(h => h.is_enabled ).length > 0 && (
+      {/* Student Honors / Congratulations Slider */}
+      {data.settings?.showHonors !== false && data.settings?.showHonors !== 0 && activeHonors.length > 0 && (
         <div className="bg-transparent pb-32">
-          <HonorsSlider honors={data.studentHonors.filter(h => h.is_enabled )} />
+          <HonorsSlider honors={activeHonors} />
         </div>
       )}
 

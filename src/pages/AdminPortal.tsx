@@ -1914,10 +1914,10 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                    <div key={item.key} className="bg-school-ink/5 p-6 rounded-3xl border border-school-ink/5 flex items-center justify-between">
                      <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">{item.label}</span>
                      <button 
-                       onClick={() => handleUpdate('global', item.key, !data.settings[item.key as keyof typeof data.settings], 'settings')}
-                       className={`w-14 h-8 rounded-full relative transition-all ${!!data.settings[item.key as keyof typeof data.settings] ? 'bg-emerald-500' : 'bg-rose-500/20'}`}
+                       onClick={() => handleUpdate('global', item.key, data.settings[item.key as keyof typeof data.settings] === false || data.settings[item.key as keyof typeof data.settings] === 0, 'settings')}
+                       className={`w-14 h-8 rounded-full relative transition-all ${data.settings[item.key as keyof typeof data.settings] !== false && data.settings[item.key as keyof typeof data.settings] !== 0 ? 'bg-emerald-500' : 'bg-rose-500/20'}`}
                      >
-                       <motion.div animate={{ x: !!data.settings[item.key as keyof typeof data.settings] ? 26 : 4 }} className="w-6 h-6 rounded-full bg-white shadow-md absolute top-1 left-0" />
+                       <motion.div animate={{ x: data.settings[item.key as keyof typeof data.settings] !== false && data.settings[item.key as keyof typeof data.settings] !== 0 ? 26 : 4 }} className="w-6 h-6 rounded-full bg-white shadow-md absolute top-1 left-0" />
                      </button>
                    </div>
                  ))}
