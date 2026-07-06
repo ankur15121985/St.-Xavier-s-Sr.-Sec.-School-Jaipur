@@ -1905,8 +1905,6 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                    { key: 'showVision', label: 'Motto & Vision' },
                    { key: 'showInsights', label: 'Updates & Events' },
                    { key: 'showPrincipalMessage', label: 'Editorial Message' },
-                   { key: 'showDistinction', label: 'Laurel & Distinction' },
-                   { key: 'showVirtualCampus', label: 'Virtual Campus' },
                    { key: 'showGallery', label: 'Campus Gallery' },
                    { key: 'showLeadership', label: 'Regency Personnel' },
                    { key: 'showHonors', label: 'Student Triumphs' },
@@ -1917,9 +1915,9 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                      <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">{item.label}</span>
                      <button 
                        onClick={() => handleUpdate('global', item.key, !data.settings[item.key as keyof typeof data.settings], 'settings')}
-                       className={`w-14 h-8 rounded-full relative transition-all ${data.settings[item.key as keyof typeof data.settings] !== false ? 'bg-emerald-500' : 'bg-rose-500/20'}`}
+                       className={`w-14 h-8 rounded-full relative transition-all ${!!data.settings[item.key as keyof typeof data.settings] ? 'bg-emerald-500' : 'bg-rose-500/20'}`}
                      >
-                       <motion.div animate={{ x: data.settings[item.key as keyof typeof data.settings] !== false ? 26 : 4 }} className="w-6 h-6 rounded-full bg-white shadow-md absolute top-1 left-0" />
+                       <motion.div animate={{ x: !!data.settings[item.key as keyof typeof data.settings] ? 26 : 4 }} className="w-6 h-6 rounded-full bg-white shadow-md absolute top-1 left-0" />
                      </button>
                    </div>
                  ))}
@@ -2564,10 +2562,10 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
               </select>
             ) : field === 'isActive' || field === 'isPriority' || field === 'is_enabled' ? (
               <button 
-                onClick={() => handleUpdate(item.id, field as string, item[field] === false ? true : false, section)}
-                className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${item[field] !== false ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20'}`}
+                onClick={() => handleUpdate(item.id, field as string, !item[field], section)}
+                className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!!item[field] ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20'}`}
               >
-                {item[field] !== false 
+                {!!item[field] 
                   ? (field === 'isPriority' ? 'Priority Item' : 'Active / Enabled')
                   : (field === 'isPriority' ? 'Set as Priority' : 'Inactive / Disabled')}
               </button>

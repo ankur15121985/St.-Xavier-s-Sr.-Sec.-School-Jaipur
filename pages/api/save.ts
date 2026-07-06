@@ -99,6 +99,13 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       return res.status(400).json({ error: 'Invalid table name' });
     }
 
+    // Ensure non-null values for required settings columns
+    if (table === 'settings' || table === 'site_settings') {
+      if (item.applyNowUrl === null || item.applyNowUrl === undefined) item.applyNowUrl = '';
+      if (item.applyNowLabel === null || item.applyNowLabel === undefined) item.applyNowLabel = 'Apply Now';
+      if (item.applyNowEnabled === null || item.applyNowEnabled === undefined) item.applyNowEnabled = 1;
+    }
+
     const allowedFields = SCHEMA[table];
     const fields = Object.keys(item).filter(k => allowedFields.includes(k));
     

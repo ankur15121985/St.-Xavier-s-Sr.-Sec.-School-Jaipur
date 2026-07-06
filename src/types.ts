@@ -98,7 +98,7 @@ export interface LeadGrace {
 
 export interface AppSettings {
   id: string;
-  applyNowEnabled: boolean;
+  applyNowEnabled: boolean | number;
   applyNowUrl: string;
   applyNowLabel: string;
   siteName: string;
@@ -109,27 +109,25 @@ export interface AppSettings {
   currentSession?: string;
   feesPdfUrl?: string;
   popupMessage?: string;
-  popupEnabled?: boolean;
+  popupEnabled?: boolean | number;
   flagImage?: string;
   flagEnabled?: boolean;
   aboutTitle?: string;
   aboutContent?: string;
   historyTitle?: string;
   historyContent?: string;
-  showCarousel?: boolean;
-  showMarquee?: boolean;
-  showAbout?: boolean;
-  showFeature?: boolean;
-  showVision?: boolean;
-  showInsights?: boolean;
-  showPrincipalMessage?: boolean;
-  showDistinction?: boolean;
-  showVirtualCampus?: boolean;
-  showGallery?: boolean;
-  showLeadership?: boolean;
-  showHonors?: boolean;
+  showCarousel?: boolean | number;
+  showMarquee?: boolean | number;
+  showAbout?: boolean | number;
+  showFeature?: boolean | number;
+  showVision?: boolean | number;
+  showInsights?: boolean | number;
+  showPrincipalMessage?: boolean | number;
+  showGallery?: boolean | number;
+  showLeadership?: boolean | number;
+  showHonors?: boolean | number;
   faviconUrl?: string;
-  careerFormEnabled?: boolean;
+  careerFormEnabled?: boolean | number;
   googleSearchConsoleKey?: string;
   bingWebmasterKey?: string;
   indexNowKey?: string;

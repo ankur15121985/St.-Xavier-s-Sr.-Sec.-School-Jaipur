@@ -341,7 +341,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
 
                 {/* Form Content */}
                 <div className="lg:col-span-3 p-12 md:p-20 bg-white">
-                  {data.settings?.careerFormEnabled === false ? (
+                  {!data.settings?.careerFormEnabled ? (
                     <motion.div 
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}

@@ -455,9 +455,9 @@ export function getDatabase(): Database.Database {
   db.exec(`
     CREATE TABLE IF NOT EXISTS settings (
       id TEXT PRIMARY KEY,
-      applyNowEnabled INTEGER NOT NULL,
-      applyNowUrl TEXT NOT NULL,
-      applyNowLabel TEXT NOT NULL,
+      applyNowEnabled INTEGER DEFAULT 1,
+      applyNowUrl TEXT,
+      applyNowLabel TEXT,
       siteName TEXT,
       siteLogo TEXT,
       contactEmail TEXT,
@@ -480,8 +480,6 @@ export function getDatabase(): Database.Database {
       showVision INTEGER DEFAULT 1,
       showInsights INTEGER DEFAULT 1,
       showPrincipalMessage INTEGER DEFAULT 1,
-      showDistinction INTEGER DEFAULT 1,
-      showVirtualCampus INTEGER DEFAULT 1,
       showGallery INTEGER DEFAULT 1,
       showLeadership INTEGER DEFAULT 1,
       showHonors INTEGER DEFAULT 1,
@@ -507,7 +505,7 @@ export function getDatabase(): Database.Database {
 
   const newToggleColumns = [
     'showCarousel', 'showMarquee', 'showAbout', 'showFeature', 'showVision', 
-    'showInsights', 'showPrincipalMessage', 'showDistinction', 'showVirtualCampus', 
+    'showInsights', 'showPrincipalMessage', 
     'showGallery', 'showLeadership', 'showHonors', 'careerFormEnabled', 'flagEnabled', 'popupEnabled'
   ];
 
