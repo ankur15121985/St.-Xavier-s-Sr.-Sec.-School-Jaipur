@@ -1909,7 +1909,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                    { key: 'showLeadership', label: 'Regency Personnel' },
                    { key: 'showHonors', label: 'Student Triumphs' },
                    { key: 'careerFormEnabled', label: 'Careers Application Form' },
-                   { key: 'applyNowEnabled', label: 'Admissions Floating CTA' }
+                   { key: 'applyNowEnabled', label: 'Apply Now (Floating Button)' }
                  ].map((item) => (
                    <div key={item.key} className="bg-school-ink/5 p-6 rounded-3xl border border-school-ink/5 flex items-center justify-between">
                      <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">{item.label}</span>

@@ -122,7 +122,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         .filter(m => {
           const mParent = (!m.parent_id || m.parent_id === 'null' || m.parent_id === '') ? null : m.parent_id;
           const targetParent = (!parentId || parentId === 'null' || parentId === '') ? null : parentId;
-          return mParent === targetParent && m.is_enabled !== false;
+          return mParent === targetParent && m.is_enabled !== false && m.is_enabled !== 0;
         })
         .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
         .map(m => {
@@ -780,7 +780,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
 
       {/* Floating CTA - Ultra Modern & Responsive */}
       <AnimatePresence>
-        {!!data.settings?.applyNowEnabled && (
+        {data.settings?.applyNowEnabled !== false && data.settings?.applyNowEnabled !== 0 && (
           <motion.a 
             href={data.settings.applyNowUrl || '#'}
             target="_blank"

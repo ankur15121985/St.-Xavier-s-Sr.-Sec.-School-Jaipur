@@ -214,7 +214,8 @@ export async function getServerSideProps(context: any) {
 
   // Apply CDN-friendly caching tags for public pages so browsers and global edge CDN cache the rendered HTML document
   if (res && pathname !== '/admin' && !pathname.startsWith('/api')) {
-    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+    // Reduced TTL for faster feedback during development
+    res.setHeader('Cache-Control', 'public, max-age=5, s-maxage=10, stale-while-revalidate=30');
   }
 
   try {

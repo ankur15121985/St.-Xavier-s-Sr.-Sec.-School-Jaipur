@@ -41,7 +41,7 @@ const getSmallImageUrl = (url: string) => {
 
 const HomePage = ({ data }: { data: AppData }) => {
   const carouselImages = (data.carousel && data.carousel.length > 0 
-    ? data.carousel.filter(c => c.is_enabled !== false).map(c => c.url) 
+    ? data.carousel.filter(c => c.is_enabled !== false && c.is_enabled !== 0).map(c => c.url) 
     : []).filter(url => !!url);
   
   const finalCarouselImages = carouselImages.length > 0 ? carouselImages : [
@@ -50,12 +50,12 @@ const HomePage = ({ data }: { data: AppData }) => {
     "https://lh3.googleusercontent.com/d/187y5AfGgvXnofNL6h85uU1rpdfaWYDCH=w1600"
   ];
 
-  const activeGallery = data.gallery?.filter(img => img.is_enabled !== false) || [];
-  const activeNotices = data.notices?.filter(n => n.is_enabled !== false) || [];
-  const activeEvents = data.events?.filter(e => e.is_enabled !== false) || [];
-  const activeMarquee = (data.marquee || []).filter(i => i.isActive !== false);
-  const activeStaff = data.staff?.filter(s => (s.type === 'Management' || s.type === 'Administration') && s.is_enabled !== false) || [];
-  const activeHonors = data.studentHonors?.filter(h => h.is_enabled !== false) || [];
+  const activeGallery = data.gallery?.filter(img => img.is_enabled !== false && img.is_enabled !== 0) || [];
+  const activeNotices = data.notices?.filter(n => n.is_enabled !== false && n.is_enabled !== 0) || [];
+  const activeEvents = data.events?.filter(e => e.is_enabled !== false && e.is_enabled !== 0) || [];
+  const activeMarquee = (data.marquee || []).filter(i => i.isActive !== false && i.isActive !== 0);
+  const activeStaff = data.staff?.filter(s => (s.type === 'Management' || s.type === 'Administration') && s.is_enabled !== false && s.is_enabled !== 0) || [];
+  const activeHonors = data.studentHonors?.filter(h => h.is_enabled !== false && h.is_enabled !== 0) || [];
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);

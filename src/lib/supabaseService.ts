@@ -654,6 +654,10 @@ export const supabaseService = {
         }
       }
     }
+
+    // CRITICAL: Update the master content version timestamp in Supabase
+    // This ensures the server-side cache manager (db.ts) knows to invalidate its cache
+    await this.updateRemoteTimestamp();
   },
 
   async checkAdmin(uid: string): Promise<boolean> {
