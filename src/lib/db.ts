@@ -199,7 +199,16 @@ export function getDatabase(): Database.Database {
       ogDescription TEXT DEFAULT '',
       ogImage TEXT DEFAULT '',
       showVirtualCampus INTEGER DEFAULT 1,
-      careerFormEnabled INTEGER DEFAULT 1
+      careerFormEnabled INTEGER DEFAULT 1,
+      popupEnabled INTEGER DEFAULT 1,
+      popupMessage TEXT,
+      flagImage TEXT,
+      flagEnabled INTEGER DEFAULT 1,
+      aboutTitle TEXT,
+      aboutContent TEXT,
+      historyTitle TEXT,
+      historyContent TEXT,
+      faviconUrl TEXT
     )
   `);
 
@@ -953,7 +962,7 @@ export function getLocalSQLiteData() {
   const convertedSettings = { ...settings };
   Object.keys(settings).forEach(key => {
     if (key.startsWith('show') || key.endsWith('Enabled')) {
-      convertedSettings[key] = Boolean(settings[key] ?? 1);
+      convertedSettings[key] = settings[key] === 1 || settings[key] === true;
     }
   });
   data.settings = convertedSettings;

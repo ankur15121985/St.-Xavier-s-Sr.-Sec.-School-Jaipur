@@ -70,7 +70,8 @@ const SCHEMA: Record<string, string[]> = {
     'indexNowKey', 'ogTitle', 'ogDescription', 'ogImage',
     'showCarousel', 'showMarquee', 'showAbout', 'showFeature', 'showVision', 
     'showInsights', 'showPrincipalMessage', 'showDistinction', 'showVirtualCampus', 
-    'showGallery', 'showLeadership', 'showHonors', 'careerFormEnabled', 'flagEnabled'
+    'showGallery', 'showLeadership', 'showHonors', 'careerFormEnabled', 'flagEnabled',
+    'flagImage', 'aboutTitle', 'aboutContent', 'historyTitle', 'historyContent', 'faviconUrl'
   ],
   content: [
     'id', 'heroTitle1', 'heroTitle2', 'heroBadge', 'heroDescription', 'carouselBranding',
@@ -153,7 +154,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
     if (table === 'navigation_menu') {
       sqliteTable = 'menu';
     } else if (table === 'site_settings' || table === 'settings') {
-      sqliteTable = 'settings';
+      sqliteTable = 'site_settings';
     }
 
     const placeholders = fields.map(() => '?').join(',');
