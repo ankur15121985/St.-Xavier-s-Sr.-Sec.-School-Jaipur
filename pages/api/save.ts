@@ -174,6 +174,12 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
     const query = `INSERT OR REPLACE INTO "${sqliteTable}" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`;
     db.prepare(query).run(values);
     
+    // Always update master version timestamp to invalidate server & CDN caches immediately
+    try {
+      const now = new Date().toISOString();
+      db.prepare("INSERT OR REPLACE INTO content (key, value) VALUES (?, ?)").run('content_updated_at', now);
+    } catch (tsErr) {}
+
     // settings mirroring: Always ensure "settings" and "site_settings" are synchronized locally
     if (table === 'settings' || table === 'site_settings') {
       try {

@@ -1725,6 +1725,28 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                         {Object.values(data.supabaseTableStatus).filter(v => v === 'offline').length} SQLite Fallback
                       </span>
                     )}
+                    <button 
+                      onClick={async () => {
+                        setSavePending(true);
+                        try {
+                          const res = await fetch('/api/data?force=true');
+                          if (res.ok) {
+                            const fresh = await res.json();
+                            setData(fresh);
+                            showToast('Website cache refreshed! Your changes should now be visible.');
+                          }
+                        } catch (e) {
+                          showToast('Failed to refresh cache', 'error');
+                        } finally {
+                          setSavePending(false);
+                        }
+                      }}
+                      className="flex items-center gap-2 px-4 py-1.5 bg-school-gold text-school-navy rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-md active:scale-95"
+                      title="Invalidates server-side cache and fetches latest data from database"
+                    >
+                      <RefreshCw size={12} className={savePending ? 'animate-spin' : ''} />
+                      Refresh Website Cache
+                    </button>
                   </div>
                 </div>
 
@@ -1821,6 +1843,44 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                   </button>
                 </div>
                 
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">School Name / Site Title</label>
+                  <input 
+                    value={data.settings.siteName || ''}
+                    onChange={(e) => handleUpdate('global', 'siteName', e.target.value, 'settings')}
+                    placeholder="e.g. St. Xavier's Sr. Sec. School, Jaipur"
+                    className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Contact Address</label>
+                  <input 
+                    value={data.settings.contactAddress || ''}
+                    onChange={(e) => handleUpdate('global', 'contactAddress', e.target.value, 'settings')}
+                    placeholder="e.g. Bhagwan Das Road, C-Scheme, Jaipur"
+                    className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Contact Phone</label>
+                  <input 
+                    value={data.settings.contactPhone || ''}
+                    onChange={(e) => handleUpdate('global', 'contactPhone', e.target.value, 'settings')}
+                    className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Contact Email</label>
+                  <input 
+                    value={data.settings.contactEmail || ''}
+                    onChange={(e) => handleUpdate('global', 'contactEmail', e.target.value, 'settings')}
+                    className="w-full bg-school-ink/5 border-none rounded-2xl py-4 px-6 text-sm font-black text-school-navy focus:ring-2 focus:ring-school-gold/20 outline-none transition-all"
+                  />
+                </div>
+
                 <div className="space-y-4">
                   <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/40">Active Academic Session</label>
                   <input 
@@ -3412,7 +3472,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'former_student_leaders', label: 'Former Head Boy & Girls', icon: <Users2 size={18} className="text-school-accent" /> },
     { id: 'settings', label: 'Global Settings', icon: <Settings size={18} className="text-school-gold" /> },
     { id: 'gallery', label: 'Gallery', icon: <ImageIcon size={18} /> },
-    { id: 'studentHonors', label: 'Honors', icon: <Award size={18} className="text-school-gold" /> },
+    { id: 'studentHonors', label: 'Honors & Distinctions', icon: <Award size={18} className="text-school-gold" /> },
     { id: 'messages', label: 'Inquiries (Contact)', icon: <Mail size={18} className="text-school-accent" /> },
     { id: 'custom_content', label: 'Insights Content', icon: <FileText size={18} className="text-school-gold" /> },
     { id: 'jesuit_page_content', label: 'Jesuit Education Page', icon: <FileText size={18} className="text-school-gold" /> },
