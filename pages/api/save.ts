@@ -161,18 +161,29 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
     const placeholders = fields.map(() => '?').join(',');
     const values = fields.map(f => {
       const val = item[f];
+      // Convert booleans to 0/1 for SQLite storage consistency
       if (typeof val === 'boolean') return val ? 1 : 0;
+      // Handle numeric strings that represent booleans
+      if (f.startsWith('show') || f.endsWith('Enabled') || f === 'isActive' || f === 'is_enabled' || f === 'flagEnabled') {
+        if (val === 'true' || val === '1' || val === 'T' || val === 'on') return 1;
+        if (val === 'false' || val === '0' || val === 'F' || val === 'off') return 0;
+      }
       return val;
     });
 
     const query = `INSERT OR REPLACE INTO "${sqliteTable}" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`;
     db.prepare(query).run(values);
     
-    // settings mirroring
+    // settings mirroring: Always ensure "settings" and "site_settings" are synchronized locally
     if (table === 'settings' || table === 'site_settings') {
       try {
-        const queryMirror = `INSERT OR REPLACE INTO "site_settings" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`;
+        const mirrorTable = sqliteTable === 'site_settings' ? 'settings' : 'site_settings';
+        const queryMirror = `INSERT OR REPLACE INTO "${mirrorTable}" (${fields.map(f => `"${f}"`).join(',')}) VALUES (${placeholders})`;
         db.prepare(queryMirror).run(values);
+        
+        // Final singleton defense: Delete any non-global rows that might have crept in
+        db.prepare(`DELETE FROM "${sqliteTable}" WHERE id != 'global'`).run();
+        db.prepare(`DELETE FROM "${mirrorTable}" WHERE id != 'global'`).run();
       } catch (e: any) {
         console.warn(`[SQL MIRROR WARNING] ${e.message}`);
       }

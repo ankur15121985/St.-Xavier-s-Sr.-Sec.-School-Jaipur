@@ -1898,8 +1898,9 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                  {[
-                   { key: 'showCarousel', label: 'Primary Carousel' },
-                   { key: 'showMarquee', label: 'News Marquee' },
+                   { key: 'applyNowEnabled', label: 'Apply Now Button' },
+                   { key: 'showCarousel', label: 'Main Carousel' },
+                   { key: 'showMarquee', label: 'News Ticker' },
                    { key: 'showAbout', label: 'Front Introduction' },
                    { key: 'showFeature', label: 'Modernity Feature' },
                    { key: 'showVision', label: 'Motto & Vision' },
@@ -1908,14 +1909,15 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                    { key: 'showGallery', label: 'Campus Gallery' },
                    { key: 'showLeadership', label: 'Regency Personnel' },
                    { key: 'showHonors', label: 'Student Triumphs' },
-                   { key: 'careerFormEnabled', label: 'Careers Application Form' },
-                   { key: 'applyNowEnabled', label: 'Apply Now (Floating Button)' }
+                   { key: 'careerFormEnabled', label: 'Careers Form' },
+                   { key: 'flagEnabled', label: 'Header Flag' },
+                   { key: 'popupEnabled', label: 'Modal Popups' }
                  ].map((item) => (
                    <div key={item.key} className="bg-school-ink/5 p-6 rounded-3xl border border-school-ink/5 flex items-center justify-between">
                      <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">{item.label}</span>
                      <button 
                        onClick={() => handleUpdate('global', item.key, data.settings[item.key as keyof typeof data.settings] === false || data.settings[item.key as keyof typeof data.settings] === 0, 'settings')}
-                       className={`w-14 h-8 rounded-full relative transition-all ${data.settings[item.key as keyof typeof data.settings] !== false && data.settings[item.key as keyof typeof data.settings] !== 0 ? 'bg-emerald-500' : 'bg-rose-500/20'}`}
+                       className={`w-14 h-8 rounded-full relative transition-all ${data.settings[item.key as keyof typeof data.settings] !== false && data.settings[item.key as keyof typeof data.settings] !== 0 ? 'bg-emerald-500' : 'bg-rose-500'}`}
                      >
                        <motion.div animate={{ x: data.settings[item.key as keyof typeof data.settings] !== false && data.settings[item.key as keyof typeof data.settings] !== 0 ? 26 : 4 }} className="w-6 h-6 rounded-full bg-white shadow-md absolute top-1 left-0" />
                      </button>
@@ -2710,7 +2712,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         setSavePending(true);
         try {
           await supabaseService.saveItem('settings', dataRef.current.settings);
-          showToast(`Settings (${field}) updated successfully`);
+          showToast(`Settings updated`);
         } catch (err: any) {
           console.error('Settings sync failed:', err);
           const rawMsg = err?.message || 'Unknown error';
@@ -2718,7 +2720,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         } finally {
           setSavePending(false);
         }
-      }, 800);
+      }, 300);
       return;
     }
 

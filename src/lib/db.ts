@@ -939,7 +939,7 @@ export function getLocalSQLiteData() {
       id: 'global',
       applyNowEnabled: 1,
       applyNowUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
-      applyNowLabel: 'Apply 2026-27',
+      applyNowLabel: 'Apply Now',
       siteName: "St. Xavier's Sr. Sec. School, Jaipur",
       siteLogo: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
       contactEmail: 'xavier41jaipur@gmail.com',
@@ -954,14 +954,16 @@ export function getLocalSQLiteData() {
     };
   }
 
-  const convertedSettings = { ...settings };
+  // Force ID to 'global' to prevent duplicate setting rows and guarantee singleton access
+  const convertedSettings = { ...settings, id: 'global' };
   Object.keys(settings).forEach(key => {
-    if (key.startsWith('show') || key.endsWith('Enabled')) {
-      // Robust boolean conversion: default to true if null/undefined, otherwise check for 1/true
-      if (settings[key] === null || settings[key] === undefined) {
+    if (key.startsWith('show') || key.endsWith('Enabled') || key === 'is_enabled' || key === 'isActive' || key === 'flagEnabled') {
+      const val = settings[key];
+      // Robust boolean conversion for SQLite/Postgres/JSON compatibility
+      if (val === null || val === undefined) {
         convertedSettings[key] = true;
       } else {
-        convertedSettings[key] = settings[key] === 1 || settings[key] === true || settings[key] === '1' || settings[key] === 'true';
+        convertedSettings[key] = (val === 1 || val === true || val === '1' || val === 'true' || val === 'T' || val === 'on');
       }
     }
   });
@@ -1172,7 +1174,7 @@ export async function fetchServerData(force: boolean = false) {
             data = fallback.data;
           }
           if (data) {
-            data.id = 'global'; // Force ID to global for internal consistency
+            data.id = 'global'; // Force ID to global for internal consistency and singleton record maintenance
             results.settings = data;
             successCount++;
             supabaseTableStatus['settings'] = 'online';
@@ -1189,6 +1191,10 @@ export async function fetchServerData(force: boolean = false) {
               });
               const query = `INSERT OR REPLACE INTO "site_settings" (${rowKeys.map(k => `"${k}"`).join(',')}) VALUES (${placeholders})`;
               db.prepare(query).run(values);
+              
+              // Clean up any non-global settings rows to avoid fallback confusion
+              db.prepare("DELETE FROM site_settings WHERE id != 'global'").run();
+              db.prepare("DELETE FROM settings WHERE id != 'global'").run();
             } catch (liteErr) {}
           } else {
             results.settings = localData.settings;

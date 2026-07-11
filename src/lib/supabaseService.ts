@@ -379,6 +379,15 @@ export const supabaseService = {
       
       const targetTable = section === 'settings' ? 'site_settings' : section as string;
 
+      if (section === 'settings') {
+        item.id = 'global'; // Force singleton ID for all setting objects
+        Object.keys(item).forEach(key => {
+          if (key.startsWith('show') || key.endsWith('Enabled') || key === 'isActive' || key === 'is_enabled' || key === 'flagEnabled') {
+            item[key] = !!item[key];
+          }
+        });
+      }
+
       if (section === 'content') {
         const contentUpserts = Object.entries(item)
           .filter(([k]) => k !== 'id')
@@ -631,6 +640,7 @@ export const supabaseService = {
       } else if (value && typeof value === 'object' && section !== 'content' && section !== 'digital_campus') {
         // Handle single object tables (settings, etc) - safe and silent on failure
         try {
+          if (section === 'settings') (value as any).id = 'global';
           await this.saveItem(section, value);
         } catch (e: any) {
           console.warn(`[SyncAll settings warning] Could not save item: ${e.message}`);
