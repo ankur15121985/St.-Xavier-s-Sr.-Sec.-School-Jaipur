@@ -920,23 +920,18 @@ export function getLocalSQLiteData() {
   let settings = db.prepare(`SELECT * FROM site_settings WHERE id = 'global'`).get() as any;
   if (!settings) {
     try {
+      settings = db.prepare(`SELECT * FROM site_settings LIMIT 1`).get() as any;
+    } catch (e) {}
+  }
+  if (!settings) {
+    try {
       settings = db.prepare(`SELECT * FROM settings WHERE id = 'global'`).get() as any;
     } catch (e) {}
   }
-  
-  if (settings) {
-    // Convert SQLite integers (0/1) to Booleans for frontend consistency
-    const toggleKeys = [
-      'applyNowEnabled', 'showCarousel', 'showMarquee', 'showAbout', 'showFeature', 
-      'showVision', 'showInsights', 'showPrincipalMessage', 'showDistinction', 
-      'showVirtualCampus', 'showGallery', 'showLeadership', 'showHonors', 
-      'popupEnabled', 'flagEnabled', 'careerFormEnabled'
-    ];
-    toggleKeys.forEach(key => {
-      if (key in settings) {
-        settings[key] = settings[key] === null ? true : Boolean(settings[key]);
-      }
-    });
+  if (!settings) {
+    try {
+      settings = db.prepare(`SELECT * FROM settings LIMIT 1`).get() as any;
+    } catch (e) {}
   }
   
   if (!settings) {
@@ -962,7 +957,12 @@ export function getLocalSQLiteData() {
   const convertedSettings = { ...settings };
   Object.keys(settings).forEach(key => {
     if (key.startsWith('show') || key.endsWith('Enabled')) {
-      convertedSettings[key] = settings[key] === 1 || settings[key] === true;
+      // Robust boolean conversion: default to true if null/undefined, otherwise check for 1/true
+      if (settings[key] === null || settings[key] === undefined) {
+        convertedSettings[key] = true;
+      } else {
+        convertedSettings[key] = settings[key] === 1 || settings[key] === true || settings[key] === '1' || settings[key] === 'true';
+      }
     }
   });
   data.settings = convertedSettings;
@@ -1172,6 +1172,7 @@ export async function fetchServerData(force: boolean = false) {
             data = fallback.data;
           }
           if (data) {
+            data.id = 'global'; // Force ID to global for internal consistency
             results.settings = data;
             successCount++;
             supabaseTableStatus['settings'] = 'online';

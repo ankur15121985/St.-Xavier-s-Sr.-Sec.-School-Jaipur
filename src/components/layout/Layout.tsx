@@ -246,12 +246,12 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   <div className="flex flex-col justify-center min-w-0">
                     <Link to="/">
                       <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight transition-all duration-500 uppercase ${isScrolled ? 'text-xs sm:text-base md:text-xl' : 'text-xs sm:text-xl md:text-[42px]'} whitespace-nowrap overflow-hidden text-ellipsis`}>
-                        ST. XAVIER'S SR. SEC. SCHOOL
+                        {data.settings?.siteName || "ST. XAVIER'S SR. SEC. SCHOOL"}
                       </h1>
                     </Link>
                     {!isScrolled && (
                       <p className="hidden md:block text-[13px] md:text-[17px] font-sans font-medium text-[#333] dark:text-slate-400 mt-1 leading-tight md:whitespace-nowrap">
-                        Bhagwan Das Road, C-Scheme, Jaipur - 302001 &nbsp;|&nbsp; CBSE Affiliation No.: 1730003
+                        {data.settings?.contactAddress || "Bhagwan Das Road, C-Scheme, Jaipur - 302001"} &nbsp;|&nbsp; CBSE Affiliation No.: 1730003
                       </p>
                     )}
                   </div>
@@ -370,12 +370,12 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 <div className="flex flex-col min-w-0">
                   <Link to="/">
                     <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight transition-all duration-500 uppercase ${isScrolled ? 'text-sm sm:text-base md:text-xl' : 'text-sm sm:text-lg md:text-[32px]'} whitespace-nowrap overflow-hidden text-ellipsis`}>
-                      ST. XAVIER'S SR. SEC. SCHOOL
+                      {data.settings?.siteName || "ST. XAVIER'S SR. SEC. SCHOOL"}
                     </span>
                   </Link>
                   {!isScrolled && (
                     <span className="hidden md:block text-[10px] md:text-[14px] font-sans font-medium text-slate-500 dark:text-slate-400 leading-tight mt-1 md:whitespace-nowrap">
-                      Bhagwan Das Road, C-Scheme, Jaipur &nbsp;|&nbsp; CBSE Affiliation No.: 1730003
+                      {data.settings?.contactAddress || "Bhagwan Das Road, C-Scheme, Jaipur"} &nbsp;|&nbsp; CBSE Affiliation No.: 1730003
                     </span>
                   )}
                 </div>
@@ -640,12 +640,12 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
               </div>
               <div className="flex flex-col text-center md:text-left space-y-4">
                  <h2 className="font-display font-medium text-3xl md:text-5xl lg:text-6xl text-white leading-none tracking-tight">
-                   St. Xavier's <span className="text-school-accent italic">Sr. Sec. School</span>
+                   {data.settings?.siteName || "St. Xavier's Sr. Sec. School"}
                  </h2>
                  <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6 text-white/50 font-medium text-sm md:text-lg">
                     <div className="flex items-center justify-center md:justify-start gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-school-accent"></div>
-                      <span>Bhagwan Das Road, C-Scheme, Jaipur</span>
+                      <span>{data.settings?.contactAddress || "Bhagwan Das Road, C-Scheme, Jaipur"}</span>
                     </div>
                     <span className="hidden md:inline text-white/20">|</span>
                     <div className="flex items-center justify-center md:justify-start gap-2">

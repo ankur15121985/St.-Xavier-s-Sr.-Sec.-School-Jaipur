@@ -77,7 +77,7 @@ const HomePage = ({ data }: { data: AppData }) => {
   return (
     <Layout data={data}>
       <Helmet>
-        <title>Home | St. Xavier's Sr. Sec. School, Jaipur</title>
+        <title>Home | {data.settings?.siteName || "St. Xavier's Sr. Sec. School, Jaipur"}</title>
         <meta name="description" content="Official website of St. Xavier's Senior Secondary School, Jaipur. A legacy of Jesuit excellence, shaping leaders since 1941." />
         <link rel="canonical" href="https://stxaviersjaipur.edu.in/" />
       </Helmet>
