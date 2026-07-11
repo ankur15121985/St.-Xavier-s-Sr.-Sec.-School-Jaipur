@@ -2601,6 +2601,13 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                     <option value="Annual Fee">Annual Fees (Quarters)</option>
                     <option value="Admission Fee">Admission Fee (One-time)</option>
                   </>
+                ) : section === 'studentHonors' ? (
+                  <>
+                    <option value="Class 10 Topper">Class 10 Topper</option>
+                    <option value="Class 12 Topper">Class 12 Topper</option>
+                    <option value="JEE Achiever">JEE Achiever</option>
+                    <option value="Other">Other Honors</option>
+                  </>
                 ) : section === 'mandatory_disclosures' ? (
                   <>
                     <option value="A">Section A: General Information</option>

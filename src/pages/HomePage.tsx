@@ -378,7 +378,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Leadership Section - Regency Registry Style */}
-      {data.settings?.showLeadership !== false && data.settings?.showLeadership !== 'false' && data.settings?.showLeadership !== 0 && data.settings?.showLeadership !== '0' && activeStaff.length > 0 && (
+      {(data.settings?.showLeadership === true || data.settings?.showLeadership === 1 || data.settings?.showLeadership === 'true' || data.settings?.showLeadership === '1') && activeStaff.length > 0 && (
         <section className="py-32">
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <motion.div 

@@ -937,7 +937,7 @@ export function getLocalSQLiteData() {
   if (!settings) {
     settings = {
       id: 'global',
-      applyNowEnabled: 1,
+      applyNowEnabled: 0,
       applyNowUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2024/03/Admission-Prospectus-2024-25.pdf',
       applyNowLabel: 'Apply Now',
       siteName: "St. Xavier's Sr. Sec. School, Jaipur",
@@ -948,7 +948,7 @@ export function getLocalSQLiteData() {
       currentSession: '2025-26',
       showCarousel: 1, showMarquee: 1, showAbout: 1, showFeature: 1, showVision: 1, 
       showInsights: 1, showPrincipalMessage: 1, showDistinction: 1, showGallery: 1, 
-      showLeadership: 1, showHonors: 1, popupEnabled: 1, popupMessage: 'Welcome to St. Xavier\'s, C-scheme.',
+      showLeadership: 0, showHonors: 1, popupEnabled: 1, popupMessage: 'Welcome to St. Xavier\'s, C-scheme.',
       flagEnabled: 1, careerFormEnabled: 1, faviconUrl: 'https://xaviersjaipur.edu.in/wp-content/uploads/2023/12/SchoolLogoTest.png',
       googleSearchConsoleKey: '', bingWebmasterKey: '', indexNowKey: '', ogTitle: '', ogDescription: '', ogImage: ''
     };
