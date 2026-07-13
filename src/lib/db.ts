@@ -1091,7 +1091,7 @@ export async function fetchServerData(force: boolean = false) {
        'activities', 'co_curricular_activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content', 'scholarships', 'fire_safety', 'site_stats', 'career_applications'
     ];
 
-    const privateTables = ['messages', 'career_applications', 'transfer_certificates', 'admins', 'logs', 'visitor_ips'];
+    const privateTables = ['messages', 'career_applications', 'admins', 'logs', 'visitor_ips'];
 
     const results: any = {};
     let successCount = 0;
@@ -1121,7 +1121,7 @@ export async function fetchServerData(force: boolean = false) {
               id: item.id || `tc-${Math.random().toString(36).substr(2, 9)}`,
               student_name: String(item.student_name || item.studentname || item.name || item.studentName || ''),
               admission_number: String(item.admission_number || item.admissionnumber || item.admissionno || item.admission_no || item.admno || item.adm_no || item.admissionNumber || ''),
-              dob: String(item.dob || item.date_of_birth || item.birthdate || item.dateofbirth || item.dateOfBirth || ''),
+              dob: String(item.dob || item.date_of_birth || item.birthdate || item.dateofbirth || item.dateOfBirth || '').split('T')[0],
               attachmentUrl: String(item.attachmentUrl || item.attachmenturl || item.url || item.file_url || item.attachment_url || '')
             }));
           }

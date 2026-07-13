@@ -116,7 +116,7 @@ export const supabaseService = {
                 id: item.id || `tc-${Math.random().toString(36).substr(2, 9)}`,
                 student_name: String(item.student_name || item.studentname || item.name || item.studentName || ''),
                 admission_number: String(item.admission_number || item.admissionnumber || item.admissionno || item.admission_no || item.admno || item.adm_no || item.admissionNumber || ''),
-                dob: String(item.dob || item.date_of_birth || item.birthdate || item.dateofbirth || item.dateOfBirth || ''),
+                dob: String(item.dob || item.date_of_birth || item.birthdate || item.dateofbirth || item.dateOfBirth || '').split('T')[0],
                 attachmentUrl: String(item.attachmentUrl || item.attachmenturl || item.url || item.file_url || item.attachment_url || '')
               }));
             }

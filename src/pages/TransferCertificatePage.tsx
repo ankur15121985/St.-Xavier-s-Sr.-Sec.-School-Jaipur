@@ -33,27 +33,35 @@ const TransferCertificatePage = ({ data }: { data: AppData }) => {
 
     const found = tcs.find(tc => {
       const tcAdm = String(tc.admission_number || '').trim().toLowerCase();
-      const tcDob = String(tc.dob || '').trim();
+      // Only take the date part from DB (YYYY-MM-DD or DD/MM/YYYY)
+      const tcDobRaw = String(tc.dob || '').trim().split('T')[0];
       
+      // Normalize user input
+      const searchAdm = admissionNumber.trim().toLowerCase();
+      const searchDob = dob.trim(); // YYYY-MM-DD from input[type="date"]
+
       // Basic match
-      if (tcAdm === searchAdm && tcDob === searchDob) return true;
+      if (tcAdm === searchAdm && tcDobRaw === searchDob) return true;
       
-      // Flexible date matching (if DB has DD/MM/YYYY or DD-MM-YYYY but search is YYYY-MM-DD)
+      // Flexible date matching
       if (tcAdm === searchAdm) {
-        // Try to convert tcDob to YYYY-MM-DD if it looks like DD/MM/YYYY or DD-MM-YYYY
-        const separator = tcDob.includes('/') ? '/' : (tcDob.includes('-') && tcDob.split('-')[0].length < 4 ? '-' : null);
+        // Try to normalize tcDobRaw to YYYY-MM-DD
+        let normalizedTcDob = tcDobRaw;
+        
+        // Handle DD/MM/YYYY or DD-MM-YYYY
+        const separator = tcDobRaw.includes('/') ? '/' : (tcDobRaw.includes('-') && tcDobRaw.split('-')[0].length < 4 ? '-' : null);
         if (separator) {
-          const parts = tcDob.split(separator);
+          const parts = tcDobRaw.split(separator);
           if (parts.length === 3) {
-            let normalizedTcDob = '';
             if (parts[2].length === 4) { // DD/MM/YYYY
               normalizedTcDob = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
             } else if (parts[0].length === 4) { // YYYY/MM/DD
               normalizedTcDob = `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
             }
-            if (normalizedTcDob === searchDob) return true;
           }
         }
+        
+        if (normalizedTcDob === searchDob) return true;
       }
       
       return false;

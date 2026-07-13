@@ -1581,17 +1581,26 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
     if (activeSection === 'transfer_certificates') {
       return (
         <div className="space-y-12">
-          <div className="p-8 bg-amber-50 border border-amber-100 rounded-[40px] flex gap-6 items-center shadow-inner">
-             <div className="w-16 h-16 bg-amber-500 text-white rounded-2xl flex items-center justify-center shrink-0 shadow-lg">
-                <FileText size={32} />
-             </div>
-             <div>
-                <h4 className="text-xl font-serif font-black text-amber-900 italic">Transfer Certificate Registry</h4>
-                <p className="text-sm text-amber-900/60 font-medium leading-relaxed">
-                   Manage the digital institutional exit records. These records are searchable by students using their Admission Number and Date of Birth.
-                   Ensure the <strong>Admission Number</strong> matches exactly what students will enter.
-                </p>
-             </div>
+          <div className="flex justify-between items-center">
+            <div className="p-8 bg-amber-50 border border-amber-100 rounded-[40px] flex gap-6 items-center shadow-inner flex-1">
+               <div className="w-16 h-16 bg-amber-500 text-white rounded-2xl flex items-center justify-center shrink-0 shadow-lg">
+                  <FileText size={32} />
+               </div>
+               <div>
+                  <h4 className="text-xl font-serif font-black text-amber-900 italic">Transfer Certificate Registry</h4>
+                  <p className="text-sm text-amber-900/60 font-medium leading-relaxed">
+                     Manage the digital institutional exit records. These records are searchable by students using their Admission Number and Date of Birth.
+                     Ensure the <strong>Admission Number</strong> matches exactly what students will enter.
+                  </p>
+               </div>
+            </div>
+            <button 
+              onClick={() => handleAdd()} 
+              className="px-10 py-5 bg-school-navy text-white rounded-3xl font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl flex items-center gap-3 ml-8 group"
+            >
+              <Plus size={20} className="group-hover:rotate-90 transition-transform duration-500" />
+              Add New Record
+            </button>
           </div>
           <div className="grid gap-6">
             {Array.isArray(data.transfer_certificates) && data.transfer_certificates.map((item: any) => renderItemCard(item, 'transfer_certificates'))}
@@ -3046,6 +3055,11 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
       newItem.title = 'Achievement Title';
       newItem.year = '2026';
       newItem.description = 'Success story detail...';
+      newItem.attachmentUrl = '';
+    } else if (tableStr === 'transfer_certificates') {
+      newItem.student_name = 'Student Name';
+      newItem.admission_number = '';
+      newItem.dob = new Date().toISOString().split('T')[0];
       newItem.attachmentUrl = '';
     } else if (tableStr === 'careers') {
       newItem.title = 'New Job Vacancy';
