@@ -7,9 +7,10 @@ import { StudentHonor } from '../../types';
 interface HonorsSliderProps {
   honors: StudentHonor[];
   autoPlayInterval?: number;
+  hideAttachedImages?: boolean;
 }
 
-export const HonorsSlider = ({ honors, autoPlayInterval = 5000 }: HonorsSliderProps) => {
+export const HonorsSlider = ({ honors, autoPlayInterval = 5000, hideAttachedImages = false }: HonorsSliderProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0); // -1 for left, 1 for right
 
@@ -119,17 +120,19 @@ export const HonorsSlider = ({ honors, autoPlayInterval = 5000 }: HonorsSliderPr
                       <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                     </div>
 
-                    <div className="w-32 h-32 rounded-3xl overflow-hidden shrink-0 shadow-xl relative z-10 border-4 border-white dark:border-slate-800">
-                      <img 
-                        src={item.image} 
-                        alt={item.name} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=random&color=fff&size=128`;
-                        }}
-                      />
-                    </div>
+                    {!hideAttachedImages && (
+                      <div className="w-32 h-32 rounded-3xl overflow-hidden shrink-0 shadow-xl relative z-10 border-4 border-white dark:border-slate-800">
+                        <img 
+                          src={item.image} 
+                          alt={item.name} 
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=random&color=fff&size=128`;
+                          }}
+                        />
+                      </div>
+                    )}
                     <div className="flex-1 text-center relative z-10 w-full px-4">
                       <div className="inline-block px-3 py-1 bg-school-accent/10 rounded-full mb-3">
                         <p className="text-[10px] font-black uppercase tracking-widest text-school-accent">{item.category}</p>

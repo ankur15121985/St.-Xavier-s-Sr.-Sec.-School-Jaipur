@@ -26,10 +26,38 @@ const TransferCertificatePage = ({ data }: { data: AppData }) => {
     await new Promise(resolve => setTimeout(resolve, 800));
 
     const tcs = data.transfer_certificates || [];
-    const found = tcs.find(tc => 
-      tc.admission_number.toLowerCase() === admissionNumber.toLowerCase() && 
-      tc.dob === dob
-    );
+    
+    // Normalize user input for robust matching
+    const searchAdm = admissionNumber.trim().toLowerCase();
+    const searchDob = dob.trim(); // Expecting YYYY-MM-DD from input[type="date"]
+
+    const found = tcs.find(tc => {
+      const tcAdm = String(tc.admission_number || '').trim().toLowerCase();
+      const tcDob = String(tc.dob || '').trim();
+      
+      // Basic match
+      if (tcAdm === searchAdm && tcDob === searchDob) return true;
+      
+      // Flexible date matching (if DB has DD/MM/YYYY or DD-MM-YYYY but search is YYYY-MM-DD)
+      if (tcAdm === searchAdm) {
+        // Try to convert tcDob to YYYY-MM-DD if it looks like DD/MM/YYYY or DD-MM-YYYY
+        const separator = tcDob.includes('/') ? '/' : (tcDob.includes('-') && tcDob.split('-')[0].length < 4 ? '-' : null);
+        if (separator) {
+          const parts = tcDob.split(separator);
+          if (parts.length === 3) {
+            let normalizedTcDob = '';
+            if (parts[2].length === 4) { // DD/MM/YYYY
+              normalizedTcDob = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            } else if (parts[0].length === 4) { // YYYY/MM/DD
+              normalizedTcDob = `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+            }
+            if (normalizedTcDob === searchDob) return true;
+          }
+        }
+      }
+      
+      return false;
+    });
 
     if (found) {
       setSearchResult(found);
@@ -173,15 +201,22 @@ const TransferCertificatePage = ({ data }: { data: AppData }) => {
                         </div>
                       </div>
 
-                      <a 
-                        href={searchResult.attachmentUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="w-full py-5 bg-school-gold text-school-navy rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl"
-                      >
-                        <Download size={18} />
-                        Download Certificate
-                      </a>
+                      {!data.settings?.hideAttachedImages ? (
+                        <a 
+                          href={searchResult.attachmentUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-full py-5 bg-school-gold text-school-navy rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl"
+                        >
+                          <Download size={18} />
+                          Download Certificate
+                        </a>
+                      ) : (
+                        <div className="p-6 bg-white/5 rounded-2xl border border-white/10 text-center">
+                           <p className="text-[10px] font-black uppercase tracking-widest text-school-gold opacity-60">Digital Copy Restricted</p>
+                           <p className="text-[9px] text-white/40 mt-1">Please visit the school office to collect your physical certificate.</p>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ) : (

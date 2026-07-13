@@ -85,7 +85,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       <div className="h-[64px] md:h-[102px] lg:h-[134px]" />
 
       {/* Full Width Dynamic Carousel */}
-      {data.settings?.showCarousel !== false && data.settings?.showCarousel !== 'false' && data.settings?.showCarousel !== 0 && data.settings?.showCarousel !== '0' && finalCarouselImages.length > 0 && (
+      {!!data.settings?.showCarousel && finalCarouselImages.length > 0 && (
         <motion.section 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -97,12 +97,12 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Marquee Section */}
-      {data.settings?.showMarquee !== false && data.settings?.showMarquee !== 'false' && data.settings?.showMarquee !== 0 && data.settings?.showMarquee !== '0' && (
+      {!!data.settings?.showMarquee && (
         <Marquee items={activeMarquee} />
       )}
 
       {/* About St. Xavier's School - Introduction Section */}
-      {data.settings?.showAbout !== false && data.settings?.showAbout !== 'false' && data.settings?.showAbout !== 0 && data.settings?.showAbout !== '0' && (
+      {!!data.settings?.showAbout && (
         <section id="about-section" className="py-12 md:py-16 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-20 items-center">
@@ -158,7 +158,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Feature Section - Simple Clean */}
-      {data.settings?.showFeature !== false && data.settings?.showFeature !== 'false' && data.settings?.showFeature !== 0 && data.settings?.showFeature !== '0' && (
+      {!!data.settings?.showFeature && (
         <section className="py-16 md:py-20 relative">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-24 items-center">
@@ -195,7 +195,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Vision Section - Minimal Clean */}
-      {data.settings?.showVision !== false && data.settings?.showVision !== 'false' && data.settings?.showVision !== 0 && data.settings?.showVision !== '0' && (
+      {!!data.settings?.showVision && (
         <motion.section 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -212,7 +212,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Insights Section - Simple Clean */}
-      {data.settings?.showInsights !== false && data.settings?.showInsights !== 'false' && data.settings?.showInsights !== 0 && data.settings?.showInsights !== '0' && (activeNotices.length > 0 || activeEvents.length > 0) && (
+      {!!data.settings?.showInsights && (activeNotices.length > 0 || activeEvents.length > 0) && (
         <section className="py-16 md:py-20 overflow-hidden">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
@@ -280,7 +280,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Principal Message Section - Slick Editorial */}
-      {data.settings?.showPrincipalMessage !== false && data.settings?.showPrincipalMessage !== 'false' && data.settings?.showPrincipalMessage !== 0 && data.settings?.showPrincipalMessage !== '0' && (
+      {!!data.settings?.showPrincipalMessage && (
         <section className="py-16 md:py-20 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-24 lg:gap-32 items-center">
@@ -337,7 +337,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Visual Narrative Grid - Simple Gallery */}
-      {data.settings?.showGallery !== false && data.settings?.showGallery !== 'false' && data.settings?.showGallery !== 0 && data.settings?.showGallery !== '0' && activeGallery.length > 0 && (
+      {!!data.settings?.showGallery && activeGallery.length > 0 && (
         <section className="py-12 md:py-16">
           <div className="max-w-7xl mx-auto px-6">
             <motion.div 
@@ -378,7 +378,7 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Leadership Section - Regency Registry Style */}
-      {(data.settings?.showLeadership === true || data.settings?.showLeadership === 1 || data.settings?.showLeadership === 'true' || data.settings?.showLeadership === '1') && activeStaff.length > 0 && (
+      {!!data.settings?.showLeadership && activeStaff.length > 0 && (
         <section className="py-32">
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <motion.div 
@@ -433,9 +433,9 @@ const HomePage = ({ data }: { data: AppData }) => {
       )}
 
       {/* Student Honors / Congratulations Slider */}
-      {data.settings?.showHonors !== false && data.settings?.showHonors !== 'false' && data.settings?.showHonors !== 0 && data.settings?.showHonors !== '0' && activeHonors.length > 0 && (
+      {!!data.settings?.showHonors && activeHonors.length > 0 && (
         <div className="bg-transparent pb-32">
-          <HonorsSlider honors={activeHonors} />
+          <HonorsSlider honors={activeHonors} hideAttachedImages={!!data.settings?.hideAttachedImages} />
         </div>
       )}
 

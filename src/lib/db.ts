@@ -515,7 +515,7 @@ export function getDatabase(): Database.Database {
   const newToggleColumns = [
     'showCarousel', 'showMarquee', 'showAbout', 'showFeature', 'showVision', 
     'showInsights', 'showPrincipalMessage', 
-    'showGallery', 'showLeadership', 'showHonors', 'careerFormEnabled', 'flagEnabled', 'popupEnabled'
+    'showGallery', 'showLeadership', 'showHonors', 'careerFormEnabled', 'flagEnabled', 'popupEnabled', 'hideAttachedImages'
   ];
 
   newToggleColumns.forEach(col => {
@@ -563,6 +563,16 @@ export function getDatabase(): Database.Database {
       )
     `);
   });
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS transfer_certificates (
+      id TEXT PRIMARY KEY,
+      admission_number TEXT NOT NULL,
+      dob TEXT NOT NULL,
+      student_name TEXT NOT NULL,
+      attachmentUrl TEXT
+    )
+  `);
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS co_curricular_activities (
@@ -675,6 +685,7 @@ export function getDatabase(): Database.Database {
   try { db.prepare("ALTER TABLE settings ADD COLUMN ogTitle TEXT DEFAULT ''").run(); } catch (e) {}
   try { db.prepare("ALTER TABLE settings ADD COLUMN ogDescription TEXT DEFAULT ''").run(); } catch (e) {}
   try { db.prepare("ALTER TABLE settings ADD COLUMN ogImage TEXT DEFAULT ''").run(); } catch (e) {}
+  try { db.prepare("ALTER TABLE settings ADD COLUMN hideAttachedImages INTEGER DEFAULT 0").run(); } catch (e) {}
 
   try { db.prepare("ALTER TABLE site_settings ADD COLUMN googleSearchConsoleKey TEXT DEFAULT ''").run(); } catch (e) {}
   try { db.prepare("ALTER TABLE site_settings ADD COLUMN bingWebmasterKey TEXT DEFAULT ''").run(); } catch (e) {}
@@ -957,7 +968,7 @@ export function getLocalSQLiteData() {
   // Force ID to 'global' to prevent duplicate setting rows and guarantee singleton access
   const convertedSettings = { ...settings, id: 'global' };
   Object.keys(settings).forEach(key => {
-    if (key.startsWith('show') || key.endsWith('Enabled') || key === 'is_enabled' || key === 'isActive' || key === 'flagEnabled') {
+    if (key.startsWith('show') || key.endsWith('Enabled') || key === 'is_enabled' || key === 'isActive' || key === 'flagEnabled' || key === 'hideAttachedImages') {
       const val = settings[key];
       // Robust boolean conversion for SQLite/Postgres/JSON compatibility
       if (val === null || val === undefined) {
@@ -1092,8 +1103,29 @@ export async function fetchServerData(force: boolean = false) {
           // PROTECTION: If not using service role, we still attempt fetch. 
           // We only skip the local wipe if we get 0 rows and suspect RLS is blocking us.
           console.log(`[Server Cache Sync] Fetching ${colName}...`);
-          const { data, error } = await supabaseServer.from(colName).select('*');
+          let { data, error } = await supabaseServer.from(colName).select('*');
           
+          // Fallback for transfer_certificates if it's named 'tc' in Supabase
+          if (colName === 'transfer_certificates' && (error || !data || data.length === 0)) {
+            const tcFallback = await supabaseServer.from('tc').select('*');
+            if (!tcFallback.error && tcFallback.data && tcFallback.data.length > 0) {
+              data = tcFallback.data;
+              error = null;
+              console.log('[Server Cache Sync] Found data in "tc" table, mapping to "transfer_certificates"');
+            }
+          }
+
+          // Normalize transfer_certificates data to match local schema
+          if (colName === 'transfer_certificates' && data && Array.isArray(data)) {
+            data = data.map((item: any) => ({
+              id: item.id || `tc-${Math.random().toString(36).substr(2, 9)}`,
+              student_name: String(item.student_name || item.studentname || item.name || item.studentName || ''),
+              admission_number: String(item.admission_number || item.admissionnumber || item.admissionno || item.admission_no || item.admno || item.adm_no || item.admissionNumber || ''),
+              dob: String(item.dob || item.date_of_birth || item.birthdate || item.dateofbirth || item.dateOfBirth || ''),
+              attachmentUrl: String(item.attachmentUrl || item.attachmenturl || item.url || item.file_url || item.attachment_url || '')
+            }));
+          }
+
           if (error) {
             supabaseTableStatus[colName] = 'offline';
             results[colName] = localData[colName] || [];

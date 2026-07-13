@@ -780,7 +780,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
 
       {/* Floating CTA - Ultra Modern & Responsive */}
       <AnimatePresence>
-        {(data.settings?.applyNowEnabled === true || data.settings?.applyNowEnabled === 1 || data.settings?.applyNowEnabled === 'true' || data.settings?.applyNowEnabled === '1') && (
+        {!!data.settings?.applyNowEnabled && (
           <motion.a 
             href={data.settings.applyNowUrl || '#'}
             target="_blank"

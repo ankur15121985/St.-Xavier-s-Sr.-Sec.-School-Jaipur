@@ -21,20 +21,22 @@ const LaurelDistinctionPage = ({ data }: { data: AppData }) => {
       <div className="absolute inset-0 bg-school-gold/20 rounded-[40px] blur-2xl group-hover:bg-school-gold/40 transition-all opacity-0 group-hover:opacity-100" />
       <div className="relative bg-white rounded-[40px] p-8 border border-school-ink/5 shadow-xl hover:shadow-2xl transition-all h-full flex flex-col items-center text-center overflow-hidden">
         {/* Academic Image */}
-        <div className="relative mb-8 pt-4">
-          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-school-paper shadow-2xl relative z-10 group-hover:scale-110 transition-transform duration-700">
-            {honor.image ? (
-              <img src={honor.image} alt={honor.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-school-navy/5 flex items-center justify-center">
-                <Star className="text-school-gold opacity-30" size={40} />
-              </div>
-            )}
+        {!data.settings?.hideAttachedImages && (
+          <div className="relative mb-8 pt-4">
+            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-school-paper shadow-2xl relative z-10 group-hover:scale-110 transition-transform duration-700">
+              {honor.image ? (
+                <img src={honor.image} alt={honor.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-school-navy/5 flex items-center justify-center">
+                  <Star className="text-school-gold opacity-30" size={40} />
+                </div>
+              )}
+            </div>
+            <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-school-gold rounded-full flex items-center justify-center text-white border-4 border-white z-20 shadow-lg">
+               <Award size={20} />
+            </div>
           </div>
-          <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-school-gold rounded-full flex items-center justify-center text-white border-4 border-white z-20 shadow-lg">
-             <Award size={20} />
-          </div>
-        </div>
+        )}
 
         <h3 className="text-2xl font-serif font-black text-school-navy leading-tight mb-2 group-hover:text-school-gold transition-colors">
           {honor.name}

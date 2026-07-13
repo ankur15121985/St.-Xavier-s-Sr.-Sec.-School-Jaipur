@@ -98,7 +98,29 @@ export const supabaseService = {
       const fetchTasks = [
         ...collections.map(async (colName) => {
           try {
-            const { data, error } = await supabase.from(colName).select('*');
+            let { data, error } = await supabase.from(colName).select('*');
+            
+            // Fallback for transfer_certificates if it's named 'tc' in Supabase
+            if (colName === 'transfer_certificates' && (error || !data || data.length === 0)) {
+              const tcFallback = await supabase.from('tc').select('*');
+              if (!tcFallback.error && tcFallback.data && tcFallback.data.length > 0) {
+                data = tcFallback.data;
+                error = null;
+                console.log('[Supabase] Found data in "tc" table, mapping to "transfer_certificates"');
+              }
+            }
+
+            // Normalize transfer_certificates data to match local schema
+            if (colName === 'transfer_certificates' && data && Array.isArray(data)) {
+              data = data.map((item: any) => ({
+                id: item.id || `tc-${Math.random().toString(36).substr(2, 9)}`,
+                student_name: String(item.student_name || item.studentname || item.name || item.studentName || ''),
+                admission_number: String(item.admission_number || item.admissionnumber || item.admissionno || item.admission_no || item.admno || item.adm_no || item.admissionNumber || ''),
+                dob: String(item.dob || item.date_of_birth || item.birthdate || item.dateofbirth || item.dateOfBirth || ''),
+                attachmentUrl: String(item.attachmentUrl || item.attachmenturl || item.url || item.file_url || item.attachment_url || '')
+              }));
+            }
+
             if (error) {
               console.warn(`[Supabase] Table ${colName} missing or inaccessible:`, error.message);
               flagNetworkError(error.message);
@@ -435,6 +457,22 @@ export const supabaseService = {
 
         let { error } = await supabase.from(targetTable).upsert(sanitized);
         
+        if (error && section === 'transfer_certificates' && targetTable === 'transfer_certificates') {
+          const errMsg = error.message?.toLowerCase() || '';
+          if (error.code === 'PGRST204' || errMsg.includes('transfer_certificates') || errMsg.includes('relation "public.transfer_certificates" does not exist')) {
+            console.warn(`[Supabase Sync] 'transfer_certificates' table not found on remote. Trying fallback to 'tc' table with normalized keys...`);
+            const tcSanitized = {
+              id: sanitized.id,
+              studentname: sanitized.student_name,
+              admissionno: sanitized.admission_number,
+              date_of_birth: sanitized.dob,
+              attachmenturl: sanitized.attachmentUrl
+            };
+            const fallbackResult = await supabase.from('tc').upsert(tcSanitized);
+            error = fallbackResult.error;
+          }
+        }
+        
         if (error && section === 'settings' && targetTable === 'site_settings') {
           const errMsg = error.message?.toLowerCase() || '';
           const isTableMissing = error.code === 'PGRST125' || 
@@ -529,6 +567,15 @@ export const supabaseService = {
       const targetTable = section === 'settings' ? 'site_settings' : section as string;
       const matchField = section === 'content' ? 'key' : 'id';
       let { error } = await supabase.from(targetTable).delete().eq(matchField, id);
+      
+      if (error && section === 'transfer_certificates' && targetTable === 'transfer_certificates') {
+        const errMsg = error.message?.toLowerCase() || '';
+        if (error.code === 'PGRST204' || errMsg.includes('transfer_certificates') || errMsg.includes('relation "public.transfer_certificates" does not exist')) {
+          console.warn(`[Supabase Sync] 'transfer_certificates' table not found on delete. Trying fallback to 'tc' table...`);
+          const fallbackResult = await supabase.from('tc').delete().eq(matchField, id);
+          error = fallbackResult.error;
+        }
+      }
       
       if (error && section === 'settings' && targetTable === 'site_settings') {
         const errMsg = error.message?.toLowerCase() || '';

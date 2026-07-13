@@ -1555,6 +1555,51 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
 
   const renderMainContent = () => {
     if (searchQuery) return renderSearchResults();
+
+    if (activeSection === 'studentHonors') {
+      return (
+        <div className="space-y-12">
+          <div className="p-8 bg-blue-50 border border-blue-100 rounded-[40px] flex gap-6 items-center shadow-inner">
+             <div className="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center shrink-0 shadow-lg">
+                <Award size={32} />
+             </div>
+             <div>
+                <h4 className="text-xl font-serif font-black text-blue-900 italic">Laurel & Distinction Entry Point</h4>
+                <p className="text-sm text-blue-900/60 font-medium leading-relaxed">
+                   To add data to the <strong>Laurel & Distinction</strong> web page, simply add new entries below. 
+                   Categories like "Class 10 Topper", "Class 12 Topper", and "JEE Achiever" will automatically appear in their respective sections on that page.
+                </p>
+             </div>
+          </div>
+          <div className="grid gap-6">
+            {Array.isArray(data.studentHonors) && data.studentHonors.map((item: any) => renderItemCard(item, 'studentHonors'))}
+          </div>
+        </div>
+      );
+    }
+
+    if (activeSection === 'transfer_certificates') {
+      return (
+        <div className="space-y-12">
+          <div className="p-8 bg-amber-50 border border-amber-100 rounded-[40px] flex gap-6 items-center shadow-inner">
+             <div className="w-16 h-16 bg-amber-500 text-white rounded-2xl flex items-center justify-center shrink-0 shadow-lg">
+                <FileText size={32} />
+             </div>
+             <div>
+                <h4 className="text-xl font-serif font-black text-amber-900 italic">Transfer Certificate Registry</h4>
+                <p className="text-sm text-amber-900/60 font-medium leading-relaxed">
+                   Manage the digital institutional exit records. These records are searchable by students using their Admission Number and Date of Birth.
+                   Ensure the <strong>Admission Number</strong> matches exactly what students will enter.
+                </p>
+             </div>
+          </div>
+          <div className="grid gap-6">
+            {Array.isArray(data.transfer_certificates) && data.transfer_certificates.map((item: any) => renderItemCard(item, 'transfer_certificates'))}
+          </div>
+        </div>
+      );
+    }
+
     if (activeSection === 'careers') return renderCareersSection();
     if (activeSection === 'career_applications') return renderCareerApplicationsSection();
     if (activeSection === 'mandatory_disclosures') return renderMandatoryDisclosuresSection();
@@ -4117,6 +4162,28 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                   <h1 className="text-3xl md:text-5xl font-serif font-black text-school-navy tracking-tight capitalize">
                     {searchQuery ? 'Search Results' : `Manage ${sections.find(s => s.id === activeSection)?.label || activeSection}`}
                   </h1>
+                  <button 
+                    onClick={async () => {
+                      setSavePending(true);
+                      try {
+                        const res = await fetch('/api/data?force=true');
+                        if (res.ok) {
+                          const fresh = await res.json();
+                          setData(fresh);
+                          showToast('Website cache refreshed! Your changes should now be visible.');
+                        }
+                      } catch (e) {
+                        showToast('Failed to refresh cache', 'error');
+                      } finally {
+                        setSavePending(false);
+                      }
+                    }}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-school-gold text-school-navy rounded-2xl text-[11px] font-black uppercase tracking-widest hover:scale-110 transition-all shadow-xl active:scale-90 border-2 border-school-navy/5"
+                    title="CRITICAL: Click here after making changes to Supabase manually to update the website instantly!"
+                  >
+                    <RefreshCw size={14} className={savePending ? 'animate-spin' : ''} />
+                    Push Live Changes
+                  </button>
                   {!searchQuery && (
                    <span className="px-3 py-1 bg-school-ink/10 text-school-ink/40 rounded-lg text-[8px] font-black uppercase tracking-widest self-center md:self-end mb-2">
                      Supabase Table: {activeSection}

@@ -134,6 +134,7 @@ export interface AppSettings {
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
+  hideAttachedImages?: boolean | number;
 }
 
 export interface StudentLeader {
