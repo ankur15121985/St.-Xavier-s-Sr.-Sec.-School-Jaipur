@@ -60,8 +60,33 @@ export async function authenticateToken(req: AuthenticatedRequest, res: NextApiR
         
         if (!error && user) {
           console.log(`[AUTH] Supabase token verified for user: ${user.email}`);
+          
           const bootstrapEmail = 'ankur15121985@gmail.com';
-          const isAdmin = user.email === bootstrapEmail || user.app_metadata?.role === 'admin';
+          
+          // Check if user has admin metadata OR is the bootstrap email
+          let isAdmin = user.email === bootstrapEmail || user.app_metadata?.role === 'admin';
+          
+          // Fallback: Check 'admins' table using service role if available to allow verified secondary accounts
+          if (!isAdmin) {
+            try {
+              const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
+              if (SERVICE_KEY) {
+                const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY);
+                const { data: adminRecord } = await supabaseAdmin
+                  .from('admins')
+                  .select('role')
+                  .or(`username.eq.${user.email},email.eq.${user.email}`)
+                  .maybeSingle();
+                
+                if (adminRecord && (adminRecord.role === 'admin' || adminRecord.role === 'superadmin')) {
+                  console.log(`[AUTH] User ${user.email} verified as admin via database lookup.`);
+                  isAdmin = true;
+                }
+              }
+            } catch (dbCheckErr) {
+              console.error('[AUTH] Admin table check failed:', dbCheckErr);
+            }
+          }
           
           if (isAdmin) {
             console.log('[AUTH] User is an authorized admin.');
@@ -72,7 +97,9 @@ export async function authenticateToken(req: AuthenticatedRequest, res: NextApiR
             };
             return true;
           } else {
-            console.warn(`[AUTH] User ${user.email} is NOT an admin.`);
+            console.warn(`[AUTH] User ${user.email} is NOT an authorized admin.`);
+            res.status(403).json({ error: 'Unauthorized. You do not have admin privileges.' });
+            return false;
           }
         } else if (error) {
           console.error('[AUTH] Supabase getUser error:', error.message);

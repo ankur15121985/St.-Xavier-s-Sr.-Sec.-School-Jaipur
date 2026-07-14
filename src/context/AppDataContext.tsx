@@ -123,7 +123,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode; initialData?
             
             if (val) {
               if (Array.isArray(val)) {
-                const isContentTable = ['staff', 'notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'marquee', 'popups', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'career_applications', 'school_history'].includes(k);
+                const isContentTable = ['staff', 'notices', 'gallery', 'fees', 'links', 'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'marquee', 'popups', 'school_info', 'academics', 'activities', 'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'career_applications', 'school_history', 'transfer_certificates'].includes(k);
                 
                 if (val.length > 0 || !isContentTable) {
                   merged[k] = val as any;

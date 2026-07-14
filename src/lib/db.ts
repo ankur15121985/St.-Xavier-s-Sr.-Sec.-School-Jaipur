@@ -148,8 +148,9 @@ export function getDatabase(): Database.Database {
     CREATE TABLE IF NOT EXISTS admins (
       id TEXT PRIMARY KEY,
       username TEXT UNIQUE,
+      email TEXT UNIQUE,
       password TEXT,
-      role TEXT,
+      role TEXT DEFAULT 'admin',
       last_login TEXT
     )
   `);

@@ -232,7 +232,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
             {/* Row 1: Logo Section */}
             <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-2' : 'py-6'}`}>
               <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
-                <div className="flex items-center gap-4 relative pr-12 lg:pr-0">
+                <div className="flex items-center gap-4 relative lg:pr-0 min-w-0 flex-1">
                   <Link to="/" className={`shrink-0 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-16 h-16 md:w-[100px] md:h-[100px]'}`}>
                     <img 
                       src={data.settings?.siteLogo || fallbackLogo} 
@@ -243,9 +243,9 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       }}
                     />
                   </Link>
-                  <div className="flex flex-col justify-center min-w-0">
-                    <Link to="/">
-                      <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight transition-all duration-500 uppercase ${isScrolled ? 'text-xs sm:text-base md:text-xl' : 'text-xs sm:text-xl md:text-[42px]'} whitespace-nowrap overflow-hidden text-ellipsis`}>
+                  <div className="flex flex-col justify-center min-w-0 flex-1">
+                    <Link to="/" className="min-w-0 block">
+                      <h1 className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-[1.1] tracking-tight transition-all duration-500 uppercase ${isScrolled ? 'text-[10px] sm:text-base md:text-xl' : 'text-xs sm:text-xl md:text-[42px]'} whitespace-nowrap overflow-hidden text-ellipsis`}>
                         {data.settings?.siteName || "ST. XAVIER'S SR. SEC. SCHOOL"}
                       </h1>
                     </Link>
@@ -279,13 +279,13 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                    </div>
 
                    {/* Mobile Menu Button - High Visibility */}
-                   <div className="lg:hidden">
+                   <div className="lg:hidden shrink-0">
                       <button 
                         onClick={() => setIsNavOpen(true)} 
-                        className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center bg-school-navy text-white shadow-xl hover:bg-school-accent transition-all active:scale-95"
+                        className="w-10 h-10 rounded-xl flex items-center justify-center bg-school-navy text-white shadow-lg hover:bg-school-accent transition-all active:scale-95"
                         aria-label="Open Menu"
                       >
-                        <Menu size={24} />
+                        <Menu size={20} />
                       </button>
                    </div>
                 </div>
@@ -356,7 +356,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
           <div className={`transition-all duration-500 border-b border-black/5 ${isScrolled ? 'py-1 md:py-1.5' : 'py-3 md:py-4'}`}>
             <div className="max-w-[1440px] mx-auto px-4 lg:px-8 flex items-center justify-between">
               {/* Brand Area - Left Defined */}
-              <div className="flex items-center gap-4 relative pr-12 lg:pr-0">
+              <div className="flex items-center gap-4 relative lg:pr-0 min-w-0 flex-1">
                 <Link to="/" className={`shrink-0 relative ${isScrolled ? 'w-10 h-10 md:w-12 md:h-12' : 'w-10 h-10 md:w-[70px] md:h-[70px]'}`}>
                   <img 
                     src={data.settings?.siteLogo || fallbackLogo} 
@@ -367,9 +367,9 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                     }}
                   />
                 </Link>
-                <div className="flex flex-col min-w-0">
-                  <Link to="/">
-                    <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight transition-all duration-500 uppercase ${isScrolled ? 'text-sm sm:text-base md:text-xl' : 'text-sm sm:text-lg md:text-[32px]'} whitespace-nowrap overflow-hidden text-ellipsis`}>
+                <div className="flex flex-col min-w-0 flex-1">
+                  <Link to="/" className="min-w-0 block">
+                    <span className={`font-serif font-bold text-[#1a1a1a] dark:text-white leading-tight transition-all duration-500 uppercase ${isScrolled ? 'text-[10px] sm:text-base md:text-xl' : 'text-xs sm:text-lg md:text-[32px]'} whitespace-nowrap overflow-hidden text-ellipsis`}>
                       {data.settings?.siteName || "ST. XAVIER'S SR. SEC. SCHOOL"}
                     </span>
                   </Link>
@@ -405,13 +405,13 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 </div>
 
                 {/* Mobile/Tablet Actions */}
-                <div className="lg:hidden flex items-center gap-2">
+                <div className="lg:hidden flex items-center gap-2 shrink-0">
                   <button 
                     onClick={() => setIsNavOpen(true)}
-                    className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center bg-school-navy text-white shadow-xl hover:bg-school-accent transition-all active:scale-95"
+                    className="w-10 h-10 rounded-xl flex items-center justify-center bg-school-navy text-white shadow-lg hover:bg-school-accent transition-all active:scale-95"
                     aria-label="Open Menu"
                   >
-                    <Menu size={24} />
+                    <Menu size={20} />
                   </button>
                 </div>
               </div>
