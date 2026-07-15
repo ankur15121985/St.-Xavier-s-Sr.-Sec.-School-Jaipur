@@ -167,6 +167,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     cachedVisitorCount = count;
     cachedVisitorCountExpiresAt = Date.now() + VISITOR_CACHE_TTL_MS;
 
+    // Set Cache-Control to reduce Origin Transfer and CPU. 
+    // This allows the Edge to serve the count for 1 minute without hitting the Origin.
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=300');
+
     return res.status(200).json({ success: true, count, isUnique });
   } catch (err: any) {
     console.error('[STATS] Event-driven visitor log failed:', err.message);

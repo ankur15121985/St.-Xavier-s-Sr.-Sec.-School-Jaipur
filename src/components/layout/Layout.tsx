@@ -29,7 +29,7 @@ interface NavLink {
 }
 
 const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
-  const fallbackLogo = "/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png";
+  const fallbackLogo = "https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png";
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [visitorCount, setVisitorCount] = useState<number | null>(() => {
@@ -180,7 +180,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         {/* Open Graph Elements */}
         <meta property="og:title" content={data.settings?.ogTitle || data.settings?.siteName || "St. Xavier's Sr. Sec. School, Jaipur"} />
         <meta property="og:description" content={data.settings?.ogDescription || "St. Xavier's Senior Secondary School, Jaipur - A premier Jesuit institution dedicated to holistic development and educational excellence since 1941."} />
-        <meta property="og:image" content={data.settings?.ogImage || data.settings?.siteLogo || "/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png"} />
+        <meta property="og:image" content={data.settings?.ogImage || data.settings?.siteLogo || "https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png"} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ""} />
 
@@ -188,7 +188,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={data.settings?.ogTitle || data.settings?.siteName || "St. Xavier's Sr. Sec. School, Jaipur"} />
         <meta name="twitter:description" content={data.settings?.ogDescription || "St. Xavier's Senior Secondary School, Jaipur - A premier Jesuit institution dedicated to holistic development and educational excellence since 1941."} />
-        <meta name="twitter:image" content={data.settings?.ogImage || data.settings?.siteLogo || "/api/img?url=https%3A%2F%2Fbfqyrnvyhivflapjwllk.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fuploads%2FGlobal_Settings%2Fcropped-Favicon-300x300.png"} />
+        <meta name="twitter:image" content={data.settings?.ogImage || data.settings?.siteLogo || "https://bfqyrnvyhivflapjwllk.supabase.co/storage/v1/object/public/uploads/Global_Settings/cropped-Favicon-300x300.png"} />
       </Helmet>
       {/* Persistent Resource Sidebar */}
       <SidebarLinks links={data.useful_links || []} />

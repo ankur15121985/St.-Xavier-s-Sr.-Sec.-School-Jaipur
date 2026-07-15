@@ -14,6 +14,40 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  images: {
+    minimumCacheTTL: 31536000,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+    ],
+  },
+  compress: true,
+  async rewrites() {
+    return [
+      {
+        source: '/google:hash.html',
+        destination: '/api/verification?type=google&hash=:hash',
+      },
+      {
+        source: '/BingSiteAuth.xml',
+        destination: '/api/verification?type=bing',
+      },
+      {
+        source: '/:key.txt',
+        destination: '/api/verification?type=indexnow&key=:key',
+      },
+    ];
+  },
   async headers() {
     return [
       {
