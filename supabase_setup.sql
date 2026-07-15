@@ -12,6 +12,7 @@
 CREATE TABLE IF NOT EXISTS admins (
     id TEXT PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE,
     password TEXT NOT NULL,
     role TEXT DEFAULT 'staff' CHECK (role IN ('admin', 'staff')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())

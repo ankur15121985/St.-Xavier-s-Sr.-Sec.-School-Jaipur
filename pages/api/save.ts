@@ -62,6 +62,7 @@ const SCHEMA: Record<string, string[]> = {
   career_applications: [
     'id', 'application_no', 'category', 'full_name', 'parent_spouse_name', 'mobile_number', 'email', 'gender', 'dob', 'aadhar_number', 'address', 'photo_url', 'user_ip', 'declaration_accepted', 'major_subject', 'minor_subject_1', 'minor_subject_2', 'salary_expected', 'tet_details', 'interests', 'responsibilities_handled', 'statement_of_purpose', 'other_experience', 'education_qualifications', 'teaching_experience', 'achievements', 'teacher_category', 'created_at', 'status'
   ],
+  admins: ['id', 'username', 'email', 'password', 'role', 'created_at'],
   logs: ['id', 'user', 'action', 'details', 'timestamp'],
   settings: [
     'id', 'applyNowEnabled', 'applyNowUrl', 'applyNowLabel', 'siteName', 'siteLogo', 

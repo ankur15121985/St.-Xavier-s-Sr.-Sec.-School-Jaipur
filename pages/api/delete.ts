@@ -30,7 +30,7 @@ const WHITELIST_TABLES = [
   'scholarships', 'fire_safety', 'jesuit_page_content', 'school_history', 'lead_grace',
   'digital_campus', 'former_leaders', 'former_principals', 'former_rectors', 'former_managers',
   'former_student_leaders', 'marquee', 'streamwise_toppers', 'xavierite_of_the_year',
-  'custom_content', 'co_curricular_activities', 'career_applications', 'settings', 'site_settings'
+  'custom_content', 'co_curricular_activities', 'career_applications', 'settings', 'site_settings', 'admins'
 ];
 
 export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
