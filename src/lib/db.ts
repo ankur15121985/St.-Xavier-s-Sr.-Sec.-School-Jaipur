@@ -151,7 +151,8 @@ export function getDatabase(): Database.Database {
       email TEXT UNIQUE,
       password TEXT,
       role TEXT DEFAULT 'admin',
-      last_login TEXT
+      last_login TEXT,
+      created_at TEXT
     )
   `);
 
@@ -247,6 +248,10 @@ export function getDatabase(): Database.Database {
 
   try {
     db.prepare("ALTER TABLE staff ADD COLUMN is_enabled INTEGER DEFAULT 1").run();
+  } catch (e) {}
+
+  try {
+    db.prepare("ALTER TABLE admins ADD COLUMN created_at TEXT").run();
   } catch (e) {}
 
   db.exec(`
@@ -876,7 +881,7 @@ export function getLocalSQLiteData() {
     'scholarships', 'jesuit_page_content', 'fire_safety', 'site_stats', 'former_leaders',
     'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders',
     'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content',
-    'transfer_certificates', 'career_applications', 'digital_campus', 'marquee'
+    'transfer_certificates', 'career_applications', 'digital_campus', 'marquee', 'admins'
   ];
 
   tables.forEach(table => {
@@ -985,33 +990,21 @@ export function getLocalSQLiteData() {
 }
 
 export function proxySupabaseUrls(obj: any): any {
-  if (obj === null || obj === undefined) return obj;
-  if (typeof obj === 'string') {
-    if (obj.includes('.supabase.co/storage/v1/object/public/')) {
-      if (!obj.startsWith('/api/img?url=')) {
-        return `/api/img?url=${encodeURIComponent(obj)}`;
-      }
-    }
-    return obj;
-  }
-  if (Array.isArray(obj)) {
-    return obj.map(item => proxySupabaseUrls(item));
-  }
-  if (typeof obj === 'object') {
-    const res: any = {};
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        res[key] = proxySupabaseUrls(obj[key]);
-      }
-    }
-    return res;
-  }
+  // Disabling proxying to save Vercel Origin bandwidth. Direct links to Supabase are preferred.
   return obj;
 }
+
+let lastTimestampCheckAt: number = 0;
+const TIMESTAMP_CHECK_INTERVAL_MS = 60000; // Only check Supabase for updates once per minute
 
 export async function fetchServerData(force: boolean = false) {
   const now = Date.now();
   
+  // 0. High-Performance Memory Cache: If we have data and it's super fresh, skip even the timestamp check!
+  if (!force && serverDataCache && now - lastTimestampCheckAt < TIMESTAMP_CHECK_INTERVAL_MS) {
+    return serverDataCache;
+  }
+
   const SUPABASE_URL = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
   const ANON_KEY = (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim();
   const SERVICE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE || '').trim();
@@ -1055,6 +1048,8 @@ export async function fetchServerData(force: boolean = false) {
       .eq('key', 'content_updated_at')
       .maybeSingle();
 
+    lastTimestampCheckAt = now;
+
     if (!contentTimeErr && remoteContentRow?.value) {
       remoteContentUpdatedAt = remoteContentRow.value;
       
@@ -1087,19 +1082,26 @@ export async function fetchServerData(force: boolean = false) {
 
     const collections = [
        'notices', 'staff', 'gallery', 'fees', 'links', 
-       'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'messages', 'marquee', 'admins', 'logs', 'former_leaders',
+       'events', 'achievements', 'studentHonors', 'navigation_menu', 'carousel', 'popups', 'transfer_certificates', 'faqs', 'marquee', 'former_leaders',
        'former_principals', 'former_rectors', 'former_managers', 'former_student_leaders', 'streamwise_toppers', 'xavierite_of_the_year', 'useful_links', 'custom_content', 'lead_grace', 'school_history',
-       'activities', 'co_curricular_activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content', 'scholarships', 'fire_safety', 'site_stats', 'career_applications'
+       'activities', 'co_curricular_activities', 'alumni', 'school_info', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content', 'jesuit_page_content', 'scholarships', 'fire_safety', 'site_stats'
     ];
 
+    // Heavy/private tables that are only synced on demand in the admin portal
     const privateTables = ['messages', 'career_applications', 'admins', 'logs', 'visitor_ips'];
+    
+    // Only include private tables if force is true (admin intent) or if we explicitly allow it
+    const activeCollections = [...collections];
+    if (force) {
+      activeCollections.push(...privateTables);
+    }
 
     const results: any = {};
     let successCount = 0;
     const supabaseTableStatus: Record<string, 'online' | 'offline' | 'skipped'> = {};
 
     const fetchTasks = [
-      ...collections.map(async (colName) => {
+      ...activeCollections.map(async (colName) => {
         try {
           // PROTECTION: If not using service role, we still attempt fetch. 
           // We only skip the local wipe if we get 0 rows and suspect RLS is blocking us.

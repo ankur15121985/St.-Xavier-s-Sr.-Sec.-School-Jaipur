@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 2. Validate If-None-Match header for HTTP 304 Not Modified
     const ifNoneMatch = req.headers['if-none-match'];
     if (ifNoneMatch === etag && force !== 'true') {
-      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400');
       res.setHeader('ETag', etag);
       return res.status(304).end(); // 304 response sends exactly 0 bytes body, completely bypassing egress!
     }
@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const data = await fetchServerData(force === 'true');
 
     // 4. Set modern CDN-friendly caching tags
-    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400');
     res.setHeader('ETag', etag);
 
     return res.status(200).json(data);

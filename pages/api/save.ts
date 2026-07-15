@@ -86,18 +86,31 @@ const SCHEMA: Record<string, string[]> = {
 
 export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
+  
   if (!await authenticateToken(req, res)) {
     return;
   }
 
   try {
     const { table, item } = req.body;
-    const whitelist = Object.keys(SCHEMA);
     
-    if (!whitelist.includes(table)) {
+    // Defensive whitelist check
+    const WHITELIST = [
+      'notices', 'staff', 'gallery', 'carousel', 'fees', 'links', 'useful_links',
+      'events', 'achievements', 'transfer_certificates', 'studentHonors', 'menu',
+      'navigation_menu', 'faqs', 'messages', 'popups', 'school_info', 'activities',
+      'alumni', 'parent_obligations', 'careers', 'mandatory_disclosures', 'contact_content',
+      'scholarships', 'fire_safety', 'jesuit_page_content', 'school_history', 'lead_grace',
+      'digital_campus', 'former_leaders', 'former_principals', 'former_rectors', 'former_managers',
+      'former_student_leaders', 'marquee', 'streamwise_toppers', 'xavierite_of_the_year',
+      'custom_content', 'co_curricular_activities', 'career_applications', 'settings', 'site_settings', 'admins'
+    ];
+    
+    if (!table || !WHITELIST.includes(table)) {
+      console.warn(`[SAVE API] Rejected invalid table attempt: ${table}`);
       return res.status(400).json({ error: 'Invalid table name' });
     }
 
