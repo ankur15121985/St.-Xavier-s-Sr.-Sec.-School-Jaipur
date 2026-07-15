@@ -156,7 +156,7 @@ const TransferCertificatePage = ({ data }: { data: AppData }) => {
                     </label>
                     <input 
                       type="text"
-                      placeholder="e.g. 2024/001"
+                      placeholder=""
                       value={admissionNumber}
                       onChange={(e) => setAdmissionNumber(e.target.value)}
                       className="w-full bg-school-ink/5 border-none rounded-2xl p-5 text-school-navy font-bold focus:ring-2 focus:ring-school-gold transition-all outline-none placeholder:text-school-navy/20"
@@ -177,11 +177,7 @@ const TransferCertificatePage = ({ data }: { data: AppData }) => {
                   </div>
                 </div>
 
-                <div className="px-6 py-3 bg-school-gold/10 rounded-2xl border border-school-gold/20">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-school-navy/60 text-center">
-                    Test Record: <span className="text-school-gold">TC01</span> & <span className="text-school-gold">2026-04-27</span>
-                  </p>
-                </div>
+
 
                 <AnimatePresence mode="wait">
                   {error && (

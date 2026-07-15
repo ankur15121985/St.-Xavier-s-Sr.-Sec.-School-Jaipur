@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import fs from 'fs';
 import bcrypt from 'bcryptjs';
 import { createClient } from '@supabase/supabase-js';
 
@@ -25,7 +26,6 @@ export function handleDatabaseError(err: any): void {
       } catch (e) {}
       dbInstance = null;
     }
-    const fs = require('fs');
     const primaryPath = '/tmp/database.sqlite';
     const fallbackPath = path.join(process.cwd(), 'database.sqlite');
     try {
@@ -61,7 +61,6 @@ export function getDatabase(): Database.Database {
 
   // Choose /tmp path as the primary target for production compatibility with serverless environments
   let dbPath = '/tmp/database.sqlite';
-  const fs = require('fs');
   const localOrigPath = path.join(process.cwd(), 'database.sqlite');
   
   // Create /tmp folder if it does not exist
