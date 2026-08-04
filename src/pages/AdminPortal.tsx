@@ -795,7 +795,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-school-gold/10 text-school-navy rounded-full flex items-center justify-center font-black text-sm overflow-hidden shadow-inner border border-school-ink/5">
                           {app.photo_url ? (
-                            <img src={app.photo_url} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                            <img src={app.photo_url} alt="" className="w-full h-full object-cover" />
                           ) : (
                             app.full_name?.charAt(0)
                           )}
@@ -909,7 +909,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 bg-school-gold text-school-navy rounded-2xl flex items-center justify-center font-black text-2xl overflow-hidden shadow-xl border-4 border-white/20">
                         {detailedApp.photo_url ? (
-                          <img src={detailedApp.photo_url} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          <img src={detailedApp.photo_url} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
                           detailedApp.full_name?.charAt(0)
                         )}
@@ -2214,7 +2214,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                           src={item.url} 
                           className="w-full h-full object-cover select-none" 
                           alt={item.caption || 'Gallery Image'}
-                          referrerPolicy="no-referrer"
+                         
                         />
                         <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded text-[8px] font-mono text-white">
                           Index: {item.order_index || 0}

@@ -101,7 +101,7 @@ const StatutoryArchivesPage = ({ data }: { data: AppData }) => {
                     src={image.url} 
                     alt={image.caption}
                     className="w-full h-auto rounded-[24px] saturate-[0.8] group-hover:saturate-100 transition-all duration-700"
-                    referrerPolicy="no-referrer"
+                   
                   />
                   
                   {/* Subtle Grain Overlay */}

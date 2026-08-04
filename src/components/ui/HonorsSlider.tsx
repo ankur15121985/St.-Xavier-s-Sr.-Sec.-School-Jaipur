@@ -126,7 +126,7 @@ export const HonorsSlider = ({ honors, autoPlayInterval = 5000, hideAttachedImag
                           src={item.image} 
                           alt={item.name} 
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                          referrerPolicy="no-referrer"
+                         
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=random&color=fff&size=128`;
                           }}

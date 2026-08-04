@@ -1155,7 +1155,7 @@ export async function fetchServerData(force: boolean = false) {
             }
 
             supabaseTableStatus[colName] = 'online';
-            results[colName] = data || [];
+            results[colName] = (data && data.length > 0) ? data : (localData[colName] || []);
             successCount++;
 
             // Sync to local SQLite
@@ -1166,12 +1166,13 @@ export async function fetchServerData(force: boolean = false) {
                 if (columnsInfo && columnsInfo.length > 0) {
                   const columns = columnsInfo.map(c => c.name);
                   
-                  // Clear local table before sync (standard behavior)
-                  if (sqliteTable !== 'logs' && sqliteTable !== 'visitor_ips') {
-                    db.prepare(`DELETE FROM "${sqliteTable}"`).run();
-                  }
-
+                  // Only clear local table if we actually have new data to replace it with.
+                  // This prevents accidental wipes if Supabase is misconfigured or empty.
                   if (data.length > 0) {
+                    if (sqliteTable !== 'logs' && sqliteTable !== 'visitor_ips') {
+                      db.prepare(`DELETE FROM "${sqliteTable}"`).run();
+                    }
+
                     db.transaction(() => {
                       data.forEach((row: any) => {
                         const rowKeys = Object.keys(row).filter(k => columns.includes(k));
@@ -1266,28 +1267,49 @@ export async function fetchServerData(force: boolean = false) {
           results.digital_campus = localData.digital_campus;
         }
       })(),
-      // Content (Key Value structure)
+      // Content (Support both Key-Value and Column-based structures)
       (async () => {
         try {
           const { data, error } = await supabaseServer.from('content').select('*');
-          if (data && Array.isArray(data)) {
-            const contentObj: Record<string, string> = {};
-            data.forEach((row: any) => {
-              if (row.key) {
-                contentObj[row.key] = row.value || '';
-              }
-            });
-            results.content = contentObj;
-            successCount++;
-            supabaseTableStatus['content'] = 'online';
-
-            try {
+          if (data && Array.isArray(data) && data.length > 0) {
+            const first = data[0];
+            const isKeyValue = 'key' in first && 'value' in first;
+            
+            if (isKeyValue) {
+              const contentObj: Record<string, string> = {};
               data.forEach((row: any) => {
                 if (row.key) {
-                  db.prepare(`INSERT OR REPLACE INTO "content" (key, value) VALUES (?, ?)`).run(row.key, row.value || '');
+                  contentObj[row.key] = row.value || '';
+                  try {
+                    db.prepare(`INSERT OR REPLACE INTO "content" (key, value) VALUES (?, ?)`).run(row.key, row.value || '');
+                  } catch (e) {}
                 }
               });
-            } catch (liteErr) {}
+              results.content = contentObj;
+            } else {
+              // Column based sync
+              const colsInfo = db.prepare('PRAGMA table_info("content")').all() as any[];
+              const columns = colsInfo.map(c => c.name);
+              const row = data[0];
+              const rowKeys = Object.keys(row).filter(k => columns.includes(k));
+              if (rowKeys.length > 0) {
+                const placeholders = rowKeys.map(() => '?').join(',');
+                const values = rowKeys.map(k => row[k]);
+                try {
+                  db.prepare(`DELETE FROM "content"`).run();
+                  db.prepare(`INSERT OR REPLACE INTO "content" (${rowKeys.map(k => `"${k}"`).join(',')}) VALUES (${placeholders})`).run(values);
+                } catch (e) {}
+                
+                // Return as an object for the frontend
+                const contentObj: Record<string, string> = {};
+                rowKeys.forEach(k => {
+                  if (k !== 'id') contentObj[k] = String(row[k] ?? '');
+                });
+                results.content = contentObj;
+              }
+            }
+            successCount++;
+            supabaseTableStatus['content'] = 'online';
           } else {
             results.content = localData.content;
           }

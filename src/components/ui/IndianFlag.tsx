@@ -25,7 +25,7 @@ const IndianFlag: React.FC<{ className?: string, src?: string }> = ({ className,
           src={src} 
           alt="Custom Flag" 
           className="w-full h-auto drop-shadow-2xl rounded-sm"
-          referrerPolicy="no-referrer"
+         
         />
       </motion.div>
     );

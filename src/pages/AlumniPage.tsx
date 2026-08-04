@@ -28,7 +28,7 @@ const AlumniPage = ({ data }: { data: AppData }) => {
               src={data.content.alumniHeroImage || "https://picsum.photos/seed/alumni_gathering/1920/1080?blur=2"} 
               alt="Alumni Gathering Background" 
               className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
+             
               loading="lazy"
             />
             <div className="absolute inset-0 bg-school-navy/60 backdrop-blur-[2px]"></div>

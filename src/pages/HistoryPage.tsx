@@ -14,7 +14,7 @@ const HistoryPage = ({ data }: { data: AppData }) => {
             src="https://lh3.googleusercontent.com/d/16oegUjYNuRhfo7b0CsRLQIZhuWH5cg9N" 
             className="w-full h-full object-cover grayscale brightness-50 group-hover:scale-105 transition-transform duration-[2s]"
             alt="School Heritage"
-            referrerPolicy="no-referrer"
+           
           />
           <div className="absolute inset-0 bg-gradient-to-t from-school-navy via-school-navy/60 to-transparent"></div>
           <div className="absolute inset-0 flex items-center justify-center text-center px-6 pt-10">

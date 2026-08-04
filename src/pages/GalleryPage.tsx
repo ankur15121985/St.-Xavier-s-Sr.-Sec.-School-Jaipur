@@ -160,7 +160,7 @@ const GalleryPage = ({ data }: { data: AppData }) => {
                       src={item.url} 
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
                       alt={item.caption}
-                      referrerPolicy="no-referrer"
+                     
                     />
                     <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                       <p className="text-white font-bold text-sm tracking-tight">{item.caption}</p>
@@ -234,7 +234,7 @@ const GalleryPage = ({ data }: { data: AppData }) => {
                     src={selectedImage.url} 
                     className="w-full h-full object-contain bg-black/20 select-none"
                     alt={selectedImage.caption}
-                    referrerPolicy="no-referrer"
+                   
                   />
                   <div className="absolute inset-x-0 bottom-0 p-6 md:p-12 bg-gradient-to-t from-black/8 w-full from-black/90 to-transparent">
                     <h5 className="text-white font-serif italic text-2xl md:text-5xl font-black mb-2 md:mb-4">{selectedImage.caption}</h5>

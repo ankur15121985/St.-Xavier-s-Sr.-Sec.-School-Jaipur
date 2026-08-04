@@ -107,7 +107,7 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
                       src="https://lh3.googleusercontent.com/d/1_fVSqtrpLiaw29uhOj6qdzp_1CZNBPaL" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                       alt="Saint Ignatius of Loyola"
-                      referrerPolicy="no-referrer"
+                     
                    />
                    <div className="absolute inset-0 bg-gradient-to-t from-school-navy/90 via-transparent to-transparent flex items-end p-10">
                       <p className="text-white text-3xl font-serif font-black italic">St. Ignatius of Loyola</p>
@@ -167,7 +167,7 @@ const FounderPatronPage = ({ data }: { data: AppData }) => {
                       src="https://lh3.googleusercontent.com/d/1QJu1tiy6y9B4qPETLffI6X_FjvcnjQo_" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                       alt="Saint Francis Xavier"
-                      referrerPolicy="no-referrer"
+                     
                    />
                    <div className="absolute inset-0 bg-gradient-to-t from-school-navy/90 via-transparent to-transparent flex items-end p-10">
                       <p className="text-white text-3xl font-serif font-black italic">Saint Francis Xavier</p>

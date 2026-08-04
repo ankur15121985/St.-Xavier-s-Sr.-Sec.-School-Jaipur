@@ -238,6 +238,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       src={data.settings?.siteLogo || fallbackLogo} 
                       alt="Logo" 
                       className="w-full h-full object-contain"
+                     
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = fallbackLogo;
                       }}
@@ -504,6 +505,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       src={data.settings?.siteLogo || fallbackLogo} 
                       alt="Logo" 
                       className="w-full h-full object-contain" 
+                     
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = fallbackLogo;
                       }}
@@ -633,6 +635,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                    src={data.settings?.siteLogo || fallbackLogo} 
                    alt="St. Xavier's Logo" 
                    className="w-full h-full object-contain"
+                  
                    onError={(e) => {
                      (e.target as HTMLImageElement).src = fallbackLogo;
                    }}

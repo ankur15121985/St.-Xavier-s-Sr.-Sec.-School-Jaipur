@@ -79,11 +79,10 @@ const StudybaseAppPage = ({ data }: { data: AppData }) => {
               <div className="lg:w-1/2 relative group">
                 <div className="absolute -inset-4 bg-school-gold/20 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full"></div>
                 <div className="relative glass-surface bg-slate-900 rounded-[48px] p-4 shadow-2xl border border-white/20">
-                    <img 
-                      src="/studybase_app_preview.webp" 
+                    <img referrerPolicy="no-referrer" 
+                      src="https://lh3.googleusercontent.com/d/1jZTZITcBuI0XZzyGnLmT4UJLo4xCwb09" 
                       alt="Studybase App Preview" 
                       className="rounded-[36px] w-full shadow-inner"
-                      referrerPolicy="no-referrer"
                     />
                 </div>
               </div>

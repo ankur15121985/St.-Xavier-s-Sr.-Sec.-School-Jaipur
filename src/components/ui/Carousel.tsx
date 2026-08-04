@@ -27,7 +27,7 @@ const ImageWithFallback = ({ src, alt, className }: { src: string; alt: string; 
           setError(true);
           setLoading(false);
         }}
-        referrerPolicy="no-referrer"
+       
       />
     </div>
   );
