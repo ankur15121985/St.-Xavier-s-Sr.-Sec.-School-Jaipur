@@ -597,9 +597,6 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                      <Link to="/contact" onClick={() => setIsNavOpen(false)} className="flex items-center gap-3 text-slate-600 dark:text-slate-400 font-bold hover:text-school-accent transition-colors">
                         <MessageSquare size={18} /> Connect With Us
                      </Link>
-                     <Link to="/careers" onClick={() => setIsNavOpen(false)} className="flex items-center gap-3 text-slate-600 dark:text-slate-400 font-bold hover:text-school-accent transition-colors">
-                        <Users2 size={18} /> Join Our Faculty (Careers)
-                     </Link>
                   </motion.div>
                 </motion.div>
               </div>
