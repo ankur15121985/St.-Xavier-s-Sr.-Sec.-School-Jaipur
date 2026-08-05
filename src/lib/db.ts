@@ -998,9 +998,13 @@ const TIMESTAMP_CHECK_INTERVAL_MS = 60000; // Only check Supabase for updates on
 
 export async function fetchServerData(force: boolean = false) {
   const now = Date.now();
+  const isDev = process.env.NODE_ENV === 'development';
   
-  // 0. High-Performance Memory Cache: If we have data and it's super fresh, skip even the timestamp check!
-  if (!force && serverDataCache && now - lastTimestampCheckAt < TIMESTAMP_CHECK_INTERVAL_MS) {
+  // 0. High-Performance Memory Cache: If we have data and it's fresh, skip the remote check!
+  // We've reduced these intervals to ensure faster updates after admin panel edits.
+  const interval = isDev ? 10000 : 30000; // 10s in dev, 30s in prod
+  
+  if (!force && serverDataCache && now - lastTimestampCheckAt < interval) {
     return serverDataCache;
   }
 

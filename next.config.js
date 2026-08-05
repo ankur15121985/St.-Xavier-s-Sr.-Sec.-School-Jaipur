@@ -33,10 +33,6 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'xaviersjaipur.edu.in',
       },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-      },
     ],
   },
   compress: true,
@@ -58,15 +54,6 @@ const nextConfig = {
   },
   async headers() {
     return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-        ],
-      },
       {
         source: '/uploads/:path*',
         headers: [

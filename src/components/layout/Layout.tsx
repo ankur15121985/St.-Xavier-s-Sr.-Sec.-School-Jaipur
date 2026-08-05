@@ -525,13 +525,6 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 <div className="flex items-center justify-between gap-2 mb-8 p-4 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-black/5 dark:border-white/5 shadow-sm" style={{ WebkitBackdropFilter: 'blur(12px)' }}>
                    <LanguageSelector isScrolled={false} align="left" />
                    <div className="flex items-center gap-2">
-                      <Link 
-                        to="/careers" 
-                        onClick={() => setIsNavOpen(false)}
-                        className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-white dark:bg-slate-800 text-school-navy dark:text-white shadow-sm font-black text-[9px] uppercase"
-                      >
-                        Jobs
-                      </Link>
                       <button 
                         onClick={() => setIsDark(!isDark)}
                         className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-white dark:bg-slate-800 text-school-navy dark:text-white shadow-sm"
@@ -564,7 +557,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   }}
                   className="grid gap-2"
                 >
-                  {navLinks.map(l => (
+                  {navLinks.filter(l => l.href !== '/careers' && l.label !== 'CAREERS').map(l => (
                     <motion.div
                       key={l.id}
                       variants={{
@@ -572,7 +565,15 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                         visible: { opacity: 1, x: 0 }
                       }}
                     >
-                      <MobileNavLink link={l} onClose={() => setIsNavOpen(false)} isDark={isDark} />
+                      <MobileNavLink 
+                        link={
+                          l.subLinks 
+                            ? { ...l, subLinks: l.subLinks.filter(sl => sl.href !== '/careers' && sl.label !== 'CAREERS') } 
+                            : l
+                        } 
+                        onClose={() => setIsNavOpen(false)} 
+                        isDark={isDark} 
+                      />
                     </motion.div>
                   ))}
                   

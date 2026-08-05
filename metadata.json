@@ -3,6 +3,7 @@
   "description": "An immersive portal for St. Xavier's, C-scheme, featuring advanced glassmorphism and real-time school management.",
   "requestFramePermissions": [],
   "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API",
     "3D Interactive Visualization",
     "Real-time Admin Dashboard",
     "Responsive Multi-page Routing",

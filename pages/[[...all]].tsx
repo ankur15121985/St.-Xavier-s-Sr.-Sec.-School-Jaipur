@@ -233,7 +233,7 @@ export async function getStaticProps(context: any) {
         initialData: serialized,
         googleMapsKey,
       },
-      revalidate: 3600, // Revalidate every hour to keep Origin Transfer extremely low
+      revalidate: 30, // Revalidate every 30 seconds to pick up Supabase changes quickly
     };
   } catch (err: any) {
     console.error('ISR fetch error:', err.message);
