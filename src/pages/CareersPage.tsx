@@ -394,10 +394,6 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                onChange={e => setFormData({...formData, category: e.target.value})}
                              >
                                <option>Teacher</option>
-                               <option>Administrative Staff</option>
-                               <option>Supporting Staff</option>
-                               <option>Sports Coach</option>
-                               <option>Other</option>
                              </select>
                           </div>
                           {formData.category === 'Teacher' && (

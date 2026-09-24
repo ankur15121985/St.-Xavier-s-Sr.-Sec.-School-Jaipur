@@ -51,6 +51,7 @@ const ExplorePage = dynamic(() => import('../src/pages/ExplorePage'), { loading:
 const ContactPage = dynamic(() => import('../src/pages/ContactPage'), { loading: ElegantLoader });
 const AdminPortal = dynamic(() => import('../src/pages/AdminPortal'), { loading: ElegantLoader });
 const SitemapPage = dynamic(() => import('../src/pages/SitemapPage'), { loading: ElegantLoader });
+const EducateMagisPage = dynamic(() => import('../src/pages/EducateMagisPage'), { loading: ElegantLoader });
 
 export default function CatchAllPage({ googleMapsKey }: { googleMapsKey?: string }) {
   const router = useRouter();
@@ -182,6 +183,9 @@ export default function CatchAllPage({ googleMapsKey }: { googleMapsKey?: string
       break;
     case '/sitemap':
       component = <SitemapPage data={data} />;
+      break;
+    case '/educate-magis':
+      component = <EducateMagisPage data={data} />;
       break;
     default:
       component = <HomePage data={data} />;

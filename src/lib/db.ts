@@ -4,6 +4,10 @@ import fs from 'fs';
 import bcrypt from 'bcryptjs';
 import { createClient } from '@supabase/supabase-js';
 
+declare global {
+  var supabaseQuotaExceededUntil: number | undefined;
+}
+
 // Global cache to prevent multiple connections in Next.js HMR development mode
 let dbInstance: Database.Database | null = null;
 
@@ -912,6 +916,22 @@ export function getLocalSQLiteData() {
 
   data['navigation_menu'] = data['menu'] || [];
 
+  // Inject hardcoded menu items that the user requested but might not be in DB yet
+  if (Array.isArray(data['navigation_menu'])) {
+    const hasEducateMagis = data['navigation_menu'].some((m: any) => m.id === '9-6' || m.label?.toLowerCase() === 'educate magis');
+    if (!hasEducateMagis) {
+      data['navigation_menu'].push({
+        id: '9-6',
+        label: 'Educate Magis',
+        href: '/educate-magis',
+        parent_id: '9',
+        order_index: 6,
+        attachmentUrl: null,
+        is_enabled: true
+      });
+    }
+  }
+
   if (Array.isArray(data.content)) {
     const contentObj: Record<string, string> = {};
     if (data.content.length > 0) {
@@ -1044,6 +1064,16 @@ export async function fetchServerData(force: boolean = false) {
       }
     } catch (e) {}
 
+    // Circuit Breaker: If we are in "Degraded Mode" due to quota errors, skip the remote check for 1 hour
+    const isDegraded = globalThis.supabaseQuotaExceededUntil && Date.now() < globalThis.supabaseQuotaExceededUntil;
+    if (isDegraded && !force) {
+      console.log('[Server Cache Manager] Operating in DEGRADED MODE (Supabase Quota Exceeded). Using local cache.');
+      const proxied = proxySupabaseUrls(localData);
+      serverDataCache = proxied;
+      serverDataCacheExpiresAt = Date.now() + 3600000; // 1 hour
+      return proxied;
+    }
+
     // Check remote timestamp from content table first
     const { data: remoteContentRow, error: contentTimeErr } = await supabaseServer
       .from('content')
@@ -1053,18 +1083,33 @@ export async function fetchServerData(force: boolean = false) {
 
     lastTimestampCheckAt = now;
 
-    if (!contentTimeErr && remoteContentRow?.value) {
+    if (contentTimeErr) {
+      const isQuotaError = contentTimeErr.message.includes('exceed_cached_egress_quota') || 
+                           contentTimeErr.message.includes('restricted due to violations');
+      
+      if (isQuotaError) {
+        console.error('[Server Cache Manager] Supabase Quota Exceeded. Entering Degraded Mode for 1 hour.');
+        globalThis.supabaseQuotaExceededUntil = Date.now() + 3600000; // 1 hour cooldown
+        
+        // Return local data immediately to prevent further failing requests
+        const proxied = proxySupabaseUrls(localData);
+        serverDataCache = proxied;
+        serverDataCacheExpiresAt = Date.now() + 3600000;
+        return proxied;
+      }
+
+      console.warn('[Server Cache Manager] Querying content timestamp failed:', contentTimeErr.message);
+      remoteContentUpdatedAt = 'UNKNOWN'; 
+    } else if (remoteContentRow?.value) {
       remoteContentUpdatedAt = remoteContentRow.value;
+      
+      // Clear degraded flag if we successfully communicated with Supabase
+      globalThis.supabaseQuotaExceededUntil = 0;
       
       // CRITICAL: If remote matches local AND we have a memory cache, return it!
       if (!force && serverDataCache && localContentUpdatedAt === remoteContentUpdatedAt && now < serverDataCacheExpiresAt) {
         return serverDataCache;
       }
-    }
-
-    if (contentTimeErr) {
-      console.warn('[Server Cache Manager] Querying content timestamp failed:', contentTimeErr.message);
-      remoteContentUpdatedAt = 'UNKNOWN'; 
     }
 
       // COMPARE TIMESTAMPS
@@ -1136,9 +1181,17 @@ export async function fetchServerData(force: boolean = false) {
             supabaseTableStatus[colName] = 'offline';
             results[colName] = localData[colName] || [];
             
+            const isQuotaError = error.message.includes('exceed_cached_egress_quota') || 
+                                 error.message.includes('restricted due to violations');
+            
+            if (isQuotaError) {
+              console.error(`[Server Cache Sync] Quota exceeded during ${colName} fetch. Switching to Degraded Mode.`);
+              globalThis.supabaseQuotaExceededUntil = Date.now() + 3600000;
+            }
+
             if (error.message.includes('Could not find the table') || error.message.includes('does not exist')) {
               console.warn(`[Server Cache Sync] Table ${colName} missing in Supabase (skipping):`, error.message);
-            } else {
+            } else if (!isQuotaError) {
               console.error(`[Server Cache Sync] Error fetching ${colName}:`, error.message);
             }
           } else {
