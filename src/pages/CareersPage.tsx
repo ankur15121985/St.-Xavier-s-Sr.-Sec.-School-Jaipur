@@ -39,6 +39,14 @@ const CareersPage = ({ data }: { data: AppData }) => {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
+  const SwipeHint = () => (
+    <div className="lg:hidden flex items-center justify-center gap-3 mb-6 py-4 px-6 bg-amber-50 rounded-2xl border-2 border-amber-200 shadow-sm">
+      <span className="text-amber-600 font-black text-lg animate-bounce">←</span>
+      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-900 italic">Swipe Table Horizontally</span>
+      <span className="text-amber-600 font-black text-lg animate-bounce">→</span>
+    </div>
+  );
+
   // Form State
   const [formData, setFormData] = useState<Partial<CareerApplication>>({
     category: 'Teacher',
@@ -297,7 +305,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
               <div className="grid lg:grid-cols-4 min-h-0 md:min-h-0 md:min-h-[800px]">
                 
                 {/* Sidebar Info */}
-                <div className="lg:col-span-1 bg-school-navy p-8 md:p-12 text-white flex flex-col justify-between relative overflow-hidden">
+                <div className="lg:col-span-1 bg-school-navy p-4 md:p-12 text-white flex flex-col justify-between relative overflow-hidden">
                    <div className="absolute top-0 right-0 w-full h-full opacity-5 pointer-events-none">
                      <svg className="w-full h-full" viewBox="0 0 100 100">
                         <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -309,7 +317,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                    
                    <div className="relative z-10 space-y-12">
                      <div className="space-y-4">
-                       <h3 className="text-3xl font-black italic tracking-tighter uppercase leading-none">Application <br /><span className="text-school-gold">Registry</span></h3>
+                       <h3 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase leading-none">Application <br /><span className="text-school-gold">Registry</span></h3>
                        <p className="text-sm text-white/40 font-medium">Please provide accurate information for institutional verification.</p>
                      </div>
 
@@ -606,8 +614,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                             </button>
                          </div>
 
-                         <div className="overflow-x-auto rounded-3xl md:rounded-[40px] border border-school-ink/5 bg-[#F8F9FA] p-4 md:p-8">
-                            <table className="w-full border-collapse min-w-[600px]">
+                         <SwipeHint />
+                         <div className="overflow-x-auto custom-horizontal-scrollbar rounded-3xl md:rounded-[40px] border border-school-ink/5 bg-[#F8F9FA] p-4 md:p-8 pb-12 md:pb-8">
+                            <table className="w-full border-collapse min-w-[1000px]">
                                <thead>
                                   <tr className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 text-left italic">
                                      <th className="pb-6 pr-4">Exams Passed</th>
@@ -702,7 +711,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                          <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                               <div className="w-8 h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-xs font-black italic">04</div>
-                              <h4 className="text-2xl font-black text-school-ink uppercase tracking-tighter italic">Teaching Experience (if any)</h4>
+                              <h4 className="text-xl md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic">Teaching Experience (if any)</h4>
                             </div>
                             <button 
                               type="button"
@@ -713,8 +722,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                             </button>
                          </div>
 
-                         <div className="overflow-x-auto rounded-3xl md:rounded-[40px] border border-school-ink/5 bg-[#F8F9FA] p-4 md:p-8">
-                            <table className="w-full border-collapse min-w-[600px]">
+                         <SwipeHint />
+                         <div className="overflow-x-auto custom-horizontal-scrollbar rounded-3xl md:rounded-[40px] border border-school-ink/5 bg-[#F8F9FA] p-4 md:p-8 pb-12 md:pb-8">
+                            <table className="w-full border-collapse min-w-[1000px]">
                                <thead>
                                   <tr className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 text-left italic">
                                      <th className="pb-6 pr-4">From (Year)</th>
@@ -811,7 +821,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                          <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                               <div className="w-8 h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-xs font-black italic">05</div>
-                              <h4 className="text-2xl font-black text-school-ink uppercase tracking-tighter italic">Honors & Achievements</h4>
+                              <h4 className="text-xl md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic">Honors & Achievements</h4>
                             </div>
                             <button 
                               type="button"
@@ -822,8 +832,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                             </button>
                          </div>
 
-                         <div className="overflow-x-auto rounded-3xl md:rounded-[40px] border border-school-ink/5 bg-[#F8F9FA] p-4 md:p-8">
-                            <table className="w-full border-collapse min-w-[600px]">
+                         <SwipeHint />
+                         <div className="overflow-x-auto custom-horizontal-scrollbar rounded-3xl md:rounded-[40px] border border-school-ink/5 bg-[#F8F9FA] p-4 md:p-8 pb-12 md:pb-8">
+                            <table className="w-full border-collapse min-w-[1000px]">
                                <thead>
                                   <tr className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 text-left italic">
                                      <th className="pb-6 pr-4">Year</th>
@@ -895,7 +906,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                       <div className="space-y-12">
                          <div className="flex items-center gap-4">
                           <div className="w-8 h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-xs font-black italic">06</div>
-                          <h4 className="text-2xl font-black text-school-ink uppercase tracking-tighter italic">Professional Narratives</h4>
+                          <h4 className="text-xl md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic">Professional Narratives</h4>
                         </div>
 
                         <div className="space-y-12">

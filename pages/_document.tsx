@@ -5,6 +5,7 @@ export default function Document() {
     <Html lang="en">
       <Head>
         <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <meta name="description" content="St. Xavier's Sr. Sec. School, Jaipur - A premier Jesuit institution dedicated to excellence in education since 1941. Rooted in tradition, focused on the future." />
         <meta name="keywords" content="St. Xavier's School Jaipur, Xaviers Jaipur, Best School in Jaipur, Jesuit School Jaipur, St. Xavier's Senior Secondary School, Education in Jaipur, School Admissions Jaipur" />
         <meta name="author" content="St. Xavier's Sr. Sec. School, Jaipur" />
