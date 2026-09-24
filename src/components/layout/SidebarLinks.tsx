@@ -24,16 +24,17 @@ const SidebarLinks: React.FC<SidebarLinksProps> = ({ links }) => {
   };
 
   return (
-    <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[500] flex items-center">
+    <div className="fixed right-2 md:right-0 bottom-24 md:top-1/2 md:-translate-y-1/2 z-[500] flex items-center">
       {/* Toggle Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-12 h-16 bg-school-navy text-school-gold rounded-l-2xl flex items-center justify-center shadow-[-4px_0_15px_rgba(0,0,0,0.1)] hover:bg-school-gold hover:text-school-navy transition-all group border-y border-l border-white/10"
+        className="w-10 h-14 md:w-12 md:h-16 bg-school-navy text-school-gold rounded-2xl md:rounded-l-2xl md:rounded-r-none flex items-center justify-center shadow-2xl md:shadow-[-4px_0_15px_rgba(0,0,0,0.1)] hover:bg-school-gold hover:text-school-navy transition-all group border border-white/10"
         whileHover={{ x: -4 }}
       >
-        {isOpen ? <ChevronRight size={24} /> : <div className="flex flex-col items-center gap-1">
-          <ChevronLeft size={20} className="animate-pulse" />
-          <span className="[writing-mode:vertical-lr] text-[8px] font-black uppercase tracking-widest">Links</span>
+        {isOpen ? <ChevronRight size={20} /> : <div className="flex flex-col items-center gap-1">
+          <ChevronLeft size={16} className="md:hidden" />
+          <ChevronLeft size={20} className="hidden md:block animate-pulse" />
+          <span className="[writing-mode:vertical-lr] text-[7px] md:text-[8px] font-black uppercase tracking-widest">Links</span>
         </div>}
       </motion.button>
 

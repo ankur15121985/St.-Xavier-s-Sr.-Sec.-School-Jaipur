@@ -260,7 +260,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
         {/* Modern Hero Section */}
         <section className="relative pt-48 pb-32 overflow-hidden bg-school-navy rounded-b-[80px] md:rounded-b-[120px]">
           <div className="absolute inset-0 bg-school-gold/5 blur-[120px] rounded-full translate-x-1/4 -translate-y-1/2" />
-          <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
             <div className="max-w-4xl">
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -291,13 +291,13 @@ const CareersPage = ({ data }: { data: AppData }) => {
         </section>
 
         {/* Form Container */}
-        <section className="py-24 -mt-20">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="bg-white rounded-[60px] shadow-[0_80px_160px_-40px_rgba(0,0,0,0.12)] border border-school-ink/5 overflow-hidden">
-              <div className="grid lg:grid-cols-4 min-h-[800px]">
+        <section className="py-12 md:py-24 -mt-10 md:-mt-20">
+          <div className="max-w-7xl mx-auto px-4 md:px-6">
+            <div className="bg-white rounded-[32px] md:rounded-[60px] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)] md:shadow-[0_80px_160px_-40px_rgba(0,0,0,0.12)] border border-school-ink/5 overflow-hidden">
+              <div className="grid lg:grid-cols-4 min-h-0 md:min-h-0 md:min-h-[800px]">
                 
                 {/* Sidebar Info */}
-                <div className="lg:col-span-1 bg-school-navy p-12 text-white flex flex-col justify-between relative overflow-hidden">
+                <div className="lg:col-span-1 bg-school-navy p-8 md:p-12 text-white flex flex-col justify-between relative overflow-hidden">
                    <div className="absolute top-0 right-0 w-full h-full opacity-5 pointer-events-none">
                      <svg className="w-full h-full" viewBox="0 0 100 100">
                         <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -340,7 +340,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                 </div>
 
                 {/* Form Content */}
-                <div className="lg:col-span-3 p-12 md:p-20 bg-white">
+                <div className="lg:col-span-3 p-4 md:p-12 lg:p-20 bg-white">
                   {!data.settings?.careerFormEnabled ? (
                     <motion.div 
                       initial={{ opacity: 0, y: 20 }}
@@ -387,19 +387,19 @@ const CareersPage = ({ data }: { data: AppData }) => {
                         <div className="grid md:grid-cols-2 gap-6 md:gap-12">
                           <div className="space-y-4">
                               <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Application Category</label>
-                             <div className="relative group">
-                               <select 
-                                 required
-                                 className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none cursor-pointer"
-                                 value={formData.category}
-                                 onChange={e => setFormData({...formData, category: e.target.value})}
-                               >
-                                 <option>Teacher</option>
-                               </select>
-                               <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-school-ink/20 group-hover:text-school-ink/40 transition-colors">
-                                 <Plus size={20} className="rotate-45" />
-                               </div>
-                             </div>
+                              <div className="relative group">
+                                <select 
+                                  required
+                                  className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none cursor-pointer"
+                                  value={formData.category}
+                                  onChange={e => setFormData({...formData, category: e.target.value})}
+                                >
+                                  <option>Teacher</option>
+                                </select>
+                                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-school-ink/20 group-hover:text-school-ink/40 transition-colors">
+                                  <Plus size={20} className="rotate-45" />
+                                </div>
+                              </div>
                           </div>
                           {formData.category === 'Teacher' && (
                             <motion.div 
@@ -411,7 +411,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                               <div className="relative group">
                                 <select 
                                   required
-                                  className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none cursor-pointer"
+                                  className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none cursor-pointer"
                                   value={formData.teacher_category}
                                   onChange={e => setFormData({...formData, teacher_category: e.target.value})}
                                 >
@@ -431,7 +431,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                              <input 
                                required
                                placeholder="e.g. Rahul Sharma"
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.full_name}
                                onChange={e => setFormData({...formData, full_name: e.target.value})}
                              />
@@ -440,7 +440,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                              <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Father / Mother / Spouse Name</label>
                              <input 
                                required
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.parent_spouse_name}
                                onChange={e => setFormData({...formData, parent_spouse_name: e.target.value})}
                              />
@@ -450,7 +450,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                              <input 
                                required
                                type="email"
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.email}
                                onChange={e => setFormData({...formData, email: e.target.value})}
                              />
@@ -459,20 +459,20 @@ const CareersPage = ({ data }: { data: AppData }) => {
                              <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Mobile Contact Number</label>
                              <input 
                                required
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.mobile_number}
                                onChange={e => setFormData({...formData, mobile_number: e.target.value})}
                              />
                           </div>
                           <div className="space-y-4">
                              <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Gender Identification</label>
-                             <div className="flex gap-4">
+                             <div className="flex flex-wrap gap-2 md:gap-4">
                                {['Male', 'Female', 'Other'].map(g => (
                                  <button 
                                    key={g}
                                    type="button"
                                    onClick={() => setFormData({...formData, gender: g})}
-                                   className={`flex-1 py-5 md:py-6 rounded-3xl font-bold transition-all ${formData.gender === g ? 'bg-school-ink text-white shadow-xl translate-y-[-2px]' : 'bg-[#F8F9FA] text-school-ink/40'}`}
+                                   className={`flex-1 min-w-[80px] py-3 md:py-6 rounded-2xl md:rounded-3xl text-sm md:text-base font-bold transition-all ${formData.gender === g ? 'bg-school-navy text-white shadow-xl translate-y-[-2px]' : 'bg-[#F8F9FA] text-school-ink/40 border border-school-ink/5'}`}
                                  >
                                    {g}
                                  </button>
@@ -484,7 +484,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                              <input 
                                required
                                type="date"
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.dob}
                                onChange={e => setFormData({...formData, dob: e.target.value})}
                              />
@@ -494,7 +494,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                              <input 
                                required
                                placeholder="12-digit number"
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.aadhar_number}
                                onChange={e => setFormData({...formData, aadhar_number: e.target.value})}
                              />
@@ -504,7 +504,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                              <textarea 
                                required
                                placeholder="Full residential address with Pin Code"
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-32 resize-none"
+                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-32 resize-none"
                                value={formData.address}
                                onChange={e => setFormData({...formData, address: e.target.value})}
                              />
@@ -546,7 +546,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                            <div className="space-y-4">
                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Major Subject</label>
                              <input 
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.major_subject}
                                onChange={e => setFormData({...formData, major_subject: e.target.value})}
                              />
@@ -554,7 +554,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                            <div className="space-y-4">
                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Minor 1</label>
                              <input 
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.minor_subject_1}
                                onChange={e => setFormData({...formData, minor_subject_1: e.target.value})}
                              />
@@ -562,7 +562,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                            <div className="space-y-4">
                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Minor 2</label>
                              <input 
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.minor_subject_2}
                                onChange={e => setFormData({...formData, minor_subject_2: e.target.value})}
                              />
@@ -573,7 +573,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                           <div className="space-y-4">
                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Salary Expectation (Monthly)</label>
                              <input 
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.salary_expected}
                                onChange={e => setFormData({...formData, salary_expected: e.target.value})}
                              />
@@ -582,7 +582,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">TET/CTET Status & Details</label>
                              <input 
                                placeholder="Specify year and state if cleared"
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.tet_details}
                                onChange={e => setFormData({...formData, tet_details: e.target.value})}
                              />
@@ -606,8 +606,8 @@ const CareersPage = ({ data }: { data: AppData }) => {
                             </button>
                          </div>
 
-                         <div className="overflow-x-auto rounded-[40px] border border-school-ink/5 bg-[#F8F9FA] p-8">
-                            <table className="w-full border-collapse">
+                         <div className="overflow-x-auto rounded-3xl md:rounded-[40px] border border-school-ink/5 bg-[#F8F9FA] p-4 md:p-8">
+                            <table className="w-full border-collapse min-w-[600px]">
                                <thead>
                                   <tr className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 text-left italic">
                                      <th className="pb-6 pr-4">Exams Passed</th>
@@ -713,8 +713,8 @@ const CareersPage = ({ data }: { data: AppData }) => {
                             </button>
                          </div>
 
-                         <div className="overflow-x-auto rounded-[40px] border border-school-ink/5 bg-[#F8F9FA] p-8">
-                            <table className="w-full border-collapse">
+                         <div className="overflow-x-auto rounded-3xl md:rounded-[40px] border border-school-ink/5 bg-[#F8F9FA] p-4 md:p-8">
+                            <table className="w-full border-collapse min-w-[600px]">
                                <thead>
                                   <tr className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 text-left italic">
                                      <th className="pb-6 pr-4">From (Year)</th>
@@ -822,8 +822,8 @@ const CareersPage = ({ data }: { data: AppData }) => {
                             </button>
                          </div>
 
-                         <div className="overflow-x-auto rounded-[40px] border border-school-ink/5 bg-[#F8F9FA] p-8">
-                            <table className="w-full border-collapse">
+                         <div className="overflow-x-auto rounded-3xl md:rounded-[40px] border border-school-ink/5 bg-[#F8F9FA] p-4 md:p-8">
+                            <table className="w-full border-collapse min-w-[600px]">
                                <thead>
                                   <tr className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 text-left italic">
                                      <th className="pb-6 pr-4">Year</th>
@@ -964,7 +964,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                        </div>
 
                       {submitStatus === 'error' && (
-                        <div className="bg-red-50 text-red-600 p-8 rounded-[40px] border border-red-100 flex items-center gap-6 shadow-2xl shadow-red-500/10">
+                        <div className="bg-red-50 text-red-600 p-4 md:p-8 rounded-[32px] md:rounded-[40px] border border-red-100 flex items-center gap-6 shadow-2xl shadow-red-500/10">
                           <CheckCircle2 size={32} className="rotate-45" />
                           <div>
                             <p className="text-lg font-black uppercase tracking-tighter">Transmission Error</p>
@@ -1007,7 +1007,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
               </div>
               <div className="grid md:grid-cols-2 gap-8">
                 {jobs.map((job) => (
-                  <div key={job.id} className="p-8 rounded-[40px] bg-white border border-school-ink/5 hover:shadow-2xl transition-all duration-500 group">
+                  <div key={job.id} className="p-4 md:p-8 rounded-[32px] md:rounded-[40px] bg-white border border-school-ink/5 hover:shadow-2xl transition-all duration-500 group">
                     <div className="flex items-center gap-6 mb-6">
                       <div className="w-14 h-14 bg-school-navy rounded-2xl flex items-center justify-center text-white group-hover:bg-school-gold group-hover:text-school-navy transition-all">
                         <Briefcase size={24} />
