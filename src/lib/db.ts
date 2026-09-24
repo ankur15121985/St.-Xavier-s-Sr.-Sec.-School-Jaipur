@@ -902,7 +902,7 @@ export function getLocalSQLiteData() {
       rows = rows.map(r => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
     } else if (table === 'useful_links') {
       rows = rows.map(r => ({ ...r, isPriority: Boolean(r.isPriority) }));
-    } else if (['studentHonors', 'co_curricular_activities', 'custom_content', 'fire_safety', 'menu'].includes(table)) {
+    } else if (['studentHonors', 'co_curricular_activities', 'custom_content', 'fire_safety', 'menu', 'careers'].includes(table)) {
       rows = rows.map(r => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
     }
     
@@ -1163,6 +1163,35 @@ export async function fetchServerData(force: boolean = false) {
               data = tcFallback.data;
               error = null;
               console.log('[Server Cache Sync] Found data in "tc" table, mapping to "transfer_certificates"');
+            }
+          }
+
+          // Fallback for careers if it's named 'job_openings' or 'jobs' in Supabase
+          if (colName === 'careers' && (error || !data || data.length === 0)) {
+            const jobFallback = await supabaseServer.from('job_openings').select('*');
+            if (!jobFallback.error && jobFallback.data && jobFallback.data.length > 0) {
+              data = jobFallback.data;
+              error = null;
+              console.log('[Server Cache Sync] Found data in "job_openings" table, mapping to "careers"');
+            } else {
+              const jobsFallback = await supabaseServer.from('jobs').select('*');
+              if (!jobsFallback.error && jobsFallback.data && jobsFallback.data.length > 0) {
+                data = jobsFallback.data;
+                error = null;
+                console.log('[Server Cache Sync] Found data in "jobs" table, mapping to "careers"');
+              } else {
+                const careerAppsFallback = await supabaseServer.from('career_applications').select('*');
+                if (!careerAppsFallback.error && careerAppsFallback.data && careerAppsFallback.data.length > 0) {
+                  // Only use career_applications as a fallback for careers if it contains job-posting-like data
+                  // (heuristic: check if any row has a 'title' or 'content' field)
+                  const hasJobFields = careerAppsFallback.data.some((row: any) => row.title || row.content || row.heading);
+                  if (hasJobFields) {
+                    data = careerAppsFallback.data;
+                    error = null;
+                    console.log('[Server Cache Sync] Found potential job postings in "career_applications" table, mapping to "careers"');
+                  }
+                }
+              }
             }
           }
 

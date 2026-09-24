@@ -218,7 +218,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 <span className="flex items-center gap-2 max-md:hidden"><Mail size={12} /> {data.settings?.contactEmail}</span>
               </div>
               <div className="flex items-center gap-4">
-                <Link to="/contact" className="hover:text-school-accent transition-colors">Career</Link>
+                <Link to="/careers" className="hover:text-school-accent transition-colors">Career</Link>
                 <div className="w-[1px] h-3 bg-white/20 mx-2" />
                 <button onClick={() => setIsDark(!isDark)} className="flex items-center gap-1 hover:text-school-accent transition-colors">
                   {isDark ? <Sun size={12} /> : <Moon size={12} />} Mode
@@ -557,7 +557,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   }}
                   className="grid gap-2"
                 >
-                  {navLinks.filter(l => l.href !== '/careers' && l.label !== 'CAREERS').map(l => (
+                  {navLinks.map(l => (
                     <motion.div
                       key={l.id}
                       variants={{
@@ -566,11 +566,7 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                       }}
                     >
                       <MobileNavLink 
-                        link={
-                          l.subLinks 
-                            ? { ...l, subLinks: l.subLinks.filter(sl => sl.href !== '/careers' && sl.label !== 'CAREERS') } 
-                            : l
-                        } 
+                        link={l} 
                         onClose={() => setIsNavOpen(false)} 
                         isDark={isDark} 
                       />
