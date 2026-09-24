@@ -376,25 +376,30 @@ const CareersPage = ({ data }: { data: AppData }) => {
                       </button>
                     </motion.div>
                   ) : (
-                    <form onSubmit={handleSubmit} className="space-y-24">
+                    <form onSubmit={handleSubmit} className="space-y-12 md:space-y-24">
                       {/* Section 1: Basic Identity */}
-                      <div className="space-y-12">
+                      <div className="space-y-8 md:space-y-12">
                         <div className="flex items-center gap-4">
                           <div className="w-8 h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-xs font-black italic">01</div>
-                          <h4 className="text-2xl font-black text-school-ink uppercase tracking-tighter italic">Basic Credentials</h4>
+                          <h4 className="text-xl md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic">Basic Credentials</h4>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-12">
+                        <div className="grid md:grid-cols-2 gap-6 md:gap-12">
                           <div className="space-y-4">
-                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Application Category</label>
-                             <select 
-                               required
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none"
-                               value={formData.category}
-                               onChange={e => setFormData({...formData, category: e.target.value})}
-                             >
-                               <option>Teacher</option>
-                             </select>
+                              <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Application Category</label>
+                             <div className="relative group">
+                               <select 
+                                 required
+                                 className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none cursor-pointer"
+                                 value={formData.category}
+                                 onChange={e => setFormData({...formData, category: e.target.value})}
+                               >
+                                 <option>Teacher</option>
+                               </select>
+                               <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-school-ink/20 group-hover:text-school-ink/40 transition-colors">
+                                 <Plus size={20} className="rotate-45" />
+                               </div>
+                             </div>
                           </div>
                           {formData.category === 'Teacher' && (
                             <motion.div 
@@ -402,67 +407,72 @@ const CareersPage = ({ data }: { data: AppData }) => {
                               animate={{ opacity: 1, height: 'auto' }}
                               className="space-y-4"
                             >
-                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Teacher Category (Select Level)</label>
-                              <select 
-                                required
-                                className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none"
-                                value={formData.teacher_category}
-                                onChange={e => setFormData({...formData, teacher_category: e.target.value})}
-                              >
-                                <option value="">Select Level...</option>
-                                <option>PGT</option>
-                                <option>TGT</option>
-                                <option>PRT</option>
-                              </select>
+                              <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Teacher Category (Select Level)</label>
+                              <div className="relative group">
+                                <select 
+                                  required
+                                  className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none cursor-pointer"
+                                  value={formData.teacher_category}
+                                  onChange={e => setFormData({...formData, teacher_category: e.target.value})}
+                                >
+                                  <option value="">Select Level...</option>
+                                  <option>PGT</option>
+                                  <option>TGT</option>
+                                  <option>PRT</option>
+                                </select>
+                                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-school-ink/20 group-hover:text-school-ink/40 transition-colors">
+                                  <Plus size={20} className="rotate-45" />
+                                </div>
+                              </div>
                             </motion.div>
                           )}
                           <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Full Legal Name</label>
+                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Full Legal Name</label>
                              <input 
                                required
                                placeholder="e.g. Rahul Sharma"
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.full_name}
                                onChange={e => setFormData({...formData, full_name: e.target.value})}
                              />
                           </div>
                           <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Father / Mother / Spouse Name</label>
+                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Father / Mother / Spouse Name</label>
                              <input 
                                required
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.parent_spouse_name}
                                onChange={e => setFormData({...formData, parent_spouse_name: e.target.value})}
                              />
                           </div>
                           <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Electronic Mail</label>
+                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Electronic Mail</label>
                              <input 
                                required
                                type="email"
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.email}
                                onChange={e => setFormData({...formData, email: e.target.value})}
                              />
                           </div>
                           <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Mobile Contact Number</label>
+                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Mobile Contact Number</label>
                              <input 
                                required
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.mobile_number}
                                onChange={e => setFormData({...formData, mobile_number: e.target.value})}
                              />
                           </div>
                           <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Gender Identification</label>
+                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Gender Identification</label>
                              <div className="flex gap-4">
                                {['Male', 'Female', 'Other'].map(g => (
                                  <button 
                                    key={g}
                                    type="button"
                                    onClick={() => setFormData({...formData, gender: g})}
-                                   className={`flex-1 py-6 rounded-3xl font-bold transition-all ${formData.gender === g ? 'bg-school-ink text-white shadow-xl translate-y-[-2px]' : 'bg-[#F8F9FA] text-school-ink/40'}`}
+                                   className={`flex-1 py-5 md:py-6 rounded-3xl font-bold transition-all ${formData.gender === g ? 'bg-school-ink text-white shadow-xl translate-y-[-2px]' : 'bg-[#F8F9FA] text-school-ink/40'}`}
                                  >
                                    {g}
                                  </button>
@@ -470,38 +480,38 @@ const CareersPage = ({ data }: { data: AppData }) => {
                              </div>
                           </div>
                           <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Date of Birth</label>
+                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Date of Birth</label>
                              <input 
                                required
                                type="date"
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.dob}
                                onChange={e => setFormData({...formData, dob: e.target.value})}
                              />
                           </div>
                           <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Aadhar Identification Number</label>
+                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Aadhar Identification Number</label>
                              <input 
                                required
                                placeholder="12-digit number"
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.aadhar_number}
                                onChange={e => setFormData({...formData, aadhar_number: e.target.value})}
                              />
                           </div>
                           <div className="space-y-4 md:col-span-2">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Permanent Address</label>
+                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Permanent Address</label>
                              <textarea 
                                required
                                placeholder="Full residential address with Pin Code"
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-32 resize-none"
+                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-32 resize-none"
                                value={formData.address}
                                onChange={e => setFormData({...formData, address: e.target.value})}
                              />
                           </div>
                           <div className="space-y-4 md:col-span-2">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Photograph Upload</label>
-                             <div className="flex items-center gap-8 bg-[#F8F9FA] p-8 rounded-[32px] border border-school-ink/5 relative group">
+                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Photograph Upload</label>
+                             <div className="flex items-center gap-4 md:gap-8 bg-[#F8F9FA] p-6 md:p-8 rounded-[32px] border border-school-ink/5 relative group">
                                 <div className="w-24 h-24 bg-white rounded-2xl border-2 border-dashed border-school-ink/10 flex items-center justify-center overflow-hidden">
                                    {formData.photo_url ? (
                                      <img src={formData.photo_url} alt="Profile" className="w-full h-full object-cover" />
@@ -526,17 +536,17 @@ const CareersPage = ({ data }: { data: AppData }) => {
                       </div>
 
                       {/* Section 2: Professional Disciplines */}
-                      <div className="space-y-12">
+                      <div className="space-y-8 md:space-y-12">
                         <div className="flex items-center gap-4">
                           <div className="w-8 h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-xs font-black italic">02</div>
-                          <h4 className="text-2xl font-black text-school-ink uppercase tracking-tighter italic">Professional Disciplines</h4>
+                          <h4 className="text-xl md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic">Professional Disciplines</h4>
                         </div>
 
-                        <div className="grid md:grid-cols-3 gap-8">
+                        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
                            <div className="space-y-4">
                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Major Subject</label>
                              <input 
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.major_subject}
                                onChange={e => setFormData({...formData, major_subject: e.target.value})}
                              />
@@ -544,7 +554,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                            <div className="space-y-4">
                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Minor 1</label>
                              <input 
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.minor_subject_1}
                                onChange={e => setFormData({...formData, minor_subject_1: e.target.value})}
                              />
@@ -552,18 +562,18 @@ const CareersPage = ({ data }: { data: AppData }) => {
                            <div className="space-y-4">
                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Minor 2</label>
                              <input 
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.minor_subject_2}
                                onChange={e => setFormData({...formData, minor_subject_2: e.target.value})}
                              />
                            </div>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-12">
+                        <div className="grid md:grid-cols-2 gap-8 md:gap-12">
                           <div className="space-y-4">
                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Salary Expectation (Monthly)</label>
                              <input 
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.salary_expected}
                                onChange={e => setFormData({...formData, salary_expected: e.target.value})}
                              />
@@ -572,7 +582,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">TET/CTET Status & Details</label>
                              <input 
                                placeholder="Specify year and state if cleared"
-                               className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-3xl py-5 md:py-6 px-6 md:px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.tet_details}
                                onChange={e => setFormData({...formData, tet_details: e.target.value})}
                              />
@@ -581,11 +591,11 @@ const CareersPage = ({ data }: { data: AppData }) => {
                       </div>
 
                       {/* Section 3: Educational Qualifications Table */}
-                      <div className="space-y-8">
+                      <div className="space-y-6 md:space-y-8">
                          <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                               <div className="w-8 h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-xs font-black italic">03</div>
-                              <h4 className="text-2xl font-black text-school-ink uppercase tracking-tighter italic">Academic Qualifications</h4>
+                              <h4 className="text-xl md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic">Academic Qualifications</h4>
                             </div>
                             <button 
                               type="button"
