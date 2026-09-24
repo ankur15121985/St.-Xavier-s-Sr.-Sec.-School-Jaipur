@@ -532,7 +532,10 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                onClick={async () => {
                  setSavePending(true);
                  try {
-                   await supabaseService.fetchAllData(true);
+                   const freshData = await supabaseService.fetchAllData(true);
+                   if (freshData && Object.keys(freshData).length > 0) {
+                     setData(prev => ({ ...prev, ...freshData }));
+                   }
                    showToast('Career data re-synchronized from Supabase');
                  } catch (err: any) {
                    showToast(`Sync failed: ${err.message}`, 'error');

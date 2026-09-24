@@ -904,6 +904,18 @@ export function getLocalSQLiteData() {
       rows = rows.map(r => ({ ...r, isPriority: Boolean(r.isPriority) }));
     } else if (['studentHonors', 'co_curricular_activities', 'custom_content', 'fire_safety', 'menu', 'careers'].includes(table)) {
       rows = rows.map(r => ({ ...r, is_enabled: r.is_enabled === null ? true : Boolean(r.is_enabled) }));
+    } else if (table === 'career_applications') {
+      rows = rows.map(r => {
+        const item = { ...r, declaration_accepted: Boolean(r.declaration_accepted) };
+        ['education_qualifications', 'teaching_experience', 'achievements'].forEach(field => {
+          if (typeof item[field] === 'string' && item[field].startsWith('[')) {
+            try { item[field] = JSON.parse(item[field]); } catch (e) { item[field] = []; }
+          } else if (!item[field]) {
+            item[field] = [];
+          }
+        });
+        return item;
+      });
     }
     
     if (table === 'digital_campus') {
@@ -1267,6 +1279,7 @@ export async function fetchServerData(force: boolean = false) {
                           const values = rowKeys.map(k => {
                             const val = row[k];
                             if (typeof val === 'boolean') return val ? 1 : 0;
+                            if (val && typeof val === 'object') return JSON.stringify(val);
                             return val;
                           });
                           const query = `INSERT OR REPLACE INTO "${sqliteTable}" (${rowKeys.map(k => `"${k}"`).join(',')}) VALUES (${placeholders})`;

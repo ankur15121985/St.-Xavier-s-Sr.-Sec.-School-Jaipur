@@ -20,7 +20,7 @@ export const supabaseService = {
     // Fetch consolidated data from Server API FIRST. Since Server API has cache TTL of 30 minutes, 
     // this avoids doing 43 database queries over and over for every student/visitor on page load.
     try {
-      const url = forceFresh ? `/api/data?t=${Date.now()}` : '/api/data';
+      const url = forceFresh ? `/api/data?t=${Date.now()}&force=true` : '/api/data';
       const res = await fetch(url);
       const contentType = res.headers.get('content-type');
       if (res.ok && contentType && contentType.includes('application/json')) {
