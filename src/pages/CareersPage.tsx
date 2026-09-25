@@ -344,7 +344,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                      </div>
                    </div>
 
-                   <div className="relative z-10 pt-12 mt-12 md:pt-20 border-t border-white/10">
+                   <div className="relative z-10 pt-12 mt-12 md:pt-20 border-t border-white/10 hidden md:block">
                      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-school-gold mb-2">Official HR Hub</p>
                      <p className="text-xs font-bold text-white/60">careers@stxaviersjaipur.org</p>
                    </div>
@@ -520,6 +520,29 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                onChange={e => setFormData({...formData, address: e.target.value})}
                              />
                           </div>
+                          <div className="space-y-2 md:space-y-4 md:col-span-2">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Photograph Upload</label>
+                             <div className="flex items-center gap-4 md:gap-8 bg-[#F8F9FA] p-6 md:p-8 rounded-[32px] border border-school-ink/5 relative group">
+                                <div className="w-24 h-24 bg-white rounded-2xl border-2 border-dashed border-school-ink/10 flex items-center justify-center overflow-hidden">
+                                   {formData.photo_url ? (
+                                     <img src={formData.photo_url} alt="Profile" className="w-full h-full object-cover" />
+                                   ) : (
+                                     <Camera className="text-school-ink/20" size={32} />
+                                   )}
+                                </div>
+                                <div className="flex-1">
+                                   <p className="text-xs font-bold text-school-navy mb-1">{formData.photo_url ? 'Photograph Manifested' : 'Upload recent passport photo'}</p>
+                                   <p className="text-[10px] text-school-ink/40 font-medium italic">Max 300KB. JPG, PNG formats only.</p>
+                                   <input 
+                                     type="file" 
+                                     accept="image/*"
+                                     className="absolute inset-0 opacity-0 cursor-pointer"
+                                     onChange={handleFileUpload}
+                                   />
+                                </div>
+                                {uploading && <Loader2 className="animate-spin text-school-accent" />}
+                             </div>
+                          </div>
                         </div>
                       </div>
 
@@ -556,56 +579,21 @@ const CareersPage = ({ data }: { data: AppData }) => {
                              />
                            </div>
                         </div>
-                      </div>
 
-                      {/* Section 2: Professional Disciplines */}
-                      <div className="space-y-6 md:space-y-12">
-                        <div className="flex items-start md:items-center gap-3 md:gap-4">
-                          <div className="shrink-0 w-7 h-7 md:w-8 md:h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-[10px] md:text-xs font-black italic mt-1 md:mt-0">02</div>
-                          <h4 className="text-base md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic text-wrap-balance leading-tight">Professional Disciplines</h4>
-                        </div>
-
-                        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-                           <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Major Subject</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-12">
+                          <div className="space-y-2">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Salary Expectation (Monthly)</label>
                              <input 
-                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
-                               value={formData.major_subject}
-                               onChange={e => setFormData({...formData, major_subject: e.target.value})}
-                             />
-                           </div>
-                           <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Minor 1</label>
-                             <input 
-                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
-                               value={formData.minor_subject_1}
-                               onChange={e => setFormData({...formData, minor_subject_1: e.target.value})}
-                             />
-                           </div>
-                           <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Minor 2</label>
-                             <input 
-                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
-                               value={formData.minor_subject_2}
-                               onChange={e => setFormData({...formData, minor_subject_2: e.target.value})}
-                             />
-                           </div>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-                          <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Salary Expectation (Monthly)</label>
-                             <input 
-                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.salary_expected}
                                onChange={e => setFormData({...formData, salary_expected: e.target.value})}
                              />
                           </div>
-                          <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">TET/CTET Status & Details</label>
+                          <div className="space-y-2">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">TET/CTET Status & Details</label>
                              <input 
                                placeholder="Specify year and state if cleared"
-                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.tet_details}
                                onChange={e => setFormData({...formData, tet_details: e.target.value})}
                              />
@@ -947,6 +935,14 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                 className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-40 md:h-64 resize-none"
                                 value={formData.statement_of_purpose}
                                 onChange={e => setFormData({...formData, statement_of_purpose: e.target.value})}
+                              />
+                           </div>
+                           <div className="space-y-2">
+                              <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Work Experience (Non-Teaching)</label>
+                              <textarea 
+                                className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-24 md:h-48 resize-none"
+                                value={formData.other_experience}
+                                onChange={e => setFormData({...formData, other_experience: e.target.value})}
                               />
                            </div>
                         </div>
