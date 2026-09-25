@@ -155,11 +155,11 @@ html {
 
 .custom-horizontal-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  scrollbar-color: rgba(255, 0, 146, 0.4) transparent;
 }
 
 .custom-horizontal-scrollbar::-webkit-scrollbar {
-  height: 6px;
+  height: 8px;
 }
 
 .custom-horizontal-scrollbar::-webkit-scrollbar-track {
@@ -168,8 +168,9 @@ html {
 }
 
 .custom-horizontal-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.4);
+  background: #FF0092; /* Using school-gold for visibility */
   border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
 }
 
 .dark .custom-horizontal-scrollbar::-webkit-scrollbar-track {
@@ -177,7 +178,7 @@ html {
 }
 
 .dark .custom-horizontal-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: #FF0092;
 }
 
 ::-webkit-scrollbar {

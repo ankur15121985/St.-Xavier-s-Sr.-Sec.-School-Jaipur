@@ -40,9 +40,12 @@ const CareersPage = ({ data }: { data: AppData }) => {
   const [errorMsg, setErrorMsg] = useState('');
 
   const SwipeHint = () => (
-    <div className="lg:hidden flex items-center justify-center gap-3 mb-6 py-4 px-6 bg-amber-50 rounded-2xl border-2 border-amber-200 shadow-sm">
+    <div className="lg:hidden flex items-center justify-between gap-2 mb-4 py-2.5 px-4 bg-amber-50/90 backdrop-blur-md rounded-xl border border-amber-200 shadow-sm mx-auto max-w-[280px]">
       <span className="text-amber-600 font-black text-lg animate-bounce">←</span>
-      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-900 italic">Swipe Table Horizontally</span>
+      <div className="flex flex-col items-center text-center">
+        <span className="text-[10px] font-black uppercase tracking-widest text-amber-900 leading-none">Scroll Right</span>
+        <span className="text-[7px] font-bold text-amber-700/60 uppercase tracking-tighter">Swipe table to see all fields</span>
+      </div>
       <span className="text-amber-600 font-black text-lg animate-bounce">→</span>
     </div>
   );
@@ -305,7 +308,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
               <div className="grid lg:grid-cols-4 min-h-0 md:min-h-0 md:min-h-[800px]">
                 
                 {/* Sidebar Info */}
-                <div className="lg:col-span-1 bg-school-navy p-4 md:p-12 text-white flex flex-col justify-between relative overflow-hidden">
+                <div className="lg:col-span-1 bg-school-navy p-6 md:p-12 text-white flex flex-col justify-between relative overflow-hidden">
                    <div className="absolute top-0 right-0 w-full h-full opacity-5 pointer-events-none">
                      <svg className="w-full h-full" viewBox="0 0 100 100">
                         <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -315,97 +318,97 @@ const CareersPage = ({ data }: { data: AppData }) => {
                      </svg>
                    </div>
                    
-                   <div className="relative z-10 space-y-12">
-                     <div className="space-y-4">
+                   <div className="relative z-10 space-y-8 md:space-y-12">
+                     <div className="space-y-2 md:space-y-4">
                        <h3 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase leading-none">Application <br /><span className="text-school-gold">Registry</span></h3>
                        <p className="text-sm text-white/40 font-medium">Please provide accurate information for institutional verification.</p>
                      </div>
 
-                     <div className="space-y-8">
+                     <div className="grid grid-cols-2 lg:grid-cols-1 gap-4 md:gap-8">
                        {[
-                         { icon: <User size={20}/>, label: 'Identity', desc: 'Personal credentials' },
-                         { icon: <GraduationCap size={20}/>, label: 'Academic', desc: 'Degrees & Certs' },
-                         { icon: <History size={20}/>, label: 'Experience', desc: 'Service record' },
-                         { icon: <Trophy size={20}/>, label: 'Special', desc: 'Feats & Goals' }
+                         { icon: <User size={18}/>, label: 'Identity', desc: 'Personal' },
+                         { icon: <GraduationCap size={18}/>, label: 'Academic', desc: 'Degrees' },
+                         { icon: <History size={18}/>, label: 'Experience', desc: 'Service' },
+                         { icon: <Trophy size={18}/>, label: 'Special', desc: 'Feats' }
                        ].map((step, idx) => (
-                         <div key={idx} className="flex gap-6 items-center group">
-                           <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-school-gold group-hover:bg-school-gold group-hover:text-school-navy transition-all duration-500">
+                         <div key={idx} className="flex gap-4 items-center group">
+                           <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-school-gold group-hover:bg-school-gold group-hover:text-school-navy transition-all duration-500 shrink-0">
                              {step.icon}
                            </div>
-                           <div className="opacity-60">
-                             <p className="text-[10px] font-black uppercase tracking-widest">{step.label}</p>
-                             <p className="text-xs font-medium text-white/30">{step.desc}</p>
+                           <div className="opacity-60 overflow-hidden">
+                             <p className="text-[9px] font-black uppercase tracking-widest truncate">{step.label}</p>
+                             <p className="text-[10px] font-medium text-white/30 truncate hidden sm:block">{step.desc}</p>
                            </div>
                          </div>
                        ))}
                      </div>
                    </div>
 
-                   <div className="relative z-10 pt-20 border-t border-white/10">
-                     <p className="text-[10px] font-black uppercase tracking-[0.4em] text-school-gold mb-4">Official HR Hub</p>
-                     <p className="text-sm font-bold text-white/60">careers@stxaviersjaipur.org</p>
+                   <div className="relative z-10 pt-12 mt-12 md:pt-20 border-t border-white/10">
+                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-school-gold mb-2">Official HR Hub</p>
+                     <p className="text-xs font-bold text-white/60">careers@stxaviersjaipur.org</p>
                    </div>
                 </div>
 
                 {/* Form Content */}
-                <div className="lg:col-span-3 p-4 md:p-12 lg:p-20 bg-white">
+                <div className="lg:col-span-3 p-3 sm:p-6 md:p-12 lg:p-20 bg-white w-full max-w-full overflow-hidden">
                   {!data.settings?.careerFormEnabled ? (
                     <motion.div 
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="h-full flex flex-col items-center justify-center text-center space-y-8 py-20"
+                      className="h-full flex flex-col items-center justify-center text-center space-y-4 py-10 md:py-20 px-4"
                     >
-                      <div className="w-32 h-32 bg-rose-50 rounded-full flex items-center justify-center text-rose-500">
-                        <Briefcase size={64} className="opacity-20" />
+                      <div className="w-16 h-16 md:w-32 md:h-32 bg-rose-50 rounded-full flex items-center justify-center text-rose-500">
+                        <Briefcase size={32} className="opacity-20 md:w-16 md:h-16" />
                       </div>
                       <div>
-                        <h2 className="text-5xl font-black text-school-ink tracking-tighter uppercase leading-none mb-4">Admissions <br /><span className="italic text-rose-500">Paused.</span></h2>
-                        <p className="text-xl text-school-ink/40 font-medium max-w-sm mx-auto">The institutional talent registry is currently closed for new submissions. Please monitor this portal for future recruitment cycles.</p>
+                        <h2 className="text-2xl md:text-5xl font-black text-school-ink tracking-tighter uppercase leading-tight mb-3">Admissions <br /><span className="italic text-rose-500 text-3xl md:text-6xl">Paused.</span></h2>
+                        <p className="text-xs md:text-xl text-school-ink/40 font-medium max-w-sm mx-auto leading-relaxed">The institutional talent registry is currently closed for new submissions. Please monitor this portal for future recruitment cycles.</p>
                       </div>
                     </motion.div>
                   ) : submitStatus === 'success' ? (
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="h-full flex flex-col items-center justify-center text-center space-y-8"
+                      className="h-full flex flex-col items-center justify-center text-center space-y-6 py-10 md:py-20 px-4"
                     >
-                      <div className="w-32 h-32 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500">
-                        <CheckCircle2 size={64} />
+                      <div className="w-16 h-16 md:w-32 md:h-32 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500">
+                        <CheckCircle2 size={32} className="md:w-16 md:h-16" />
                       </div>
                       <div>
-                        <h2 className="text-5xl font-black text-school-ink tracking-tighter uppercase leading-none mb-4">Submission <br /><span className="italic text-emerald-500">Confirmed.</span></h2>
-                        <p className="text-xl text-school-ink/40 font-medium max-w-sm mx-auto">Your application has been logged into our institutional registry. We will contact you via electronic mail if shortlisted.</p>
+                        <h2 className="text-2xl md:text-5xl font-black text-school-ink tracking-tighter uppercase leading-tight mb-3">Submission <br /><span className="italic text-emerald-500 text-3xl md:text-6xl">Confirmed.</span></h2>
+                        <p className="text-xs md:text-xl text-school-ink/40 font-medium max-w-sm mx-auto leading-relaxed">Your application has been logged into our institutional registry. We will contact you via electronic mail if shortlisted.</p>
                       </div>
                       <button 
                         onClick={() => setSubmitStatus('idle')}
-                        className="px-12 py-6 bg-school-navy text-white rounded-full font-black uppercase tracking-widest text-[10px] hover:bg-school-gold hover:text-school-navy transition-all"
+                        className="px-8 py-4 md:px-12 md:py-6 bg-school-navy text-white rounded-full font-black uppercase tracking-widest text-[9px] md:text-[10px] hover:bg-school-gold hover:text-school-navy transition-all shadow-xl"
                       >
                         Submit Another Application
                       </button>
                     </motion.div>
                   ) : (
-                    <form onSubmit={handleSubmit} className="space-y-12 md:space-y-24">
+                    <form onSubmit={handleSubmit} className="space-y-10 md:space-y-24 w-full max-w-full overflow-hidden">
                       {/* Section 1: Basic Identity */}
-                      <div className="space-y-8 md:space-y-12">
-                        <div className="flex items-center gap-4">
-                          <div className="w-8 h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-xs font-black italic">01</div>
-                          <h4 className="text-xl md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic">Basic Credentials</h4>
+                      <div className="space-y-6 md:space-y-12 w-full">
+                        <div className="flex items-center gap-3">
+                          <div className="shrink-0 w-6 h-6 md:w-8 md:h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-[9px] md:text-xs font-black italic">01</div>
+                          <h4 className="text-sm md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic leading-none truncate md:text-wrap-balance">Basic Credentials</h4>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-6 md:gap-12">
-                          <div className="space-y-4">
-                              <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Application Category</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-12 w-full">
+                          <div className="space-y-2 md:space-y-4">
+                              <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Application Category</label>
                               <div className="relative group">
                                 <select 
                                   required
-                                  className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none cursor-pointer"
+                                  className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none cursor-pointer"
                                   value={formData.category}
                                   onChange={e => setFormData({...formData, category: e.target.value})}
                                 >
                                   <option>Teacher</option>
                                 </select>
-                                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-school-ink/20 group-hover:text-school-ink/40 transition-colors">
-                                  <Plus size={20} className="rotate-45" />
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-school-ink/20 group-hover:text-school-ink/40 transition-colors">
+                                  <Plus size={16} className="rotate-45" />
                                 </div>
                               </div>
                           </div>
@@ -413,13 +416,13 @@ const CareersPage = ({ data }: { data: AppData }) => {
                             <motion.div 
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
-                              className="space-y-4"
+                              className="space-y-2 md:space-y-4"
                             >
-                              <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Teacher Category (Select Level)</label>
+                              <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Teacher Level</label>
                               <div className="relative group">
                                 <select 
                                   required
-                                  className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none cursor-pointer"
+                                  className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none appearance-none cursor-pointer"
                                   value={formData.teacher_category}
                                   onChange={e => setFormData({...formData, teacher_category: e.target.value})}
                                 >
@@ -428,126 +431,138 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                   <option>TGT</option>
                                   <option>PRT</option>
                                 </select>
-                                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-school-ink/20 group-hover:text-school-ink/40 transition-colors">
-                                  <Plus size={20} className="rotate-45" />
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-school-ink/20 group-hover:text-school-ink/40 transition-colors">
+                                  <Plus size={16} className="rotate-45" />
                                 </div>
                               </div>
                             </motion.div>
                           )}
-                          <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Full Legal Name</label>
+                          <div className="space-y-2 md:space-y-4">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Full Legal Name</label>
                              <input 
                                required
                                placeholder="e.g. Rahul Sharma"
-                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.full_name}
                                onChange={e => setFormData({...formData, full_name: e.target.value})}
                              />
                           </div>
-                          <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Father / Mother / Spouse Name</label>
+                          <div className="space-y-2 md:space-y-4">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Parent / Spouse Name</label>
                              <input 
                                required
-                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.parent_spouse_name}
                                onChange={e => setFormData({...formData, parent_spouse_name: e.target.value})}
                              />
                           </div>
-                          <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Electronic Mail</label>
+                          <div className="space-y-2 md:space-y-4">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Email Address</label>
                              <input 
                                required
                                type="email"
-                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.email}
                                onChange={e => setFormData({...formData, email: e.target.value})}
                              />
                           </div>
-                          <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Mobile Contact Number</label>
+                          <div className="space-y-2 md:space-y-4">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Mobile Number</label>
                              <input 
                                required
-                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.mobile_number}
                                onChange={e => setFormData({...formData, mobile_number: e.target.value})}
                              />
                           </div>
-                          <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Gender Identification</label>
-                             <div className="flex flex-wrap gap-2 md:gap-4">
+                          <div className="space-y-2 md:space-y-4">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Gender</label>
+                             <div className="flex flex-wrap gap-2">
                                {['Male', 'Female', 'Other'].map(g => (
                                  <button 
                                    key={g}
                                    type="button"
                                    onClick={() => setFormData({...formData, gender: g})}
-                                   className={`flex-1 min-w-[80px] py-3 md:py-6 rounded-2xl md:rounded-3xl text-sm md:text-base font-bold transition-all ${formData.gender === g ? 'bg-school-navy text-white shadow-xl translate-y-[-2px]' : 'bg-[#F8F9FA] text-school-ink/40 border border-school-ink/5'}`}
+                                   className={`flex-1 min-w-[70px] py-2.5 md:py-6 rounded-xl md:rounded-3xl text-xs md:text-base font-bold transition-all ${formData.gender === g ? 'bg-school-navy text-white shadow-xl translate-y-[-2px]' : 'bg-[#F8F9FA] text-school-ink/40 border border-school-ink/5'}`}
                                  >
                                    {g}
                                  </button>
                                ))}
                              </div>
                           </div>
-                          <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Date of Birth</label>
+                          <div className="space-y-2 md:space-y-4">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Date of Birth</label>
                              <input 
                                required
                                type="date"
-                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.dob}
                                onChange={e => setFormData({...formData, dob: e.target.value})}
                              />
                           </div>
-                          <div className="space-y-4">
-                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Aadhar Identification Number</label>
+                          <div className="space-y-2 md:space-y-4">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Aadhar Number</label>
                              <input 
                                required
                                placeholder="12-digit number"
-                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
                                value={formData.aadhar_number}
                                onChange={e => setFormData({...formData, aadhar_number: e.target.value})}
                              />
                           </div>
-                          <div className="space-y-4 md:col-span-2">
-                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Permanent Address</label>
+                          <div className="space-y-2 md:space-y-4 md:col-span-2">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Permanent Address</label>
                              <textarea 
                                required
                                placeholder="Full residential address with Pin Code"
-                               className="w-full bg-[#F8F9FA] rounded-2xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-sm md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-32 resize-none"
+                               className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-24 md:h-32 resize-none"
                                value={formData.address}
                                onChange={e => setFormData({...formData, address: e.target.value})}
                              />
-                          </div>
-                          <div className="space-y-4 md:col-span-2">
-                             <label className="text-[10px] font-black uppercase tracking-wider md:tracking-widest text-school-ink/30 ml-2">Photograph Upload</label>
-                             <div className="flex items-center gap-4 md:gap-8 bg-[#F8F9FA] p-6 md:p-8 rounded-[32px] border border-school-ink/5 relative group">
-                                <div className="w-24 h-24 bg-white rounded-2xl border-2 border-dashed border-school-ink/10 flex items-center justify-center overflow-hidden">
-                                   {formData.photo_url ? (
-                                     <img src={formData.photo_url} alt="Profile" className="w-full h-full object-cover" />
-                                   ) : (
-                                     <Camera className="text-school-ink/20" size={32} />
-                                   )}
-                                </div>
-                                <div className="flex-1">
-                                   <p className="text-xs font-bold text-school-navy mb-1">{formData.photo_url ? 'Photograph Manifested' : 'Upload recent passport photo'}</p>
-                                   <p className="text-[10px] text-school-ink/40 font-medium italic">Max 300KB. JPG, PNG formats only.</p>
-                                   <input 
-                                     type="file" 
-                                     accept="image/*"
-                                     className="absolute inset-0 opacity-0 cursor-pointer"
-                                     onChange={handleFileUpload}
-                                   />
-                                </div>
-                                {uploading && <Loader2 className="animate-spin text-school-accent" />}
-                             </div>
                           </div>
                         </div>
                       </div>
 
                       {/* Section 2: Professional Disciplines */}
-                      <div className="space-y-8 md:space-y-12">
-                        <div className="flex items-center gap-4">
-                          <div className="w-8 h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-xs font-black italic">02</div>
-                          <h4 className="text-xl md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic">Professional Disciplines</h4>
+                      <div className="space-y-6 md:space-y-12">
+                        <div className="flex items-center gap-3">
+                          <div className="shrink-0 w-6 h-6 md:w-8 md:h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-[9px] md:text-xs font-black italic">02</div>
+                          <h4 className="text-sm md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic leading-none truncate md:text-wrap-balance">Professional Disciplines</h4>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+                           <div className="space-y-2">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Major Subject</label>
+                             <input 
+                               className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               value={formData.major_subject}
+                               onChange={e => setFormData({...formData, major_subject: e.target.value})}
+                             />
+                           </div>
+                           <div className="space-y-2">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Minor 1</label>
+                             <input 
+                               className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               value={formData.minor_subject_1}
+                               onChange={e => setFormData({...formData, minor_subject_1: e.target.value})}
+                             />
+                           </div>
+                           <div className="space-y-2">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Minor 2</label>
+                             <input 
+                               className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-3.5 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none"
+                               value={formData.minor_subject_2}
+                               onChange={e => setFormData({...formData, minor_subject_2: e.target.value})}
+                             />
+                           </div>
+                        </div>
+                      </div>
+
+                      {/* Section 2: Professional Disciplines */}
+                      <div className="space-y-6 md:space-y-12">
+                        <div className="flex items-start md:items-center gap-3 md:gap-4">
+                          <div className="shrink-0 w-7 h-7 md:w-8 md:h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-[10px] md:text-xs font-black italic mt-1 md:mt-0">02</div>
+                          <h4 className="text-base md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic text-wrap-balance leading-tight">Professional Disciplines</h4>
                         </div>
 
                         <div className="grid md:grid-cols-3 gap-6 md:gap-8">
@@ -600,17 +615,17 @@ const CareersPage = ({ data }: { data: AppData }) => {
 
                       {/* Section 3: Educational Qualifications Table */}
                       <div className="space-y-6 md:space-y-8">
-                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className="w-8 h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-xs font-black italic">03</div>
-                              <h4 className="text-xl md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic">Academic Qualifications</h4>
+                         <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-start md:items-center gap-3 md:gap-4">
+                              <div className="shrink-0 w-7 h-7 md:w-8 md:h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-[10px] md:text-xs font-black italic mt-1 md:mt-0">03</div>
+                              <h4 className="text-base md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic text-wrap-balance leading-tight">Academic Qualifications</h4>
                             </div>
                             <button 
                               type="button"
                               onClick={addEdu}
-                              className="bg-school-gold text-school-navy p-3 rounded-full hover:scale-110 transition-all shadow-xl"
+                              className="shrink-0 bg-school-gold text-white p-2.5 rounded-full hover:scale-110 transition-all shadow-xl"
                             >
-                              <Plus size={20} />
+                              <Plus size={18} />
                             </button>
                          </div>
 
@@ -619,20 +634,20 @@ const CareersPage = ({ data }: { data: AppData }) => {
                             <table className="w-full border-collapse min-w-[1000px]">
                                <thead>
                                   <tr className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 text-left italic">
-                                     <th className="pb-6 pr-4">Exams Passed</th>
-                                     <th className="pb-6 pr-4">%age</th>
-                                     <th className="pb-6 pr-4">Year</th>
-                                     <th className="pb-6 pr-4">Univ / School</th>
-                                     <th className="pb-6 pr-4">Subjects</th>
-                                     <th className="pb-6 text-right">Action</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">Exams Passed</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">%age</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">Year</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">Univ / School</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">Subjects</th>
+                                     <th className="pb-4 text-right">Action</th>
                                   </tr>
                                </thead>
                                <tbody className="divide-y divide-school-ink/5">
                                   {formData.education_qualifications?.map((edu, i) => (
                                     <tr key={i} className="group">
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-full bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-full bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           value={edu.examination}
                                           onChange={e => {
                                             const newEdu = [...(formData.education_qualifications || [])];
@@ -641,9 +656,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           }}
                                         />
                                       </td>
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-20 bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-20 bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           value={edu.percentage}
                                           onChange={e => {
                                             const newEdu = [...(formData.education_qualifications || [])];
@@ -652,9 +667,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           }}
                                         />
                                       </td>
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-24 bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-24 bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           value={edu.year}
                                           onChange={e => {
                                             const newEdu = [...(formData.education_qualifications || [])];
@@ -663,9 +678,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           }}
                                         />
                                       </td>
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-full bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-full bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           value={edu.institution}
                                           onChange={e => {
                                             const newEdu = [...(formData.education_qualifications || [])];
@@ -674,9 +689,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           }}
                                         />
                                       </td>
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-full bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-full bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           value={edu.subjects}
                                           onChange={e => {
                                             const newEdu = [...(formData.education_qualifications || [])];
@@ -691,7 +706,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           onClick={() => removeEdu(i)}
                                           className="p-3 text-school-ink/20 hover:text-red-500 transition-colors"
                                         >
-                                          <Trash2 size={18} />
+                                          <Trash2 size={16} />
                                         </button>
                                       </td>
                                     </tr>
@@ -707,18 +722,18 @@ const CareersPage = ({ data }: { data: AppData }) => {
                       </div>
 
                       {/* Section 4: Teaching Experience Table */}
-                      <div className="space-y-8">
-                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className="w-8 h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-xs font-black italic">04</div>
-                              <h4 className="text-xl md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic">Teaching Experience (if any)</h4>
+                      <div className="space-y-6 md:space-y-8">
+                         <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-start md:items-center gap-3 md:gap-4">
+                              <div className="shrink-0 w-7 h-7 md:w-8 md:h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-[10px] md:text-xs font-black italic mt-1 md:mt-0">04</div>
+                              <h4 className="text-base md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic text-wrap-balance leading-tight">Teaching Experience (if any)</h4>
                             </div>
                             <button 
                               type="button"
                               onClick={addExp}
-                              className="bg-school-gold text-school-navy p-3 rounded-full hover:scale-110 transition-all shadow-xl"
+                              className="shrink-0 bg-school-gold text-white p-2.5 rounded-full hover:scale-110 transition-all shadow-xl"
                             >
-                              <Plus size={20} />
+                              <Plus size={18} />
                             </button>
                          </div>
 
@@ -727,20 +742,20 @@ const CareersPage = ({ data }: { data: AppData }) => {
                             <table className="w-full border-collapse min-w-[1000px]">
                                <thead>
                                   <tr className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 text-left italic">
-                                     <th className="pb-6 pr-4">From (Year)</th>
-                                     <th className="pb-6 pr-4">To (Year)</th>
-                                     <th className="pb-6 pr-4">Institution Name</th>
-                                     <th className="pb-6 pr-4">Subjects Taught</th>
-                                     <th className="pb-6 pr-4">Classes</th>
-                                     <th className="pb-6 text-right">Action</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">From (Year)</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">To (Year)</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">Institution Name</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">Subjects Taught</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">Classes</th>
+                                     <th className="pb-4 text-right">Action</th>
                                   </tr>
                                </thead>
                                <tbody className="divide-y divide-school-ink/5">
                                   {formData.teaching_experience?.map((exp, i) => (
                                     <tr key={i} className="group">
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-24 bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-24 bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           placeholder="e.g. 2018"
                                           value={exp.fromYear}
                                           onChange={e => {
@@ -750,9 +765,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           }}
                                         />
                                       </td>
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-24 bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-24 bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           placeholder="e.g. 2022"
                                           value={exp.toYear}
                                           onChange={e => {
@@ -762,9 +777,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           }}
                                         />
                                       </td>
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-full bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-full bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           value={exp.institution}
                                           onChange={e => {
                                             const newExp = [...(formData.teaching_experience || [])];
@@ -773,9 +788,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           }}
                                         />
                                       </td>
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-full bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-full bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           value={exp.subjects}
                                           onChange={e => {
                                             const newExp = [...(formData.teaching_experience || [])];
@@ -784,9 +799,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           }}
                                         />
                                       </td>
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-full bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-full bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           value={exp.classes}
                                           onChange={e => {
                                             const newExp = [...(formData.teaching_experience || [])];
@@ -801,7 +816,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           onClick={() => removeExp(i)}
                                           className="p-3 text-school-ink/20 hover:text-red-500 transition-colors"
                                         >
-                                          <Trash2 size={18} />
+                                          <Trash2 size={16} />
                                         </button>
                                       </td>
                                     </tr>
@@ -817,18 +832,18 @@ const CareersPage = ({ data }: { data: AppData }) => {
                       </div>
 
                       {/* Section 5: Achievements Table */}
-                      <div className="space-y-8">
-                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className="w-8 h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-xs font-black italic">05</div>
-                              <h4 className="text-xl md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic">Honors & Achievements</h4>
+                      <div className="space-y-6 md:space-y-8">
+                         <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-start md:items-center gap-3 md:gap-4">
+                              <div className="shrink-0 w-7 h-7 md:w-8 md:h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-[10px] md:text-xs font-black italic mt-1 md:mt-0">05</div>
+                              <h4 className="text-base md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic text-wrap-balance leading-tight">Honors & Achievements</h4>
                             </div>
                             <button 
                               type="button"
                               onClick={addAchievement}
-                              className="bg-school-gold text-school-navy p-3 rounded-full hover:scale-110 transition-all shadow-xl"
+                              className="shrink-0 bg-school-gold text-white p-2.5 rounded-full hover:scale-110 transition-all shadow-xl"
                             >
-                              <Plus size={20} />
+                              <Plus size={18} />
                             </button>
                          </div>
 
@@ -837,18 +852,18 @@ const CareersPage = ({ data }: { data: AppData }) => {
                             <table className="w-full border-collapse min-w-[1000px]">
                                <thead>
                                   <tr className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 border-b border-school-ink/5 text-left italic">
-                                     <th className="pb-6 pr-4">Year</th>
-                                     <th className="pb-6 pr-4">Field</th>
-                                     <th className="pb-6 pr-4">Brief Description</th>
-                                     <th className="pb-6 text-right">Action</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">Year</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">Field</th>
+                                     <th className="pb-4 pr-2 md:pb-6 md:pr-4">Brief Description</th>
+                                     <th className="pb-4 text-right">Action</th>
                                   </tr>
                                </thead>
                                <tbody className="divide-y divide-school-ink/5">
                                   {formData.achievements?.map((ach, i) => (
                                     <tr key={i} className="group">
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-24 bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-24 bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           placeholder="Year"
                                           value={ach.year}
                                           onChange={e => {
@@ -858,9 +873,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           }}
                                         />
                                       </td>
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-full bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-full bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           placeholder="e.g. Sports, Science"
                                           value={ach.field}
                                           onChange={e => {
@@ -870,9 +885,9 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           }}
                                         />
                                       </td>
-                                      <td className="py-4 pr-4">
+                                      <td className="py-2.5 pr-2 md:py-4 md:pr-4">
                                         <input 
-                                          className="w-full bg-white rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
+                                          className="w-full bg-white rounded-xl px-3 py-2 md:px-4 md:py-3 text-sm font-bold focus:ring-2 focus:ring-school-gold/20 outline-none border border-school-ink/5"
                                           value={ach.description}
                                           onChange={e => {
                                             const newAch = [...(formData.achievements || [])];
@@ -887,7 +902,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                           onClick={() => removeAchievement(i)}
                                           className="p-3 text-school-ink/20 hover:text-red-500 transition-colors"
                                         >
-                                          <Trash2 size={18} />
+                                          <Trash2 size={16} />
                                         </button>
                                       </td>
                                     </tr>
@@ -903,43 +918,35 @@ const CareersPage = ({ data }: { data: AppData }) => {
                       </div>
 
                       {/* Section 6: Subjective Info */}
-                      <div className="space-y-12">
-                         <div className="flex items-center gap-4">
-                          <div className="w-8 h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-xs font-black italic">06</div>
-                          <h4 className="text-xl md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic">Professional Narratives</h4>
-                        </div>
+                      <div className="space-y-6 md:space-y-12">
+                         <div className="flex items-center gap-3">
+                           <div className="shrink-0 w-6 h-6 md:w-8 md:h-8 bg-school-ink text-white rounded-full flex items-center justify-center text-[9px] md:text-xs font-black italic">06</div>
+                           <h4 className="text-sm md:text-2xl font-black text-school-ink uppercase tracking-tight md:tracking-tighter italic leading-none truncate md:text-wrap-balance">Professional Narratives</h4>
+                         </div>
 
-                        <div className="space-y-12">
-                           <div className="space-y-4">
-                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Interests / Hobbies</label>
+                        <div className="space-y-6 md:space-y-12">
+                           <div className="space-y-2">
+                              <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Interests / Hobbies</label>
                               <textarea 
-                                className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-32 resize-none"
+                                className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-24 md:h-32 resize-none"
                                 value={formData.interests}
                                 onChange={e => setFormData({...formData, interests: e.target.value})}
                               />
                            </div>
-                           <div className="space-y-4">
-                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Key Responsibilities Handled</label>
+                           <div className="space-y-2">
+                              <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Key Responsibilities</label>
                               <textarea 
-                                className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-48 resize-none"
+                                className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-32 md:h-48 resize-none"
                                 value={formData.responsibilities_handled}
                                 onChange={e => setFormData({...formData, responsibilities_handled: e.target.value})}
                               />
                            </div>
-                           <div className="space-y-4">
-                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Statement of Purpose (SOP)</label>
+                           <div className="space-y-2">
+                              <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Statement of Purpose (SOP)</label>
                               <textarea 
-                                className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-64 resize-none"
+                                className="w-full bg-[#F8F9FA] rounded-xl md:rounded-3xl py-4 md:py-6 px-4 md:px-10 text-xs md:text-base text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-40 md:h-64 resize-none"
                                 value={formData.statement_of_purpose}
                                 onChange={e => setFormData({...formData, statement_of_purpose: e.target.value})}
-                              />
-                           </div>
-                           <div className="space-y-4">
-                              <label className="text-[10px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Work Experience Other Than Teaching</label>
-                              <textarea 
-                                className="w-full bg-[#F8F9FA] rounded-3xl py-6 px-10 text-school-ink font-bold border border-school-ink/5 focus:ring-4 focus:ring-school-gold/10 transition-all outline-none h-48 resize-none"
-                                value={formData.other_experience}
-                                onChange={e => setFormData({...formData, other_experience: e.target.value})}
                               />
                            </div>
                         </div>
@@ -987,14 +994,14 @@ const CareersPage = ({ data }: { data: AppData }) => {
                       <div className="pt-12 border-t border-school-ink/5 flex justify-end">
                         <button 
                           disabled={isSubmitting}
-                          className="group relative inline-flex items-center gap-8 px-16 py-10 bg-school-navy text-white rounded-full font-black uppercase tracking-[0.3em] shadow-3xl hover:bg-school-gold hover:text-school-navy transition-all active:scale-95 disabled:bg-slate-300 disabled:cursor-not-allowed overflow-hidden"
+                          className="group relative inline-flex items-center gap-4 md:gap-8 px-8 py-6 md:px-16 md:py-10 bg-school-navy text-white rounded-full font-black uppercase tracking-[0.2em] md:tracking-[0.3em] shadow-3xl hover:bg-school-gold hover:text-school-navy transition-all active:scale-95 disabled:bg-slate-300 disabled:cursor-not-allowed overflow-hidden w-full md:w-auto justify-center"
                         >
                           <div className="absolute inset-0 bg-white/10 translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
-                          <span className="relative z-10 flex items-center gap-6">
+                          <span className="relative z-10 flex items-center gap-3 md:gap-6 text-[10px] md:text-base">
                             {isSubmitting ? (
-                              <>Syncing with Server <Loader2 className="animate-spin" /></>
+                              <>Syncing <Loader2 className="animate-spin" /></>
                             ) : (
-                              <>Submit Final Application <Send size={20} /></>
+                              <>Submit Application <Send size={18} /></>
                             )}
                           </span>
                         </button>

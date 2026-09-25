@@ -39,21 +39,21 @@ const ScrollButtons = () => {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.5 }}
-          className="fixed bottom-40 left-4 md:bottom-48 md:left-10 z-[100] flex flex-col gap-2"
+          className="fixed bottom-32 left-2 md:bottom-48 md:left-10 z-[100] flex flex-col gap-2"
         >
           <button 
             onClick={scrollToTop}
-            className="w-12 h-12 bg-school-navy text-white rounded-full shadow-lg flex items-center justify-center hover:bg-school-accent transition-all active:scale-90"
+            className="w-10 h-10 md:w-12 md:h-12 bg-school-navy text-white rounded-full shadow-lg flex items-center justify-center hover:bg-school-accent transition-all active:scale-90"
             title="Scroll to Top"
           >
-            <ChevronUp size={24} />
+            <ChevronUp size={20} />
           </button>
           <button 
             onClick={scrollToBottom}
-            className="w-12 h-12 bg-white text-school-navy border border-black/5 rounded-full shadow-lg flex items-center justify-center hover:bg-slate-50 transition-all active:scale-90"
+            className="w-10 h-10 md:w-12 md:h-12 bg-white text-school-navy border border-black/5 rounded-full shadow-lg flex items-center justify-center hover:bg-slate-50 transition-all active:scale-90"
             title="Scroll to Bottom"
           >
-            <ChevronDown size={24} />
+            <ChevronDown size={20} />
           </button>
         </motion.div>
       )}
