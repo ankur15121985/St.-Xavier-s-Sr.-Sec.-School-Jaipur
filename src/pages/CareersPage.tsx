@@ -434,8 +434,8 @@ const CareersPage = ({ data }: { data: AppData }) => {
                                   onChange={e => setFormData({...formData, teacher_category: e.target.value})}
                                 >
                                   <option value="">Select Level...</option>
-                                  <option>PGT</option>
-                                  <option>TGT</option>
+                                  <option>PGT (English)</option>
+                                  <option>TGT (Hindi)</option>
                                   <option>PRT</option>
                                 </select>
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-school-ink/20 group-hover:text-school-ink/40 transition-colors">
