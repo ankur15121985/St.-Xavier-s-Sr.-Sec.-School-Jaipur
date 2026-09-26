@@ -124,13 +124,19 @@ const CareersPage = ({ data }: { data: AppData }) => {
     try {
       setUploading(true);
       setErrorMsg('');
+      console.log(`[CareersPage] Starting upload for: ${fileName}`);
+      
       const { error: uploadError } = await supabase.storage
         .from('career_assets')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
 
       if (uploadError) {
+        console.error('[CareersPage] Upload Error:', uploadError);
         if (uploadError.message.toLowerCase().includes('bucket not found')) {
-          throw new Error('Supabase Storage: Bucket "career_assets" not found. Please run the SQL provided in the admin resources or project root to create the bucket.');
+          throw new Error('Supabase Storage: Bucket "career_assets" not found. Please run the SQL "supabase_storage_final_fix.sql" in your Supabase SQL Editor.');
         }
         throw uploadError;
       }
@@ -139,6 +145,7 @@ const CareersPage = ({ data }: { data: AppData }) => {
         .from('career_assets')
         .getPublicUrl(filePath);
 
+      console.log(`[CareersPage] Upload successful. Public URL: ${publicUrl}`);
       setFormData(prev => ({ ...prev, photo_url: publicUrl }));
     } catch (error: any) {
       console.error('Error uploading image:', error.message);
@@ -522,25 +529,58 @@ const CareersPage = ({ data }: { data: AppData }) => {
                           </div>
                           <div className="space-y-2 md:space-y-4 md:col-span-2">
                              <label className="text-[9px] font-black uppercase tracking-widest text-school-ink/30 ml-2">Photograph Upload</label>
-                             <div className="flex items-center gap-4 md:gap-8 bg-[#F8F9FA] p-6 md:p-8 rounded-[32px] border border-school-ink/5 relative group">
-                                <div className="w-24 h-24 bg-white rounded-2xl border-2 border-dashed border-school-ink/10 flex items-center justify-center overflow-hidden">
-                                   {formData.photo_url ? (
-                                     <img src={formData.photo_url} alt="Profile" className="w-full h-full object-cover" />
-                                   ) : (
-                                     <Camera className="text-school-ink/20" size={32} />
-                                   )}
+                             <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-8 bg-[#F8F9FA] p-4 md:p-8 rounded-[24px] md:rounded-[32px] border border-school-ink/5 relative group">
+                                <div className="relative shrink-0">
+                                  <div className="w-24 h-24 bg-white rounded-2xl border-2 border-dashed border-school-ink/10 flex items-center justify-center overflow-hidden shadow-inner">
+                                     {formData.photo_url ? (
+                                       <img src={formData.photo_url} alt="Profile" className="w-full h-full object-cover animate-in fade-in zoom-in duration-500" />
+                                     ) : (
+                                       <Camera className="text-school-ink/20" size={32} />
+                                     )}
+                                  </div>
+                                  {formData.photo_url && (
+                                    <button 
+                                      type="button"
+                                      onClick={() => setFormData(prev => ({ ...prev, photo_url: '' }))}
+                                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors z-20"
+                                      title="Remove Photo"
+                                    >
+                                      <Trash2 size={12} />
+                                    </button>
+                                  )}
                                 </div>
-                                <div className="flex-1">
-                                   <p className="text-xs font-bold text-school-navy mb-1">{formData.photo_url ? 'Photograph Manifested' : 'Upload recent passport photo'}</p>
-                                   <p className="text-[10px] text-school-ink/40 font-medium italic">Max 300KB. JPG, PNG formats only.</p>
-                                   <input 
-                                     type="file" 
-                                     accept="image/*"
-                                     className="absolute inset-0 opacity-0 cursor-pointer"
-                                     onChange={handleFileUpload}
-                                   />
+
+                                <div className="flex-1 text-center sm:text-left">
+                                   <p className={`text-xs font-bold mb-1 ${formData.photo_url ? 'text-emerald-600 flex items-center justify-center sm:justify-start gap-1' : 'text-school-navy'}`}>
+                                     {formData.photo_url ? (
+                                       <><CheckCircle2 size={14} /> Photograph Uploaded Successfully</>
+                                     ) : (
+                                       'Upload recent passport photo'
+                                     )}
+                                   </p>
+                                   <p className="text-[10px] text-school-ink/40 font-medium italic mb-3">Max 300KB. JPG, PNG formats only.</p>
+                                   
+                                   <div className="relative inline-block">
+                                      <button 
+                                        type="button"
+                                        className="px-6 py-2.5 bg-school-navy text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-school-gold hover:text-school-navy transition-all shadow-md"
+                                      >
+                                        {formData.photo_url ? 'Change Photograph' : 'Select Image'}
+                                      </button>
+                                      <input 
+                                        type="file" 
+                                        accept="image/*"
+                                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                                        onChange={handleFileUpload}
+                                      />
+                                   </div>
                                 </div>
-                                {uploading && <Loader2 className="animate-spin text-school-accent" />}
+                                {uploading && (
+                                  <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] rounded-[24px] md:rounded-[32px] flex flex-col items-center justify-center z-10 animate-in fade-in duration-300">
+                                    <Loader2 className="animate-spin text-school-accent mb-2" size={32} />
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-school-navy">Processing Upload...</p>
+                                  </div>
+                                )}
                              </div>
                           </div>
                         </div>
