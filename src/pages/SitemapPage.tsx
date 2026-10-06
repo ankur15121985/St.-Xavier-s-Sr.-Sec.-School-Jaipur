@@ -51,7 +51,6 @@ const SitemapPage = ({ data }: { data: AppData }) => {
         { label: "Notice Board", href: "/notice-board" },
         { label: "Mandatory Disclosure", href: "/school-info" },
         { label: "Transfer Certificates", href: "/transfer-certificate" },
-        { label: "Careers", href: "/careers" },
         { label: "Contact Us", href: "/contact" },
         { label: "Studybase App", href: "/studybase-app" },
         { label: "Alumni Portal", href: "/alumni" },

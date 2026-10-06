@@ -122,7 +122,12 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
         .filter(m => {
           const mParent = (!m.parent_id || m.parent_id === 'null' || m.parent_id === '') ? null : m.parent_id;
           const targetParent = (!parentId || parentId === 'null' || parentId === '') ? null : parentId;
-          return mParent === targetParent && m.is_enabled !== false && (m.is_enabled as any) !== 0;
+          return mParent === targetParent && 
+                 m.is_enabled !== false && 
+                 (m.is_enabled as any) !== 0 &&
+                 m.label?.toUpperCase() !== 'CAREER' &&
+                 m.label?.toUpperCase() !== 'CAREERS' &&
+                 m.href !== '/careers';
         })
         .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
         .map(m => {
@@ -218,8 +223,6 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                 <span className="flex items-center gap-2 max-md:hidden"><Mail size={12} /> {data.settings?.contactEmail}</span>
               </div>
               <div className="flex items-center gap-4">
-                <Link to="/careers" className="hover:text-school-accent transition-colors">Career</Link>
-                <div className="w-[1px] h-3 bg-white/20 mx-2" />
                 <button onClick={() => setIsDark(!isDark)} className="flex items-center gap-1 hover:text-school-accent transition-colors">
                   {isDark ? <Sun size={12} /> : <Moon size={12} />} Mode
                 </button>
@@ -726,7 +729,6 @@ const Layout = ({ children, data, navbarTheme = 'light' }: LayoutProps) => {
                   <ul className="space-y-3">
                     <li><Link to="/contact" className="text-white/40 hover:text-white transition-all text-sm font-medium">Contact Us</Link></li>
                     <li><Link to="/mandatory-disclosures" className="text-white/40 hover:text-white transition-all text-sm font-medium">Mandatory Disclosure</Link></li>
-                    <li><Link to="/careers" className="text-white/40 hover:text-white transition-all text-sm font-medium">Careers</Link></li>
                     <li><Link to="/transfer-certificate" className="text-white/40 hover:text-white transition-all text-sm font-medium">TC Search</Link></li>
                     <li><Link to="/notice-board" className="text-white/40 hover:text-white transition-all text-sm font-medium">Digital Notice Board</Link></li>
                   </ul>
