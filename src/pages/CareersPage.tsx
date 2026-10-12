@@ -23,7 +23,8 @@ import {
   BookOpen,
   Camera,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Download
 } from 'lucide-react';
 import { 
   careerService, 
@@ -32,12 +33,15 @@ import {
   TeachingExperience, 
   Achievement 
 } from '../services/careerService';
+import { generateCareerApplicationPDF } from '../services/careerPdfService';
 
 const CareersPage = ({ data }: { data: AppData }) => {
   const jobs = data.careers || [];
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [submittedApp, setSubmittedApp] = useState<CareerApplication | null>(null);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
   const SwipeHint = () => (
     <div className="lg:hidden flex items-center justify-between gap-2 mb-4 py-2.5 px-4 bg-amber-50/90 backdrop-blur-md rounded-xl border border-amber-200 shadow-sm mx-auto max-w-[280px]">
@@ -126,27 +130,39 @@ const CareersPage = ({ data }: { data: AppData }) => {
       setErrorMsg('');
       console.log(`[CareersPage] Starting upload for: ${fileName}`);
       
-      const { error: uploadError } = await supabase.storage
-        .from('career_assets')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true
-        });
+      let finalPublicUrl = '';
+      try {
+        const { error: uploadError } = await supabase.storage
+          .from('career_assets')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true
+          });
 
-      if (uploadError) {
-        console.error('[CareersPage] Upload Error:', uploadError);
-        if (uploadError.message.toLowerCase().includes('bucket not found')) {
-          throw new Error('Supabase Storage: Bucket "career_assets" not found. Please run the SQL "supabase_storage_final_fix.sql" in your Supabase SQL Editor.');
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('career_assets')
+            .getPublicUrl(filePath);
+          finalPublicUrl = publicUrl;
+        } else {
+          console.warn('[CareersPage] Remote storage note:', uploadError.message);
         }
-        throw uploadError;
+      } catch (storageErr) {
+        console.warn('[CareersPage] Storage upload caught, falling back to local encoding:', storageErr);
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('career_assets')
-        .getPublicUrl(filePath);
+      // If remote upload didn't yield a URL, convert to local Data URL
+      if (!finalPublicUrl) {
+        const reader = new FileReader();
+        finalPublicUrl = await new Promise<string>((resolve, reject) => {
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
 
-      console.log(`[CareersPage] Upload successful. Public URL: ${publicUrl}`);
-      setFormData(prev => ({ ...prev, photo_url: publicUrl }));
+      console.log(`[CareersPage] Photo loaded successfully.`);
+      setFormData(prev => ({ ...prev, photo_url: finalPublicUrl }));
     } catch (error: any) {
       console.error('Error uploading image:', error.message);
       setErrorMsg(error.message || 'Image upload failed. Please try again.');
@@ -226,11 +242,13 @@ const CareersPage = ({ data }: { data: AppData }) => {
     setSubmitStatus('idle');
     
     try {
-      const finalData = {
+      const finalData: CareerApplication = {
         ...formData,
-        application_no: generateAppNo()
-      };
-      await careerService.submitApplication(finalData as CareerApplication);
+        application_no: generateAppNo(),
+        created_at: new Date().toISOString()
+      } as CareerApplication;
+      await careerService.submitApplication(finalData);
+      setSubmittedApp(finalData);
       setSubmitStatus('success');
       // Reset form
       setFormData({
@@ -386,12 +404,38 @@ const CareersPage = ({ data }: { data: AppData }) => {
                         <h2 className="text-2xl md:text-5xl font-black text-school-ink tracking-tighter uppercase leading-tight mb-3">Submission <br /><span className="italic text-emerald-500 text-3xl md:text-6xl">Confirmed.</span></h2>
                         <p className="text-xs md:text-xl text-school-ink/40 font-medium max-w-sm mx-auto leading-relaxed">Your application has been logged into our institutional registry. We will contact you via electronic mail if shortlisted.</p>
                       </div>
-                      <button 
-                        onClick={() => setSubmitStatus('idle')}
-                        className="px-8 py-4 md:px-12 md:py-6 bg-school-navy text-white rounded-full font-black uppercase tracking-widest text-[9px] md:text-[10px] hover:bg-school-gold hover:text-school-navy transition-all shadow-xl"
-                      >
-                        Submit Another Application
-                      </button>
+                      <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+                        {submittedApp && (
+                          <button 
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                setIsDownloadingPdf(true);
+                                const doc = await generateCareerApplicationPDF(submittedApp);
+                                doc.save(`Application_${submittedApp.application_no?.replace(/\//g, '_')}_${submittedApp.full_name?.replace(/\s+/g, '_')}.pdf`);
+                              } catch (e) {
+                                console.error('Download PDF error:', e);
+                              } finally {
+                                setIsDownloadingPdf(false);
+                              }
+                            }}
+                            disabled={isDownloadingPdf}
+                            className="px-8 py-4 md:px-10 md:py-5 bg-rose-600 hover:bg-rose-700 text-white rounded-full font-black uppercase tracking-widest text-[9px] md:text-[10px] flex items-center gap-2 transition-all shadow-xl hover:scale-105 disabled:opacity-50"
+                          >
+                            {isDownloadingPdf ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                            Download Application Form (PDF)
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => {
+                            setSubmitStatus('idle');
+                            setSubmittedApp(null);
+                          }}
+                          className="px-8 py-4 md:px-10 md:py-5 bg-school-navy text-white rounded-full font-black uppercase tracking-widest text-[9px] md:text-[10px] hover:bg-school-gold hover:text-school-navy transition-all shadow-xl"
+                        >
+                          Submit Another Application
+                        </button>
+                      </div>
                     </motion.div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-10 md:space-y-24 w-full max-w-full overflow-hidden">

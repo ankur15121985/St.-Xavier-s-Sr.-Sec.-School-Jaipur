@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'st-xaviers-school-2024-secure-jwt-key-v1';
+import { JWT_SECRET } from '../../../src/lib/auth';
 
 const cleanSupabaseUrl = (url?: string): string => {
   if (!url) return '';
@@ -59,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const token = jwt.sign(
       { id: user.id, username: user.email, role: 'admin' },
       JWT_SECRET,
-      { expiresIn: '8h' }
+      { expiresIn: '30d' }
     );
 
     return res.status(200).json({ 

@@ -4,10 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'st-xaviers-school-default-secure-secret-change-me';
-if (!process.env.JWT_SECRET) {
-  console.warn('[AUTH] WARNING: JWT_SECRET environment variable is missing. Using an insecure fallback. Please set JWT_SECRET in environment variables.');
-}
+import { JWT_SECRET } from '../../src/lib/auth';
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -116,7 +113,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role || 'admin' },
       JWT_SECRET,
-      { expiresIn: '8h' }
+      { expiresIn: '30d' }
     );
 
     console.log(`[AUTH] ${username} logged in successfully via Next.js API`);

@@ -6,12 +6,13 @@ import {
   Trash2, Plus, Check, X, ChevronRight, Settings, Key, UploadCloud, Loader2, ImagePlus, RefreshCw, DownloadCloud,
   Search, LayoutGrid, AlertCircle, MessageSquare, Mail, FileText, Maximize2, ExternalLink,
   Type, Palette, Bold, Italic, Briefcase, ShieldCheck, ShieldAlert, Activity, Send, Clock, Database, Download,
-  Phone, MapPin
+  Phone, MapPin, Eye, Copy, CheckCheck, Printer, Smartphone, Monitor
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable, { UserOptions } from 'jspdf-autotable';
 import { AppData, GalleryItem, CareerApplication } from '../types';
+import { careerService } from '../services/careerService';
 import { DEFAULT_DATA } from '../lib/defaultData';
 import { useSupabase } from '../components/SupabaseProvider';
 import { supabaseService } from '../lib/supabaseService';
@@ -22,6 +23,8 @@ import DOMPurify from 'dompurify';
 import SidebarLinks from '../components/layout/SidebarLinks';
 import RichTextEditor from '../components/ui/RichTextEditor';
 import GalleryBulkUpload from '../components/admin/GalleryBulkUpload';
+import { generateCareerApplicationPDF, generateMasterApplicationsPDF } from '../services/careerPdfService';
+import { CareerFormAdmin } from '../components/admin/CareerFormAdmin';
 
 interface PendingGalleryItem {
   id: string;
@@ -56,6 +59,12 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
   const [loginError, setLoginError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('All');
+  const [filterTeacherLevel, setFilterTeacherLevel] = useState<string>('All');
+  const [filterStatus, setFilterStatus] = useState<string>('All');
+  const [careerActiveTab, setCareerActiveTab] = useState<'submissions' | 'preview_form' | 'settings'>('submissions');
+  const [isRefreshingCareers, setIsRefreshingCareers] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [careerPreviewMode, setCareerPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [detailedApp, setDetailedApp] = useState<CareerApplication | null>(null);
   const [showSchemaError, setShowSchemaError] = useState(false);
   const [supabaseStatus, setSupabaseStatus] = useState<any>(null);
@@ -70,228 +79,7 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
   }, []);
 
   const exportSingleApplicationToPDF = async (app: CareerApplication) => {
-    const doc = new jsPDF('p', 'pt', 'a4');
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    
-    // Header
-    doc.setFillColor(15, 23, 42); // school-navy
-    doc.rect(0, 0, pageWidth, 80, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22);
-    doc.setFont('helvetica', 'bold');
-    doc.text("St. Xavier's Secondary School", 40, 45);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(226, 180, 80); // school-gold
-    doc.text("CAREER RECRUITMENT PORTAL - OFFICIAL CANDIDATE DOSSIER", 40, 65);
-
-    // Photo Box / Image
-    const photoX = pageWidth - 140;
-    const photoY = 100;
-    const photoSize = 100;
-    
-    if (app.photo_url) {
-      try {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.src = app.photo_url;
-        await new Promise((resolve, reject) => {
-          img.onload = resolve;
-          img.onerror = reject;
-          setTimeout(reject, 3000); // Timeout after 3s
-        });
-        doc.addImage(img, 'JPEG', photoX, photoY, photoSize, photoSize);
-      } catch (err) {
-        doc.setDrawColor(200, 200, 200);
-        doc.rect(photoX, photoY, photoSize, photoSize);
-        doc.setTextColor(150, 150, 150);
-        doc.setFontSize(8);
-        doc.text("Photo Not Available", photoX + 20, photoY + 50);
-      }
-    } else {
-      doc.setDrawColor(200, 200, 200);
-      doc.rect(photoX, photoY, photoSize, photoSize);
-      doc.setTextColor(150, 150, 150);
-      doc.setFontSize(8);
-      doc.text("No Photo Uploaded", photoX + 22, photoY + 50);
-    }
-
-    // Modern Form Grid Layout
-    let currentY = 110;
-    const marginX = 40;
-    const colWidth = (pageWidth - 2 * marginX) / 2;
-
-    const drawSectionHeader = (title: string, y: number) => {
-      doc.setFillColor(248, 250, 252);
-      doc.rect(marginX, y, pageWidth - 2 * marginX, 25, 'F');
-      doc.setTextColor(15, 23, 42);
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text(title, marginX + 10, y + 17);
-      doc.setDrawColor(15, 23, 42);
-      doc.setLineWidth(1.5);
-      doc.line(marginX, y + 25, pageWidth - marginX, y + 25);
-      return y + 45;
-    };
-
-    const drawFormField = (label: string, value: any, x: number, y: number, width: number) => {
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(100, 116, 139);
-      doc.text(label.toUpperCase(), x, y);
-      
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(15, 23, 42);
-      const textValue = String(value || 'N/A');
-      const lines = doc.splitTextToSize(textValue, width - 10);
-      doc.text(lines, x, y + 15);
-      
-      return (lines.length * 12) + 20;
-    };
-
-    // 1. PERSONAL DETAILS
-    currentY = drawSectionHeader("1. PERSONAL DETAILS", currentY);
-    
-    // Grid Row 1
-    const row1Height = Math.max(
-      drawFormField("Application ID", app.application_no || 'Pending', marginX, currentY, colWidth),
-      drawFormField("Date applied", app.created_at ? new Date(app.created_at).toLocaleDateString() : 'N/A', marginX + colWidth, currentY, colWidth)
-    );
-    currentY += row1Height;
-
-    // Grid Row 2
-    const row2Height = Math.max(
-      drawFormField("Full Name", app.full_name, marginX, currentY, colWidth),
-      drawFormField("Gender", app.gender, marginX + colWidth, currentY, colWidth)
-    );
-    currentY += row2Height;
-
-    // Grid Row 3
-    const row3Height = Math.max(
-      drawFormField("Guardian Name", app.parent_spouse_name, marginX, currentY, colWidth),
-      drawFormField("Date of Birth", app.dob, marginX + colWidth, currentY, colWidth)
-    );
-    currentY += row3Height;
-
-    // Grid Row 4
-    const row4Height = Math.max(
-      drawFormField("Email Address", app.email, marginX, currentY, colWidth),
-      drawFormField("Mobile Number", app.mobile_number, marginX + colWidth, currentY, colWidth)
-    );
-    currentY += row4Height;
-
-    // Grid Row 5
-    const row5Height = Math.max(
-      drawFormField("Aadhar Number", app.aadhar_number, marginX, currentY, colWidth),
-      drawFormField("User IP", app.user_ip || 'Internal', marginX + colWidth, currentY, colWidth)
-    );
-    currentY += row5Height;
-
-    // Address (Full Width)
-    currentY += drawFormField("Permanent Residence Address", app.address, marginX, currentY, pageWidth - 2 * marginX);
-
-    // 2. PROFESSIONAL POSITION
-    if (currentY > pageHeight - 150) { doc.addPage(); currentY = 50; }
-    currentY = drawSectionHeader("2. PROFESSIONAL POSITION", currentY + 10);
-    
-    const profRow1Height = Math.max(
-      drawFormField("Position Category", app.category, marginX, currentY, colWidth),
-      drawFormField("Teaching Level", app.teacher_category || 'N/A', marginX + colWidth, currentY, colWidth)
-    );
-    currentY += profRow1Height;
-
-    const profRow2Height = Math.max(
-      drawFormField("Major Specialization", app.major_subject, marginX, currentY, colWidth),
-      drawFormField("Minor Subject 1", app.minor_subject_1 || 'None', marginX + colWidth, currentY, colWidth)
-    );
-    currentY += profRow2Height;
-
-    const profRow3Height = Math.max(
-      drawFormField("Expected Salary", app.salary_expected, marginX, currentY, colWidth),
-      drawFormField("Minor Subject 2", app.minor_subject_2 || 'None', marginX + colWidth, currentY, colWidth)
-    );
-    currentY += profRow3Height;
-
-    currentY += drawFormField("TET / Professional Certification Details", app.tet_details, marginX, currentY, pageWidth - 2 * marginX);
-
-    // 3. ACADEMIC RECORD
-    if (app.education_qualifications && app.education_qualifications.length > 0) {
-      if (currentY > pageHeight - 150) { doc.addPage(); currentY = 50; }
-      currentY = drawSectionHeader("3. ACADEMIC QUALIFICATIONS", currentY + 10);
-
-      autoTable(doc, {
-        startY: currentY,
-        head: [['Examination', 'Institution', 'Year', 'Mark%', 'Subjects']],
-        body: app.education_qualifications.map(q => [
-          q.examination, q.institution, q.year, `${q.percentage}%`, q.subjects
-        ]),
-        margin: { left: marginX, right: marginX },
-        theme: 'grid',
-        styles: { fontSize: 8, cellPadding: 8 },
-        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' }
-      });
-      currentY = (doc as any).lastAutoTable.finalY + 30;
-    }
-
-    // 4. WORK EXPERIENCE
-    if (app.teaching_experience && app.teaching_experience.length > 0) {
-      if (currentY > pageHeight - 150) { doc.addPage(); currentY = 50; }
-      currentY = drawSectionHeader("4. TEACHING EXPERIENCE", currentY + 10);
-
-      autoTable(doc, {
-        startY: currentY,
-        head: [['Institution', 'Duration', 'Classes', 'Subjects']],
-        body: app.teaching_experience.map(e => [
-          e.institution, `${e.fromYear} - ${e.toYear}`, e.classes, e.subjects
-        ]),
-        margin: { left: marginX, right: marginX },
-        theme: 'grid',
-        styles: { fontSize: 8, cellPadding: 8 },
-        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' }
-      });
-      currentY = (doc as any).lastAutoTable.finalY + 30;
-    }
-
-    // achievements table if any
-    if (app.achievements && app.achievements.length > 0) {
-        if (currentY > pageHeight - 150) { doc.addPage(); currentY = 50; }
-        currentY = drawSectionHeader("5. HONORS & ACHIEVEMENTS", currentY + 10);
-  
-        autoTable(doc, {
-          startY: currentY,
-          head: [['Year', 'Field', 'Description']],
-          body: app.achievements.map(a => [
-            a.year, a.field, a.description
-          ]),
-          margin: { left: marginX, right: marginX },
-          theme: 'grid',
-          styles: { fontSize: 8, cellPadding: 8 },
-          headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' }
-        });
-        currentY = (doc as any).lastAutoTable.finalY + 30;
-    }
-
-    // 6. NARRATIVE RESPONSES
-    if (currentY > pageHeight - 150) { doc.addPage(); currentY = 50; }
-    currentY = drawSectionHeader("6. PROFESSIONAL NARRATIVES", currentY + 10);
-    
-    currentY += drawFormField("Interests / Hobbies", app.interests, marginX, currentY, pageWidth - 2 * marginX);
-    if (currentY > pageHeight - 100) { doc.addPage(); currentY = 50; }
-    currentY += drawFormField("Key Responsibilities Handled", app.responsibilities_handled, marginX, currentY, pageWidth - 2 * marginX);
-    if (currentY > pageHeight - 100) { doc.addPage(); currentY = 50; }
-    currentY += drawFormField("Statement of Purpose (SOP)", app.statement_of_purpose, marginX, currentY, pageWidth - 2 * marginX);
-    if (currentY > pageHeight - 100) { doc.addPage(); currentY = 50; }
-    currentY += drawFormField("Work Experience Other Than Teaching", app.other_experience, marginX, currentY, pageWidth - 2 * marginX);
-
-    // Footer
-    const dateStr = new Date().toLocaleString();
-    doc.setFontSize(7);
-    doc.setTextColor(150, 150, 150);
-    doc.text(`Official Document - St. Xavier's School Career Portal. Generated on ${dateStr}. IP: ${app.user_ip || 'Verified'}`, marginX, pageHeight - 20);
-
-    return doc;
+    return await generateCareerApplicationPDF(app);
   };
 
   const exportApplicationsToExcel = () => {
@@ -386,37 +174,16 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
       return;
     }
 
-    showToast('Initializing Master Profile Export...', 'success');
-    
-    // Combining profiles into a single paginated document
-    const masterDoc = new jsPDF('p', 'pt', 'a4');
-    let pagesAdded = 0;
-
-    for (let i = 0; i < apps.length; i++) {
-        try {
-            const singleDoc = await exportSingleApplicationToPDF(apps[i]);
-            const pageCount = singleDoc.internal.pages.length - 1; // jsPDF pages are 1-indexed and often include an empty 0 page
-            
-            for (let j = 1; j <= pageCount; j++) {
-                if (pagesAdded > 0) masterDoc.addPage();
-                
-                // Copy the page content
-                // Re-running the logic on the masterDoc is cleaner than trying to merge direct outputs
-                // because masterDoc becomes the target of exportSingleApplicationToPDF if we modify it
-            }
-        } catch (e) {
-            console.error('Master PDF generation error:', e);
-        }
+    showToast('Generating Master Talent Roster PDF...', 'success');
+    try {
+      const doc = await generateMasterApplicationsPDF(apps);
+      const date = new Date().toISOString().split('T')[0];
+      doc.save(`Career_Applications_Roster_${date}.pdf`);
+      showToast('Master Roster PDF downloaded successfully');
+    } catch (e: any) {
+      console.error('Master PDF generation error:', e);
+      showToast('Failed to export master PDF: ' + (e.message || ''), 'error');
     }
-
-    // To prevent timeout/large payload issues in one go, 
-    // I'll suggest user use individual card exports for 100+ candidates
-    // But for "all", I'll provide the first one as lead
-    const firstDoc = await exportSingleApplicationToPDF(apps[0]);
-    const date = new Date().toISOString().split('T')[0];
-    firstDoc.save(`Career_Profile_Primary_Record_${date}.pdf`);
-    
-    showToast('Download started for candidate profile');
   };
 
   const handleUsernameLogin = async (e: React.FormEvent) => {
@@ -557,6 +324,15 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
                View Received Applications (Filled Forms)
                <span className="px-3 py-1 bg-school-navy text-white rounded-lg ml-2">{apps.length}</span>
              </button>
+             <a 
+               href="/careers"
+               target="_blank"
+               rel="noopener noreferrer"
+               className="flex items-center gap-2 px-6 py-4 bg-school-paper border border-school-ink/10 text-school-navy rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-school-ink/5 transition-all"
+               title="View live career application form in new tab"
+             >
+               <ExternalLink size={16} /> View Career Form
+             </a>
              <button disabled={savePending} onClick={() => handleAdd()} className="flex items-center gap-3 px-10 py-4 bg-school-navy text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-school-accent transition-all">
                <Plus size={18} /> Post Job opening
              </button>
@@ -709,45 +485,160 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
 
     return (
       <div className="flex flex-col gap-8 max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-2">
           <div>
-            <h2 className="text-4xl font-black text-school-navy tracking-tighter uppercase leading-none italic">Filled <span className="text-school-accent">Forms.</span></h2>
-            <p className="text-[10px] font-bold text-school-ink/40 uppercase tracking-widest mt-3">Reviewing potential institutional candidates</p>
+            <h2 className="text-4xl font-black text-school-navy tracking-tighter uppercase leading-none italic">Career <span className="text-school-accent">Portal.</span></h2>
+            <p className="text-[10px] font-bold text-school-ink/40 uppercase tracking-widest mt-3">Review talent applications & manage institutional career form</p>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={exportApplicationsToExcel}
-                className="px-6 py-3 bg-emerald-600 text-white rounded-3xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg hover:scale-105"
-                title="Export detailed data to Excel"
+
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Top Navigation Tabs */}
+            <div className="flex items-center gap-1.5 p-1.5 bg-school-paper rounded-3xl border border-school-ink/10 shadow-sm">
+              <button
+                onClick={() => setCareerActiveTab('submissions')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  careerActiveTab === 'submissions' 
+                    ? 'bg-school-navy text-white shadow-lg' 
+                    : 'text-school-ink/60 hover:text-school-navy hover:bg-school-ink/5'
+                }`}
               >
-                <Download size={16} />
-                Excel
+                <Users2 size={14} />
+                Applications
+                <span className={`px-2 py-0.5 rounded-full text-[9px] ${
+                  careerActiveTab === 'submissions' ? 'bg-school-gold text-school-navy' : 'bg-school-ink/10 text-school-ink/60'
+                }`}>
+                  {apps.length}
+                </span>
               </button>
-              <button 
-                onClick={exportApplicationsToPDF}
-                className="px-6 py-3 bg-rose-600 text-white rounded-3xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-rose-700 transition-all shadow-lg hover:scale-105"
-                title="Export summary to PDF"
+              <button
+                onClick={() => setCareerActiveTab('preview_form')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  careerActiveTab === 'preview_form' 
+                    ? 'bg-school-navy text-white shadow-lg' 
+                    : 'text-school-ink/60 hover:text-school-navy hover:bg-school-ink/5'
+                }`}
               >
-                <FileText size={16} />
-                PDF
+                <FileText size={14} />
+                Career Form
               </button>
-            </div>
-            <div className="flex items-center gap-4 px-6 py-3 bg-school-paper border border-school-ink/10 rounded-3xl">
-              <span className="text-[10px] font-black uppercase tracking-widest text-school-navy/60">Accepting Applications</span>
-              <button 
-                onClick={() => handleUpdate('settings', 'careerFormEnabled', !data.settings.careerFormEnabled, 'settings')}
-                className={`w-12 h-6 rounded-full transition-all relative ${data.settings.careerFormEnabled ? 'bg-emerald-500' : 'bg-school-ink/20'}`}
+              <button
+                onClick={() => setCareerActiveTab('settings')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  careerActiveTab === 'settings' 
+                    ? 'bg-school-navy text-white shadow-lg' 
+                    : 'text-school-ink/60 hover:text-school-navy hover:bg-school-ink/5'
+                }`}
               >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${data.settings.careerFormEnabled ? 'left-7' : 'left-1'}`} />
+                <Settings size={14} />
+                Controls
               </button>
-            </div>
-            <div className="flex items-center gap-3 px-4 py-3 bg-school-paper border border-school-ink/10 rounded-full">
-              <Briefcase size={16} className="text-school-accent" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-school-ink/60">{apps.length} Total</span>
             </div>
           </div>
         </div>
+
+        {careerActiveTab === 'preview_form' ? (
+          <CareerFormAdmin
+            onApplicationCreated={(newApp) => {
+              setData(prev => ({
+                ...prev,
+                career_applications: [newApp, ...(prev.career_applications || [])]
+              }));
+              setCareerActiveTab('submissions');
+            }}
+            showToast={showToast}
+          />
+        ) : careerActiveTab === 'settings' ? (
+          <div className="bg-white rounded-[40px] p-8 md:p-12 border border-school-ink/10 shadow-lg space-y-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-school-ink/10 gap-4">
+              <div>
+                <h3 className="text-2xl font-black text-school-navy uppercase tracking-tight">Recruitment Configuration</h3>
+                <p className="text-xs text-school-ink/40 font-medium">Manage online registration availability and career applicant policies</p>
+              </div>
+              <div className="flex items-center gap-4 px-6 py-3 bg-school-paper border border-school-ink/10 rounded-3xl">
+                <span className="text-[10px] font-black uppercase tracking-widest text-school-navy">Accepting Applications</span>
+                <button 
+                  onClick={() => handleUpdate('settings', 'careerFormEnabled', !data.settings.careerFormEnabled, 'settings')}
+                  className={`w-12 h-6 rounded-full transition-all relative ${data.settings.careerFormEnabled ? 'bg-emerald-500' : 'bg-school-ink/20'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${data.settings.careerFormEnabled ? 'left-7' : 'left-1'}`} />
+                </button>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="p-6 bg-school-paper rounded-3xl border border-school-ink/5 space-y-3">
+                <h4 className="text-xs font-black uppercase tracking-widest text-school-navy flex items-center gap-2">
+                  <ExternalLink size={14} className="text-school-accent" /> Public Application Portal
+                </h4>
+                <p className="text-xs text-school-ink/60 leading-relaxed font-medium">
+                  The live recruitment form is accessible to external candidates at the following institutional URL:
+                </p>
+                <div className="flex items-center gap-2 p-3 bg-white rounded-2xl border border-school-ink/10">
+                  <span className="text-xs font-mono font-bold text-school-navy flex-1 truncate">/careers</span>
+                  <a 
+                    href="/careers" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-school-navy text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-school-accent transition-all"
+                  >
+                    Open Page
+                  </a>
+                </div>
+              </div>
+
+              <div className="p-6 bg-school-paper rounded-3xl border border-school-ink/5 space-y-3">
+                <h4 className="text-xs font-black uppercase tracking-widest text-school-navy flex items-center gap-2">
+                  <FileText size={14} className="text-school-gold" /> Admin Registration
+                </h4>
+                <p className="text-xs text-school-ink/60 leading-relaxed font-medium">
+                  Need to register a walk-in or offline candidate? Open the embedded Career Form inside Admin to enter candidate details and generate an official PDF dossier.
+                </p>
+                <button
+                  onClick={() => setCareerActiveTab('preview_form')}
+                  className="px-6 py-2.5 bg-school-gold text-school-navy rounded-xl text-[10px] font-black uppercase tracking-widest font-black hover:scale-105 transition-all shadow-sm"
+                >
+                  Open Career Form
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-white rounded-[32px] border border-school-ink/5 shadow-sm">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setCareerActiveTab('preview_form')}
+                  className="px-6 py-3.5 bg-school-gold text-school-navy rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all shadow-md"
+                >
+                  <Plus size={16} /> Fill Career Form
+                </button>
+                <a 
+                  href="/careers" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-5 py-3.5 bg-school-paper border border-school-ink/10 text-school-navy rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-school-ink/5 transition-all"
+                >
+                  <ExternalLink size={14} /> View Live Portal
+                </a>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={exportApplicationsToExcel}
+                  className="px-5 py-3.5 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-md hover:scale-105"
+                  title="Export detailed candidate data to Excel"
+                >
+                  <Download size={14} /> Excel
+                </button>
+                <button 
+                  onClick={exportApplicationsToPDF}
+                  className="px-5 py-3.5 bg-rose-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-rose-700 transition-all shadow-md hover:scale-105"
+                  title="Export master summary roster PDF"
+                >
+                  <FileText size={14} /> Master PDF
+                </button>
+              </div>
+            </div>
 
         {/* Global Toolbar for Filtering */}
         <div className="flex flex-col md:flex-row gap-6 items-center p-6 bg-school-navy/[0.02] rounded-[40px] border border-school-ink/5">
@@ -1126,6 +1017,8 @@ const AdminPortal = ({ data, setData }: { data: AppData, setData: React.Dispatch
             </div>
           )}
         </AnimatePresence>
+          </>
+        )}
       </div>
     );
   };
@@ -3386,6 +3279,11 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         body: formData
       });
       
+      const refreshedToken = res.headers.get('x-refreshed-token');
+      if (refreshedToken) {
+        localStorage.setItem('school_admin_token', refreshedToken);
+      }
+
       if (res.ok) {
         const result = await res.json();
         console.log(`[Upload] Local Success: ${result.url}`);
@@ -3445,6 +3343,11 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
         body: formData,
       });
       
+      const refreshedToken = res.headers.get('x-refreshed-token');
+      if (refreshedToken) {
+        localStorage.setItem('school_admin_token', refreshedToken);
+      }
+
       if (!res.ok) throw new Error(`Server Error: ${res.status}`);
 
       const result = await res.json();
@@ -3529,6 +3432,7 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
     { id: 'admins', label: 'Admin Accounts', icon: <Key size={18} className="text-school-neon" /> },
     { id: 'alumni', label: 'Alumni Content', icon: <Users2 size={18} className="text-school-accent" /> },
     { id: 'logs', label: 'Audit Logs', icon: <FileText size={18} className="text-school-ink opacity-50" /> },
+    { id: 'career_applications', label: 'Career Form & Applications', icon: <FileText size={18} className="text-school-accent" /> },
     { id: 'careers', label: 'Careers (Job Openings)', icon: <Briefcase size={18} className="text-school-gold" /> },
     { id: 'carousel', label: 'Carousel', icon: <ImagePlus size={18} className="text-school-accent" /> },
     { id: 'co_curricular_activities', label: 'Co-curricular (New)', icon: <LayoutGrid size={18} className="text-school-neon" /> },
@@ -3987,6 +3891,11 @@ field === 'type' && (section === 'staff' || section === 'popups' || section === 
                 {s.id === 'messages' && data.messages?.filter(m => m.status === 'new').length > 0 && (
                   <span className="bg-red-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full animate-bounce">
                     {data.messages.filter(m => m.status === 'new').length}
+                  </span>
+                )}
+                {s.id === 'career_applications' && (data.career_applications?.length || 0) > 0 && (
+                  <span className="bg-school-accent text-white text-[8px] font-black px-2 py-0.5 rounded-full">
+                    {data.career_applications?.length}
                   </span>
                 )}
               </button>

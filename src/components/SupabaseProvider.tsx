@@ -146,10 +146,6 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     checkUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.access_token) {
-        localStorage.setItem('school_admin_token', session.access_token);
-      }
-
       const customAdmin = localStorage.getItem('school_admin_session');
       if (customAdmin) {
         setIsAdmin(true);
@@ -160,6 +156,10 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         } as any);
         setLoading(false);
         return;
+      }
+
+      if (session?.access_token) {
+        localStorage.setItem('school_admin_token', session.access_token);
       }
 
       const u = session?.user ?? null;

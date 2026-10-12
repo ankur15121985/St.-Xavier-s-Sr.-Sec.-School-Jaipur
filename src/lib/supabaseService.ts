@@ -337,6 +337,11 @@ export const supabaseService = {
       const contentType = res.headers.get('content-type');
       const isNonJson = !contentType || !contentType.includes('application/json');
       
+      const refreshedToken = res.headers.get('x-refreshed-token');
+      if (refreshedToken && typeof window !== 'undefined') {
+        localStorage.setItem('school_admin_token', refreshedToken);
+      }
+
       if (res.status === 404 || res.status === 405 || isNonJson) {
         console.warn(`[Sync] /api/save returned status ${res.status} (or non-JSON). Detecting static hosting (Vercel). Utilizing browser storage cache fallback.`);
         isStaticHosting = true;
@@ -617,6 +622,11 @@ export const supabaseService = {
         const contentType = res.headers.get('content-type');
         const isNonJson = !contentType || !contentType.includes('application/json');
         
+        const refreshedToken = res.headers.get('x-refreshed-token');
+        if (refreshedToken && typeof window !== 'undefined') {
+          localStorage.setItem('school_admin_token', refreshedToken);
+        }
+
         if (res.status === 404 || res.status === 405 || isNonJson) {
           isStaticHosting = true;
         }
